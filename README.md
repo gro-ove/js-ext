@@ -77,9 +77,15 @@ This is a new preprocessor for JavaScript.
     
     console.log ('Test: {0}.'.format ('Hello, World!'));
         
-#### 7. Full backward compatibility
+#### 7. Full backward compatibility (with default JavaScript):
+
+    Of course, if you are not going to use such keywords as "lambda", "module", "import" or "export".
     
-#### And so on.
+#### And so on, for example:
+
+    var obj = { a: 1, b: 2, c: 3, d: 4 };
+    for (key, value in obj)
+        console.log (key + ' → ' + value);  // I think, this is oblivious
 
 ### Usage
 
