@@ -37,7 +37,8 @@ module App {
 				if (path.indexOf ('*') !== -1){
 					var result = [];
 					glob ().sync (path).forEach (lambda result.push ({ file: arg, top: top }));
-					return result;
+					if (result.length)
+						return result;
 				} else if (Node.fs ().existsSync (path))
 					return [{ file: path, top: top }];
 				
