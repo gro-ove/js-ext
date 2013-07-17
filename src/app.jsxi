@@ -215,10 +215,10 @@ module App {
 	
 	export function init (){				
 		Node.args ('Usage: js-ext file [flags]', { 
-				p: { alias: 'php-header',      description: 'Use php header if nessesary.' },
-				o: { alias: 'output',          description: 'Output file (else put result to stdout).' },
-				c: { alias: 'cache',           description: 'Cache folder (for compiled js files; enter "no" for disable).' },
-				u: { alias: 'usage',           description: 'This text.' },
+				p: { alias: 'php-header', description: 'Use php header if nessesary.' },
+				o: { alias: 'output',     description: 'Output file (else put result to stdout).' },
+				c: { alias: 'cache',      description: 'Cache folder (for compiled js files; enter "no" for disable).' },
+				u: { alias: 'usage',      description: 'This text.' },
 			});
 			
 		if (Node.args ().u)
