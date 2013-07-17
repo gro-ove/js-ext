@@ -1,19 +1,9 @@
 module App {
 	import Node, Prework, Parser, Converter, Format, Compressor, ModulesCode, Cacher;
 	
-	var moduleSystem = {
-			begin: 
-				`(function(){function c(b){if(d[b])return d[b];throw"Not found: "+b;}function e(b,a){a=c(b);a.__z||(a.__g=1,a.__gi().forEach(function(a){if("@"!=a[0]){if(c(a).__g)throw"Cycle: "+b+", "+a;c(a).__z||e(a)}}),a.__in(),a.init&&a.init(),a.__z=1,delete a.__g)}var d={},f="u"!=(typeof window)[0]&&window||GLOBAL;f.__m=function(b,a){if(a)d[b]=a();else{for(a in d)b=c(a),b.__si.apply(b,b.__gi().map(function(a){return c("@"==a[0]?a.slice(1):a)}));for(a in d)e(a);delete f.__m}}})();`,
-			endDelay:
-				`'u'!=(typeof window)[0]&&'u'!=(typeof document)[0]&&!/loaded|complete/.test(document.readyState)?window.addEventListener('load',__m):__m()`,
-			end:
-				`__m()`
-		};
-	
 	export var inputFile,
 		outputFile,
 		cacheFolder,
-		argJsCompress,
 		argPhpHeader,
 		includesFolder;
 		
@@ -215,7 +205,7 @@ module App {
 		if (modules)
 			result.push (modules.begin);
 		
-		result.push (argJsCompress ? Compressor.work (data.code) : data.code);
+		result.push (data.code);
 		
 		if (modules)
 			result.push (modules.end);
@@ -225,7 +215,6 @@ module App {
 	
 	export function init (){				
 		Node.args ('Usage: js-ext file [flags]', { 
-				l: { alias: 'js-compress',     description: 'Use compressor for all.' },
 				p: { alias: 'php-header',      description: 'Use php header if nessesary.' },
 				o: { alias: 'output',          description: 'Output file (else put result to stdout).' },
 				c: { alias: 'cache',           description: 'Cache folder (for compiled js files; enter "no" for disable).' },
@@ -242,7 +231,6 @@ module App {
 		outputFile        = Node.args ().o;
 		includesFolder    = asFolder (Node.resolve ('includes'));
 		argPhpHeader      = Node.args ().p;
-		argJsCompress     = Node.args ().l;
 		
 		Parser.getReady ();
 		

@@ -1,3 +1,4 @@
 build/node_modules
 build/cache
-build/js-ext*
+build/js-ext.js
+build/js-ext.parser
