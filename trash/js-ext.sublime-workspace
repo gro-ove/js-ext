@@ -1,0 +1,938 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"mo",
+				"modulesPublic"
+			],
+			[
+				"web",
+				"web-instant"
+			],
+			[
+				"thu",
+				"thumb_height"
+			],
+			[
+				"thi",
+				"thumb_width"
+			],
+			[
+				"ex",
+				"existsSync"
+			],
+			[
+				"head",
+				"headers"
+			],
+			[
+				"cont",
+				"control"
+			],
+			[
+				"write",
+				"writeFileSync"
+			],
+			[
+				"prox",
+				"proxies"
+			],
+			[
+				"last",
+				"last_x"
+			],
+			[
+				"get",
+				"get_heading"
+			],
+			[
+				"thumb",
+				"thumb_loaded"
+			],
+			[
+				"im",
+				"img_loaded"
+			],
+			[
+				"dis",
+				"disappear_remove"
+			],
+			[
+				"mar",
+				"margin-top"
+			],
+			[
+				"get_va",
+				"get_values"
+			],
+			[
+				"q",
+				"queue"
+			],
+			[
+				"s",
+				"success"
+			],
+			[
+				"pri",
+				"print_r"
+			],
+			[
+				"tite",
+				"title_view"
+			],
+			[
+				"tit",
+				"title_edit"
+			],
+			[
+				"tex",
+				"text-decoration"
+			],
+			[
+				"json_",
+				"json_encode"
+			],
+			[
+				"html",
+				"html5_disappear"
+			],
+			[
+				"preg",
+				"preg_match"
+			],
+			[
+				"data",
+				"dataTransfer"
+			],
+			[
+				"th",
+				"thumb_height"
+			],
+			[
+				"pa",
+				"padding-top"
+			],
+			[
+				"an",
+				"antiscroll-wrap"
+			],
+			[
+				"apped",
+				"appendTo"
+			],
+			[
+				"unlinkS",
+				"unlinkSync"
+			]
+		]
+	},
+	"buffers":
+	[
+		{
+			"file": "/C/Users/User/Desktop/ /pd.mk",
+			"settings":
+			{
+				"buffer_size": 4419,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "js-ext.pegjs",
+			"settings":
+			{
+				"buffer_size": 108472,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "js-ext.jsx",
+			"settings":
+			{
+				"buffer_size": 131,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "source/js-compress.jsxi",
+			"settings":
+			{
+				"buffer_size": 1886,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "source/app.jsxi",
+			"settings":
+			{
+				"buffer_size": 7888,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "source/modules_code.jsxi",
+			"settings":
+			{
+				"buffer_size": 2529,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "source/converter.jsxi",
+			"settings":
+			{
+				"buffer_size": 6432,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "source/format.jsxi",
+			"settings":
+			{
+				"buffer_size": 5797,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "js-ext-new.jsx",
+			"settings":
+			{
+				"buffer_size": 131,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/C/Users/User/AppData/Roaming/npm/node_modules/webapp-build/webapp-build.jsx",
+			"settings":
+			{
+				"buffer_size": 6257,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "temp.jsx",
+			"settings":
+			{
+				"buffer_size": 534,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"contents": "                    ^\nTypeError: Cannot call method 'safeAccess' of undefined\n    at Object.v (C:\\Users\\User\\AppData\\Roaming\\npm\\node_modules\\js-ext\\temp.js:527:21)\n    at I (C:\\Users\\User\\AppData\\Roaming\\npm\\node_modules\\js-ext\\temp.js:2:248)\n    at C:\\Users\\User\\AppData\\Roaming\\npm\\node_modules\\js-ext\\temp.js:2:234\n    at Array.forEach (native)\n    at I (C:\\Users\\User\\AppData\\Roaming\\npm\\node_modules\\js-ext\\temp.js:2:137)\n    at C:\\Users\\User\\AppData\\Roaming\\npm\\node_modules\\js-ext\\temp.js:2:234\n    at Array.forEach (native)\n    at I (C:\\Users\\User\\AppData\\Roaming\\npm\\node_modules\\js-ext\\temp.js:2:137)\n    at root.__m (C:\\Users\\User\\AppData\\Roaming\\npm\\node_modules\\js-ext\\temp.js:2:437)\n    at Object.<anonymous> (C:\\Users\\User\\AppData\\Roaming\\npm\\node_modules\\js-ext\\temp.js:617:1)\nOne\nFailed\n\nC:\\Users\\User\\AppData\\Roaming\\npm\\node_modules\\js-ext>test.bat\nZero\nOne\nTwo\nThree\n\nC:\\Users\\User\\AppData\\Roaming\\npm\\node_modules\\js-ext>test.bat\nZero\nOne\nTwo\nThree\n\nC:\\Users\\User\\AppData\\Roaming\\npm\\node_modules\\js-ext>test.bat\nZero\nOne\nTwo\nThree\n\nC:\\Users\\User\\AppData\\Roaming\\npm\\node_modules\\js-ext>test.bat\nError while parsing \"C:/Users/User/AppData/Roaming/npm/node_modules/js-ext/source/app.jsxi\": SyntaxError: [188: 46] Expected \",\" but \"(\" found.\nundefined\nFailed\n\nC:\\Users\\User\\AppData\\Roaming\\npm\\node_modules\\js-ext>test.bat\nCompress error: Unexpected token: punc (:) (line: 1, col: 2, pos: 2)\n\nError\n    at new JS_Parse_Error (C:\\Users\\User\\AppData\\Roaming\\npm\\node_modules\\js-ext\\node_modules\\uglify-js\\lib\\parse.js:196:18)\n    at js_error (C:\\Users\\User\\AppData\\Roaming\\npm\\node_modules\\js-ext\\node_modules\\uglify-js\\lib\\parse.js:204:11)\n    at croak (C:\\Users\\User\\AppData\\Roaming\\npm\\node_modules\\js-ext\\node_modules\\uglify-js\\lib\\parse.js:636:9)\n    at token_error (C:\\Users\\User\\AppData\\Roaming\\npm\\node_modules\\js-ext\\node_modules\\uglify-js\\lib\\parse.js:644:9)\n    at unexpected (C:\\Users\\User\\AppData\\Roaming\\npm\\node_modules\\js-ext\\node_modules\\uglify-js\\lib\\parse.js:650:9)\n    at semicolon (C:\\Users\\User\\AppData\\Roaming\\npm\\node_modules\\js-ext\\node_modules\\uglify-js\\lib\\parse.js:670:43)\n    at simple_statement (C:\\Users\\User\\AppData\\Roaming\\npm\\node_modules\\js-ext\\node_modules\\uglify-js\\lib\\parse.js:828:73)\n    at C:\\Users\\User\\AppData\\Roaming\\npm\\node_modules\\js-ext\\node_modules\\uglify-js\\lib\\parse.js:708:20\n    at C:\\Users\\User\\AppData\\Roaming\\npm\\node_modules\\js-ext\\node_modules\\uglify-js\\lib\\parse.js:683:24\n    at block_ (C:\\Users\\User\\AppData\\Roaming\\npm\\node_modules\\js-ext\\node_modules\\uglify-js\\lib\\parse.js:944:20)\n{0:@(END)}\nZero\nFailed\n\nC:\\Users\\User\\AppData\\Roaming\\npm\\node_modules\\js-ext>test.bat\nZero\nOne\nTwo\nThree\n\nC:\\Users\\User\\AppData\\Roaming\\npm\\node_modules\\js-ext>test.bat\nZero\nOne\nTwo\nThree\n\nC:\\Users\\User\\AppData\\Roaming\\npm\\node_modules\\js-ext>node temp.js temp.jsx | node\n\n[stdin]:1\n#!/usr/bin/env node\n^\nSyntaxError: Unexpected token ILLEGAL\n    at Object.<anonymous> ([stdin]-wrapper:6:22)\n    at Module._compile (module.js:456:26)\n    at evalScript (node.js:532:25)\n    at Socket.<anonymous> (node.js:154:11)\n    at Socket.EventEmitter.emit (events.js:117:20)\n    at _stream_readable.js:910:16\n    at process._tickCallback (node.js:415:13)\n\nC:\\Users\\User\\AppData\\Roaming\\npm\\node_modules\\js-ext>node temp.js temp.jsx\n#!/usr/bin/env node\n!function(){var s={},root=GLOBAL;function G(i){if(s[i])return s[i];throw\"Not found: \"+i}function I(i){var m=G(i);if(!m._d&&m.g){m._a=1;m.g().forE\nach(function(other){if(\"@\"!=other[0]){if(G(other)._a)throw\"Cycle: \"+i+\", \"+a;if(!G(other)._d)I(other)}})}if(m.v)m.v();if(m.i)m.i();m._d=1;delete\nm._a}root.__m=function(i,m){if(m){s[i]=m()}else{for(i in s)if(G(i).g)G(i).s(G(i).g().map(function(i){return G(\"@\"==i[0]?i.slice(1):i).e||{}}));fo\nr(i in s)I(i);delete root.__m}}}();\n__m(\"Node\",function(){var optimist,argv;var fs,cp,path;function fatalError(msg){for(var i=0;i<arguments.length;i++)console.error(arguments[i]);pr\nocess.exit(1)}function safeAccess(what,purpose){var cache;return function(arg){try{return cache||(cache=require(what))}catch(e){fatalError('Pleas\ne, install \"{0}\" for {1}.'.format(what,purpose||\"work\"),\"> npm install -g {0}.\".format(what))}}}function args(usage,args){if(usage&&args){var res\nult=optimist().usage(usage);for(n in args)result=result.options(n,args[n]);argv=result.argv}return argv}function showHelp(){optimist().showHelp()\n}function readFile(file){return fs().readFileSync(file,\"utf-8\")}function writeFile(file,content){return fs().writeFileSync(file,content,\"utf-8\")}\nfunction resolve(name){return path().resolve(__dirname,name)}return{e:{get fs(){return fs},get cp(){return cp},get path(){return path},fatalError\n:fatalError,safeAccess:safeAccess,args:args,showHelp:showHelp,readFile:readFile,writeFile:writeFile,resolve:resolve},v:function(){optimist=safeAc\ncess(\"optimist\",\"correct interact in shell\");fs=safeAccess(\"fs\");cp=safeAccess(\"child_process\");path=safeAccess(\"path\")}}});\n!function(st){st.format=function(){if(arguments.length==0)return this;var placeholder=/\\{(\\d+)(?:,([-+]?\\d+))?(?:\\:([^(^}]+)(?:\\(((?:\\\\\\)|[^)])+)\n\\)){0,1}){0,1}\\}/g;var args=arguments;return this.replace(placeholder,function(m,num,len,f,params){m=args[Number(num)];f=formatters[f];return fl(\nf==null?m:f(m,pp((params||\"\").replace(/\\\\\\)/g,\")\").replace(/\\\\,/g,\"\\0\").split(\",\"),args)),len)})};String.format=function(format){return arguments\n.length<=1?format:st.format.apply(format,Array.prototype.slice.call(arguments,1))};st.format.add=function(name,func,replace){if(formatters[name]!\n=null&&!replace)throw\"Format \"+name+\" exist, use replace=true for replace\";formatters[name]=func};String.format.init=st.format.init=function(para\nm){var f;for(n in param){f=formatters[n];if(f!=null&&f.init!=null)f.init(param[n])}};st.format.get=function(name){return formatters[name]};var pa\nramph=/^\\{(\\d+)\\}$/;var formatters={};var sp=\"    \";function pp(params,args){var r;for(var i=0;i<params.length;i++){if((r=paramph.exec(params[i])\n)!=null)params[i]=args[Number(r[1])];else params[i]=params[i].replace(/\\0/g,\",\")}return params}function fl(s,len){len=Number(len);if(isNaN(len))r\neturn s;s=\"\"+s;var nl=Math.abs(len)-s.length;if(nl<=0)return s;while(sp.length<nl)sp+=sp;return len<0?s+sp.substring(0,nl):sp.substring(0,nl)+s}s\nt.format.add(\"arr\",function arr(va,params){if(va==null)return\"null\";var v=[];var j=params.shift()||\"\";var f=formatters[params.shift()];if(f==null\n)v=va;else for(var i=0;i<va.length;i++)v.push(f(va[i],params));return v.join(j)});st.format.add(\"obj\",function(v,params){return v[params]})}(Stri\nng.prototype);\n__m (\"Test\", function (){\nfunction hi (){\nconsole.log (\"hi\");\n}\nreturn {\"e\":{\"hi\":hi}};\n});\n__m (\"Test\").hi ();\nString.prototype.format.add (\"j\", function (v,params){\nreturn v [params];\n});\nString.prototype.format.add (\"@\", function (v,p){\nreturn v [p [0].toLowerCase ().replace (/_[a-z]/g, function (arg){\nreturn arg [1].toUpperCase ();\n})];\n});\nconsole.log (\"{0:@(HI)}\".format ({\"hi\":1024}));\n__m();\n\nC:\\Users\\User\\AppData\\Roaming\\npm\\node_modules\\js-ext>node temp.js temp.jsx\n\nC:\\Users\\User\\AppData\\Roaming\\npm\\node_modules\\js-ext\\temp.js:14\n__m (\"Test\").hi ();\n             ^\nTypeError: Cannot call method 'hi' of undefined\n    at Object.<anonymous> (C:\\Users\\User\\AppData\\Roaming\\npm\\node_modules\\js-ext\\temp.js:14:14)\n    at Module._compile (module.js:456:26)\n    at Object.Module._extensions..js (module.js:474:10)\n    at Module.load (module.js:356:32)\n    at Function.Module._load (module.js:312:12)\n    at Function.Module.runMain (module.js:497:10)\n    at startup (node.js:119:16)\n    at node.js:901:3\n\nC:\\Users\\User\\AppData\\Roaming\\npm\\node_modules\\js-ext>node temp.js temp.jsx\n\nC:\\Users\\User\\AppData\\Roaming\\npm\\node_modules\\js-ext\\temp.js:14\n__m (\"Test\").hi ();\n             ^\nTypeError: Cannot call method 'hi' of undefined\n    at Object.<anonymous> (C:\\Users\\User\\AppData\\Roaming\\npm\\node_modules\\js-ext\\temp.js:14:14)\n    at Module._compile (module.js:456:26)\n    at Object.Module._extensions..js (module.js:474:10)\n    at Module.load (module.js:356:32)\n    at Function.Module._load (module.js:312:12)\n    at Function.Module.runMain (module.js:497:10)\n    at startup (node.js:119:16)\n    at node.js:901:3\n\nC:\\Users\\User\\AppData\\Roaming\\npm\\node_modules\\js-ext>test.bat\nZero\nOne\nTwo\nThree\n\nC:\\Users\\User\\AppData\\Roaming\\npm\\node_modules\\js-ext>node temp.js temp.jsx\n!function(){var s={},root=\"u\"!=(typeof window)[0]&&window||GLOBAL;function G(i){if(s[i])return s[i];throw\"Not found: \"+i}function I(i){var m=G(i)\n;if(!m._d&&m.g){m._a=1;m.g().forEach(function(other){if(\"@\"!=other[0]){if(G(other)._a)throw\"Cycle: \"+i+\", \"+a;if(!G(other)._d)I(other)}})}if(m.v)\nm.v();if(m.i)m.i();m._d=1;delete m._a}root.__m=function(i,m){if(m){s[i]=m()}else{for(i in s)if(G(i).g)G(i).s(G(i).g().map(function(i){return G(\"@\n\"==i[0]?i.slice(1):i).e||{}}));for(i in s)I(i);delete root.__m}}}();\n__m (\"Test\", function (){\nfunction hi (){\nconsole.log (\"hi\");\n}\nreturn {\"e\":{\"hi\":hi}};\n});\n__m (\"Test\").hi ();\n__m();\n\nC:\\Users\\User\\AppData\\Roaming\\npm\\node_modules\\js-ext>node temp.js temp.jsx\n!function(){var s={},root=\"u\"!=(typeof window)[0]&&window||GLOBAL;function G(i){if(s[i])return s[i];throw\"Not found: \"+i}function I(i){var m=G(i)\n;if(!m._d&&m.g){m._a=1;m.g().forEach(function(other){if(\"@\"!=other[0]){if(G(other)._a)throw\"Cycle: \"+i+\", \"+a;if(!G(other)._d)I(other)}})}if(m.v)\nm.v();if(m.i)m.i();m._d=1;delete m._a}root.__m=function(i,m){if(m){s[i]=m()}else{for(i in s)if(G(i).g)G(i).s(G(i).g().map(function(i){return G(\"@\n\"==i[0]?i.slice(1):i).e||{}}));for(i in s)I(i);delete root.__m}}}();\n__m (\"Test\", function (){\nfunction hi (){\nconsole.log (\"hi\");\n}\nreturn {\"e\":{\"hi\":hi}};\n});\n__m (\"Test\").hi ();\n__m();\n\nC:\\Users\\User\\AppData\\Roaming\\npm\\node_modules\\js-ext>node temp.js temp.jsx | node\n\n[stdin]:8\n__m (\"Test\").hi ();\n             ^\nTypeError: Cannot call method 'hi' of undefined\n    at [stdin]:8:14\n    at Object.<anonymous> ([stdin]-wrapper:6:22)\n    at Module._compile (module.js:456:26)\n    at evalScript (node.js:532:25)\n    at Socket.<anonymous> (node.js:154:11)\n    at Socket.EventEmitter.emit (events.js:117:20)\n    at _stream_readable.js:910:16\n    at process._tickCallback (node.js:415:13)\n\nC:\\Users\\User\\AppData\\Roaming\\npm\\node_modules\\js-ext>node temp.js temp.jsx | node\n\n[stdin]:8\n__m (\"Test\").hi ();\n             ^\nTypeError: Cannot call method 'hi' of undefined\n    at [stdin]:8:14\n    at Object.<anonymous> ([stdin]-wrapper:6:22)\n    at Module._compile (module.js:456:26)\n    at evalScript (node.js:532:25)\n    at Socket.<anonymous> (node.js:154:11)\n    at Socket.EventEmitter.emit (events.js:117:20)\n    at _stream_readable.js:910:16\n    at process._tickCallback (node.js:415:13)\n\nC:\\Users\\User\\AppData\\Roaming\\npm\\node_modules\\js-ext>js-ext -r\n\nC:\\Users\\User\\AppData\\Roaming\\npm\\node_modules\\js-ext>js-ext.cmd -r\n\nC:\\Users\\User\\AppData\\Roaming\\npm\\node_modules\\js-ext>js-ext.cmd -r\n\nC:\\Users\\User\\AppData\\Roaming\\npm\\node_modules\\js-ext>js-ext.cmd -r\n\nC:\\Users\\User\\AppData\\Roaming\\npm\\node_modules\\js-ext>test.bat\nZero\nOne\nTwo\nThree\n\nC:\\Users\\User\\AppData\\Roaming\\npm\\node_modules\\js-ext>node temp.js temp.jsx | node\nCompress error: Unexpected token: keyword (else) (line: 39, col: 10, pos: 994)\n\nError\n    at new JS_Parse_Error (C:\\Users\\User\\AppData\\Roaming\\npm\\node_modules\\js-ext\\node_modules\\uglify-js\\lib\\parse.js:196:18)\n    at js_error (C:\\Users\\User\\AppData\\Roaming\\npm\\node_modules\\js-ext\\node_modules\\uglify-js\\lib\\parse.js:204:11)\n    at croak (C:\\Users\\User\\AppData\\Roaming\\npm\\node_modules\\js-ext\\node_modules\\uglify-js\\lib\\parse.js:636:9)\n    at token_error (C:\\Users\\User\\AppData\\Roaming\\npm\\node_modules\\js-ext\\node_modules\\uglify-js\\lib\\parse.js:644:9)\n    at unexpected (C:\\Users\\User\\AppData\\Roaming\\npm\\node_modules\\js-ext\\node_modules\\uglify-js\\lib\\parse.js:650:9)\n    at semicolon (C:\\Users\\User\\AppData\\Roaming\\npm\\node_modules\\js-ext\\node_modules\\uglify-js\\lib\\parse.js:670:43)\n    at simple_statement (C:\\Users\\User\\AppData\\Roaming\\npm\\node_modules\\js-ext\\node_modules\\uglify-js\\lib\\parse.js:828:73)\n    at C:\\Users\\User\\AppData\\Roaming\\npm\\node_modules\\js-ext\\node_modules\\uglify-js\\lib\\parse.js:713:19\n    at C:\\Users\\User\\AppData\\Roaming\\npm\\node_modules\\js-ext\\node_modules\\uglify-js\\lib\\parse.js:683:24\n    at block_ (C:\\Users\\User\\AppData\\Roaming\\npm\\node_modules\\js-ext\\node_modules\\uglify-js\\lib\\parse.js:944:20)\n!function () {\n                                    var s = {}, root = GLOBAL, w = 0;\n\n                                    function G (i) {\n                                        if (s [i])\n                                                return s [i];\n                                        throw \"Not found: \" + i;\n                                    }\n\n                                    function I (i) {\n                                        var m = G (i);\n                                        if (!m._d && m.g){\n                                                m._a = 1;\n                                                m.g ().forEach (function (other){\n                                                    if (\"@\" != other [0]) {\n                                                        if (G (other)._a)\n                                                                throw \"Cycle: \" + i + \", \" + a;\n                                                        if (!G (other)._d)\n                                                                I (other);\n                                                    }\n                                                });\n                                        }\n\n                                        if (m.v)\n                                                m.v ();\n                                        if (m.i)\n                                                m.i ();\n                                        m._d = 1;\n                                        delete m._a;\n                                    }\n\n                                    root.__m = function (i, m) {\n                                        if (m){\n                                        s [i] = m ();\n                                } else if (typeof i == 'string')\n                                        if (!w)\n                                                throw \"Not initialized yet!\";\n                                        return s [i].e;\n                                } else {\n                                    for (i in s)\n                                        if (G (i).g)\n                                                G (i).s (G (i).g ().map (function (i){ return G (\"@\" == i [0] ? i.slice (1) : i).e || {} }));\n\n                                    for (i in s)\n                                        I (i);\n\n                                    w = true;\n                                }\n                                    }\n                                }();\n\nC:\\Users\\User\\AppData\\Roaming\\npm\\node_modules\\js-ext>",
+			"settings":
+			{
+				"buffer_size": 14886,
+				"line_ending": "Unix",
+				"name": "^"
+			}
+		},
+		{
+			"file": "/C/Users/User/temp.js",
+			"settings":
+			{
+				"buffer_size": 26939,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "includes/modules-public.jsxi",
+			"settings":
+			{
+				"buffer_size": 139,
+				"line_ending": "Unix"
+			}
+		}
+	],
+	"build_system": "Packages/User/JsxToJs.sublime-build",
+	"command_palette":
+	{
+		"height": 362.0,
+		"selected_items":
+		[
+			[
+				"Package Control: ",
+				"Package Control: Install Package"
+			],
+			[
+				"for",
+				"Format: Javascript"
+			],
+			[
+				"j",
+				"Format: Javascript"
+			],
+			[
+				"Snippet: ",
+				"Snippet: Anonymous Function"
+			],
+			[
+				"",
+				"Show TODOs: Project and open files"
+			]
+		],
+		"width": 402.0
+	},
+	"console":
+	{
+		"height": 185.0
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"file_history":
+	[
+		"/C/Users/User/AppData/Roaming/npm/node_modules/js-ext/test.bat",
+		"/C/Users/User/AppData/Roaming/npm/node_modules/js-ext/includes/utils/string.format.obj.jsxi",
+		"/C/Users/User/AppData/Roaming/npm/node_modules/js-ext/includes/utils/string.format.jsxi",
+		"/C/Users/User/AppData/Roaming/npm/node_modules/js-ext/js-ext.js",
+		"/C/Users/User/AppData/Roaming/npm/node_modules/js-ext/js-ext-new.js",
+		"/C/Users/User/AppData/Roaming/npm/node_modules/js-ext/js-ext.cache",
+		"/C/Users/User/AppData/Roaming/npm/node_modules/js-ext/temp.js",
+		"/C/Users/User/AppData/Roaming/npm/node_modules/js-ext/includes/utils/number.postfix.jsxi",
+		"/C/Users/User/AppData/Roaming/npm/node_modules/js-ext/includes/modules/mathUtils.jsxi",
+		"/C/Users/User/AppData/Roaming/npm/node_modules/js-ext/source/parser.jsxi",
+		"/C/Users/User/AppData/Roaming/npm/node_modules/js-ext/includes/modules/node.jsxi",
+		"/C/Development/UserScripts/colored-ponyach.user.js",
+		"/C/Development/UserScripts/colored-ponyach.user.jsx",
+		"/C/Users/User/Downloads/colored-ponyach.user(1).js",
+		"/C/Development/UserScripts/colored-ponyach.user.jsx.txt",
+		"/C/Users/User/AppData/Roaming/npm/node_modules/js-ext/source/app.jsxi",
+		"/C/Users/User/AppData/Roaming/npm/node_modules/js-ext/source/prework.jsxi",
+		"/C/Users/User/AppData/Roaming/npm/node_modules/webapp-build/webapp-build.jsx",
+		"/C/Users/User/AppData/Roaming/npm/node_modules/webapp-build/webapp-build.js",
+		"/C/Users/User/AppData/Roaming/npm/node_modules/js-ext/temp.jsx",
+		"/C/Users/User/AppData/Roaming/npm/node_modules/js-ext/includes/utils/string.format.date.jsxi",
+		"/C/Users/User/AppData/Roaming/npm/node_modules/js-ext/includes/utils/string.format.numbers.jsxi",
+		"/C/Users/User/AppData/Roaming/npm/node_modules/js-ext/includes/utils/object.extend.jsxi",
+		"/C/Users/User/AppData/Roaming/npm/node_modules/js-ext/includes/utils/object.extend.prototype.jsxi",
+		"/C/Users/User/Desktop/ /pd.mk",
+		"/C/Users/User/AppData/Roaming/npm/node_modules/js-ext/working/js-ext.js",
+		"/C/Users/User/AppData/Roaming/npm/node_modules/js-ext/1",
+		"/C/Users/User/AppData/Roaming/npm/node_modules/js-ext/includes/utils/array.remove",
+		"/C/Development/Web/home/vildar.custom.ru/source/index.html",
+		"/C/Development/Web/home/vildar.custom.ru/source/css/utils.less",
+		"/C/Development/Web/home/vildar.custom.ru/www/php/utils.php",
+		"/C/Development/Web/home/vildar.custom.ru/www/php/get-images.php",
+		"/C/Development/Web/home/vildar.custom.ru/www/php/upload-image.php",
+		"/C/Development/Web/home/vildar.custom.ru/source/js-own/jquery-ext.js",
+		"/C/Development/Web/home/vildar.custom.ru/source/css/upload.less",
+		"/C/Development/Web/home/vildar.custom.ru/source/css/main.less",
+		"/C/Development/Web/home/vildar.custom.ru/source/js-own/images.js",
+		"/C/Development/Web/home/vildar.custom.ru/source/js-own/edit_mode.js",
+		"/C/Development/Web/home/vildar.custom.ru/source/js-own/upload.js",
+		"/C/Users/User/Apps/Utils/js-format.bat",
+		"/C/Users/User/Apps/Utils/js-format.js",
+		"/C/Users/User/Desktop/test.html",
+		"/C/Games/PlanetSide 2/UserOptions.ini",
+		"/C/Games/PlanetSide 2/LaunchPad.ini",
+		"/C/Games/PlanetSide 2/Graphics.ini",
+		"/C/Users/User/Desktop/PS2.ahk",
+		"/C/Users/User/Desktop/would cost you to hide your printer.txt",
+		"/C/Users/User/AppData/Roaming/JavaApkTool/work/com.carsys.test_1_0/unpack/smali/com/yeamax/eq/EQActivity.smali",
+		"/C/Development/Typo/stuff/convert.jsx",
+		"/C/Development/Typo/stuff/convert.js",
+		"/C/Users/User/AppData/Local/Temp/search",
+		"/C/Users/User/Apps/TrueCrypt/History.xml",
+		"/C/Users/User/AppData/Roaming/JavaApkTool/work/framework-res_apk/unpack/res/values/colors.xml",
+		"/C/Development/Web/home/vildar.custom.ru/source/js-own/app.js",
+		"/C/Development/Web/home/vildar.custom.ru/www/data/gallery.json",
+		"/C/Users/User/Apps/Utils/sudo.bat",
+		"/Z/get_dump.bat",
+		"/Z/.wgetrc",
+		"/C/Users/User/AppData/Local/Temp/proxy.pac",
+		"/C/Development/Web/home/vildar.custom.ru/www/php/image.php",
+		"/C/Users/User/AppData/Roaming/Sublime Text 2/Packages/User/WebApplication.sublime-build",
+		"/C/Users/User/AppData/Roaming/npm/webapp-build.cmd",
+		"/C/Users/User/.VirtualBox/VirtualBox.xml",
+		"/C/Users/User/VirtualBox VMs/linux/linux.vbox",
+		"/C/Development/LinuxShare/head_2_rom/INSTALL_TAG",
+		"/C/Development/Web/home/vildar.custom.ru/www/build/style.css",
+		"/C/Development/Web/home/vildar.custom.ru/www/index.html",
+		"/C/Games/Steam/SteamApps/common/Burnout(TM) Paradise The Ultimate Box/enbseries.ini",
+		"/C/Development/list.txt",
+		"/C/Users/Пользователь/Desktop/temp.html",
+		"/C/Users/Пользователь/Desktop/src/jquery.percentageloader-0.1.css",
+		"/C/Development/StreetViewMovie/monitor.html",
+		"/C/Development/StreetViewMovie/proxy-collector.user.js",
+		"/C/Development/StreetViewMovie/proxy-collector.js",
+		"/C/Development/StreetViewMovie/compiled.js",
+		"/C/Users/Пользователь/Desktop/canvas.html",
+		"/C/Development/StreetViewMovie/svm.js",
+		"/C/Users/Пользователь/Desktop/3dTo2d.html",
+		"/C/Users/Пользователь/Desktop/excanvas.js",
+		"/C/Development/StreetViewMovie/proxy-list/list.txt",
+		"/C/Development/StreetViewMovie/temp/sync.jsx",
+		"/C/Development/StreetViewMovie/temp/sync.js",
+		"/C/Development/StreetViewMovie/temp/file.json",
+		"/C/Development/StreetViewMovie/proxy-list/list.json",
+		"/C/Users/Пользователь/Desktop/demo.html",
+		"/C/Users/Пользователь/Desktop/src/jquery.percentageloader-0.1.js",
+		"/C/Users/Пользователь/Desktop/src/jquery.percentageloader-0.1.min.js",
+		"/C/Users/Пользователь/Desktop/src/fonts.txt",
+		"/C/Development/StreetViewMovie/temp/current.json",
+		"/C/Development/StreetViewMovie/trash/temp.html",
+		"/C/Development/StreetViewMovie/vector.js",
+		"/C/Users/Пользователь/AppData/Roaming/npm/node_modules/js-ext/js-ext.js",
+		"/C/Users/Пользователь/AppData/Roaming/npm/node_modules/js-ext/js-ext.pegjs",
+		"/C/Users/Пользователь/AppData/Roaming/npm/node_modules/js-ext/js-ext.cache",
+		"/C/Development/Web/home/vildar.custom.ru/source/js-side/antiscroll.js",
+		"/C/Development/StreetViewMovie/run.bat",
+		"/C/Development/StreetViewMovie/output/temp_16.jpg",
+		"/C/Development/StreetViewMovie/output/temp_0.jpg",
+		"/C/Users/Пользователь/AppData/Roaming/npm/node_modules/webapp-build/webapp-build.js",
+		"/C/Development/StreetViewMovie/run-proxy-collector.bat",
+		"/C/Development/Typo/typo.user.js",
+		"/C/Torrents/Complete/Twixtor_5.1.1_AE_CS6/reg.txt",
+		"/C/Development/StreetViewMovie/temp.dat",
+		"/C/Development/StreetViewMovie/hashes.js",
+		"/C/Development/Web/home/jap.custom.ru/source/js-own/hashes.js",
+		"/C/Development/StreetViewMovie/temp.html",
+		"/C/Development/Bitcoins/node_modules/brain/lib/neuralnetwork.js",
+		"/C/Development/Bitcoins/node_modules/brain/lib/lookup.js",
+		"/C/Development/Bitcoins/node_modules/brain/lib/brain.js",
+		"/C/Development/Bitcoins/app.jsx",
+		"/C/Development/Bitcoins/node_modules/brain/brain-0.5.0.js",
+		"/C/Development/Bitcoins/node_modules/brain/build.js",
+		"/C/Users/Пользователь/Desktop/ /Temp/twinui.h",
+		"/C/Games/Need for Speed Hot Pursuit/SweetFX_settings.txt",
+		"/F/Torrents/Charles Web Debugging Proxy 3.5.2 Incl Patch [SH69]/Charles Web Debugging Proxy 3.5.2 [SH69]/x64/iNViSiBLE/patcher.bat",
+		"/C/Development/Web/home/vildar.custom.ru/source/css/icons.less",
+		"/C/Development/Web/home/vildar.custom.ru/source/js-side/zepto.js",
+		"/C/Development/Web/home/vildar.custom.ru/source/js-side/zepto.min.js",
+		"/C/Users/Пользователь/AppData/Roaming/npm/node_modules/js-ext/js-ext.cache.temp",
+		"/C/Development/Typo/build.bat",
+		"/C/Development/Typo/typo.exe",
+		"/C/Development/Web/home/vildar.custom.ru/www/php/image-resizer.php",
+		"/C/Games/From Dust/Shaders/PS_defines.txt",
+		"/C/Games/From Dust/DUST/dust.ini",
+		"/C/Development/Web/home/vildar.custom.ru/source/css/antiscroll.css",
+		"/C/Development/Web/home/jap.custom.ru/jap-project.sublime-project",
+		"/C/Development/Web/home/vildar.custom.ru/www/images/gallery/1366976682.thumb.jpg",
+		"/C/Development/Web/home/vildar.custom.ru/www/images/gallery/.info.dat"
+	],
+	"find":
+	{
+		"height": 34.0
+	},
+	"find_in_files":
+	{
+		"height": 0.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": true,
+		"find_history":
+		[
+			"ForInStatement",
+			"ConditionalExpression",
+			"LogicalORExpression",
+			"LogicalANDExpression",
+			"Identifier",
+			"__",
+			"StringLiteral",
+			"Format",
+			"format",
+			"300",
+			"(';'),",
+			"taken",
+			"list.txt",
+			"Wa",
+			"h",
+			"Q",
+			"function ha",
+			"G",
+			"var G",
+			"function G",
+			"lookup",
+			"_",
+			"SearchPane",
+			"ProvideAppSuggestions",
+			"searchpane",
+			"search",
+			"filter",
+			"Expected ",
+			"SyntaxError",
+			"});\n",
+			"->",
+			"   ",
+			"\"||/*\"",
+			"null"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+			" ->\n",
+			" -> \n",
+			"	\n",
+			"\\t\n"
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": true,
+		"wrap": false
+	},
+	"groups":
+	[
+		{
+			"selected": 2,
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"file": "/C/Users/User/Desktop/ /pd.mk",
+					"settings":
+					{
+						"buffer_size": 4419,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Text/Plain text.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 234.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "js-ext.pegjs",
+					"settings":
+					{
+						"buffer_size": 108472,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								99597,
+								99597
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/PEG.js/Syntaxes/PEGjs.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "js-ext.jsx",
+					"settings":
+					{
+						"buffer_size": 131,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								73,
+								73
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "source/js-compress.jsxi",
+					"settings":
+					{
+						"buffer_size": 1886,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								731,
+								731
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 4,
+					"file": "source/app.jsxi",
+					"settings":
+					{
+						"buffer_size": 7888,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								4879,
+								4879
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 2683.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 5,
+					"file": "source/modules_code.jsxi",
+					"settings":
+					{
+						"buffer_size": 2529,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								815,
+								815
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 263.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 6,
+					"file": "source/converter.jsxi",
+					"settings":
+					{
+						"buffer_size": 6432,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								5501,
+								5501
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 2790.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 7,
+					"file": "source/format.jsxi",
+					"settings":
+					{
+						"buffer_size": 5797,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								3304,
+								3304
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 8,
+					"file": "js-ext-new.jsx",
+					"settings":
+					{
+						"buffer_size": 131,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								42,
+								42
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 1.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 9,
+					"file": "/C/Users/User/AppData/Roaming/npm/node_modules/webapp-build/webapp-build.jsx",
+					"settings":
+					{
+						"buffer_size": 6257,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 10,
+					"file": "temp.jsx",
+					"settings":
+					{
+						"buffer_size": 534,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								177,
+								177
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 11,
+					"settings":
+					{
+						"buffer_size": 14886,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								13483,
+								13483
+							]
+						],
+						"settings":
+						{
+							"auto_name": "^",
+							"syntax": "Packages/Text/Plain text.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 5249.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 12,
+					"file": "/C/Users/User/temp.js",
+					"settings":
+					{
+						"buffer_size": 26939,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								646,
+								646
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 13,
+					"file": "includes/modules-public.jsxi",
+					"settings":
+					{
+						"buffer_size": 139,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								81,
+								81
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				}
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 0.0
+	},
+	"input":
+	{
+		"height": 33.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.exec":
+	{
+		"height": 263.0
+	},
+	"replace":
+	{
+		"height": 64.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 500.0,
+		"selected_items":
+		[
+		],
+		"width": 380.0
+	},
+	"show_minimap": true,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 164.0,
+	"status_bar_visible": true
+}

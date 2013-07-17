@@ -1,0 +1,46 @@
+module Compressor {
+	import Node, @App;
+	
+	var jsCompressor = Node.safeAccess ('uglify-js', 'compress js');
+	
+	export function work (code, filename, max)
+		try {
+			var str = jsCompressor ().OutputStream ({ comments: /^!<\?/ }),
+				prs = jsCompressor ().parse (code, { filename: filename })/*,
+				cmp = jsCompressor ().Compressor (max ? {
+					sequences:      true,  // Join consecutive statemets with the “comma operator”
+					properties:     true,  // Optimize property access: a["foo"] → a.foo
+					dead_code:      true,  // Discard unreachable code
+					drop_debugger:  true,  // Discard “debugger” statements
+					unsafe:         true,  // Some unsafe optimizations (see below)
+					conditionals:   true,  // Optimize if-s and conditional expressions
+					comparisons:    true,  // Optimize comparisons
+					evaluate:       true,  // Evaluate constant expressions
+					booleans:       true,  // Optimize boolean expressions
+					loops:          true,  // Optimize loops
+					unused:         false, // Drop unused variables/functions
+					hoist_funs:     true,  // Hoist function declarations
+					hoist_vars:     true,  // Hoist variable declarations
+					if_return:      true,  // Optimize if-s followed by return/continue
+					join_vars:      true,  // Join var declarations
+					cascade:        true,  // Try to cascade `right` into `left` in sequences
+					side_effects:   true,  // Drop side-effect-free statements
+					global_defs:    {}     // Global definitions
+				} : { 
+					unused: false,
+					warnings: App.inputFile != null
+				}),
+				trn = prs.transform (cmp)*/;
+			prs.print (str);
+			return str.toString ();
+		} catch
+			Node.fatalError ('Compress error: ' + e, code);
+	
+	export function max (code, filename){
+		return work (code, filename, true);
+	}
+	
+	export function init (){
+		// console.log (max ('function a (){ var a = {}, test = a ["qwerty"]; return test; }'));
+	}
+}

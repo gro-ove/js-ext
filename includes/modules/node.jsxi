@@ -1,0 +1,53 @@
+// ==Jsx==
+// @target node
+// @compress on
+// ==/Jsx==
+
+module Node {
+	var optimist = safeAccess ('optimist', 'correct interact in shell'),
+		argv;
+	
+	export var fs   = safeAccess ('fs'),
+	           cp   = safeAccess ('child_process'),
+	           path = safeAccess ('path');
+	
+	export function fatalError (msg){
+		for (var i = 0; i < arguments.length; i ++)
+			console.error (arguments [i]);
+		process.exit (1);
+	}
+	
+	export function safeAccess (what, purpose){
+		var cache;
+		
+		return lambda 
+			try 
+				return cache || (cache = require (what));
+			catch
+				fatalError ('Please, install "{0}" for {1}.'.format (what, purpose || 'work'), 
+					'> npm install -g {0}.'.format (what));
+	}
+	
+	export function args (usage, args){
+		if (usage && args){
+			var result = optimist ().usage (usage);
+			for (var n in args)
+				result = result.options (n, args [n]);
+			argv = result.argv;
+		}
+		
+		return argv;
+	}
+	
+	export function showHelp ()
+		optimist ().showHelp ();
+		
+	export function readFile (file)
+		return fs ().readFileSync (file, 'utf-8');
+		
+	export function writeFile (file, content)
+		return fs ().writeFileSync (file, content, 'utf-8');
+		
+	export function resolve (name)
+		return path ().resolve (__dirname, name)
+}

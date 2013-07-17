@@ -1,0 +1,15 @@
+module Cacher {
+	import @App;
+	
+	export function load (file){
+		if (!App.cacheFolder)
+			return;
+	}
+	
+	export function save (file, data){
+		if (!App.cacheFolder)
+			return;
+		// console.log (file);
+		console.log (data);
+	}
+}

@@ -1,0 +1,262 @@
+module App {
+	import Node, Prework, Parser, Converter, Format, Compressor, ModulesCode, Cacher;
+	
+	var moduleSystem = {
+			begin: 
+				`(function(){function c(b){if(d[b])return d[b];throw"Not found: "+b;}function e(b,a){a=c(b);a.__z||(a.__g=1,a.__gi().forEach(function(a){if("@"!=a[0]){if(c(a).__g)throw"Cycle: "+b+", "+a;c(a).__z||e(a)}}),a.__in(),a.init&&a.init(),a.__z=1,delete a.__g)}var d={},f="u"!=(typeof window)[0]&&window||GLOBAL;f.__m=function(b,a){if(a)d[b]=a();else{for(a in d)b=c(a),b.__si.apply(b,b.__gi().map(function(a){return c("@"==a[0]?a.slice(1):a)}));for(a in d)e(a);delete f.__m}}})();`,
+			endDelay:
+				`'u'!=(typeof window)[0]&&'u'!=(typeof document)[0]&&!/loaded|complete/.test(document.readyState)?window.addEventListener('load',__m):__m()`,
+			end:
+				`__m()`
+		};
+	
+	export var inputFile,
+		outputFile,
+		cacheFolder,
+		argRebuildParser,
+		argJsCompress,
+		argPhpHeader,
+		includesFolder;
+		
+	var loadedFiles = [],
+		glob = Node.safeAccess ('glob', 'usings masks');
+		
+	function asFolder (path){
+		if (!path)
+			return null;
+		
+		var folder = Node.path ().resolve (path);
+		try Node.fs ().mkdirSync (folder);
+		return Node.fs ().existsSync (folder) ? folder : null;
+	}
+	
+	function findIncluded (name, current, top){
+		if (current.indexOf (top) == 0)
+			while (true){
+				var path = Node.path ().resolve (current, name);
+				if (path.indexOf ('*') !== -1){
+					var result = [];
+					glob ().sync (path).forEach (lambda result.push ({ file: arg, top: top }));
+					return result;
+				} else if (Node.fs ().existsSync (path))
+					return [{ file: path, top: top }];
+				
+				var newPow = Node.path ().resolve (current, '..');
+				if (newPow.length < top.length || newPow == current)
+					break;
+				current = newPow;
+			}
+		
+		if (top != includesFolder)
+			return findIncluded (name, includesFolder, includesFolder);
+			
+		return null;
+	}
+	
+	function checkOn (value){
+		if (/^(on|true|1|yes|enabled?)$/i.test (value))
+			return true;
+		if (/^(off|false|0|no|disabled?)$/i.test (value))
+			return false;
+		Node.fatalError ('Wrong parameter value: "' + value + '".');
+	}
+			
+	function join (a, b){
+		function pairCompare (a, b, c, d)
+			return a == c && b == d || a == d && b == c;
+			
+		var joiners = {
+			target:	lambda (a, b){
+					var av = a.value, bv = b.value;
+					if (av == bv)
+						return a;
+					if (pairCompare (av, bv, 'web', 'web:onload'))
+						return { type: 'target', value: 'web:onload' };
+					Node.fatalError ('Incompatibile target: "{0}" and "{1}" (at {2}).'.format (av, bv, file));
+				}	
+		};
+			
+		if ((a !== undefined || b !== undefined) && typeof a !== 'function')
+			if (a === undefined){
+				return b;
+			} else if (b === undefined){
+				return a;
+			} else if (typeof a === 'boolean'){
+				return a || b
+			} else if (typeof a === 'number'){
+				return a + b
+			} else if (typeof a.concat === 'function' && typeof a.push === 'function'){
+				return b.concat (a [n]);
+			} else if (joiners [a.type]){
+				return joiners [a.type](b, a);
+			} else if (typeof a.substr === 'function'){
+				return b + '\n' + a;
+			} else if (typeof a === 'object'){
+				for (var n in a)
+					a [n] = join (a [n], b [n]);
+				for (var n in b)
+					if (a [n] === undefined)
+						a [n] = join (a [n], b [n]);
+				return a;
+			} else
+				Node.fatalError ('Not implemented: "{0}".'.format (typeof a))
+	}
+	
+	function work (file, top){
+		var content   = Node.readFile (file),
+			prework   = Prework.work (content),
+			parsed    = Parser.work (prework.code, file),
+			converted = Converter.work (parsed),
+			formatted = Format.work (converted.tree);
+			
+		var childs = [],
+			result = {
+					code:       formatted.code,
+					additional: formatted.additional,
+					modules:    converted.modules
+				},
+			compress = true;
+			
+		if (prework.node)
+			result.additional.target = { type: 'target', value: 'node' };
+		
+		for (var i = 0; i < formatted.jsx.length; i ++){
+			var key = formatted.jsx [i].key,
+				value = formatted.jsx [i].value;
+				
+			if (key === null){
+				if (outputFile)
+					console.log ('Warning: found unparcable Jsx comment ({0}).'.format (file));
+				continue;
+			}
+			
+			switch (key){
+				case 'import':
+					childs.push ({ name: value + '.jsxi' });
+					break;
+				case 'include':
+					childs.push ({ name: value, raw: true });
+					break;
+				case 'compress':
+					compress = checkOn (value);
+					break;
+				case 'modules-public':
+					result.additional.modulesPublic = checkOn (value);
+					break;
+				case 'target':
+					var n = ['default', 'auto', 'node', 'web', 'web:onload'].indexOf (value);
+					if (n == -1)
+						Node.fatalError ('Undefined target value: "{0}" (at {1}).'.format (value, file));
+					if (n > 1)
+						result.additional.target = { type: 'target', value: value };
+					break;
+				case 'args':
+					// TODO
+					break;
+				default:
+					Node.fatalError ('Undefined instruction: "{0}" (at {1}).'.format (key, file));
+			}
+		}
+		
+		if (compress)
+			result.code = Compressor.work (result.code, file);
+			
+		return { result: result, childs: childs };
+	}
+	
+	function load (file, top, options = {}){
+		var topMode = top === undefined;
+		
+		if (topMode)
+			top = Node.path ().resolve (file, '..');
+		
+		if (!Node.fs ().existsSync (file))
+			Node.fatalError ('Divided by zero.');
+		
+		if (options.raw)
+			return { code: Node.readFile (file) };
+		
+		var data = Cacher.load (file);
+		if (!data){
+			data = work (file, top);
+			Cacher.save (file, data);
+		}
+		
+		var childs = [];
+		data.childs.forEach (lambda {
+			var other = findIncluded (arg.name, Node.path ().resolve (file, '..'), top);
+			if (!other)
+				Node.fatalError ('Couldn\'n found included file: "{0}" ({1}).'.format (arg.name, file));
+			for (var i = 0; i < other.length; i ++)
+				if (loadedFiles.indexOf (other [i].file) == -1){
+					loadedFiles.push (other [i].file);
+					childs.push (load (other [i].file, other [i].top, { raw: arg.raw }));
+				}
+		});
+		for (var i = childs.length - 1; i >= 0; i --)
+			data.result = join (data.result, childs [i]);
+			
+		return data.result;
+	}
+	
+	function finalStrokes (data){
+		var result = [], modules = data.modules && ModulesCode.get (data.additional);
+		
+		if (data.additional.target && data.additional.target.value == 'node')
+			result.push ('#!/usr/bin/env node');
+		
+		if (data.additional.php && argPhpHeader)
+			result.push ('<? header(\'Content-Type: application/javascript\') ?>');
+		
+		if (data.additional.userscript)
+			result.push ('// ==UserScript==\n' + data.additional.userscript.map (lambda '// @' + arg.key + ' ' 
+				+ arg.value + '\n').join ('') + '// ==/UserScript==\n');
+		
+		if (modules)
+			result.push (modules.begin);
+		
+		result.push (argJsCompress ? Compressor.work (data.code) : data.code);
+		
+		if (modules)
+			result.push (modules.end);
+		
+		return result.join ('\n');
+	}
+	
+	export function init (){				
+		Node.args ('Usage: js-ext file [flags]', { 
+				r: { alias: 'rebuild',         description: 'Rebuild parser.' },
+				l: { alias: 'js-compress',     description: 'Use compressor for all.' },
+				p: { alias: 'php-header',      description: 'Use php header if nessesary.' },
+				o: { alias: 'output',          description: 'Output file (else put result to stdout).' },
+				c: { alias: 'cache',           description: 'Cache folder (for compiled js files; enter "no" for disable).' },
+				u: { alias: 'usage',           description: 'This text.' },
+			});
+			
+		if (Node.args ().u)
+			return Node.showHelp ();
+				
+		inputFile         = Node.args ()._[0];
+		outputFile        = Node.args ().o;
+		includesFolder    = asFolder (Node.resolve ('includes'));
+		cacheFolder       = /^no(ne|t)?$/i.test (Node.args ().c) ? null : asFolder (Node.args ().c || Node.resolve ('cache'));
+		argRebuildParser  = Node.args ().r;
+		argPhpHeader      = Node.args ().p;
+		argJsCompress     = Node.args ().l;
+		
+		Parser.getReady ();
+		
+		if (!inputFile || !Node.fs ().existsSync (inputFile)){
+			if (!argRebuildParser)
+				Node.fatalError ('Wrong input file: "' + inputFile + '".');
+			return;
+		}
+		
+		var result = finalStrokes (load (inputFile));
+		
+		if (outputFile)
+			Node.writeFile (outputFile, result);
+		else
+			console.log (result);
+	}
+}

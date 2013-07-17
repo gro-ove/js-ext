@@ -1,0 +1,118 @@
+// ==Jsx==
+// @import   string.format
+// @compress  on
+// ==/Jsx==
+
+/*******************************************************
+ * String.Format 1.0 - JScript аналог C# String.Format
+ *
+ * Copyright (c) 2010, Dema (Dema.ru)
+ * Лицензия LGPL для любого использования
+ *
+ *******************************************************/
+ 
+// Набор расширений для форматирования чисел:
+//   :n                 - вывод числа как есть, если пришла запись типа 1.032434e+34, то вид будет без использования e+xx
+//   :n(x,y)            - вывод с дополнением целой части до x символов, дробной части до y символов, дробная часть обрезается до указанного размера
+//   :nb(b)             - вывод числа с указанным основанием (для вывода двоичной записи и т.п.)
+//   :nf(loc,n1,n2,...) - вывод ед. измерения для числа в нужной форме
+// Настройка форматирования:
+//   dseparator         - разделитель целой и дробной части
+//   nan                - текст, выводимый при попытке отформатировать не число, используется для всех форматов чисел - n, nb, nf
+// Инициализация форматирования:
+//   String.prototype.format.init({ n: { dseparator: '.', nan: 'NaN' } });
+(function(format)
+{
+	// Регистрируем форматирование
+	// Функция форматирования числа с нужным количеством знаков до и после запятой
+	format.add('n', function n(v, params)
+	{
+		if((v = numformat.exec(v))==null) return defaults.nan;	// Уточняем момент насчет числа
+		var e					= Number(v[4]);					// Порядок (если указан)
+		return isNaN(e)?
+					''.concat(v[1], addz(null, v[2], params[0]), addz(defaults.dseparator, v[3], params[1])):	// нет порядка - форматируем, что есть
+					shift(v[1], v[2], v[3], e, params[0], params[1]);							// форматирование с учетом порядка
+	});
+	// Функция форматирования числа в любой системе (от 2-ой до ....)
+	format.add('nb', function nb(v, params)
+	{
+		v						= Number(v);
+		if(isNaN(v)) return defaults.nan;
+		var b					= Number(params[0]);
+		return  addz(null, v.toString(isNaN(b)?16:b), Number(params[1]));
+	});
+	// Функция вывода ед. измерения для числа в нужной форме
+	format.add('nf', function(v, params)
+	{
+		v						= Number(v);
+		if(isNaN(v)) return defaults.nan;
+		var f					= nforms[params[0].toLowerCase()];
+		return f==null?params[0]+'?':f(v, params);
+	});
+	// Регистрация функции вычисления формы для нужной локали
+	format.get('nf').add		= function(lname, func)
+	{
+		nforms[lname.toLowerCase()]		= func;
+	};
+	// Делаем доступным изменение параметров форматирования
+	format.get('n').init		= init;
+	///////// PRIVATE /////////
+	// RegExp для числа
+	var numformat				= /^([+-]?)(\d+)(?:\.(\d+))?(?:\s*e([+-]\d+))?$/i;
+	// Строка для заполнения нужным количеством нулей
+	var zz						= '0000000000';
+	// Настройка форматирования:
+	// dseparator - разделитель целой и дробной части
+	// nan        - текст, выводимый при попытке отформатировать не число
+	var defaults				= { dseparator: '.', nan: 'NaN' };
+	// Список функций вычисления нужных форм (рубль, рубля, рублей и т.п.)
+	var nforms					= {
+		en:						function(v, params)
+		{
+			return params[v==1?1:2];
+		},
+		ru:						function(v, params)
+		{
+			var v10				= v%10;
+			var v100			= v%100;
+			return params[v10==1 && v100!=11?1:v10>=2 && v10<=4 && (v100<10 || v100>=20)?2:3];
+		}
+	};
+	// Функция установки параметров форматирования
+	function init(param)
+	{
+		defaults.dseparator		= param.dseparator || '.';
+		defaults.nan			= param.nan || 'NaN';
+	}
+	// Разбираемся с нужным количеством разрадов
+	function addz(pre, v, l)
+	{
+		if(isNaN(l = Number(l==''?undefined:l))) return (v==null || v=='')?'':((pre || '')+v);	// Нет ограничений - просто вернем то, что есть
+		if((v = v || '').length>=l)	return pre==null?v:(pre+v.substr(0, l));		// Значение больше нужного - целую часть оставляем, дробную режем
+		return pre==null?(getz(l-v.length)+v):(pre+v+getz(l-v.length));				// Значение меньше нужного - дополняем нулями с соответствующей стороны
+	}
+	// Получить нужное количество нулей
+	function getz(l)
+	{
+		while(zz.length<l) zz += zz;
+		return zz.substring(0, l);
+	}
+	// Форматирование со сдвигом на нужное кол-во разрядов
+	function shift(s, i, f, e, li, lf)
+	{
+		var m;
+		if(e>0)			// перенос из дробной в целую
+		{
+			m					= addz('', f, e);
+			i					+= m;
+			f					= f.substr(m.length);
+		}else if(e<0)	// перенос из целой в дробную
+		{
+			m					= i.length-(-e);
+			f					= (m>0?i.substring(m, i.length):(getz(-m)+i)) + f;
+			i					= (m>0?i.substring(0, -e-1):    '0');
+		}
+		// Тут нет e==0 - с нулями сюда не ходят!
+		return ''.concat(s, addz(null, i, li), addz(defaults.dseparator, f, lf));
+	}
+})(String.prototype.format);

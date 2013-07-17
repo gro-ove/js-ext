@@ -1,0 +1,10 @@
+// ==Jsx==
+// @compress  on
+// ==/Jsx==
+
+module MathUtils {
+	export function proportional (s, m){
+		var k = Math.min (m / Math.max (s.width, s.height), 1);
+		return { width: s.width * k | 0, height: s.height * k | 0 }
+	}
+}

@@ -1,0 +1,226 @@
+module Converter {
+	import Node;
+	
+	var moduleName = '__m',
+		minimize = Node.safeAccess ('minimize', 'compress html'),
+		minimizeInstance,
+		modules;
+			
+	function jsonFunction (name, content, params = [])
+		return { type: 'PropertyAssignment', name: name, 
+			value: { type: 'Function', name: null, params: params, elements: content }};
+		
+	var types = {
+		Function: 
+			lambda {		
+				var initialize = [];
+				return {
+					type: 'Function',
+					name: arg.name,
+					exportFlag: arg.exportFlag,
+					params: arg.params.map (lambda
+							if (arg && arg.type == 'IdentifierWithDefault'){
+								initialize.push ({
+									type: 'IfStatement',
+									condition: {
+										type: 'BinaryExpression', operator: '===',
+										left:  { type: 'Variable', name: arg.identifier },
+										right: { type: 'Variable', name: 'undefined' }
+									},
+									ifStatement: {
+										type: 'ExpressionStatement',
+										value: {
+											type: 'AssignmentExpression', operator: '=',
+											left: { type: 'Variable', name: arg.identifier },
+											right: clone (arg.value)
+										}
+									},
+									elseStatement: null
+								});
+								return arg.identifier;
+							} else
+								return arg;
+						),
+					elements: initialize.length ? initialize.concat (clone (arg.elements)) : clone (arg.elements)
+				}
+			},
+		
+		Lambda:
+			lambda types.Function ({
+				type: 'Function',
+				name: null,
+				params: arg.params.length == 0 ? ['arg'] : arg.params,
+				elements: arg.element.type == 'Block' 
+					? arg.element.statements 
+					: [ arg.element.type == 'ExpressionStatement' 
+						? { type: 'ReturnStatement', value: clone (arg.element.value) } 
+						: arg.element ]
+			}),
+		
+		StringLiteral: 
+			lambda {
+				var result;
+				
+				switch (arg.special){
+					case 'h':
+						var a = arg.value.replace (/<([a-z]+)(\s[^>]+?)?\s*\/>/g, '<$1$2></$1>');
+						if (!minimizeInstance)
+							minimizeInstance = new (minimize ())({
+								empty: true, cdata: true, comments: false, spare: true, quotes: true 
+							});
+						minimizeInstance.parse (a, lambda (error, data) result = data);
+						break;
+					case 'c':
+						result = arg.value.replace (/\s+/g, ' ').replace (/\s*([;:])\s*/g, '$1').trim ();
+						break;
+					case 's':
+						result = arg.value.replace (/\s+/g, ' ').trim ();
+						break;
+					default:
+						result = arg.value;
+				}
+				
+				return { type: "StringLiteral", value: result };
+			},
+			
+		Module:
+			lambda {
+				modules = true;
+				
+				var getImports 		   = [], 
+					setupImports 	   = [],
+					exported 		   = [], 
+					variableInitialize = [],
+					newElements 	   = [],
+					hasInit            = false;
+		
+					for (var i = 0; i < arg.elements.length; i ++){
+						var e = arg.elements [i];
+						
+						if (e.type === 'ImportStatement'){
+							newElements.push ({
+								type: 'VariableStatement',
+								declarations: (lambda {
+									for (var k = 0; k < arg.length; k ++){
+										var clear = arg [k][0] === '@' ? arg [k].slice (1) : arg [k];
+										getImports.push ({ type: 'StringLiteral', value: arg [k] });
+										setupImports.push ({
+											type: 'ExpressionStatement',
+											value: {
+												type: 'AssignmentExpression', operator: '=',
+												left: { type: 'Variable', name: clear },
+												right: { 
+													type: 'PropertyAccess', 
+													base: { type: 'Variable', name: "__" },
+													name: { type: 'NumericLiteral', value: setupImports.length }
+												}
+											}
+										});
+										
+										arg [k] = { type: 'VariableDeclaration', name: clear, value: null }
+									}
+									
+									return arg;
+								})(clone (e.declarations))
+							});
+						} else {
+							var newE = clone (e);
+							
+							if (newE.type == 'Function' && newE.name == 'init')
+								hasInit = true;
+							else if (newE.type === 'Function' && newE.exportFlag)
+								exported.push ({
+									type: 'PropertyAssignment',
+									name: newE.name,
+									value: { type: 'Variable', name: newE.name }
+								});
+							else if (newE.type === 'VariableStatement')
+								for (var k = 0; k < newE.declarations.length; k ++){
+									if (newE.exportFlag)
+										exported.push ({
+											type: 'GetterDefinition',
+											name: newE.declarations [k].name,
+											body: [{ type: 'ReturnStatement', value: { type: 'Variable', name: newE.declarations [k].name }}]
+										});
+									if (newE.declarations [k].value !== null){
+										variableInitialize.push ({
+											type: 'ExpressionStatement',
+											value: {
+												type: 'AssignmentExpression', operator: '=',
+												left: { type: 'Variable', name: newE.declarations [k].name },
+												right: clone (newE.declarations [k].value)
+											}
+										});
+										
+										newE.declarations [k].value = null;
+									}
+								}
+							
+							newElements.push (newE);
+						}
+					}
+					
+					exported = exported.length ? [{
+						type: 'PropertyAssignment',
+						name: 'e',
+						value: { type: 'ObjectLiteral', properties: exported }
+					}] : [];
+					
+					if (hasInit)
+						exported.push ({
+							type: 'PropertyAssignment',
+							name: 'i',
+							value: { type: 'Variable', name: 'init' }
+						});
+					
+					if (getImports.length)
+						exported.push (jsonFunction ('g', [{ 
+							type: 'ReturnStatement', 
+							value: { type: 'ArrayLiteral', elements: getImports }
+						}]),
+						jsonFunction ('s', setupImports, [ '__' ]));
+					
+					if (variableInitialize.length)
+						exported.push (jsonFunction ('v', variableInitialize));		
+					
+					newElements.push ({ type: 'ReturnStatement', value: { type: 'ObjectLiteral', properties: exported }});
+					
+					return {
+						type: 'ExpressionStatement',
+						value: {
+							type: 'FunctionCall', name: { type: 'Variable', name: moduleName },
+							arguments: [
+								{ type: 'StringLiteral', value: clone (arg.identifier) },
+								{ type: 'Function', name: null, params: [], elements: newElements }
+							]
+						}
+					}
+				}
+	};
+	
+	function clone (obj)	
+		if (typeof obj !== 'object' || !obj){
+			return obj;
+		} else if (obj.indexOf){
+			var r = [];
+			for (var i = 0; i < obj.length; i ++)
+				r.push (clone (obj [i]));
+			return r;
+		} else if (types [obj.type]){
+			return types [obj.type](obj);
+		} else {
+			var r = {};
+			for (var n in obj)
+				r [n] = clone (obj [n]);
+			return r;
+		}
+	
+	export function work (parsed){
+		modules = false;
+	
+		return {
+			tree: clone (parsed),
+			modules: !!modules
+		};
+	}
+}
