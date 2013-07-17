@@ -1,0 +1,1 @@
+@js-ext.cmd "%~dp0\js-ext.jsx" -o "%~dp0\build\js-ext.js"

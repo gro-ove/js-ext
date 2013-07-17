@@ -1,7 +1,0 @@
-// ==Jsx==
-// @import   string.format
-// @compress  on
-// ==/Jsx==
-
-String.prototype.format.add ('@', lambda (v, p) v [p [0].toLowerCase ().replace (/_[a-z]/g, lambda arg [1].toUpperCase ())]);
-String.prototype.format.add ('$', lambda (v, p) v [p [0]]);
