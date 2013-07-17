@@ -76,6 +76,8 @@ This is a new preprocessor for JavaScript.
     // ==/Jsx==
     
     console.log ('Test: {0}.'.format ('Hello, World!'));
+        
+#### 7. Full backward compatibility
     
 #### And so on.
 
