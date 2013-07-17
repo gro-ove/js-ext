@@ -48,7 +48,7 @@ module App {
 			return true;
 		if (/^(off|false|0|no|disabled?)$/i.test (value))
 			return false;
-		Node.fatalError ('Wrong parameter value: "' + value + '".');
+		Node.fatalError ('Wrong parameter value: "{0}".'.format (value));
 	}
 			
 	function join (a, b){
@@ -236,7 +236,7 @@ module App {
 		
 		if (!inputFile || !Node.fs ().existsSync (inputFile)){
 			if (!argRebuildParser)
-				Node.fatalError ('Wrong input file: "' + inputFile + '".');
+				Node.fatalError ('Wrong input file: "{0}".'.format (inputFile));
 			return;
 		}
 		
