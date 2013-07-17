@@ -13,7 +13,6 @@ module App {
 	export var inputFile,
 		outputFile,
 		cacheFolder,
-		argRebuildParser,
 		argJsCompress,
 		argPhpHeader,
 		includesFolder;
@@ -226,7 +225,6 @@ module App {
 	
 	export function init (){				
 		Node.args ('Usage: js-ext file [flags]', { 
-				r: { alias: 'rebuild',         description: 'Rebuild parser.' },
 				l: { alias: 'js-compress',     description: 'Use compressor for all.' },
 				p: { alias: 'php-header',      description: 'Use php header if nessesary.' },
 				o: { alias: 'output',          description: 'Output file (else put result to stdout).' },
@@ -236,12 +234,13 @@ module App {
 			
 		if (Node.args ().u)
 			return Node.showHelp ();
+		
+		var argCache      = Node.args ().c ? Node.args ().c.trim () : '';
+		cacheFolder       = /^no(ne|t)?$/i.test (argCache) ? null : asFolder (argCache || Node.resolve ('cache'));
 				
 		inputFile         = Node.args ()._[0];
 		outputFile        = Node.args ().o;
 		includesFolder    = asFolder (Node.resolve ('includes'));
-		cacheFolder       = /^no(ne|t)?$/i.test (Node.args ().c) ? null : asFolder (Node.args ().c || Node.resolve ('cache'));
-		argRebuildParser  = Node.args ().r;
 		argPhpHeader      = Node.args ().p;
 		argJsCompress     = Node.args ().l;
 		

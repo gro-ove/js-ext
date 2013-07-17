@@ -1,46 +1,22 @@
 module Parser {
 	import Node, Compressor;
 	
-	var source, 
-		builded, 
-		loaded;
-	
-	var peg = Node.safeAccess ('pegjs', 'build parser');
-			
-	function getNearFile (file)
-		return Node.path ().resolve (__dirname, file);
-		
-	function rebuildParser (){
-		if (!Node.fs ().existsSync (source))
-			Node.fatalError ('Parser source not found.');
-	
-		try {
-			var tobuild = Node.readFile (source, 'utf8'),
-				result  = 'exports.parser=' + peg ().buildParser (tobuild, { cache: true, trackLineAndColumn: false }).toSource ();
-			
-			result = result.replace ('return "Expected " + expectedHumanized', 
-				'return "[" + line + ": " + column + "] " + "Expected " + expectedHumanized');
-			
-			try result = Compressor.work (result);
-			Node.writeFile (builded, result, 'utf8');
-		} catch
-			Node.fatalError ('Error while building parser:', e.stack);
-	}
-	
-	export function init (){
-		source  = getNearFile ('js-ext.pegjs');
-		builded = getNearFile ('js-ext.cache');
-	}
+	var builded = Node.resolve ('js-ext.parser'), 
+		parse;
 	
 	export function getReady (){
-		if (Node.args ().r || !Node.fs ().existsSync (builded))
-			rebuildParser ();
-		loaded = require (builded).parser;
+		if (!Node.fs ().existsSync (builded))
+			Node.fatalError ('Parser not found.');
+		try
+			parse = require (builded).parse;
+		if (typeof parse == 'function') 
+			return;
+		Node.fatalError ('Parser is broken.');
 	}
 	
 	export function work (code, filename)	
 		try 
-			return loaded.parse (code);
+			return parse (code);
 		catch 
 			Node.fatalError ('Error while parsing "{0}": {1}'.format (filename, e), e.stack);
 }
