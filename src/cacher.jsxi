@@ -1,15 +1,30 @@
+// ==Jsx==
+// @import modules/md5
+// ==/Jsx==
+
 module Cacher {
-	import @App;
+	import @App, Node, Md5;
 	
-	export function load (file){
-		if (!App.cacheFolder)
-			return;
+	function getCacheFile (file)
+		return Node.path ().resolve (App.cacheFolder, Md5.hex (file))
+	
+	function getFileMark (file){
+		var stats = Node.fs ().statSync (file);
+		return [+stats.mtime, stats.size].join ('');
 	}
 	
-	export function save (file, data){
-		if (!App.cacheFolder)
-			return;
-		// console.log (file);
-		console.log (data);
-	}
+	export function load (file)
+		if (App.cacheFolder)
+			try {
+				var cacheFile = getCacheFile (file);
+				if (Node.fs ().existsSync (cacheFile)){
+					var data = JSON.parse (Node.readFile (cacheFile));
+					if (data.mark == getFileMark (file))
+						return data.content; 
+				}
+			}
+	
+	export function save (file, data)
+		if (App.cacheFolder)
+			Node.writeFile (getCacheFile (file), JSON.stringify ({ mark: getFileMark (file), content: data }));
 }
