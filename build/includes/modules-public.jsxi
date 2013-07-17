@@ -1,0 +1,10 @@
+// ==Jsx==
+// @modules-public on
+// @compress on
+// ==/Jsx==
+
+function forceInit ()
+	__m ();
+
+function getModule (name)
+	return __m (name);

@@ -1,0 +1,12 @@
+// ==Jsx==
+// @compress  on
+// ==/Jsx==
+
+Array.prototype.remove = function (a, b){
+	var c = this.slice ((b || a) + 1 || this.length);
+	this.length = 0 > a ? this.length + a : a;
+	return this.push.apply (this, c)
+};
+
+Array.remove = lambda (a, b, c)
+	a.remove (b, c);
