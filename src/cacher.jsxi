@@ -5,12 +5,14 @@
 module Cacher {
 	import @App, Node, Md5;
 	
+	var jsextMark = getFileMark (__filename);
+	
 	function getCacheFile (file)
 		return Node.path ().resolve (App.cacheFolder, Md5.hex (file))
 	
 	function getFileMark (file){
 		var stats = Node.fs ().statSync (file);
-		return [+stats.mtime, stats.size].join ('');
+		return [jsextMark || '', +stats.mtime, stats.size].join ('');
 	}
 	
 	export function load (file)
