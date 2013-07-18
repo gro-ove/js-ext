@@ -17,14 +17,14 @@ module Node {
 		process.exit (1);
 	}
 	
-	export function safeAccess (what, purpose){
+	export function safeAccess (what, purpose = 'work'){
 		var cache;
 		
 		return lambda 
 			try 
 				return cache || (cache = require (what));
 			catch
-				fatalError ('Please, install "{0}" for {1}.'.format (what, purpose || 'work'), 
+				fatalError ('Please, install "{0}" for {1}.'.format (what, purpose), 
 					'> npm install -g {0}.'.format (what));
 	}
 	
