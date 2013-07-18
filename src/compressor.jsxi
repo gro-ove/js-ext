@@ -6,7 +6,7 @@ module Compressor {
 	export function work (code, filename, max)
 		try {
 			var str = jsCompressor ().OutputStream ({ comments: /^!<\?/ }),
-				prs = jsCompressor ().parse (code, { filename: filename })/*,
+				prs = jsCompressor ().parse (code, { filename: filename }),
 				cmp = jsCompressor ().Compressor (max ? {
 					sequences:      true,  // Join consecutive statemets with the “comma operator”
 					properties:     true,  // Optimize property access: a["foo"] → a.foo
@@ -25,12 +25,12 @@ module Compressor {
 					join_vars:      true,  // Join var declarations
 					cascade:        true,  // Try to cascade `right` into `left` in sequences
 					side_effects:   true,  // Drop side-effect-free statements
-					global_defs:    {}     // Global definitions
+					warnings:       true
 				} : { 
 					unused: false,
-					warnings: App.inputFile != null
+					warnings:       true
 				}),
-				trn = prs.transform (cmp)*/;
+				trn = prs.transform (cmp);
 			prs.print (str);
 			return str.toString ();
 		} catch
