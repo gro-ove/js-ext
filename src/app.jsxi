@@ -116,8 +116,7 @@ module App {
 				value = formatted.jsx [i].value;
 				
 			if (key === null){
-				if (outputFile)
-					console.log ('Warning: found unparcable Jsx comment ({0}).'.format (file));
+				console.log ('Warning: found unparcable Jsx comment ({0}).'.format (file));
 				continue;
 			}
 			
@@ -143,6 +142,15 @@ module App {
 					break;
 				case 'build-to':
 					result.additional.buildTo = { type: 'buildTo', value: value.trim () };
+					break;
+				case 'define':
+					if (!result.additional.defines)
+						result.additional.defines = [];
+					
+					var matched = value.match (/^([^\s]+)\s+([\s\S]+)$/);
+					if (!matched)
+						Node.fatalError ('Wrong define value: "{0}" (at {1}).'.format (value, file));
+					result.additional.defines.push ({ what: matched [1].trim (), by: matched [2].trim () });
 					break;
 				default:
 					Node.fatalError ('Undefined instruction: "{0}" (at {1}).'.format (key, file));
@@ -220,9 +228,14 @@ module App {
 		if (modules)
 			result.push (modules.end);
 		
+		var code = result.join ('\n');
+		if (data.additional.defines)
+			for (i, v in data.additional.defines)
+				code = code.split (v.what).join (v.by);
+		
 		return {
 			file: outputFile || getOutputFile (inputFile, data.additional.buildTo && data.additional.buildTo.value),
-			code: result.join ('\n')
+			code: code
 		};
 	}
 	
