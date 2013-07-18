@@ -6,4 +6,6 @@
 
 // @import *
 
+// @target node
+
 // ==/Jsx==
