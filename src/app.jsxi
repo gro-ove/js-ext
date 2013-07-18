@@ -62,8 +62,9 @@ module App {
 						return a;
 					if (pairCompare (av, bv, 'web', 'web:onload'))
 						return { type: 'target', value: 'web:onload' };
-					Node.fatalError ('Incompatibile target: "{0}" and "{1}" (at {2}).'.format (av, bv, file));
-				}	
+					Node.fatalError ('Incompatibile target: "{0}" and "{1}".'.format (av, bv));
+				},
+			buildTo: lambda Node.fatalError ('Only one build-target instruction allowed.')
 		};
 			
 		if ((a !== undefined || b !== undefined) && typeof a !== 'function')
@@ -138,10 +139,10 @@ module App {
 					if (n == -1)
 						Node.fatalError ('Undefined target value: "{0}" (at {1}).'.format (value, file));
 					if (n > 1)
-						result.additional.target = { type: 'target', value: value };
+						result.additional.target = { type: 'target', value: value.trim () };
 					break;
-				case 'args':
-					// TODO
+				case 'build-to':
+					result.additional.buildTo = { type: 'buildTo', value: value.trim () };
 					break;
 				default:
 					Node.fatalError ('Undefined instruction: "{0}" (at {1}).'.format (key, file));
@@ -189,6 +190,15 @@ module App {
 		return data.result;
 	}
 	
+	function getOutputFile (file, buildTo){
+		var result = Node.path ().resolve (file, '..');
+		if (buildTo)
+			result = Node.path ().resolve (result, buildTo);
+		if (!buildTo || /[\/\\]$/.test (buildTo))
+			result = Node.path ().resolve (result, Node.path ().basename (file, '.jsx') + '.js');
+		return result;
+	}
+	
 	function finalStrokes (data){
 		var result = [], modules = data.modules && ModulesCode.get (data.additional);
 		
@@ -210,41 +220,34 @@ module App {
 		if (modules)
 			result.push (modules.end);
 		
-		return result.join ('\n');
+		return {
+			file: outputFile || getOutputFile (inputFile, data.additional.buildTo && data.additional.buildTo.value),
+			code: result.join ('\n')
+		};
 	}
 	
 	export function init (){				
 		Node.args ('Usage: js-ext file [flags]', { 
 				p: { alias: 'php-header', description: 'Use php header if nessesary.' },
-				o: { alias: 'output',     description: 'Output file (else put result to stdout).' },
-				c: { alias: 'cache',      description: 'Cache folder (for compiled js files; enter "no" for disable).' },
+				o: { alias: 'output',     description: 'Output file (else automode).' },
+				c: { alias: 'cache',      description: 'Cache folder (for compiled js files; enter ":no" for disable).' },
 				u: { alias: 'usage',      description: 'This text.' },
 			});
 			
-		if (Node.args ().u)
-			return Node.showHelp ();
-		
-		var argCache      = Node.args ().c ? Node.args ().c.trim () : '';
-		cacheFolder       = /^no(ne|t)?$/i.test (argCache) ? null : asFolder (argCache || Node.resolve ('cache'));
-				
-		inputFile         = Node.args ()._[0];
-		outputFile        = Node.args ().o;
-		includesFolder    = asFolder (Node.resolve ('includes'));
-		argPhpHeader      = Node.args ().p;
-		
-		Parser.getReady ();
-		
-		if (!inputFile || !Node.fs ().existsSync (inputFile)){
-			if (!argRebuildParser)
-				Node.fatalError ('Wrong input file: "{0}".'.format (inputFile));
-			return;
+		if (Node.args ().u || !(inputFile = Node.args ()._[0])){
+			Node.showHelp ();
+		} else if (!Node.fs ().existsSync (inputFile)){
+			Node.fatalError ('Input file "{0}" not found.'.format (inputFile));
+		} else {
+			var argCache      = Node.args ().c ? Node.args ().c.trim () : '';
+			cacheFolder       = /^:no(ne|t)?$/i.test (argCache) ? null : asFolder (argCache || Node.resolve ('cache'));
+			
+			includesFolder    = asFolder (Node.resolve ('includes'));
+			outputFile        = Node.args ().o;
+			argPhpHeader      = Node.args ().p;
+			
+			var result = finalStrokes (load (inputFile));
+			Node.writeFile (result.file, result.code);
 		}
-		
-		var result = finalStrokes (load (inputFile));
-		
-		if (outputFile)
-			Node.writeFile (outputFile, result);
-		else
-			console.log (result);
 	}
 }
