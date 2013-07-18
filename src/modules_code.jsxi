@@ -61,26 +61,27 @@ module ModulesCode {
 				        throw "Not found: " + i;
 				    }
 
-				    function I (i) {
+				    function I (i) {					        
 				        var m = G (i);
-				        if (!m._d && m.g){
+				        if (!m._d){
 				        	m._a = 1;
-				        	m.g ().forEach (function (other){
-					            if ("@" != other [0]) {
-					                if (G (other)._a) 
-					                	throw "Cycle: " + i + ", " + a;
-					                if (!G (other)._d) 
-					                	I (other);
-					            }
-					        });
+				        	if (m.g)
+					        	m.g ().forEach (function (other){
+						            if ("@" != other [0]) {
+						                if (G (other)._a) 
+						                	throw "Cycle: " + i + ", " + a;
+						                if (!G (other)._d)
+						                	I (other);
+						            }
+						        });
+				
+					        if (m.v)
+					        	m.v ();
+					        if (m.i) 
+					        	m.i ();
+					        m._d = 1;
+					        delete m._a;
 				        }
-				        
-				        if (m.v)
-				        	m.v ();
-				        if (m.i) 
-				        	m.i ();
-				        m._d = 1;
-				        delete m._a;
 				    }
 				    
 				    root.__m = function (i, m) {
