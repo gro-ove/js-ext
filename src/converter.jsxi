@@ -71,7 +71,7 @@ module Converter {
 						minimizeInstance.parse (a, lambda (error, data) result = data);
 						break;
 					case 'c':
-						result = arg.value.replace (/\s+/g, ' ').replace (/\s*([;:])\s*/g, '$1').trim ();
+						result = arg.value.replace (/\s+/g, ' ').replace (/\s*([{};:])\s*/g, '$1').trim ();
 						break;
 					case 's':
 						result = arg.value.replace (/\s+/g, ' ').trim ();
