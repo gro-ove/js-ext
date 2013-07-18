@@ -1,6 +1,5 @@
 // ==Jsx==
 // @compress  on
-// @args      prototype
 // ==/Jsx==
 
 Object.extend = function (a, b){
@@ -11,7 +10,3 @@ Object.extend = function (a, b){
 		result [n] = b [n]; 
 	return result;
 }
-	
-/* if (prototype)
-Object.prototype.extend = lambda Object.extend (this, arg);
-*/
