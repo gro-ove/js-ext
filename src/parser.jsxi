@@ -2,21 +2,21 @@ module Parser {
 	import Node, Compressor;
 	
 	var builded = Node.resolve ('js-ext.parser'), 
-		parse;
+		parser;
 	
-	export function getReady (){
+	export function work (code, filename)
+		try 
+			return parser.parse (code);
+		catch 
+			Node.fatalError ('Error while parsing "{0}": {1}'.format (filename, e), e.stack);
+	
+	export function init (){
 		if (!Node.fs ().existsSync (builded))
 			Node.fatalError ('Parser not found.');
 		try
-			parse = require (builded).parse;
-		if (typeof parse == 'function') 
+			parser = require (builded);
+		if (parser && typeof parser.parse == 'function') 
 			return;
 		Node.fatalError ('Parser is broken.');
 	}
-	
-	export function work (code, filename)	
-		try 
-			return parse (code);
-		catch 
-			Node.fatalError ('Error while parsing "{0}": {1}'.format (filename, e), e.stack);
 }
