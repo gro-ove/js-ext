@@ -198,12 +198,12 @@ module App {
 		return data.result;
 	}
 	
-	function getOutputFile (file, buildTo){
+	function getOutputFile (file, buildTo, phpMode){
 		var result = Node.path ().resolve (file, '..');
 		if (buildTo)
 			result = Node.path ().resolve (result, buildTo);
 		if (!buildTo || /[\/\\]$/.test (buildTo))
-			result = Node.path ().resolve (result, Node.path ().basename (file, '.jsx') + '.js');
+			result = Node.path ().resolve (result, Node.path ().basename (file, '.jsx') + (phpMode ? '.php' : '.js'));
 		return result;
 	}
 	
@@ -213,8 +213,10 @@ module App {
 		if (data.additional.target && data.additional.target.value == 'node')
 			result.push ('#!/usr/bin/env node');
 		
-		if (data.additional.php && argPhpHeader)
+		if (data.additional.php && argPhpHeader){
 			result.push ('<? header(\'Content-Type: application/javascript\') ?>');
+			console.log ('PHP mode.')
+		}
 		
 		if (data.additional.userscript)
 			result.push ('// ==UserScript==\n' + data.additional.userscript.map (lambda '// @' + arg.key + ' ' 
@@ -234,7 +236,9 @@ module App {
 				code = code.split (v.what).join (v.by);
 		
 		return {
-			file: outputFile || getOutputFile (inputFile, data.additional.buildTo && data.additional.buildTo.value),
+			file: outputFile || getOutputFile (inputFile, 
+				data.additional.buildTo && data.additional.buildTo.value, 
+				data.additional.php && argPhpHeader),
 			code: code
 		};
 	}
