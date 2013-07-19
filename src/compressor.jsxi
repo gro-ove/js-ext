@@ -1,9 +1,13 @@
 module Compressor {
 	import Node, @App;
 	
-	var jsCompressor = Node.safeAccess ('uglify-js', 'compress js');
+	var jsCompressor = Node.safeAccess ('uglify-js', 'compress js'),
+		enabled = true;
 	
-	export function work (code, filename, max)
+	export function work (code, filename, max){
+		if (!enabled)
+			return code;
+		
 		try {
 			var str = jsCompressor ().OutputStream ({ comments: /^!<\?/ }),
 				prs = jsCompressor ().parse (code, { filename: filename }),
@@ -25,16 +29,17 @@ module Compressor {
 					join_vars:      true,  // Join var declarations
 					cascade:        true,  // Try to cascade `right` into `left` in sequences
 					side_effects:   true,  // Drop side-effect-free statements
-					warnings:       true
+					warnings:       !App.silenceMode
 				} : { 
-					unused: false,
-					warnings:       true
+					unused:         false,
+					warnings:       !App.silenceMode
 				}),
 				trn = prs.transform (cmp);
 			prs.print (str);
 			return str.toString ();
 		} catch
 			Node.fatalError ('Compress error: ' + e, code);
+	}
 	
 	export function max (code, filename){
 		return work (code, filename, true);

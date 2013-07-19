@@ -1,3 +1,7 @@
+// ==Jsx==
+// @compress off
+// ==/Jsx==
+
 module App {
 	import Node, Prework, Parser, Converter, Format, Compressor, ModulesCode, Cacher;
 	
@@ -5,7 +9,8 @@ module App {
 		outputFile,
 		cacheFolder,
 		argPhpHeader,
-		includesFolder;
+		includesFolder,
+		silenceMode;
 		
 	var loadedFiles = [],
 		glob = Node.safeAccess ('glob', 'usings masks');
@@ -116,16 +121,17 @@ module App {
 				value = formatted.jsx [i].value;
 				
 			if (key === null){
-				console.log ('Warning: found unparcable Jsx comment ({0}).'.format (file));
+				if (!silenceMode)
+					console.log ('Warning: found unparcable Jsx comment ({0}).'.format (file));
 				continue;
 			}
 			
 			switch (key){
 				case 'import':
-					childs.push ({ name: value + '.jsxi' });
+					childs.push ({ name: value + (/(\/|\\)$/.test (value) ? '*' : '') + '.jsxi' });
 					break;
 				case 'include':
-					childs.push ({ name: value, raw: true });
+					childs.push ({ name: value + (/(\/|\\)$/.test (value) ? '*' : ''), raw: true });
 					break;
 				case 'compress':
 					compress = checkOn (value);
@@ -138,10 +144,10 @@ module App {
 					if (n == -1)
 						Node.fatalError ('Undefined target value: "{0}" (at {1}).'.format (value, file));
 					if (n > 1)
-						result.additional.target = { type: 'target', value: value.trim () };
+						result.additional.target = { type: 'target', value: value };
 					break;
 				case 'build-to':
-					result.additional.buildTo = { type: 'buildTo', value: value.trim () };
+					result.additional.buildTo = { type: 'buildTo', value: value };
 					break;
 				case 'define':
 					if (!result.additional.defines)
@@ -215,7 +221,8 @@ module App {
 		
 		if (data.additional.php && argPhpHeader){
 			result.push ('<? header(\'Content-Type: application/javascript\') ?>');
-			console.log ('PHP mode.')
+			if (!silenceMode)
+				console.log ('PHP mode.')
 		}
 		
 		if (data.additional.userscript)
@@ -246,12 +253,12 @@ module App {
 	export function init (){				
 		Node.args ('Usage: js-ext file [flags]', { 
 				p: { alias: 'php-header', description: 'Use php header if nessesary.' },
-				o: { alias: 'output',     description: 'Output file (else automode).' },
-				c: { alias: 'cache',      description: 'Cache folder (for compiled js files; enter ":no" for disable).' },
+				o: { alias: 'output',     description: 'Output file (else automode) or ":stdout".' },
+				c: { alias: 'cache',      description: 'Cache folder (else by default) or ":no".' },
 				u: { alias: 'usage',      description: 'This text.' },
 			});
 			
-		if (Node.args ().u || !(inputFile = Node.args ()._[0])){
+		if (Node.args ().u || !(inputFile = Node.path ().resolve (Node.args ()._[0]))){
 			Node.showHelp ();
 		} else if (!Node.fs ().existsSync (inputFile)){
 			Node.fatalError ('Input file "{0}" not found.'.format (inputFile));
@@ -263,8 +270,14 @@ module App {
 			outputFile        = Node.args ().o;
 			argPhpHeader      = Node.args ().p;
 			
+			silenceMode       = /^:(stdout|console)$/.test (outputFile);
+			
 			var result = finalStrokes (load (inputFile));
-			Node.writeFile (result.file, result.code);
+			
+			if (silenceMode)
+				console.log (result.code);
+			else
+				Node.writeFile (result.file, result.code);
 		}
 	}
 }
