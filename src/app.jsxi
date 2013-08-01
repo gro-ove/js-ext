@@ -13,7 +13,8 @@ module App {
 		silenceMode;
 		
 	var loadedFiles = [],
-		glob = Node.safeAccess ('glob', 'usings masks');
+		glob        = Node.safeAccess ('glob', 'usings masks'),
+		fibers      = Node.safeAccess ('fibers');
 		
 	function asFolder (path){
 		if (!path)
@@ -99,11 +100,17 @@ module App {
 	}
 	
 	function work (file, top){
-		var content   = Node.readFile (file),
-			prework   = Prework.work (content),
-			parsed    = Parser.work (prework.code, file),
-			converted = Converter.work (parsed),
-			formatted = Format.work (converted.tree);
+		silenceMode || console.log (file);
+		var content   = Node.readFile (file);
+		silenceMode || console.log ('.. Readed');
+		var prework   = Prework.work (content);
+		silenceMode || console.log ('.. Preworked');
+		var parsed    = Parser.work (prework.code, file);
+		silenceMode || console.log ('.. Parsed');
+		var converted = Converter.work (parsed);
+		silenceMode || console.log ('.. Converted');
+		var formatted = Format.work (converted.tree);
+		silenceMode || console.log ('.. Formatted');
 			
 		var childs = [],
 			result = {
@@ -136,11 +143,14 @@ module App {
 				case 'compress':
 					compress = checkOn (value);
 					break;
+				case 'isolate':
+					result.additional.isolate = checkOn (value);
+					break;
 				case 'modules-public':
 					result.additional.modulesPublic = checkOn (value);
 					break;
 				case 'target':
-					var n = ['default', 'auto', 'node', 'web', 'web:onload'].indexOf (value);
+					var n = ['default', 'auto', 'node', 'web', 'web:onload', 'local'].indexOf (value);
 					if (n == -1)
 						Node.fatalError ('Undefined target value: "{0}" (at {1}).'.format (value, file));
 					if (n > 1)
@@ -229,6 +239,9 @@ module App {
 			result.push ('// ==UserScript==\n' + data.additional.userscript.map (lambda '// @' + arg.key + ' ' 
 				+ arg.value + '\n').join ('') + '// ==/UserScript==\n');
 		
+		if (data.additional.isolate)
+			result.push ('(function (){\n');
+		
 		if (modules)
 			result.push (modules.begin);
 		
@@ -236,6 +249,9 @@ module App {
 		
 		if (modules)
 			result.push (modules.end);
+			
+		if (data.additional.isolate)
+			result.push ('\n})()');
 		
 		var code = result.join ('\n');
 		if (data.additional.defines)
@@ -250,34 +266,36 @@ module App {
 		};
 	}
 	
-	export function init (){				
-		Node.args ('Usage: js-ext file [flags]', { 
-				p: { alias: 'php-header', description: 'Use php header if nessesary.' },
-				o: { alias: 'output',     description: 'Output file (else automode) or ":stdout".' },
-				c: { alias: 'cache',      description: 'Cache folder (else by default) or ":no".' },
-				u: { alias: 'usage',      description: 'This text.' },
-			});
-			
-		if (Node.args ().u || !(inputFile = Node.path ().resolve (Node.args ()._[0]))){
-			Node.showHelp ();
-		} else if (!Node.fs ().existsSync (inputFile)){
-			Node.fatalError ('Input file "{0}" not found.'.format (inputFile));
-		} else {
-			var argCache      = Node.args ().c ? Node.args ().c.trim () : '';
-			cacheFolder       = /^:no(ne|t)?$/i.test (argCache) ? null : asFolder (argCache || Node.resolve ('cache'));
-			
-			includesFolder    = asFolder (Node.resolve ('includes'));
-			outputFile        = Node.args ().o;
-			argPhpHeader      = Node.args ().p;
-			
-			silenceMode       = /^:(stdout|console)$/.test (outputFile);
-			
-			var result = finalStrokes (load (inputFile));
-			
-			if (silenceMode)
-				console.log (result.code);
-			else
-				Node.writeFile (result.file, result.code);
-		}
+	export function init (){	
+		fibers ()(lambda {			
+			Node.args ('Usage: js-ext file [flags]', { 
+					p: { alias: 'php-header', description: 'Use php header if nessesary.' },
+					o: { alias: 'output',     description: 'Output file (else automode) or ":stdout".' },
+					c: { alias: 'cache',      description: 'Cache folder (else by default) or ":no".' },
+					u: { alias: 'usage',      description: 'This text.' },
+				});
+				
+			if (Node.args ().u || !(inputFile = Node.path ().resolve (Node.args ()._[0]))){
+				Node.showHelp ();
+			} else if (!Node.fs ().existsSync (inputFile)){
+				Node.fatalError ('Input file "{0}" not found.'.format (inputFile));
+			} else {
+				var argCache      = Node.args ().c ? Node.args ().c.trim () : '';
+				cacheFolder       = /^:no(ne|t)?$/i.test (argCache) ? null : asFolder (argCache || Node.resolve ('cache'));
+				
+				includesFolder    = asFolder (Node.resolve ('includes'));
+				outputFile        = Node.args ().o;
+				argPhpHeader      = Node.args ().p;
+				
+				silenceMode       = /^:(stdout|console)$/.test (outputFile);
+				
+				var result = finalStrokes (load (inputFile));
+				
+				if (silenceMode)
+					console.log (result.code);
+				else
+					Node.writeFile (result.file, result.code);
+			}
+		}).run ();
 	}
 }

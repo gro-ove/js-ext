@@ -13,7 +13,9 @@ module ModulesCode {
 				?  'window' 
 				:  /^node$/.test (target) 
 					?  'GLOBAL' 
-					:  '"u" != (typeof window)[0] && window || GLOBAL',
+					:  /^local$/.test (target) 
+						? '0'
+						: '"u" != (typeof window)[0] && window || GLOBAL',
 			end: target == 'web:onload' 
 				?  `'u' != (typeof window)[0] && 'u' != (typeof document)[0] && !/loaded|complete/.test(document.readyState) ? window.addEventListener('load', __m) : __m()` 
 				:  '__m()',
@@ -44,51 +46,55 @@ module ModulesCode {
 			            for (i in s)
 			            	I (i);
 			            
-			            delete root.__m
+			            {0}
 			        }`,
 			mainHelper: additional.modulesPublic
 				?  ', w = 0'
 				:  '',
 		};
+		
+		parts.rootExists = parts.root != '0' ? 'root.' : '';
+		parts.local = parts.root != '0' ? '' : 'var __m;';
+		parts.main = parts.main.format (parts.root != '0' ? 'delete root.__m' : '');
 			
-			return {
-				begin: Compressor.max (s`!function () {
-				    var s = {}, root = {0:@(ROOT)}{0:@(MAIN_HELPER)};
-				    
-				    function G (i) {
-				        if (s [i]) 
-				        	return s [i];
-				        throw "Not found: " + i;
-				    }
+		return {
+			begin: Compressor.max (s`{0:@(LOCAL)}!function () {
+			    var s = {}, root = {0:@(ROOT)}{0:@(MAIN_HELPER)};
+			    
+			    function G (i) {
+			        if (s [i]) 
+			        	return s [i];
+			        throw "Not found: " + i;
+			    }
 
-				    function I (i) {					        
-				        var m = G (i);
-				        if (!m._d){
-				        	m._a = 1;
-				        	if (m.g)
-					        	m.g ().forEach (function (other){
-						            if ("@" != other [0]) {
-						                if (G (other)._a) 
-						                	throw "Cycle: " + i + ", " + a;
-						                if (!G (other)._d)
-						                	I (other);
-						            }
-						        });
-				
-					        if (m.v)
-					        	m.v ();
-					        if (m.i) 
-					        	m.i ();
-					        m._d = 1;
-					        delete m._a;
-				        }
-				    }
-				    
-				    root.__m = function (i, m) {
-				        {0:@(MAIN)}
-				    }
-				}();`.format (parts)),
-				end: Compressor.max (`{0:@(END)}`.format (parts))
-			}
+			    function I (i) {					        
+			        var m = G (i);
+			        if (!m._d){
+			        	m._a = 1;
+			        	if (m.g)
+				        	m.g ().forEach (function (other){
+					            if ("@" != other [0]) {
+					                if (G (other)._a) 
+					                	throw "Cycle: " + i + ", " + other;
+					                if (!G (other)._d)
+					                	I (other);
+					            }
+					        });
+			
+				        if (m.v)
+				        	m.v ();
+				        if (m.i) 
+				        	m.i ();
+				        m._d = 1;
+				        delete m._a;
+			        }
+			    }
+			    
+			    {0:@(ROOT_EXISTS)}__m = function (i, m) {
+			        {0:@(MAIN)}
+			    }
+			}();`.format (parts)),
+			end: Compressor.max (`{0:@(END)}`.format (parts))
+		}
 	}
 }

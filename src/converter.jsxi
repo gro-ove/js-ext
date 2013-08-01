@@ -2,7 +2,9 @@ module Converter {
 	import Node;
 	
 	var moduleName = '__m',
-		minimize = Node.safeAccess ('minimize', 'compress html'),
+		minimize   = Node.safeAccess ('minimize', 'compress html'),
+		less       = Node.safeAccess ('less', 'converting less to css'),
+		fibers     = Node.safeAccess ('fibers', 'converting less to css'),
 		minimizeInstance,
 		modules;
 			
@@ -58,7 +60,7 @@ module Converter {
 			}),
 		
 		StringLiteral: 
-			lambda {
+			lambda (arg, file){
 				var result;
 				
 				switch (arg.special){
@@ -75,6 +77,24 @@ module Converter {
 						break;
 					case 's':
 						result = arg.value.replace (/\s+/g, ' ').trim ();
+						break;
+					case 'l':
+						var fiber = fibers ().current;
+					
+						try {
+							new (less ().Parser)({ 
+								paths: [Node.path ().dirname (file), Node.resolve ('includes')], 
+								filename: file 
+							}).parse ('@import "__js_ext_utils.less";\n' + arg.value, lambda (e, tree){
+								if (e)
+									Node.fatalError ('Error at LESS parsing:', e);
+								result = tree.toCSS ({ compress: true });
+								fiber.run ();
+							});
+						} catch
+							Node.fatalError ('Error at LESS parsing: ' + e);
+							
+						fibers ().yield ();
 						break;
 					default:
 						result = arg.value;
@@ -219,8 +239,19 @@ module Converter {
 		modules = false;
 	
 		return {
-			tree: clone (parsed),
-			modules: !!modules
+			tree:     clone (parsed),
+			modules:  !!modules
 		};
+	}
+	
+	export function finish (file){
+		for (var key, value in shameOnMeDogNail){
+			var valueString = value ();
+			if (!valueString)
+				return null;
+			file = file.replace (key, valueString);
+		}
+		
+		return file;
 	}
 }
