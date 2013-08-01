@@ -1,0 +1,26 @@
+module TimeMeasure {
+	export var active;
+	
+	var previousTime,
+		data;
+	
+	function time ()
+		return +new Date;
+
+	export function begin (){
+		previousTime = time ();
+		data = [];
+		
+		active = true;
+	}
+	
+	export function step (txt){
+		data.push (txt + ': ' + (time () - previousTime) + 'ms');
+		previousTime = time ();
+	}
+	
+	export function get (){
+		active = false;
+		return data;
+	}
+}

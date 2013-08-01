@@ -1,0 +1,8 @@
+module BytesToString {
+	export function work (value){
+		for (var i = 0; value > 1024; i ++)
+			value = value / 1024;
+		
+		
+	}
+}

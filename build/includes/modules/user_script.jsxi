@@ -1,0 +1,67 @@
+// ==Jsx==
+// @target web
+// ==/Jsx==
+
+module UserScript {
+	export function execRaw (code){		
+		var script = document.createElement ('script');
+		script.setAttribute ('type', 'application/javascript');
+		script.textContent = code;
+		
+		document.documentElement.appendChild (script);
+		document.documentElement.removeChild (script);
+	}
+	
+	export function exec (fn){
+		execRaw ('(' + fn + ')();');
+	}
+	
+	export function call (name){
+		if (name in window && typeof window [name] == 'function')
+			window [name]();
+		else
+			execRaw (name + '()');
+	}
+	
+	export function override (name, fn){
+		if (name in window && typeof window [name] == 'function')
+			window [name] = fn;
+		else
+			execRaw ('window.' + name + ' = ' + fn);
+	}
+	
+	export function callback (fn, answer, oneShot, key = 'jsx-user-script-temp-' + Math.round (Math.random () * 1e16)){
+		var temp = document.getElementById (key); 
+		
+		if (!temp){
+			temp = document.documentElement.appendChild (document.createElement ('div'));
+			temp.setAttribute ('hidden', true);
+			temp.setAttribute ('id', key);
+		}
+		
+		temp.addEventListener ('click', lambda {
+			var value = localStorage [key] && JSON.parse (localStorage [key]);
+			if (value)
+				delete localStorage [key];
+			answer (value);
+			
+			if (oneShot)
+				document.documentElement.removeChild (temp);
+		});
+		
+		var callback = lambda {
+			var key = '__INSERT__KEY__HERE__';
+			if (arg)
+				localStorage [key] = JSON.stringify (arg);
+			document.getElementById (key).click ();
+		};
+		
+		execRaw (('(' + fn + ')(' + callback + ');').replace ('__INSERT__KEY__HERE__', key));
+	}
+	
+	export function onload (callback)
+		if (/interactive|complete/.test (document.readyState)) 
+			callback ();
+		else 
+			document.addEventListener ('DOMContentLoaded', callback);
+}
