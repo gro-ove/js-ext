@@ -59,6 +59,8 @@ if (av == bv)
 return a;
 if (pairCompare (av, bv, "web", "web:onload"))
 return {"type":"target","value":"web:onload"};
+if (pairCompare (av, bv, "web", "local"))
+return {"type":"target","value":"local"};
 Node.fatalError ("Incompatibile target: \"{0}\" and \"{1}\".".format (av, bv));
 },"buildTo":function (arg){
 return Node.fatalError ("Only one build-target instruction allowed.");
