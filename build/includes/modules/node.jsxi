@@ -12,8 +12,13 @@ module Node {
 	           path = safeAccess ('path');
 	
 	export function fatalError (msg){
-		for (var i = 0; i < arguments.length; i ++)
-			console.error (arguments [i]);
+		var temp = [];
+		for (var i = 0; i < arguments.length; i ++){
+			if (i)
+				temp.push ('\n');
+			temp.push (arguments [i]);
+		}
+		console.error.call (console, temp);
 		process.exit (1);
 	}
 	
@@ -25,7 +30,7 @@ module Node {
 				return cache || (cache = require (what));
 			catch
 				fatalError ('Please, install "{0}" for {1}.'.format (what, purpose), 
-					'> npm install -g {0}.'.format (what));
+					'> cd "{0}" && npm install {1}'.format (__dirname, what));
 	}
 	
 	export function args (usage, args){
