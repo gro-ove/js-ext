@@ -2,11 +2,22 @@
 // @compress  on
 // ==/Jsx==
 
-Object.extend = function (a, b){
-	var result = {}; 
-	for (var n in a) 
-		result [n] = a [n]; 
-	for (var n in b) 
-		result [n] = b [n]; 
+Object.extend = function (){
+	var result = {};
+	for (var i = 0; i < arguments.length; i ++)
+		for (var n in arguments [i]){
+			if (result.__lookupGetter__ (n) || result.__lookupSetter__ (n))
+				delete result [n];
+			
+			result [n] = arguments [i][n];
+			
+			var getter = arguments [i].__lookupGetter__ (n);
+			if (getter)
+				result.__defineGetter__ (n, getter);
+			
+			var setter = arguments [i].__lookupSetter__ (n);
+			if (setter)
+				result.__defineSetter__ (n, setter);					
+		}
 	return result;
 }

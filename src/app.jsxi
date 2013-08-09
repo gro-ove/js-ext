@@ -118,7 +118,8 @@ module App {
 			result = {
 					code:       formatted.code,
 					additional: formatted.additional,
-					modules:    converted.modules
+					modules:    converted.modules,
+					lessParams: converted.lessParams,
 				},
 			compress = true;
 			
@@ -243,9 +244,12 @@ module App {
 		
 		if (data.additional.isolate)
 			result.push ('(function (){\n');
-		
+				
 		if (modules)
 			result.push (modules.begin);
+		
+		if (data.lessParams)
+			result.push (`String.prototype.less=function (a,r){r=this;for(var n in a)r=r.replace(new RegExp('@'+n.replace(/([a-z])([A-Z])/g,'$1_$2').toUpperCase(),'g'),a[n]);return r}`);
 		
 		result.push (data.code);
 		

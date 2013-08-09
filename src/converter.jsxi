@@ -6,7 +6,8 @@ module Converter {
 		less       = Node.safeAccess ('less', 'converting less to css'),
 		fibers     = Node.safeAccess ('fibers', 'converting less to css'),
 		minimizeInstance,
-		modules;
+		modules,
+		lessParams;
 			
 	function jsonFunction (name, content, params = [])
 		return { type: 'PropertyAssignment', name: name, 
@@ -63,6 +64,27 @@ module Converter {
 			lambda (arg, file){
 				var result;
 				
+				function parseLess (data){
+					var fiber = fibers ().current,
+						result;
+				
+					try {
+						new (less ().Parser)({ 
+							paths: [Node.path ().dirname (file), Node.resolve ('includes')], 
+							filename: file 
+						}).parse ('@import "__js_ext_utils.less";\n' + data, lambda (e, tree){
+							if (e)
+								Node.fatalError ('Error at LESS parsing:', e);
+							result = tree.toCSS ({ compress: true });
+							fiber.run ();
+						});
+					} catch
+						Node.fatalError ('Error at LESS parsing: ' + e);
+						
+					fibers ().yield ();
+					return result;
+				}
+				
 				switch (arg.special){
 					case 'h':
 						var a = arg.value.replace (/<([a-z]+)(\s[^>]+?)?\s*\/>/g, '<$1$2></$1>');
@@ -79,22 +101,44 @@ module Converter {
 						result = arg.value.replace (/\s+/g, ' ').trim ();
 						break;
 					case 'l':
-						var fiber = fibers ().current;
-					
-						try {
-							new (less ().Parser)({ 
-								paths: [Node.path ().dirname (file), Node.resolve ('includes')], 
-								filename: file 
-							}).parse ('@import "__js_ext_utils.less";\n' + arg.value, lambda (e, tree){
-								if (e)
-									Node.fatalError ('Error at LESS parsing:', e);
-								result = tree.toCSS ({ compress: true });
-								fiber.run ();
-							});
-						} catch
-							Node.fatalError ('Error at LESS parsing: ' + e);
+						result = parseLess (arg.value);
+						break;
+					case 'lp':
+						var variables = {}, raw = arg.value;
+						
+						lessParams = true;
+						
+						var generators = {
+							def:   lambda (1 + Math.random ()) * 10000 | 0,
+							size:  lambda this.def () + 'px',
+							per:   lambda this.def () + '%',
+							time:  lambda this.def () + 's',
+							color: lambda '#' + (Math.random () * 0xefffff + 0x100000 | 0).toString (16),
+							text:  lambda '"' + (Math.random () * 1e18).toString (32) + '"',
+							font:  lambda this.text (),
+						}
+						
+						result = parseLess (raw.replace (/@([A-Z0-9_]+?)(?:_([A-Z]+))?([^A-Z0-9_])/g, 
+							lambda (match, name, type, postfix){
+								var key   = '@' + name + '_' + type, 
+									value = variables [key];
+								
+								if (!value){
+									var generator = generators [type] || generators.def;
+									
+									do {
+										value = generator ();
+									} while (raw.indexOf (value) != -1);
+									
+									variables [key] = value;
+								}
+								
+								return value + postfix;
+							}));
+						
+						for (var name, value in variables)
+							result = result.split (value).join (name);
 							
-						fibers ().yield ();
 						break;
 					default:
 						result = arg.value;
@@ -236,11 +280,13 @@ module Converter {
 		}
 	
 	export function work (parsed){
-		modules = false;
+		modules    = false;
+		lessParams = false;
 	
 		return {
-			tree:     clone (parsed),
-			modules:  !!modules
+			tree:       clone (parsed),
+			modules:    !!modules,
+			lessParams: !!lessParams
 		};
 	}
 	
