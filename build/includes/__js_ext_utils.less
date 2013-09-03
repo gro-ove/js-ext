@@ -15,6 +15,11 @@
 	height: @height;
 }
 
+.overflow (@x, @y){
+	overflow-x: @x;
+	overflow-y: @y;
+}
+
 .rect (@arg){
 	top: @arg;
 	left: @arg;
@@ -22,16 +27,15 @@
 	right: @arg;
 }
 
-.overflow (@x, @y){
-	overflow-x: @x;
-	overflow-y: @y;
-}
-
 .rect (@top, @right, @bottom, @left){
 	top: @top;
 	left: @right;
 	bottom: @bottom;
 	right: @left;
+}
+
+.rect (@top, @right){
+	.rect (@top, @right, @top, @right);
 }
 
 .transition (@value1, @value2:X, ...){
@@ -49,5 +53,16 @@
 	-moz-user-select: @value;
 	-ms-user-select: @value;
 	user-select: @value;
+}
+
+.box-sizing (@value){
+	box-sizing: @value;
+	-moz-box-sizing: @value;
+	-webkit-box-sizing: @value;
+}
+
+
+.box-sizing (){
+	.box-sizing (border-box);
 }
 
