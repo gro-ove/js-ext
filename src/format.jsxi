@@ -17,12 +17,16 @@ module Format {
 			additional [tag] = data;
 	}
 	
+	var previous = +new Date % 100,
+	    randomName = lambda '_' + Math.round (Math.random () * 1e10).toString (32) + '_' + previous ++;
+
 	var f = lambda
 			if (!types [arg.type])
 				Node.fatalError ('No formatter for type: ' + arg.type, arg)
 			else 
-				return types [arg.type](arg),
-		types = {
+				return types [arg.type](arg);
+
+	var types = {
 			Program:                  lambda arg.elements.map (f).join (eol),
 			Raw:                      lambda arg.value,
 			SpecialComment:           lambda commentParse (arg.tag, arg.value) || '',
@@ -57,12 +61,42 @@ module Format {
 			ThrowStatement:           lambda 'throw ' + f (arg.exception) + ';',
 			ForStatement:             lambda 'for (' + (arg.initializer ? f (arg.initializer) : '') + '; ' + eol 
 				+ (arg.test ? f (arg.test) : '') + '; ' + (arg.counter ? f (arg.counter) : '') + ')' + eol + f (arg.statement),
-			ForInStatement:           lambda 'for (' + f (arg.iterator) + ' in ' + f (arg.collection) + ')' + eol 
-				+ f (arg.statement),
-			ForInStatementExt:           lambda 
-				'for (' + f (arg.iterator) + ' in ' + f (arg.collection) + '){' + eol 
-				+ 'var ' + f (arg.value) + ' = ' + f (arg.collection) + '[' + f (arg.iterator) + '];' + eol 
-				+ (arg.statement.type == 'Block' ? f (arg.statement).slice (1, -1).trim () : f (arg.statement)) + eol + '}',
+			ForInStatementExt:        lambda {
+				if (arg.token == 'in-array'){
+					var chmd = !arg.collection || arg.collection.type != 'Variable',
+						name = chmd ? randomName () : f (arg.iterator);
+
+					if (!arg.value){
+						var counter = randomName ();
+						return (chmd ? '{ var ' + name + ' = ' + f (arg.collection) + '; ' : '')
+						       + 'for (var ' + counter + ' = 0; ' + counter + ' < ' + name + '.length; ' + counter + ' ++){' + eol 
+							   + f (arg.iterator) + ' = ' + name + '[' + counter + '];' + eol 
+							   + (arg.statement && arg.statement.type == 'Block' ? f (arg.statement).slice (1, -1).trim () : f (arg.statement)) + eol + '}'
+							   + (chmd ? '}' : '');
+					} else {
+						if (!arg.iterator.name)
+							throw new Error ('Not implemented.');
+						return (chmd ? '{ var ' + name + ' = ' + f (arg.collection) + '; ' : '')
+						       + 'for (' + f (arg.iterator) + ' = 0; ' + arg.iterator.name + ' < ' + name + '.length; ' + arg.iterator.name + ' ++){' + eol 
+							   + 'var ' + f (arg.value) + ' = ' + name + '[' + arg.iterator.name + '];' + eol 
+							   + (arg.statement && arg.statement.type == 'Block' ? f (arg.statement).slice (1, -1).trim () : f (arg.statement)) + eol + '}'
+							   + (chmd ? '}' : '');
+					}
+				}
+
+				if (arg.value){
+					var chmd = !arg.collection || arg.collection.type != 'Variable',
+						name = chmd ? randomName () : f (arg.iterator);
+
+					return (chmd ? '{ var ' + name + ' = ' + f (arg.collection) + '; ' : '')
+						   + 'for (' + f (arg.iterator) + ' in ' + name + '){' + eol 
+						   + 'var ' + f (arg.value) + ' = ' + name + '[' + f (arg.iterator) + '];' + eol 
+						   + (arg.statement && arg.statement.type == 'Block' ? f (arg.statement).slice (1, -1).trim () : f (arg.statement)) + eol + '}'
+						   + (chmd ? '}' : '');
+				}
+
+				return 'for (' + f (arg.iterator) + ' in ' + f (arg.collection) + ')' + eol + f (arg.statement);
+			},
 			WhileStatement:           lambda 'while (' + f (arg.condition) + ')' + eol + f (arg.statement),
 			DoWhileStatement:         lambda 'do' + eol + f (arg.statement) + eol + ' while (' + f (arg.condition) + ');',
 			SwitchStatement:          lambda 'switch (' + f (arg.expression) + '){' + eol + arg.clauses.map (f).join (eol) 

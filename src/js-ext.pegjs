@@ -347,7 +347,8 @@ GetToken        = "get"              !IdentifierPart
 IfToken         = "if"               !IdentifierPart
 InstanceofToken = "instanceof"       !IdentifierPart { return "instanceof"; }
 InToken         = "in"               !IdentifierPart { return "in"; }
-InTokenExt      = "in" / "in-array"  !IdentifierPart
+InTokenExt      = token:("in-array" { return "in-array" } / "in" { return "in" })  
+                                     !IdentifierPart { return token; }
 NewToken        = "new"              !IdentifierPart
 NullToken       = "null"             !IdentifierPart
 ReturnToken     = "return"           !IdentifierPart
