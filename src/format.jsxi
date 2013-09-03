@@ -64,7 +64,7 @@ module Format {
 			ForInStatementExt:        lambda {
 				if (arg.token == 'in-array'){
 					var chmd = !arg.collection || arg.collection.type != 'Variable',
-						name = chmd ? randomName () : f (arg.iterator);
+						name = chmd ? randomName () : f (arg.collection);
 
 					if (!arg.value){
 						var counter = randomName ();
@@ -86,7 +86,7 @@ module Format {
 
 				if (arg.value){
 					var chmd = !arg.collection || arg.collection.type != 'Variable',
-						name = chmd ? randomName () : f (arg.iterator);
+						name = chmd ? randomName () : f (arg.collection);
 
 					return (chmd ? '{ var ' + name + ' = ' + f (arg.collection) + '; ' : '')
 						   + 'for (' + f (arg.iterator) + ' in ' + name + '){' + eol 
