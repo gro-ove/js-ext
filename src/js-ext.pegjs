@@ -347,6 +347,7 @@ GetToken        = "get"              !IdentifierPart
 IfToken         = "if"               !IdentifierPart
 InstanceofToken = "instanceof"       !IdentifierPart { return "instanceof"; }
 InToken         = "in"               !IdentifierPart { return "in"; }
+InTokenExt      = "in" / "in-array"  !IdentifierPart
 NewToken        = "new"              !IdentifierPart
 NullToken       = "null"             !IdentifierPart
 ReturnToken     = "return"           !IdentifierPart
@@ -1258,13 +1259,14 @@ ForInStatement
         VarToken __ declaration:VariableDeclarationNoIn { return declaration; }
       / LeftHandSideExpression
     ) __
-    InToken __
+    token:InTokenExt __
     collection:Expression __
     ")" __
     statement:Statement
     {
       return {
-        type:       "ForInStatement",
+        type:       "ForInStatementExt",
+        token:      token,
         iterator:   iterator,
         collection: collection,
         statement:  statement
@@ -1281,13 +1283,14 @@ ForInStatement
         VarToken __ declaration:VariableDeclarationNoIn { return declaration; }
       / LeftHandSideExpression
     ) __
-    InToken __
+    token:InTokenExt __
     collection:Expression __
     ")" __
     statement:Statement
     {
       return {
         type:       "ForInStatementExt",
+        token:      token,
         iterator:   iterator,
         value:      value,
         collection: collection,
@@ -1868,14 +1871,39 @@ ForInNoCommaStatement
         VarToken __ declaration:VariableDeclarationNoIn { return declaration; }
       / LeftHandSideExpression
     ) __
-    InToken __
+    token:InTokenExt __
     collection:Expression __
     ")" __
     statement:NoCommaStatement
     {
       return {
-        type:       "ForInStatement",
+        type:       "ForInStatementExt",
         iterator:   iterator,
+        collection: collection,
+        statement:  statement
+      };
+    }
+  / ForToken __
+    "(" __
+    iterator:(
+        VarToken __ declaration:VariableDeclarationNoIn { return declaration; }
+      / LeftHandSideExpression
+    ) __
+    "," __
+    value:(
+        VarToken __ declaration:VariableDeclarationNoIn { return declaration; }
+      / LeftHandSideExpression
+    ) __
+    token:InTokenExt __
+    collection:Expression __
+    ")" __
+    statement:NoCommaStatement
+    {
+      return {
+        type:       "ForInStatementExt",
+        token:      token,
+        iterator:   iterator,
+        value:      value,
         collection: collection,
         statement:  statement
       };
