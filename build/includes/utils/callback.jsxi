@@ -1,0 +1,14 @@
+var Callback = lambda {
+	this.callbacks = [];
+	this.oneshot   = arg;
+};
+
+Callback.prototype.clear    = lambda this.callbacks = [];
+Callback.prototype.add      = lambda this.callbacks.push (arg);
+Callback.prototype.remove   = lambda if ((arg = this.callbacks.indexOf (arg)) != -1) this.callbacks.splice (arg, 1);
+Callback.prototype.dispatch = lambda {
+	for (var i = 0; i < this.callbacks.length; i ++) 
+		this.callbacks [i].apply (this, arguments);
+	if (this.oneshot)
+		this.clear ();
+}
