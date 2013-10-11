@@ -1,11 +1,13 @@
 // ==Jsx==
 // @target node
+// @import utils/string.format.obj
 // @compress on
 // ==/Jsx==
 
 module Node {
 	var optimist = safeAccess ('optimist', 'correct interact in shell'),
-		argv;
+		argv,
+		installCmd = 'cd "{0:@(DIRNAME)}" && npm install {0:@(NAME)}';
 	
 	export var fs   = safeAccess ('fs'),
 	           cp   = safeAccess ('child_process'),
@@ -18,7 +20,7 @@ module Node {
 				temp.push ('\n');
 			temp.push (arguments [i]);
 		}
-		console.error.call (console, temp);
+		console.error.apply (console, temp);
 		process.exit (1);
 	}
 	
@@ -30,8 +32,11 @@ module Node {
 				return cache || (cache = require (what));
 			catch
 				fatalError ('Please, install "{0}" for {1}.'.format (what, purpose), 
-					'> cd "{0}" && npm install {1}'.format (__dirname, what));
+					'> ' + installCmd.format ({ dirname: __dirname, name: what }));
 	}
+
+	export function setInstallCmd (cmd)
+		installCmd = cmd;
 	
 	export function args (usage, args){
 		if (usage && args){
