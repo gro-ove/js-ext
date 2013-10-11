@@ -1,0 +1,7 @@
+Math.contain = function (obj, parent){
+	var k = Math.max (parent.width / obj.width, parent.height / obj.height);
+	return { 
+		width: obj.width * k,
+		height: obj.height * k
+	};
+}
