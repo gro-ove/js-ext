@@ -1,51 +1,88 @@
+// ==Jsx==
+// @import utils/string.format
+// ==/Jsx==
+
 module Compressor {
 	import Node, @App;
 	
-	var jsCompressor = Node.safeAccess ('uglify-js', 'compress js'),
-		enabled = true;
+	var yui       = Node.safeAccess ('yuicompressor', 'js compression'),
+		closure   = Node.safeAccess ('closure-compiler', 'deep js compression'),
+		fibers    = Node.safeAccess ('fibers', 'js compression'),
+		disabled  = false,
+		closured  = false,
+		debug     = true;
+
+	function compressError (e){
+		if (debug){
+			Node.writeFile (Node.path ().resolve (App.debugFolder, 'compress-error.js'), code);
+			console.error ('Saved at: "' + Node.path ().resolve (App.cacheFolder, 'compress-error.js') + '".');
+		} else
+			console.error (code);
+		Node.fatalError ('Compress error: {0}.'.format (e), code);
+	}
 	
-	export function work (code, filename, max){
-		if (!enabled)
-			return code;
-		
+	function closureWork (code, filename){
+		var fiber = fibers ().current,
+			result = code;
+
 		try {
-			var str = jsCompressor ().OutputStream ({ comments: /^!<\?/ }),
-				prs = jsCompressor ().parse (code, { filename: filename }),
-				cmp = jsCompressor ().Compressor (max ? {
-					sequences:      true,  // Join consecutive statemets with the “comma operator”
-					properties:     true,  // Optimize property access: a["foo"] → a.foo
-					dead_code:      true,  // Discard unreachable code
-					drop_debugger:  true,  // Discard “debugger” statements
-					unsafe:         true,  // Some unsafe optimizations (see below)
-					conditionals:   true,  // Optimize if-s and conditional expressions
-					comparisons:    true,  // Optimize comparisons
-					evaluate:       true,  // Evaluate constant expressions
-					booleans:       true,  // Optimize boolean expressions
-					loops:          true,  // Optimize loops
-					unused:         false, // Drop unused variables/functions
-					hoist_funs:     true,  // Hoist function declarations
-					hoist_vars:     true,  // Hoist variable declarations
-					if_return:      true,  // Optimize if-s followed by return/continue
-					join_vars:      true,  // Join var declarations
-					cascade:        true,  // Try to cascade `right` into `left` in sequences
-					side_effects:   true,  // Drop side-effect-free statements
-					warnings:       !App.silenceMode
-				} : { 
-					unused:         false,
-					warnings:       !App.silenceMode
-				}),
-				trn = prs.transform (cmp);
-			prs.print (str);
-			return str.toString ();
+			closure ().compile (code, {}, lambda (error, data, extra){
+				if (error){
+					compressError (error, code);
+				} else {
+					if (!App.silenceMode && extra)
+						console.log (extra);
+					result = data.trim ();
+				}
+
+				fiber.run ();
+			});
+			fibers ().yield ();
 		} catch
-			Node.fatalError ('Compress error: ' + e, code);
+			Node.fatalError ('Compress error: {0} (please, check your JRE).'.format (e));
+
+		return result;
 	}
 	
-	export function max (code, filename){
-		return work (code, filename, true);
+	function yuiWork (code, filename){
+		var fiber = fibers ().current,
+			result = code;
+
+		try {
+			yui ().compress (code, {
+				charset:      'utf8',
+				type:         'js',
+				'line-break':  200
+			}, lambda (error, data, extra){
+				if (error){
+					compressError (error, code);
+				} else {
+					if (!App.silenceMode && extra)
+						console.log (extra);
+					result = data.trim ();
+				}
+
+				fiber.run ();
+			});
+			fibers ().yield ();
+		} catch
+			Node.fatalError ('Compress error: {0} (please, check your JRE).'.format (e));
+
+		return result;
+	}
+
+	export function work (code, filename){
+		if (disabled)
+			return code;
+		else if (closured)
+			return closureWork (code, filename);
+		else
+			return yuiWork (code, filename);
 	}
 	
-	export function init (){
-		// console.log (max ('function a (){ var a = {}, test = a ["qwerty"]; return test; }'));
-	}
+	export function disable ()
+		disabled = true;
+
+	export function useClosure ()
+		closured = true;
 }
