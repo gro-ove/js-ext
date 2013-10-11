@@ -1,0 +1,7 @@
+// ==Jsx==
+// @import node
+// ==/Jsx==
+
+node ('delay', lambda (element, fn, time, args){
+		setTimeout (fn.apply (this, args), time);
+	}, node.result.NODE);

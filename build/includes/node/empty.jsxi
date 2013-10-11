@@ -1,0 +1,8 @@
+// ==Jsx==
+// @import node
+// ==/Jsx==
+
+node ('empty', lambda {
+		while (arg.firstChild) 
+			arg.removeChild (arg.firstChild);
+	}, node.result.NODE);

@@ -1,0 +1,18 @@
+// ==Jsx==
+// @import node
+// ==/Jsx==
+
+node ('style', lambda (element, data)
+	for (var key, value in data){
+		var m = key.indexOf ('Css3') === 0 ? key.substr (4) : null,
+			k = m ? m.replace (/^./, lambda arg.toLowerCase ()) : key,
+			v = typeof value === 'number' && /width|height|left|top|bottom|right|left|margin|padding/.test (key) ? value.toFixed (2) + 'px' : value;
+		if (m){
+			element.style ['Webkit' + m] = v;
+			element.style ['Moz' + m] = v;
+			element.style ['Ms' + m] = v;
+			element.style ['O' + m] = v;
+		}
+
+		element.style [k] = v;
+	}, node.result.NODE);

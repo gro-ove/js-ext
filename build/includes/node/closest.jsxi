@@ -1,0 +1,12 @@
+// ==Jsx==
+// @import node
+// ==/Jsx==
+
+node ('closest', lambda (element, selector){
+		var all = document.querySelectorAll (selector);
+		if (all.length)
+			main: for (var c = element; c; c = c.parentNode)
+				for (var f in-array all)
+					if (f === c)
+						return f;
+	});

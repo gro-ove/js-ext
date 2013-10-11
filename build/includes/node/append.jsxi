@@ -1,0 +1,10 @@
+// ==Jsx==
+// @import node
+// ==/Jsx==
+
+node ('append', lambda (parent){
+		var i, r;
+		for (i = 1; i < arguments.length; i ++)
+			parent.appendChild (r = arguments [i]);
+		return r;
+	});

@@ -1,0 +1,8 @@
+// ==Jsx==
+// @import node
+// ==/Jsx==
+
+node ('on', lambda (element, event, handler){
+		for (var e in-array event.split (' '))
+			element.addEventListener (e, handler, false);
+	}, node.result.NODE);

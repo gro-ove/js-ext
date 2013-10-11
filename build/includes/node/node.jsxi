@@ -1,0 +1,85 @@
+var node = (function (){
+	var et = null;
+
+	var rs = /[^\s]+|$/g,
+		rr = /[^\s]+/g;
+
+	function s (t)    return ' ' + t.match (rs).join (' ');
+	function h (e, c) return s (e.className).indexOf (s (c)) != -1;
+	function a (e, c) return !h (e, c) && (e.className = (e.className.match (rs) || []).join (' ') + c);
+	function r (e, c) e.className = (s (e.className).replace (c, '').match (rr) || []).join (' ');
+	function t (e, c) if (!a (c)) r (c);
+
+	function node (tag, className, content, attributes, callbacks)
+		if (typeof tag != 'string'){
+			et = tag;
+			return node;
+		} else if (typeof className == 'function'){
+			node [tag] = lambda call (className, arguments, content || result.DEFAULT);
+		} else {
+			var temp = document.createElement (tag);
+
+			if (className) 
+				temp.className = className;
+
+			if (content !== undefined && content !== null){
+				if (content.push){
+					for (var i = 0; i < content.length; i ++)
+						if (typeof content [i] === 'string')
+							temp.appendChild (document.createTextNode (content [i]));
+						else if (content [i])
+							temp.appendChild (content [i]);
+				} else if (/[<>&]/.test (content)){
+					temp.innerHTML = content;
+				} else
+					temp.appendChild (document.createTextNode (content)); 
+			}
+
+			if (callbacks)
+				for (var n, v in callbacks)
+					if (v !== undefined && v !== null)
+						temp.addEventListener (n, v, false);
+
+			if (attributes)
+				for (var n, v in attributes)
+					if (v !== undefined && v !== null)
+						temp.setAttribute (n.replace (/([a-z])([A-Z])/g, lambda (m, $1, $2) $1 + '-' + $2.toLowerCase ()), v);
+
+			return temp;
+		}
+
+	var result = node.result = {
+		DEFAULT:     0,
+		NODE:        1,
+		CLASS_MODE:  2
+	};
+
+	function call (fn, args, rn)
+		if (rn === result.CLASS_MODE){
+			var e = args [0] && args [0].nodeType == document.ELEMENT_NODE ? args [0] : et;
+			for (var cc in-array (args [1] || args [0]).split (' '))
+				fn (e, cc);
+			return node;
+		} else {
+			var d = args [0] && args [0].nodeType == document.ELEMENT_NODE,
+				r = fn.apply (null, d ? args : [ et ].concat ([].slice.call (args, 0)));
+			return rn ? d ? args [0] : node : r;
+		}
+	
+	node.end         = lambda { et = null; return node };
+
+	node.hasClass    = lambda call (lambda (element, className){
+		for (var cc in-array className.split (' '))
+			if (!h (element, cc))
+				return false;
+		return true;
+	}, arguments, result.DEFAULT);
+	node.addClass    = lambda call (a, arguments, result.CLASS_MODE);
+	node.removeClass = lambda call (r, arguments, result.CLASS_MODE);
+	node.toggleClass = lambda call (t, arguments, result.CLASS_MODE);
+
+	node.set         = lambda call (lambda (element, key, value) value !== null && value !== undefined ? element.setAttribute (key, value) : element.removeAttribute (key), arguments, result.NODE);
+	node.get         = lambda call (lambda (element, key) element.getAttribute (key), arguments, result.DEFAULT);
+
+	return node;
+})();

@@ -1,0 +1,64 @@
+// ==Jsx==
+// @import node
+// ==/Jsx==
+
+(lambda {
+	var initialized = false,
+		current     = null,
+		handler     = lambda
+			if (current){
+				var temp = {
+					type:  arg.type,
+					dx:    arg.pageX - current.start.x,
+					dy:    arg.pageY - current.start.y
+				};
+
+				if (current.data){
+					temp.data = current.data;
+
+					if (current.data.x && current.data.y){
+						temp.x = (temp.sx = current.data.x) + temp.dx;
+						temp.y = (temp.sy = current.data.y) + temp.dy;
+					}
+				} else
+					current.start = { x: arg.pageX, y: arg.pageY };
+
+				current.callback.call (current.element, temp);
+
+				if (arg.type != 'mousemove')
+					current = null;
+			};
+
+	node ('draggable', lambda (element, fn0, fn1){
+			if (!fn1){
+				fn1 = fn0;
+				fn0 = null;
+			}
+
+			if (!fn0)
+				fn0 = null;
+
+			element.addEventListener ('mousedown', lambda {
+				var v = fn0 && fn0.call (element);
+				if (v === false)
+					return;
+
+				current = {
+					element:   element,
+					data:      v,
+					start:     { 
+						x: arg.pageX,
+						y: arg.pageY
+					},
+					callback:  fn1
+				};
+			}, false);
+
+			if (!initialized){
+				document.addEventListener ('mousemove', handler, false);
+				document.addEventListener ('mouseup',   handler, false);
+				document.addEventListener ('mouseleft', handler, false);
+				initialized = true;
+			}
+		}, node.result.NODE);
+})()

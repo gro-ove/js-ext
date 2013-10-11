@@ -1,0 +1,12 @@
+// ==Jsx==
+// @import node
+// ==/Jsx==
+
+node ('prepend', lambda (parent, child){
+		if (parent.children.length > 0)
+			parent.insertBefore (child, parent.children [0]);
+		else
+			parent.appendChild (child);
+
+		return child;
+	});

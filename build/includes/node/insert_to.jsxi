@@ -1,0 +1,13 @@
+// ==Jsx==
+// @import node
+// ==/Jsx==
+
+node ('insertTo', lambda (parent, child, pos){
+		var n = parent.childNodes [pos];
+		if (n)
+			parent.insertBefore (child, n);
+		else
+			parent.appendChild (child);
+
+		return child;
+	});
