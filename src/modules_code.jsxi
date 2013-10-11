@@ -58,7 +58,7 @@ module ModulesCode {
 		parts.main = parts.main.format (parts.root != '0' ? 'delete root.__m' : '');
 			
 		return {
-			begin: Compressor.max (s`{0:@(LOCAL)}!function () {
+			begin: Compressor.work (s`{0:@(LOCAL)}(function (){
 			    var s = {}, root = {0:@(ROOT)}{0:@(MAIN_HELPER)};
 			    
 			    function G (i) {
@@ -93,8 +93,8 @@ module ModulesCode {
 			    {0:@(ROOT_EXISTS)}__m = function (i, m) {
 			        {0:@(MAIN)}
 			    }
-			}();`.format (parts)),
-			end: Compressor.max (`{0:@(END)}`.format (parts))
+			})();`.format (parts)),
+			end: Compressor.work (`{0:@(END)}`.format (parts))
 		}
 	}
 }
