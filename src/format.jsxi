@@ -77,7 +77,7 @@ module Format {
 						if (!arg.iterator.name)
 							throw new Error ('Not implemented.');
 						return (chmd ? '{ var ' + name + ' = ' + f (arg.collection) + '; ' : '')
-						       + 'for (' + f (arg.iterator) + ' = 0; ' + arg.iterator.name + ' < ' + name + '.length; ' + arg.iterator.name + ' ++){' + eol 
+						       + 'for (var ' + f (arg.iterator) + ' = 0; ' + arg.iterator.name + ' < ' + name + '.length; ' + arg.iterator.name + ' ++){' + eol 
 							   + 'var ' + f (arg.value) + ' = ' + name + '[' + arg.iterator.name + '];' + eol 
 							   + (arg.statement && arg.statement.type == 'Block' ? f (arg.statement).slice (1, -1).trim () : f (arg.statement)) + eol + '}'
 							   + (chmd ? '}' : '');
