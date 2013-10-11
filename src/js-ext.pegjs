@@ -1911,7 +1911,7 @@ ForInNoCommaStatement
     }
   
 SpecStringLiteral
-  = key:([a-z])* parts:('`' AllStringCharacters? '`') {
+  = key:([a-z\-])* parts:('`' AllStringCharacters? '`') {
       return { 
         type: "StringLiteral",  
         special: key.join (''),

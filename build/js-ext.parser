@@ -19604,24 +19604,24 @@ exports.parser=module.exports = (function(){
         pos0 = pos;
         pos1 = pos;
         result0 = [];
-        if (/^[a-z]/.test(input.charAt(pos))) {
+        if (/^[a-z\-]/.test(input.charAt(pos))) {
           result1 = input.charAt(pos);
           pos++;
         } else {
           result1 = null;
           if (reportFailures === 0) {
-            matchFailed("[a-z]");
+            matchFailed("[a-z\\-]");
           }
         }
         while (result1 !== null) {
           result0.push(result1);
-          if (/^[a-z]/.test(input.charAt(pos))) {
+          if (/^[a-z\-]/.test(input.charAt(pos))) {
             result1 = input.charAt(pos);
             pos++;
           } else {
             result1 = null;
             if (reportFailures === 0) {
-              matchFailed("[a-z]");
+              matchFailed("[a-z\\-]");
             }
           }
         }
