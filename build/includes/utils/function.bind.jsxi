@@ -1,6 +1,4 @@
-Function.prototype.bind = function (scope) {
+Function.prototype.bind = lambda (scope){
     var fn = this;
-    return function () {
-        return fn.apply(scope, arguments);
-    };
+    return lambda fn.apply (scope, arguments);
 };
