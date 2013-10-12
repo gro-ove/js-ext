@@ -1,7 +1,7 @@
 module Parser {
 	import Node, Compressor;
 	
-	var builded = Node.resolve ('js-ext.parser'), 
+	var builded = Node.resolve (__filename.replace (/\.js$/, '.parser')), 
 		parser;
 	
 	export function work (code, filename)

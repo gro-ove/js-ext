@@ -408,8 +408,8 @@ if (data.additional.isolate)
 result.push ("\n})()");
 var code = result.join ("\n");
 if (data.additional.defines)
-{ var _1325fb7_48 = data.additional.defines; for (i in _1325fb7_48){
-var v = _1325fb7_48[i];
+{ var _2kc7c1s_90 = data.additional.defines; for (i in _2kc7c1s_90){
+var v = _2kc7c1s_90[i];
 code = code.split (v.what).join (v.by);
 }}
 return {"file":outputFile || getOutputFile (inputFile, data.additional.buildTo && data.additional.buildTo.value, data.additional.php && argPhpHeader),"code":code};
@@ -1317,7 +1317,7 @@ return ["Node","Compressor"];
 Node = __ [0];
 Compressor = __ [1];
 },"v":function (){
-builded = Node.resolve ("js-ext.parser");
+builded = Node.resolve (__filename.replace (/\.js$/, ".parser"));
 }};
 });
 __m ("Prework", function (){
