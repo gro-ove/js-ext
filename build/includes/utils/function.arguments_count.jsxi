@@ -1,0 +1,2 @@
+Function.prototype.argumentsCount = lambda 
+	(this.toString ().match (/^[^(){}]+\((.+?)\)/)[1].match (/[^\s,]+/g) || 0).length || 0;
