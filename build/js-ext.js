@@ -408,8 +408,8 @@ if (data.additional.isolate)
 result.push ("\n})()");
 var code = result.join ("\n");
 if (data.additional.defines)
-{ var _2kc7c1s_90 = data.additional.defines; for (i in _2kc7c1s_90){
-var v = _2kc7c1s_90[i];
+{ var _1j3jquv_93 = data.additional.defines; for (i in _1j3jquv_93){
+var v = _1j3jquv_93[i];
 code = code.split (v.what).join (v.by);
 }}
 return {"file":outputFile || getOutputFile (inputFile, data.additional.buildTo && data.additional.buildTo.value, data.additional.php && argPhpHeader),"code":code};
