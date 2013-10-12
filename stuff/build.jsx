@@ -63,7 +63,7 @@ var position,
 					var fullPath = path.resolve (tests, file),
 						content = fs.readFileSync (fullPath),
 						result = (content.toString ().match (/\*{Result-Begin}([\s\S]+?){Result-End}\*/) || 0)[1] || '';
-					run ('node', tempJsExt, fullPath, '-o:stdout', '|', 'node', lambda (exitCode, stdout, stderr)
+					run ('node', tempJsExt, fullPath, '-o:stdout', '-e', '|', 'node', lambda (exitCode, stdout, stderr)
 						if (exitCode || result && result.replace (/\r/g, '').trim () != stdout.replace (/\r/g, '').trim ()){
 							console.log ('... Error: ' + (exitCode ? 'exit code = ' + exitCode : 'bad stdout'));
 						} else {
@@ -92,7 +92,7 @@ var position,
 			try fs.unlinkSynk (pr);
 			
 			try {
-				fs.renameSync (jt js);
+				fs.renameSync (jt, js);
 				fs.renameSync (pt, pr);
 				console.log ('.. Ok.');
 			} catch 

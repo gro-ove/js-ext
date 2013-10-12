@@ -65,7 +65,7 @@ return a < b;
 return insert (function (arg){
 console.log (".. Found: " + file);
 var fullPath = path.resolve (tests, file), content = fs.readFileSync (fullPath), result = (content.toString ().match (/\*{Result-Begin}([\s\S]+?){Result-End}\*/) || 0) [1] || "";
-run ("node", tempJsExt, fullPath, "-o:stdout", "|", "node", function (exitCode,stdout,stderr){
+run ("node", tempJsExt, fullPath, "-o:stdout", "-e", "|", "node", function (exitCode,stdout,stderr){
 if (exitCode || result && result.replace (/\r/g, "").trim () != stdout.replace (/\r/g, "").trim ())
 {
 console.log ("... Error: " + (exitCode ? "exit code = " + exitCode : "bad stdout"));
@@ -87,7 +87,20 @@ next ();
 next ();
 });
 },". Applying new versions...",function (arg){
-
+var build = path.resolve (__dirname, "build"), js = path.resolve (build, "js-ext.js"), pr = path.resolve (build, "js-ext.parser"), jt = path.resolve (build, "js-ext.temp.js"), pt = path.resolve (build, "js-ext.temp.parser");
+try{
+fs.unlinkSynk (js);
+}catch (e){}
+try{
+fs.unlinkSynk (pr);
+}catch (e){}
+try{
+fs.renameSync (jt, js);
+fs.renameSync (pt, pr);
+console.log (".. Ok.");
+}catch (e){
+console.log (".. Error: " + e.toString () + ".");
+}
 },". Finished"];
 function next (){
 position = position !== undefined ? position + 1 : 0;
