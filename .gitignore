@@ -1,3 +1,4 @@
 build/node_modules
 build/cache
 *.sublime-*
+build/js-ext.temp.*
