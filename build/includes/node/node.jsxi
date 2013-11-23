@@ -8,7 +8,7 @@ var node = (function (){
 	function h (e, c) return s (e.className).indexOf (s (c)) != -1;
 	function a (e, c) return !h (e, c) && (e.className = (e.className.match (rs) || []).join (' ') + c);
 	function r (e, c) e.className = (s (e.className).replace (c, '').match (rr) || []).join (' ');
-	function t (e, c) if (!a (c)) r (c);
+	function t (e, c) if (!a (e, c)) r (e, c);
 
 	function node (tag, className, content, attributes, callbacks)
 		if (typeof tag != 'string'){
@@ -35,15 +35,14 @@ var node = (function (){
 					temp.appendChild (document.createTextNode (content)); 
 			}
 
-			if (callbacks)
-				for (var n, v in callbacks)
-					if (v !== undefined && v !== null)
-						temp.addEventListener (n, v, false);
-
 			if (attributes)
 				for (var n, v in attributes)
-					if (v !== undefined && v !== null)
-						temp.setAttribute (n.replace (/([a-z])([A-Z])/g, lambda (m, $1, $2) $1 + '-' + $2.toLowerCase ()), v);
+					if (v !== undefined && v !== null){
+						if (typeof v === 'function')
+							temp.addEventListener (n, v, false);
+						else
+							temp.setAttribute (n.replace (/([a-z])([A-Z])/g, lambda (m, $1, $2) $1 + '-' + $2.toLowerCase ()), v);
+					}
 
 			return temp;
 		}
@@ -54,17 +53,19 @@ var node = (function (){
 		CLASS_MODE:  2
 	};
 
-	function call (fn, args, rn)
+	function call (fn, args, rn){
+		var d = !et || args [0] && args [0].nodeType == document.ELEMENT_NODE
+
 		if (rn === result.CLASS_MODE){
-			var e = args [0] && args [0].nodeType == document.ELEMENT_NODE ? args [0] : et;
+			var e = d ? args [0] : et;
 			for (var cc in-array (args [1] || args [0]).split (' '))
 				fn (e, cc);
 			return node;
 		} else {
-			var d = args [0] && args [0].nodeType == document.ELEMENT_NODE,
-				r = fn.apply (null, d ? args : [ et ].concat ([].slice.call (args, 0)));
+			var r = fn.apply (null, d ? args : [ et ].concat ([].slice.call (args, 0)));
 			return rn ? d ? args [0] : node : r;
 		}
+	}
 	
 	node.end         = lambda { et = null; return node };
 
@@ -80,6 +81,7 @@ var node = (function (){
 
 	node.set         = lambda call (lambda (element, key, value) value !== null && value !== undefined ? element.setAttribute (key, value) : element.removeAttribute (key), arguments, result.NODE);
 	node.get         = lambda call (lambda (element, key) element.getAttribute (key), arguments, result.DEFAULT);
+	node.has         = lambda call (lambda (element, key) element.hasAttribute (key), arguments, result.DEFAULT);
 
 	return node;
 })();
