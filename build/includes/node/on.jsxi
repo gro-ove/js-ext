@@ -3,6 +3,18 @@
 // ==/Jsx==
 
 node ('on', lambda (element, event, handler){
-		for (var e in-array event.split (' '))
-			element.addEventListener (e, handler, false);
+		if (typeof event == 'function'){
+			for (var e in-array element){
+				if (typeof e.target.addEventListener === 'function'){
+					for (var o in-array e.event.split (' '))
+						e.target.addEventListener (o, event, false);
+				} else {
+					for (var t in-array e.target)
+						for (var o in-array e.event.split (' '))
+							t.addEventListener (o, event, false);
+				}
+			}
+		} else
+			for (var o in-array event.split (' '))
+				element.addEventListener (o, handler, false);
 	}, node.result.NODE);
