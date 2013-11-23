@@ -82,7 +82,7 @@ module App {
 			} else if (typeof a === 'number'){
 				return a + b
 			} else if (typeof a.concat === 'function' && typeof a.push === 'function'){
-				return b.concat (a [n]);
+				return a.concat (b);
 			} else if (joiners [a.type]){
 				return joiners [a.type](b, a);
 			} else if (typeof a.substr === 'function'){
@@ -258,6 +258,7 @@ module App {
 			result.push ('\n})()');
 		
 		var code = result.join ('\n');
+
 		if (data.additional.defines)
 			for (i, v in data.additional.defines)
 				code = code.split (v.what).join (v.by);

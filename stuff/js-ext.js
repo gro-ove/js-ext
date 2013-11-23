@@ -248,7 +248,7 @@ return a + b;
 else
 if (typeof a.concat === "function" && typeof a.push === "function")
 {
-return a.concat (b);
+return b.concat (a [n]);
 }
 else
 if (joiners [a.type])
@@ -408,8 +408,8 @@ if (data.additional.isolate)
 result.push ("\n})()");
 var code = result.join ("\n");
 if (data.additional.defines)
-{ var _8v9u4vg_55 = data.additional.defines; for (i in _8v9u4vg_55){
-var v = _8v9u4vg_55[i];
+{ var _7psgot0_35 = data.additional.defines; for (i in _7psgot0_35){
+var v = _7psgot0_35[i];
 code = code.split (v.what).join (v.by);
 }}
 return {"file":outputFile || getOutputFile (inputFile, data.additional.buildTo && data.additional.buildTo.value, data.additional.php && argPhpHeader),"code":code};
@@ -1317,7 +1317,7 @@ return ["Node","Compressor"];
 Node = __ [0];
 Compressor = __ [1];
 },"v":function (){
-builded = Node.resolve (__filename.replace (/\.js$/, ".parser"));
+builded = Node.resolve ("js-ext.parser");
 }};
 });
 __m ("Prework", function (){
