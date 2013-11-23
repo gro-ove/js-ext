@@ -2,5 +2,5 @@
 // @import node
 // ==/Jsx==
 
-'div|span|a|p|img|style|h1|h2|h3|h4|h5|h6|br|hr|table|tr|td'.split ('|').forEach (lambda (tag)
+'div|span|a|p|img|style|h1|h2|h3|h4|h5|h6|br|hr|table|tr|td|iframe|input|button|form'.split ('|').forEach (lambda (tag)
 	window [tag] = lambda node.apply (null, [ tag ].concat (Array.prototype.slice.call (arguments))));
