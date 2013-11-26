@@ -4,11 +4,12 @@ var node = (function (){
 	var rs = /[^\s]+|$/g,
 		rr = /[^\s]+/g;
 
-	function s (t)    return ' ' + t.match (rs).join (' ');
-	function h (e, c) return s (e.className).indexOf (s (c)) != -1;
-	function a (e, c) return !h (e, c) && (e.className = (e.className.match (rs) || []).join (' ') + c);
-	function r (e, c) e.className = (s (e.className).replace (c, '').match (rr) || []).join (' ');
-	function t (e, c) if (!a (e, c)) r (e, c);
+	function s (t)        return ' ' + t.match (rs).join (' ');
+	function h (e, c)     return s (e.className).indexOf (s (c)) != -1;
+	function a (e, c)     return !h (e, c) && (e.className = (e.className.match (rs) || []).join (' ') + c);
+	function r (e, c)     e.className = (s (e.className).replace (c, '').match (rr) || []).join (' ');
+	function t (e, c)     if (!a (e, c)) r (e, c);
+	function f (e, c, d)  (d ? a : r)(e, c);
 
 	function node (tag, className, content, attributes, callbacks)
 		if (typeof tag != 'string'){
@@ -58,8 +59,8 @@ var node = (function (){
 
 		if (rn === result.CLASS_MODE){
 			var e = d ? args [0] : et;
-			for (var cc in-array (args [1] || args [0]).split (' '))
-				fn (e, cc);
+			for (var cc in-array (d ? args [1] : args [0]).split (' '))
+				fn (e, cc, d ? args [2] : args [1]);
 			return node;
 		} else {
 			var r = fn.apply (null, d ? args : [ et ].concat ([].slice.call (args, 0)));
@@ -78,6 +79,7 @@ var node = (function (){
 	node.addClass    = lambda call (a, arguments, result.CLASS_MODE);
 	node.removeClass = lambda call (r, arguments, result.CLASS_MODE);
 	node.toggleClass = lambda call (t, arguments, result.CLASS_MODE);
+	node.classIf     = lambda call (f, arguments, result.CLASS_MODE);
 
 	node.set         = lambda call (lambda (element, key, value) value !== null && value !== undefined ? element.setAttribute (key, value) : element.removeAttribute (key), arguments, result.NODE);
 	node.get         = lambda call (lambda (element, key) element.getAttribute (key), arguments, result.DEFAULT);
