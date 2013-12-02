@@ -89,13 +89,13 @@ module Format {
 						name = chmd ? randomName () : f (arg.collection);
 
 					return (chmd ? '{ var ' + name + ' = ' + f (arg.collection) + '; ' : '')
-						   + 'for (' + f (arg.iterator) + ' in ' + name + '){' + eol 
+						   + 'for (var ' + f (arg.iterator) + ' in ' + name + '){' + eol 
 						   + 'var ' + f (arg.value) + ' = ' + name + '[' + f (arg.iterator) + '];' + eol 
 						   + (arg.statement && arg.statement.type == 'Block' ? f (arg.statement).slice (1, -1).trim () : f (arg.statement)) + eol + '}'
 						   + (chmd ? '}' : '');
 				}
 
-				return 'for (' + f (arg.iterator) + ' in ' + f (arg.collection) + ')' + eol + f (arg.statement);
+				return 'for (var ' + f (arg.iterator) + ' in ' + f (arg.collection) + ')' + eol + f (arg.statement);
 			},
 			WhileStatement:           lambda 'while (' + f (arg.condition) + ')' + eol + f (arg.statement),
 			DoWhileStatement:         lambda 'do' + eol + f (arg.statement) + eol + ' while (' + f (arg.condition) + ');',

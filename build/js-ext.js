@@ -408,8 +408,8 @@ if (data.additional.isolate)
 result.push ("\n})()");
 var code = result.join ("\n");
 if (data.additional.defines)
-{ var _8v9u4vg_55 = data.additional.defines; for (i in _8v9u4vg_55){
-var v = _8v9u4vg_55[i];
+{ var _5omgd4_38 = data.additional.defines; for (i in _5omgd4_38){
+var v = _5omgd4_38[i];
 code = code.split (v.what).join (v.by);
 }}
 return {"file":outputFile || getOutputFile (inputFile, data.additional.buildTo && data.additional.buildTo.value, data.additional.php && argPhpHeader),"code":code};
@@ -1232,9 +1232,9 @@ return (chmd ? "{ var " + name + " = " + f (arg.collection) + "; " : "") + "for 
 if (arg.value)
 {
 var chmd = ! arg.collection || arg.collection.type != "Variable", name = chmd ? randomName () : f (arg.collection);
-return (chmd ? "{ var " + name + " = " + f (arg.collection) + "; " : "") + "for (" + f (arg.iterator) + " in " + name + "){" + eol + "var " + f (arg.value) + " = " + name + "[" + f (arg.iterator) + "];" + eol + (arg.statement && arg.statement.type == "Block" ? f (arg.statement).slice (1, - 1).trim () : f (arg.statement)) + eol + "}" + (chmd ? "}" : "");
+return (chmd ? "{ var " + name + " = " + f (arg.collection) + "; " : "") + "for (var " + f (arg.iterator) + " in " + name + "){" + eol + "var " + f (arg.value) + " = " + name + "[" + f (arg.iterator) + "];" + eol + (arg.statement && arg.statement.type == "Block" ? f (arg.statement).slice (1, - 1).trim () : f (arg.statement)) + eol + "}" + (chmd ? "}" : "");
 }
-return "for (" + f (arg.iterator) + " in " + f (arg.collection) + ")" + eol + f (arg.statement);
+return "for (var " + f (arg.iterator) + " in " + f (arg.collection) + ")" + eol + f (arg.statement);
 },"WhileStatement":function (arg){
 return "while (" + f (arg.condition) + ")" + eol + f (arg.statement);
 },"DoWhileStatement":function (arg){
