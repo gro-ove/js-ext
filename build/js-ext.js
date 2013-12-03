@@ -4,7 +4,7 @@ Object.extend = function (){
 var result = {};
 for (var i = 0; 
 i < arguments.length; i++)
-for (n in arguments [i])
+for (var n in arguments [i])
 {
 if (result.__lookupGetter__ (n) || result.__lookupSetter__ (n))
 delete result [n];
@@ -40,7 +40,7 @@ formatters [name] = func;
 };
 String.format.init = st.format.init = function (param){
 var f;
-for (n in param)
+for (var n in param)
 {
 f = formatters [n];
 if (f != null && f.init != null)
@@ -137,7 +137,7 @@ function args (usage,args){
 if (usage && args)
 {
 var result = optimist ().usage (usage);
-for (n in args)
+for (var n in args)
 result = result.options (n, args [n]);
 argv = result.argv;
 }
@@ -263,9 +263,9 @@ return b + "\n" + a;
 else
 if (typeof a === "object")
 {
-for (n in a)
+for (var n in a)
 a [n] = join (a [n], b [n]);
-for (n in b)
+for (var n in b)
 if (a [n] === undefined)
 a [n] = join (a [n], b [n]);
 return a;
@@ -408,8 +408,8 @@ if (data.additional.isolate)
 result.push ("\n})()");
 var code = result.join ("\n");
 if (data.additional.defines)
-{ var _5omgd4_38 = data.additional.defines; for (i in _5omgd4_38){
-var v = _5omgd4_38[i];
+{ var _320nls4_58 = data.additional.defines; for (var i in _320nls4_58){
+var v = _320nls4_58[i];
 code = code.split (v.what).join (v.by);
 }}
 return {"file":outputFile || getOutputFile (inputFile, data.additional.buildTo && data.additional.buildTo.value, data.additional.php && argPhpHeader),"code":code};
@@ -930,7 +930,7 @@ return types [obj.type] (obj);
 else
 {
 var r = {};
-for (n in obj)
+for (var n in obj)
 r [n] = clone (obj [n]);
 return r;
 }
@@ -942,7 +942,7 @@ hypParams = false;
 return {"tree":clone (parsed),"modules":! ! modules,"lessParams":! ! lessParams,"hypParams":! ! hypParams};
 }
 function finish (file){
-for (key in shameOnMeDogNail){
+for (var key in shameOnMeDogNail){
 var value = shameOnMeDogNail[key];
 var valueString = value ();
 if (! valueString)
@@ -1043,7 +1043,7 @@ variables [key] = value;
 }
 return value + postfix;
 }));
-for (name in variables){
+for (var name in variables){
 var value = variables[name];
 result = result.split (value).join (name);
 }
@@ -1220,7 +1220,7 @@ var chmd = ! arg.collection || arg.collection.type != "Variable", name = chmd ? 
 if (! arg.value)
 {
 var counter = randomName ();
-return (chmd ? "{ var " + name + " = " + f (arg.collection) + "; " : "") + "for (var " + counter + " = 0; " + counter + " < " + name + ".length; " + counter + " ++){" + eol + f (arg.iterator) + " = " + name + "[" + counter + "];" + eol + (arg.statement && arg.statement.type == "Block" ? f (arg.statement).slice (1, - 1).trim () : f (arg.statement)) + eol + "}" + (chmd ? "}" : "");
+return (chmd ? "{ var " + name + " = " + f (arg.collection) + "; " : "") + "for (var " + counter + " = 0; " + counter + " < " + name + ".length; " + counter + " ++){" + eol + "var " + f (arg.iterator) + " = " + name + "[" + counter + "];" + eol + (arg.statement && arg.statement.type == "Block" ? f (arg.statement).slice (1, - 1).trim () : f (arg.statement)) + eol + "}" + (chmd ? "}" : "");
 }
 else
 {
