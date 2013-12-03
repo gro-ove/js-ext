@@ -176,10 +176,9 @@ Node.fs ().mkdirSync (folder);
 }catch (e){}
 return Node.fs ().existsSync (folder) ? folder : null;
 }
-function findIncluded (name,current,top,includes){
-if (includes === undefined)
-includes = 0;
-if (current.indexOf (top) == 0)
+function findIncluded (name,current,top){
+var topFolder = top >= 0 ? includesFolders [top] : current;
+if (current.indexOf (topFolder) == 0)
 while (true)
 {
 var path = Node.path ().resolve (current, name);
@@ -195,14 +194,14 @@ return result;
 else
 if (Node.fs ().existsSync (path))
 return [{"file":path,"top":top}];
-var newPow = Node.path ().resolve (current, "..");
-if (newPow.length < top.length || newPow == current)
+var newPow = Node.path ().dirname (current);
+if (newPow.length < topFolder.length || newPow == current)
 break;
 current = newPow;
 }
-if (includes < includesFolders.length)
+if (top + 1 < includesFolders.length)
 {
-return findIncluded (name, includesFolders [includes], includesFolders [includes], includes + 1);
+return findIncluded (name, includesFolders [top + 1], top + 1);
 }
 else
 return null;
@@ -345,11 +344,10 @@ result.code = Compressor.work (result.code, file);
 return {"result":result,"childs":childs};
 }
 function load (file,top,options){
+if (top === undefined)
+top = - 1;
 if (options === undefined)
 options = {};
-var topMode = top === undefined;
-if (topMode)
-top = Node.path ().resolve (file, "..");
 if (! Node.fs ().existsSync (file))
 Node.fatalError ("Divided by zero.");
 if (options.raw)
@@ -362,7 +360,7 @@ Cacher.save (file, data);
 }
 var childs = [];
 data.childs.forEach (function (arg){
-var other = findIncluded (arg.name, Node.path ().resolve (file, ".."), top);
+var other = findIncluded (arg.name, Node.path ().dirname (file), top);
 if (! other)
 Node.fatalError ("Couldn'n found included file: \"{0}\" ({1}).".format (arg.name, file));
 for (var i = 0; 
@@ -413,8 +411,8 @@ if (data.additional.isolate)
 result.push ("\n})()");
 var code = result.join ("\n");
 if (data.additional.defines)
-{ var _3ld11sr_32 = data.additional.defines; for (var i in _3ld11sr_32){
-var v = _3ld11sr_32[i];
+{ var _5phg231_84 = data.additional.defines; for (var i in _5phg231_84){
+var v = _5phg231_84[i];
 code = code.split (v.what).join (v.by);
 }}
 return {"file":outputFile || getOutputFile (inputFile, data.additional.buildTo && data.additional.buildTo.value, data.additional.php && argPhpHeader),"code":code};

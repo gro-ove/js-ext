@@ -22,8 +22,10 @@ module App {
 		return Node.fs ().existsSync (folder) ? folder : null;
 	}
 	
-	function findIncluded (name, current, top, includes = 0){
-		if (current.indexOf (top) == 0)
+	function findIncluded (name, current, top){
+		var topFolder = top >= 0 ? includesFolders [top] : current;
+
+		if (current.indexOf (topFolder) == 0)
 			while (true){
 				var path = Node.path ().resolve (current, name);
 				if (path.indexOf ('*') !== -1){
@@ -34,14 +36,14 @@ module App {
 				} else if (Node.fs ().existsSync (path))
 					return [{ file: path, top: top }];
 				
-				var newPow = Node.path ().resolve (current, '..');
-				if (newPow.length < top.length || newPow == current)
+				var newPow = Node.path ().dirname (current);
+				if (newPow.length < topFolder.length || newPow == current)
 					break;
 				current = newPow;
 			}
 		
-		if (includes < includesFolders.length){
-			return findIncluded (name, includesFolders [includes], includesFolders [includes], includes + 1);
+		if (top + 1 < includesFolders.length){
+			return findIncluded (name, includesFolders [top + 1], top + 1);
 		} else
 			return null;
 	}
@@ -180,12 +182,7 @@ module App {
 		return { result: result, childs: childs };
 	}
 	
-	function load (file, top, options = {}){
-		var topMode = top === undefined;
-		
-		if (topMode)
-			top = Node.path ().resolve (file, '..');
-		
+	function load (file, top = -1, options = {}){		
 		if (!Node.fs ().existsSync (file))
 			Node.fatalError ('Divided by zero.');
 		
@@ -200,7 +197,7 @@ module App {
 		
 		var childs = [];
 		data.childs.forEach (lambda {
-			var other = findIncluded (arg.name, Node.path ().resolve (file, '..'), top);
+			var other = findIncluded (arg.name, Node.path ().dirname (file), top);
 			if (!other)
 				Node.fatalError ('Couldn\'n found included file: "{0}" ({1}).'.format (arg.name, file));
 			for (var i = 0; i < other.length; i ++)
