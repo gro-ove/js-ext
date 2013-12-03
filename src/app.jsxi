@@ -5,7 +5,7 @@ module App {
 		outputFile,
 		cacheFolder,
 		argPhpHeader,
-		includesFolder,
+		includesFolders,
 		debugFolder,
 		silenceMode;
 		
@@ -22,7 +22,7 @@ module App {
 		return Node.fs ().existsSync (folder) ? folder : null;
 	}
 	
-	function findIncluded (name, current, top){
+	function findIncluded (name, current, top, includes = 0){
 		if (current.indexOf (top) == 0)
 			while (true){
 				var path = Node.path ().resolve (current, name);
@@ -40,10 +40,10 @@ module App {
 				current = newPow;
 			}
 		
-		if (top != includesFolder)
-			return findIncluded (name, includesFolder, includesFolder);
-			
-		return null;
+		if (includes < includesFolders.length){
+			return findIncluded (name, includesFolders [includes], includesFolders [includes], includes + 1);
+		} else
+			return null;
 	}
 	
 	function checkOn (value){
@@ -279,7 +279,8 @@ module App {
 					p: { alias: 'php-header',   description: 'Use php header if nessesary.' },
 					o: { alias: 'output',       description: 'Output file (else automode) or ":stdout".' },
 					c: { alias: 'cache',        description: 'Cache folder (else default) or ":no".' },
-					i: { alias: 'install',      description: 'Install missing part.' },
+					i: { alias: 'includes',     description: 'Folders (divided by ":") with included files.' },
+					s: { alias: 'setup',        description: 'Install missing part.' },
 					g: { alias: 'gcc',          description: 'Use Google Closure Compiler for better compression and perfomance.' },
 					e: { alias: 'expanded',     description: 'Prevent any compressing.' },
 					u: { alias: 'usage',        description: 'This text.' },
@@ -295,7 +296,7 @@ module App {
 			else if (Node.args ().g)
 				Compressor.useClosure ();
 				
-			if (Node.args ().i){
+			if (Node.args ().s){
 				var cmd = Node.cp ().spawn ('cmd', ['/C', 'cd', '/d', __dirname, '&&', 'npm', 'install', '2>&1', Node.args ().i]);
 				cmd.stdout.on ('data', lambda process.stdout.write (arg.toString ()));
 				cmd.on ('close', lambda console.log ('NPM\'s job done' + (arg ? '(with {0} as result).'.format (arg) : '.')));
@@ -307,8 +308,8 @@ module App {
 				var argCache      = Node.args ().c ? Node.args ().c.trim () : '';
 				cacheFolder       = /^:no(ne|t)?$/i.test (argCache) ? null : asFolder (argCache || Node.resolve ('cache'));
 				debugFolder       = asFolder (Node.resolve ('debug'));
+				includesFolders   = (Node.args ().i ? Node.args ().i.split (':') : []).concat ([ asFolder (Node.resolve ('includes')) ]);
 				
-				includesFolder    = asFolder (Node.resolve ('includes'));
 				outputFile        = Node.args ().o;
 				argPhpHeader      = Node.args ().p;
 				

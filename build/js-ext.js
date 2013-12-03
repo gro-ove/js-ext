@@ -165,7 +165,7 @@ path = safeAccess ("path");
 });
 __m ("App", function (){
 var Node, Prework, Parser, Converter, Format, Compressor, ModulesCode, Cacher;
-var inputFile, outputFile, cacheFolder, argPhpHeader, includesFolder, debugFolder, silenceMode;
+var inputFile, outputFile, cacheFolder, argPhpHeader, includesFolders, debugFolder, silenceMode;
 var loadedFiles, glob, fibers;
 function asFolder (path){
 if (! path)
@@ -176,7 +176,9 @@ Node.fs ().mkdirSync (folder);
 }catch (e){}
 return Node.fs ().existsSync (folder) ? folder : null;
 }
-function findIncluded (name,current,top){
+function findIncluded (name,current,top,includes){
+if (includes === undefined)
+includes = 0;
 if (current.indexOf (top) == 0)
 while (true)
 {
@@ -198,8 +200,11 @@ if (newPow.length < top.length || newPow == current)
 break;
 current = newPow;
 }
-if (top != includesFolder)
-return findIncluded (name, includesFolder, includesFolder);
+if (includes < includesFolders.length)
+{
+return findIncluded (name, includesFolders [includes], includesFolders [includes], includes + 1);
+}
+else
 return null;
 }
 function checkOn (value){
@@ -408,8 +413,8 @@ if (data.additional.isolate)
 result.push ("\n})()");
 var code = result.join ("\n");
 if (data.additional.defines)
-{ var _320nls4_58 = data.additional.defines; for (var i in _320nls4_58){
-var v = _320nls4_58[i];
+{ var _4efqg20_63 = data.additional.defines; for (var i in _4efqg20_63){
+var v = _4efqg20_63[i];
 code = code.split (v.what).join (v.by);
 }}
 return {"file":outputFile || getOutputFile (inputFile, data.additional.buildTo && data.additional.buildTo.value, data.additional.php && argPhpHeader),"code":code};
@@ -417,7 +422,7 @@ return {"file":outputFile || getOutputFile (inputFile, data.additional.buildTo &
 function init (){
 Node.setInstallCmd ("js-ext -i {0:@(NAME)}");
 fibers () (function (arg){
-Node.args ("Usage: js-ext file [flags]", {"p":{"alias":"php-header","description":"Use php header if nessesary."},"o":{"alias":"output","description":"Output file (else automode) or \":stdout\"."},"c":{"alias":"cache","description":"Cache folder (else default) or \":no\"."},"i":{"alias":"install","description":"Install missing part."},"g":{"alias":"gcc","description":"Use Google Closure Compiler for better compression and perfomance."},"e":{"alias":"expanded","description":"Prevent any compressing."},"u":{"alias":"usage","description":"This text."}});
+Node.args ("Usage: js-ext file [flags]", {"p":{"alias":"php-header","description":"Use php header if nessesary."},"o":{"alias":"output","description":"Output file (else automode) or \":stdout\"."},"c":{"alias":"cache","description":"Cache folder (else default) or \":no\"."},"i":{"alias":"includes","description":"Folders (divided by \":\") with included files."},"s":{"alias":"setup","description":"Install missing part."},"g":{"alias":"gcc","description":"Use Google Closure Compiler for better compression and perfomance."},"e":{"alias":"expanded","description":"Prevent any compressing."},"u":{"alias":"usage","description":"This text."}});
 try{
 var arg = Node.args ()._ [0];
 inputFile = Node.path ().resolve (arg [0] == "\"" ? arg.slice (1, - 1) : arg);
@@ -427,7 +432,7 @@ Compressor.disable ();
 else
 if (Node.args ().g)
 Compressor.useClosure ();
-if (Node.args ().i)
+if (Node.args ().s)
 {
 var cmd = Node.cp ().spawn ("cmd", ["/C","cd","/d",__dirname,"&&","npm","install","2>&1",Node.args ().i]);
 cmd.stdout.on ("data", function (arg){
@@ -452,7 +457,7 @@ else
 var argCache = Node.args ().c ? Node.args ().c.trim () : "";
 cacheFolder = /^:no(ne|t)?$/i.test (argCache) ? null : asFolder (argCache || Node.resolve ("cache"));
 debugFolder = asFolder (Node.resolve ("debug"));
-includesFolder = asFolder (Node.resolve ("includes"));
+includesFolders = (Node.args ().i ? Node.args ().i.split (":") : []).concat ([asFolder (Node.resolve ("includes"))]);
 outputFile = Node.args ().o;
 argPhpHeader = Node.args ().p;
 silenceMode = /^:(stdout|console)$/.test (outputFile);
@@ -464,7 +469,7 @@ Node.writeFile (result.file, result.code);
 }
 }).run ();
 }
-return {"e":{get inputFile (){return inputFile;},get outputFile (){return outputFile;},get cacheFolder (){return cacheFolder;},get argPhpHeader (){return argPhpHeader;},get includesFolder (){return includesFolder;},get debugFolder (){return debugFolder;},get silenceMode (){return silenceMode;}},"i":init,"g":function (){
+return {"e":{get inputFile (){return inputFile;},get outputFile (){return outputFile;},get cacheFolder (){return cacheFolder;},get argPhpHeader (){return argPhpHeader;},get includesFolders (){return includesFolders;},get debugFolder (){return debugFolder;},get silenceMode (){return silenceMode;}},"i":init,"g":function (){
 return ["Node","Prework","Parser","Converter","Format","Compressor","ModulesCode","Cacher"];
 },"s":function (__){
 Node = __ [0];
