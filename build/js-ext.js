@@ -176,36 +176,6 @@ Node.fs ().mkdirSync (folder);
 }catch (e){}
 return Node.fs ().existsSync (folder) ? folder : null;
 }
-function findIncluded (name,current,top){
-var topFolder = top >= 0 ? includesFolders [top] : current;
-if (current.indexOf (topFolder) == 0)
-while (true)
-{
-var path = Node.path ().resolve (current, name);
-if (path.indexOf ("*") !== - 1)
-{
-var result = [];
-glob ().sync (path).forEach (function (arg){
-return result.push ({"file":arg,"top":top});
-});
-if (result.length)
-return result;
-}
-else
-if (Node.fs ().existsSync (path))
-return [{"file":path,"top":top}];
-var newPow = Node.path ().dirname (current);
-if (newPow.length < topFolder.length || newPow == current)
-break;
-current = newPow;
-}
-if (top + 1 < includesFolders.length)
-{
-return findIncluded (name, includesFolders [top + 1], top + 1);
-}
-else
-return null;
-}
 function checkOn (value){
 if (/^(on|true|1|yes|enabled?)$/i.test (value))
 return true;
@@ -343,9 +313,45 @@ if (compress)
 result.code = Compressor.work (result.code, file);
 return {"result":result,"childs":childs};
 }
-function load (file,top,options){
+function findIncluded (name,current,top){
 if (top === undefined)
-top = - 1;
+top = current;
+var temp;
+function check (p,t){
+if (t === undefined)
+t = top;
+var path = Node.path ().resolve (p, name);
+if (path.indexOf ("*") !== - 1)
+{
+var result = [];
+glob ().sync (path).forEach (function (arg){
+return result.push ({"file":arg,"top":t});
+});
+if (result.length)
+return temp = result;
+}
+else
+if (Node.fs ().existsSync (path))
+return temp = [{"file":path,"top":t}];
+}
+if (check (current))
+return temp;
+while (current.length > top.length && current.indexOf (top) == 0)
+{
+var up = Node.path ().dirname (current);
+if (up == current)
+break;
+if (check (current = up))
+return temp;
+}
+for (var _2blj4g_34 = 0; _2blj4g_34 < includesFolders.length; _2blj4g_34 ++){
+var f = includesFolders[_2blj4g_34];
+if (check (f, f))
+return temp;
+}
+return null;
+}
+function load (file,top,options){
 if (options === undefined)
 options = {};
 if (! Node.fs ().existsSync (file))
@@ -411,8 +417,8 @@ if (data.additional.isolate)
 result.push ("\n})()");
 var code = result.join ("\n");
 if (data.additional.defines)
-{ var _5phg231_84 = data.additional.defines; for (var i in _5phg231_84){
-var v = _5phg231_84[i];
+{ var _7t7r24j_35 = data.additional.defines; for (var i in _7t7r24j_35){
+var v = _7t7r24j_35[i];
 code = code.split (v.what).join (v.by);
 }}
 return {"file":outputFile || getOutputFile (inputFile, data.additional.buildTo && data.additional.buildTo.value, data.additional.php && argPhpHeader),"code":code};

@@ -22,32 +22,6 @@ module App {
 		return Node.fs ().existsSync (folder) ? folder : null;
 	}
 	
-	function findIncluded (name, current, top){
-		var topFolder = top >= 0 ? includesFolders [top] : current;
-
-		if (current.indexOf (topFolder) == 0)
-			while (true){
-				var path = Node.path ().resolve (current, name);
-				if (path.indexOf ('*') !== -1){
-					var result = [];
-					glob ().sync (path).forEach (lambda result.push ({ file: arg, top: top }));
-					if (result.length)
-						return result;
-				} else if (Node.fs ().existsSync (path))
-					return [{ file: path, top: top }];
-				
-				var newPow = Node.path ().dirname (current);
-				if (newPow.length < topFolder.length || newPow == current)
-					break;
-				current = newPow;
-			}
-		
-		if (top + 1 < includesFolders.length){
-			return findIncluded (name, includesFolders [top + 1], top + 1);
-		} else
-			return null;
-	}
-	
 	function checkOn (value){
 		if (/^(on|true|1|yes|enabled?)$/i.test (value))
 			return true;
@@ -182,7 +156,39 @@ module App {
 		return { result: result, childs: childs };
 	}
 	
-	function load (file, top = -1, options = {}){		
+	function findIncluded (name, current, top = current){
+		var temp;
+
+		function check (p, t = top){
+			var path = Node.path ().resolve (p, name);
+			if (path.indexOf ('*') !== -1){
+				var result = [];
+				glob ().sync (path).forEach (lambda result.push ({ file: arg, top: t }));
+				if (result.length)
+					return temp = result;
+			} else if (Node.fs ().existsSync (path))
+				return temp = [{ file: path, top: t }];
+		}
+
+		if (check (current))
+			return temp;
+
+		while (current.length > top.length && current.indexOf (top) == 0){
+			var up = Node.path ().dirname (current);
+			if (up == current)
+				break;
+			if (check (current = up))
+				return temp;
+		}
+
+		for (var f in-array includesFolders)
+			if (check (f, f))
+				return temp;
+
+		return null;
+	}
+	
+	function load (file, top, options = {}){		
 		if (!Node.fs ().existsSync (file))
 			Node.fatalError ('Divided by zero.');
 		
