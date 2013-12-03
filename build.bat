@@ -1,2 +1,1 @@
-@echo off
-node "%~dp0\build.js"
+@node "%~dp0\build.js"

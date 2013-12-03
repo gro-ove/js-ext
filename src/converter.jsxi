@@ -5,7 +5,6 @@ module Converter {
 		minimize   = Node.safeAccess ('minimize', 'compress html'),
 		less       = Node.safeAccess ('less', 'converting less to css'),
 		fibers     = Node.safeAccess ('fibers', 'converting less to css'),
-		hypher     = Node.safeAccess ('hypher'),
 		minimizeInstance,
 		modules,
 		lessParams,
@@ -142,11 +141,6 @@ module Converter {
 						for (var name, value in variables)
 							result = result.split (value).join (name);
 							
-						break;
-					case 'hyp':
-						result = new (hypher ())(Node.safeAccess ('hyphenation.' + ((arg.special.match (/-[a-z]+/) || '')[0] || 'en-us'))()).hyphenateText (arg.value.replace (/(\|+)/g, '|$1'));
-						//.filter (lambda arg).join ('|');
-						hypParams = true;
 						break;
 					default:
 						result = arg.value;

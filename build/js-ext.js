@@ -413,8 +413,8 @@ if (data.additional.isolate)
 result.push ("\n})()");
 var code = result.join ("\n");
 if (data.additional.defines)
-{ var _4efqg20_63 = data.additional.defines; for (var i in _4efqg20_63){
-var v = _4efqg20_63[i];
+{ var _3ld11sr_32 = data.additional.defines; for (var i in _3ld11sr_32){
+var v = _3ld11sr_32[i];
 code = code.split (v.what).join (v.by);
 }}
 return {"file":outputFile || getOutputFile (inputFile, data.additional.buildTo && data.additional.buildTo.value, data.additional.php && argPhpHeader),"code":code};
@@ -906,7 +906,7 @@ debug = true;
 });
 __m ("Converter", function (){
 var Node;
-var moduleName, minimize, less, fibers, hypher, minimizeInstance, modules, lessParams, hypParams;
+var moduleName, minimize, less, fibers, minimizeInstance, modules, lessParams, hypParams;
 function jsonFunction (name,content,params){
 if (params === undefined)
 params = [];
@@ -965,7 +965,6 @@ moduleName = "__m";
 minimize = Node.safeAccess ("minimize", "compress html");
 less = Node.safeAccess ("less", "converting less to css");
 fibers = Node.safeAccess ("fibers", "converting less to css");
-hypher = Node.safeAccess ("hypher");
 types = {"Function":function (arg){
 var initialize = [];
 return {"type":"Function","name":arg.name,"exportFlag":arg.exportFlag,"params":arg.params.map (function (arg){
@@ -1052,10 +1051,6 @@ for (var name in variables){
 var value = variables[name];
 result = result.split (value).join (name);
 }
-break;
-case "hyp":
-result = new (hypher ())(Node.safeAccess ("hyphenation." + ((arg.special.match (/-[a-z]+/) || "") [0] || "en-us")) ()).hyphenateText (arg.value.replace (/(\|+)/g, "|$1"));
-hypParams = true;
 break;
 default:result = arg.value;
 }
