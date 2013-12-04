@@ -75,7 +75,7 @@ module App {
 	}
 	
 	function work (file, top){
-		silenceMode || console.log (file);
+		silenceMode || console.log ('. ' + file);
 		var content   = Node.readFile (file);
 		silenceMode || console.log ('.. Readed');
 		var prework   = Prework.work (content);
