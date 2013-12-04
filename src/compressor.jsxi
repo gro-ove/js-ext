@@ -5,10 +5,9 @@
 module Compressor {
 	import Node, @App;
 	
-	var yui       = Node.safeAccess ('yuicompressor', 'js compression'),
+	var uglify    = Node.safeAccess ('uglify-js', 'js compression'),
 		closure   = Node.safeAccess ('closure-compiler', 'deep js compression'),
-		uglify    = Node.safeAccess ('uglify-js', 'js compression'),
-		fibers    = Node.safeAccess ('fibers', 'js compression'),
+		fibers    = Node.safeAccess ('fibers', 'deep js compression'),
 		disabled  = false,
 		closured  = false,
 		debug     = true;
@@ -22,7 +21,7 @@ module Compressor {
 		Node.fatalError ('Compress error: {0}.'.format (e), code);
 	}
 
-	function uglifyWork (code, filename){
+	function uglifyWork (code){
 		var util = require ('util'),
 			temp = util.error;
 
@@ -40,7 +39,7 @@ module Compressor {
 		return result;
 	}
 	
-	function closureWork (code, filename){
+	function closureWork (code){
 		var fiber = fibers ().current,
 			result = code;
 
@@ -62,41 +61,14 @@ module Compressor {
 
 		return result;
 	}
-	
-	function yuiWork (code, filename){
-		var fiber = fibers ().current,
-			result = code;
 
-		try {
-			yui ().compress (code, {
-				charset:      'utf8',
-				type:         'js',
-				'line-break':  200
-			}, lambda (error, data, extra){
-				if (error){
-					compressError (error, code);
-				} else {
-					if (!App.silenceMode && extra)
-						console.log (extra);
-					result = data.trim ();
-				}
-
-				fiber.run ();
-			});
-			fibers ().yield ();
-		} catch
-			Node.fatalError ('Compress error: {0} (please, check your JRE).'.format (e));
-
-		return result;
-	}
-
-	export function work (code, filename){
+	export function work (code){
 		if (disabled)
 			return code;
 		else if (closured)
-			return closureWork (code, filename);
+			return closureWork (code);
 		else
-			return uglifyWork (code, filename);
+			return uglifyWork (code);
 	}
 	
 	export function disable ()

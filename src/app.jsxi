@@ -74,7 +74,7 @@ module App {
 				Node.fatalError ('Not implemented: "{0}".'.format (typeof a))
 	}
 	
-	function work (file, top){
+	function work (file){
 		silenceMode || console.log ('. ' + file);
 		var content   = Node.readFile (file);
 		silenceMode || console.log ('.. Readed');
