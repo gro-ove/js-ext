@@ -7,6 +7,7 @@ module Compressor {
 	
 	var yui       = Node.safeAccess ('yuicompressor', 'js compression'),
 		closure   = Node.safeAccess ('closure-compiler', 'deep js compression'),
+		uglify    = Node.safeAccess ('uglify-js', 'js compression'),
 		fibers    = Node.safeAccess ('fibers', 'js compression'),
 		disabled  = false,
 		closured  = false,
@@ -19,6 +20,24 @@ module Compressor {
 		} else
 			console.error (code);
 		Node.fatalError ('Compress error: {0}.'.format (e), code);
+	}
+
+	function uglifyWork (code, filename){
+		var util = require ('util'),
+			temp = util.error;
+
+		util.error = lambda { 
+			if (arg.indexOf ('WARN: Dropping unused function argument arg') == -1)
+				console.log ('... ' + arg.replace (/^WARN/, 'Warning')); 
+		};
+
+		var result = uglify ().minify (code, { 
+			fromString: true,
+			warnings: !App.silenceMode
+		}).code;
+
+		util.error = temp;
+		return result;
 	}
 	
 	function closureWork (code, filename){
@@ -77,7 +96,7 @@ module Compressor {
 		else if (closured)
 			return closureWork (code, filename);
 		else
-			return yuiWork (code, filename);
+			return uglifyWork (code, filename);
 	}
 	
 	export function disable ()
