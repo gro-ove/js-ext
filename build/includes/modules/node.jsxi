@@ -13,7 +13,7 @@ module Node {
 	           cp   = safeAccess ('child_process'),
 	           path = safeAccess ('path');
 	
-	export function fatalError (msg){
+	export function fatalError (){
 		var temp = [];
 		for (var i = 0; i < arguments.length; i ++){
 			if (i)
