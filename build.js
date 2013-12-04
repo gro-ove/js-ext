@@ -31,7 +31,7 @@ return c (arg, stdout, stderr);
 }
 }
 var position, tempJsExt = path.resolve (__dirname, "build", "js-ext.temp.js"), tempJsParser = path.resolve (__dirname, "build", "js-ext.temp.parser"), query = [". Started",". Converter:",function (arg){
-return run ("js-ext.cmd", path.resolve (__dirname, "src", "js-ext.jsx"), "-o", tempJsExt, "-e", function (arg){
+return run ("js-ext.cmd", path.resolve (__dirname, "src", "js-ext.jsx"), "-o", tempJsExt, function (arg){
 if (arg)
 {
 console.log (".. Error.");

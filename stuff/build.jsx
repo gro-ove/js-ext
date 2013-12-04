@@ -32,7 +32,7 @@ var position,
 		'. Started',
 
 		'. Converter:',
-		lambda run ('js-ext.cmd', path.resolve (__dirname, 'src', 'js-ext.jsx'), '-o', tempJsExt, '-e', lambda if (arg){
+		lambda run ('js-ext.cmd', path.resolve (__dirname, 'src', 'js-ext.jsx'), '-o', tempJsExt, lambda if (arg){
 			console.log ('.. Error.');
 		} else {
 			console.log ('.. Ok.');
