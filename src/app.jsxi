@@ -82,9 +82,9 @@ module App {
 		silenceMode || console.log ('.. Preworked');
 		var parsed    = Parser.work (prework.code, file);
 		silenceMode || console.log ('.. Parsed');
-		var converted = Converter.work (parsed);
-		silenceMode || console.log ('.. Converted');
-		var formatted = Format.work (converted.tree);
+		//var converted = Converter.work (parsed);
+		//silenceMode || console.log ('.. Converted');
+		var formatted = Format.work (parsed);
 		silenceMode || console.log ('.. Formatted');
 			
 		var childs = [],
