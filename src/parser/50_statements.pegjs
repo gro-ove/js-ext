@@ -146,7 +146,7 @@ LambdaForInStatement
 ForInStatementIterator
 	= VarToken __ declaration:Identifier __ "," __ value:Identifier { return [
 			{ type: "VariableDeclaration", name: declaration },
-			{ type: "VariableDeclaration", name: value },
+			{ type: "VariableDeclaration", name: value }
 		]; }
 	/ declaration:LeftHandSideExpression __ "," __ value:LeftHandSideExpression { return [ declaration, value ]; }
 	/ VarToken __ declaration:VariableDeclarationNoIn { return declaration; }
