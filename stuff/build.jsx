@@ -3,9 +3,10 @@
 // @build-to ../build.js
 // ==/Jsx==
 
-var fs     = require ('fs'),
-	path   = require ('path'),
-	child  = require ('child_process');
+var fs        = require ('fs'),
+	path      = require ('path'),
+	child     = require ('child_process'),
+	compiler  = require ('closure-compiler');
 
 function run (){
 	var c = typeof arguments [arguments.length - 1] === 'function' ? arguments [arguments.length - 1] : null,
@@ -39,18 +40,32 @@ var position,
 			next ();
 		}),
 
-		'. Parser:',
-		lambda run ('pegjs.cmd', '--cache', '<', path.resolve (__dirname, 'src', 'js-ext.pegjs'), '|', 'node', '-e', s`
-			i='',q=String.fromCharCode(34),s=process.stdin;
-			s.on('data',function(a){i+=a});
-			s.on('end',function(){
-				console.log('exports.parser='+i.replace ('return '+q+'Expected '+q+' + expectedHumanized',
-					'return '+q+'['+q+' + line + '+q+': '+q+' + column + '+q+'] '+q+' + '+q+'Expected '+q+' + expectedHumanized'))})`, '>', tempJsParser, lambda if (arg){
-			console.log ('.. Error.');
-		} else {
-			console.log ('.. Ok.');
-			next ();
-		}),
+		'. Parser building:',
+		lambda run ('cd', __dirname, '&&', 'node', '-e', `fs=require('fs');console.log (fs.readdirSync('src/parser').map(function(a){return fs.readFileSync('src/parser/'+a)}).join('\n\n'))`, 
+			'|', 'pegjs', '--cache', lambda (exitCode, stdout, stderr){
+				if (exitCode){
+					console.log ('.. Error: ' + stderr);
+				} else {
+					console.log ('.. Ok.');
+					next (stdout);
+				}
+			}),
+
+		// '. Parser compressing:',
+		// lambda try {
+		// 	compiler.compile ('Array.prototype.__defineGetter__("$",function (){return this.map(function(a){return a instanceof Array?a.$:a}).join("")});\n' + arg, {}, function (error, data, extra){
+		// 		if (error){
+		// 			console.log ('.. Error: ' + error);
+		// 		} else {
+		// 			console.log ('.. Ok.');
+		// 			next (data.trim ());
+		// 		}
+		// 	});
+		// } catch (e)
+		// 	console.error ('Compress error: ' + e),
+
+		'. Parser saving:',
+		lambda next (fs.writeFileSync (tempJsParser, arg)),
 
 		'. Getting tests list...',
 		lambda {
@@ -107,9 +122,9 @@ function next (){
 	if (position < query.length){
 		if (typeof query [position] === 'string'){
 			console.log (query [position]);
-			next ();
+			next.apply (null, arguments);
 		} else {
-			query [position]();
+			query [position].apply (null, arguments);
 		}
 	} else {
 		try fs.unlinkSynk (path.resolve (__dirname, 'build', 'js-ext.temp.js'));

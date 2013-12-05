@@ -43,10 +43,10 @@ next ();
 }
 });
 },". Parser building:",function (arg){
-return run ("node", "-e", "fs=require('fs');console.log (fs.readdirSync('parser').map(function(a){return fs.readFileSync('parser/'+a)}).join('\\n\\n'))", "|", "pegjs", "--cache", function (exitCode,stdout,stderr){
+return run ("cd", __dirname, "&&", "node", "-e", "fs=require('fs');console.log (fs.readdirSync('src/parser').map(function(a){return fs.readFileSync('src/parser/'+a)}).join('\\n\\n'))", "|", "pegjs", "--cache", function (exitCode,stdout,stderr){
 if (exitCode)
 {
-console.log (".. Error: " + exitCode + ".");
+console.log (".. Error: " + stderr);
 }
 else
 {
@@ -54,21 +54,9 @@ console.log (".. Ok.");
 next (stdout);
 }
 });
-},". Parser compressing:",function (arg){
-try{
-compiler.compile ("Array.prototype.__defineGetter__(\"$\",function (){return this.map(function(a){return a instanceof Array?a.$:a}).join(\"\")});\n" + arg, {}, function (error,data,extra){
-if (error)
-{
-console.log (".. Error.");
-}
-else
-{
-console.log (".. Ok.");
-fs.writeFileSync (tempJsParser, data.trim ());
-}
-});
-}catch (e){
-console.error ("Compress error: " + e) , ". Getting tests list..." , function (arg){
+},". Parser saving:",function (arg){
+return next (fs.writeFileSync (tempJsParser, arg));
+},". Getting tests list...",function (arg){
 var tests = path.resolve (__dirname, "tests");
 fs.readdir (tests, function (err,files){
 files.filter (function (arg){
@@ -100,7 +88,7 @@ next ();
 });
 next ();
 });
-} , ". Applying new versions..." , function (arg){
+},". Applying new versions...",function (arg){
 var build = path.resolve (__dirname, "build"), js = path.resolve (build, "js-ext.js"), pr = path.resolve (build, "js-ext.parser"), jt = path.resolve (build, "js-ext.temp.js"), pt = path.resolve (build, "js-ext.temp.parser");
 try{
 fs.unlinkSynk (js);
@@ -115,9 +103,7 @@ console.log (".. Ok.");
 }catch (e){
 console.log (".. Error: " + e.toString () + ".");
 }
-} , ". Finished";
-}
-}];
+},". Finished"];
 function next (){
 position = position !== undefined ? position + 1 : 0;
 if (position < query.length)
