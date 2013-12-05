@@ -1,7 +1,7 @@
 Function.prototype.argumentsCount = function (arg){
 return (this.toString ().match (/^[^(){}]+\((.+?)\)/) [1].match (/[^\s,]+/g) || 0).length || 0;
 };
-var fs = require ("fs"), path = require ("path"), child = require ("child_process");
+var fs = require ("fs"), path = require ("path"), child = require ("child_process"), compiler = require ("closure-compiler");
 function run (){
 var c = typeof arguments [arguments.length - 1] === "function" ? arguments [arguments.length - 1] : null, a = [].slice.call (arguments, 0, - (+ ! ! c));
 var cmd = child.spawn ("cmd", ["/C"].concat (a));
@@ -42,19 +42,33 @@ console.log (".. Ok.");
 next ();
 }
 });
-},". Parser:",function (arg){
-return run ("pegjs.cmd", "--cache", "<", path.resolve (__dirname, "src", "js-ext.pegjs"), "|", "node", "-e", "i='',q=String.fromCharCode(34),s=process.stdin; s.on('data',function(a){i+=a}); s.on('end',function(){ console.log('exports.parser='+i.replace ('return '+q+'Expected '+q+' + expectedHumanized', 'return '+q+'['+q+' + line + '+q+': '+q+' + column + '+q+'] '+q+' + '+q+'Expected '+q+' + expectedHumanized'))})", ">", tempJsParser, function (arg){
-if (arg)
+},". Parser building:",function (arg){
+return run ("node", "-e", "fs=require('fs');console.log (fs.readdirSync('parser').map(function(a){return fs.readFileSync('parser/'+a)}).join('\\n\\n'))", "|", "pegjs", "--cache", function (exitCode,stdout,stderr){
+if (exitCode)
+{
+console.log (".. Error: " + exitCode + ".");
+}
+else
+{
+console.log (".. Ok.");
+next (stdout);
+}
+});
+},". Parser compressing:",function (arg){
+try{
+compiler.compile ("Array.prototype.__defineGetter__(\"$\",function (){return this.map(function(a){return a instanceof Array?a.$:a}).join(\"\")});\n" + arg, {}, function (error,data,extra){
+if (error)
 {
 console.log (".. Error.");
 }
 else
 {
 console.log (".. Ok.");
-next ();
+fs.writeFileSync (tempJsParser, data.trim ());
 }
 });
-},". Getting tests list...",function (arg){
+}catch (e){
+console.error ("Compress error: " + e) , ". Getting tests list..." , function (arg){
 var tests = path.resolve (__dirname, "tests");
 fs.readdir (tests, function (err,files){
 files.filter (function (arg){
@@ -86,7 +100,7 @@ next ();
 });
 next ();
 });
-},". Applying new versions...",function (arg){
+} , ". Applying new versions..." , function (arg){
 var build = path.resolve (__dirname, "build"), js = path.resolve (build, "js-ext.js"), pr = path.resolve (build, "js-ext.parser"), jt = path.resolve (build, "js-ext.temp.js"), pt = path.resolve (build, "js-ext.temp.parser");
 try{
 fs.unlinkSynk (js);
@@ -101,7 +115,9 @@ console.log (".. Ok.");
 }catch (e){
 console.log (".. Error: " + e.toString () + ".");
 }
-},". Finished"];
+} , ". Finished";
+}
+}];
 function next (){
 position = position !== undefined ? position + 1 : 0;
 if (position < query.length)
@@ -109,11 +125,11 @@ if (position < query.length)
 if (typeof query [position] === "string")
 {
 console.log (query [position]);
-next ();
+next.apply (null, arguments);
 }
 else
 {
-query [position] ();
+query [position].apply (null, arguments);
 }
 }
 else
