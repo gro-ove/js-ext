@@ -22,7 +22,7 @@ ObjectLiteral
 	= "{" __ data:ObjectElement* "}" {
 		return {
 			type: "ObjectLiteral",
-			elements: data
+			properties: data
 		}
 	}
 
