@@ -20,6 +20,7 @@ FunctionExpression
 	/ LambdaToken __ params:("(" __ FormalParameterList? __ ")")? __ elements:(Block / LambdaStatement) {
 			return {
 				type:     "Function",
+				lambda:   true,
 				params:   params && params [2] !== null ? params [2] : [ 'arg' ],
 				elements: elements
 			};
