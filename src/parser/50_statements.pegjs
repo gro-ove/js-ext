@@ -34,16 +34,16 @@ LambdaStatement
 	/ LambdaUniqueLabelledStatement
 
 StatementList
-	= data:(Statement __)* { return data.map (function (arg){ return arg [0] }); }
+	= data:(Statement __)* { return data.map (function (arg){ return arg [0] }) }
 
 Block
-	= "{" __ statements:StatementList "}" { return statements; }
+	= "{" __ statements:StatementList "}" { return { type: "Block", statements: statements } }
 
 PseudoBlock
-	= Block / arg:Statement { return [ arg ] }
+	= Block / arg:Statement { return { type: "Block", statements: [ arg ] } }
 
 LambdaPseudoBlock
-	= Block / arg:LambdaStatement { return [ arg ] }
+	= Block / arg:LambdaStatement { return { type: "Block", statements: [ arg ] } }
 
 VariableStatement
 	= VarToken __ declarations:VariableDeclarationList EOS { return { type: "VariableStatement", declarations: declarations } }
@@ -144,12 +144,23 @@ LambdaForInStatement
 		}
 
 ForInStatementIterator
-	= VarToken __ declaration:Identifier __ "," __ value:Identifier { return [
-			{ type: "VariableDeclaration", name: declaration },
-			{ type: "VariableDeclaration", name: value }
-		]; }
-	/ declaration:LeftHandSideExpression __ "," __ value:LeftHandSideExpression { return [ declaration, value ]; }
-	/ VarToken __ declaration:VariableDeclarationNoIn { return declaration; }
+	= VarToken __ declaration:Identifier __ "," __ value:Identifier { return {
+			type: "VariableDeclarations",
+			declarations: [
+				{ type: "VariableDeclaration", name: declaration },
+				{ type: "VariableDeclaration", name: value }
+			]
+		} }
+	/ declaration:LeftHandSideExpression __ "," __ value:LeftHandSideExpression { return {
+			type: "BinaryExpression",
+			operator: ",",
+			left: declaration,
+			right: value
+		} }
+	/ VarToken __ declaration:VariableDeclarationNoIn { return {
+			type: "VariableDeclarations",
+			declarations: [ declaration ]
+		} }
 	/ LeftHandSideExpression
 
 ContinueStatement
