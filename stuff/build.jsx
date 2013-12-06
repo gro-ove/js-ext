@@ -47,13 +47,13 @@ var position,
 					console.log ('.. Error: ' + stderr);
 				} else {
 					console.log ('.. Ok.');
-					next (stdout);
+					next ('Array.prototype.__defineGetter__("$",function (){return this.map(function(a){return a instanceof Array?a.$:a}).join("")});\n' + stdout);
 				}
 			}),
 
 		// '. Parser compressing:',
 		// lambda try {
-		// 	compiler.compile ('Array.prototype.__defineGetter__("$",function (){return this.map(function(a){return a instanceof Array?a.$:a}).join("")});\n' + arg, {}, function (error, data, extra){
+		// 	compiler.compile (arg, {}, function (error, data, extra){
 		// 		if (error){
 		// 			console.log ('.. Error: ' + error);
 		// 		} else {
