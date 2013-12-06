@@ -51,7 +51,7 @@
  */
 
 start
-	= __ data:(ProgramElement __)* { return data.map (function (arg){ return arg [0] }); }
+	= __ data:(ProgramElement __)* { return { type: "Program", elements: data.map (function (arg){ return arg [0] }) } }
 
 ProgramElement
 	= Module
