@@ -1,13 +1,13 @@
 // ==Jsx==
-// @define __TEST__ 20
-// @define __TEST_OTHER__ 'qwerty'
-// @define __TEST_NEW__ qwerty
+// @define TEST_OTHER   'qwerty'  
+// @define TEST         20
+// @define TEST_NEW     qwerty
 // ==/Jsx==
 
-console.log (__TEST__);
-console.log ('__TEST_NEW__');
-console.log (__TEST_OTHER__);
-console.log ('__TEST_NEW__ __TEST_OTHER__ __TEST__');
+console.log (TEST);
+console.log ('TEST_NEW');
+console.log (TEST_OTHER);
+console.log ('TEST_NEW TEST_OTHER TEST');
 	
 
 /*{Result-Begin}
