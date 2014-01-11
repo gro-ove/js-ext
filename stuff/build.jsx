@@ -27,8 +27,9 @@ function run (){
 }
 
 var position,
-	tempJsExt = path.resolve (__dirname, 'build', 'js-ext.temp.js'),
-	tempJsParser = path.resolve (__dirname, 'build', 'js-ext.temp.parser'),
+	tempJsExt     = path.resolve (__dirname, 'build', 'js-ext.temp.js'),
+	tempJsParser  = path.resolve (__dirname, 'build', 'js-ext.temp.parser'),
+	tempJsTest    = path.resolve (__dirname, 'tests', 'temp.js'),
 	query = [
 		'. Started',
 
@@ -65,7 +66,14 @@ var position,
 		// 	console.error ('Compress error: ' + e),
 
 		'. Parser saving:',
-		lambda next (fs.writeFileSync (tempJsParser, arg)),
+		lambda {
+			fs.writeFile (tempJsParser, arg, lambda if (arg){
+				console.log ('.. Error: ' + arg);
+			} else {
+				console.log ('.. Ok.');
+				next ();
+			});
+		},
 
 		'. Getting tests list...',
 		lambda {
@@ -78,7 +86,8 @@ var position,
 					var fullPath = path.resolve (tests, file),
 						content = fs.readFileSync (fullPath),
 						result = (content.toString ().match (/\*{Result-Begin}([\s\S]+?){Result-End}\*/) || 0)[1] || '';
-					run ('node', tempJsExt, fullPath, '-o:stdout', '-e', '|', 'node', lambda (exitCode, stdout, stderr)
+						
+					run ('node', tempJsExt, fullPath, '-o:stdout', '-e', '|', 'node', lambda (exitCode, stdout, stderr){
 						if (exitCode || result && result.replace (/\r/g, '').trim () != stdout.replace (/\r/g, '').trim ()){
 							console.log ('... Error: ' + (exitCode ? 'exit code = ' + exitCode : 'bad stdout'));
 						} else {
@@ -88,7 +97,8 @@ var position,
 							} else 
 								console.log ('... Passed.');
 							next ();
-						});
+						}
+					});
 				}));
 
 				next ();

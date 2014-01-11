@@ -30,7 +30,7 @@ return c (arg, stdout, stderr);
 });
 }
 }
-var position, tempJsExt = path.resolve (__dirname, "build", "js-ext.temp.js"), tempJsParser = path.resolve (__dirname, "build", "js-ext.temp.parser"), query = [". Started",". Converter:",function (arg){
+var position, tempJsExt = path.resolve (__dirname, "build", "js-ext.temp.js"), tempJsParser = path.resolve (__dirname, "build", "js-ext.temp.parser"), tempJsTest = path.resolve (__dirname, "tests", "temp.js"), query = [". Started",". Converter:",function (arg){
 return run ("js-ext.cmd", path.resolve (__dirname, "src", "js-ext.jsx"), "-o", tempJsExt, function (arg){
 if (arg)
 {
@@ -55,7 +55,17 @@ next ("Array.prototype.__defineGetter__(\"$\",function (){return this.map(functi
 }
 });
 },". Parser saving:",function (arg){
-return next (fs.writeFileSync (tempJsParser, arg));
+fs.writeFile (tempJsParser, arg, function (arg){
+if (arg)
+{
+console.log (".. Error: " + arg);
+}
+else
+{
+console.log (".. Ok.");
+next ();
+}
+});
 },". Getting tests list...",function (arg){
 var tests = path.resolve (__dirname, "tests");
 fs.readdir (tests, function (err,files){
