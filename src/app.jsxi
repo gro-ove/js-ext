@@ -84,17 +84,15 @@ module App {
 		silenceMode || console.log ('.. Parsed');
 		//var converted = Converter.work (parsed);
 		//silenceMode || console.log ('.. Converted');
+		
+		if (!silenceMode)
+			console.log (JSON.stringify (parsed, false, 4));
+		
 		var formatted = Format.work (parsed);
 		silenceMode || console.log ('.. Formatted');
 			
 		var childs = [],
-			result = {
-					code:       formatted.code,
-					additional: formatted.additional,
-					modules:    converted.modules,
-					lessParams: converted.lessParams,
-					hypParams:  converted.hypParams,
-				},
+			result = formatted,
 			compress = true;
 			
 		if (prework.node)

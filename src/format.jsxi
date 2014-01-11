@@ -6,6 +6,7 @@ module Format {
 	var additional, jsx;
 		
 	function reset (){
+		previous = 0;
 		additional = {};
 		jsx = [];
 	}
@@ -17,17 +18,70 @@ module Format {
 			additional [tag] = data;
 	}
 	
-	var previous = +new Date % 100,
-	    randomName = lambda '_' + Math.round (Math.random () * 1e10).toString (32) + '_' + previous ++;
+	var previous = 0,
+	    randomName = lambda '__tmp_' + previous ++;
 
-	var f = lambda
+	var f = lambda {
+		try {
 			if (!types [arg.type])
 				Node.fatalError ('No formatter for type: ' + arg.type, arg)
 			else 
 				return types [arg.type](arg);
+		} catch {
+			// console.log ('Error at:', '\n' + JSON.stringify (arg, false, 4));
+			Node.fatalError ('Formatting error: ' + e);
+		}
+	};
 
 	var types = {
 			Program:                  lambda arg.elements.map (f).join (eol),
+			Comment:                  lambda {
+
+				var specialMode = arg.data [0].match (/^\s*\/\/s+==([a-z\d]+)==/i);
+				if (specialMode){
+					return specialMode [0];
+				}
+
+				return '';
+			},
+			ForInStatement:           lambda {
+				// TODO: initialization expressions
+
+				var vars        = arg.iterator.type == 'VariableDeclarations',
+					direct      = vars && arg.iterator.declarations.length == 2 || arg.iterator.type == 'BinaryExpression' && arg.iterator.operator == ',',
+					cacheMode   = arg.token == 'in-array' && arg.collection.type != 'Variable',
+					collection  = cacheMode ? randomName () : f (arg.collection),
+					body        = f (arg.statement) + ';',
+					result      = '';
+
+				if (arg.token == 'in-array'){
+					var key    = direct ? vars ? 'var ' + arg.iterator.declarations [0].name : arg.iterator.left.name : 'var ' + randomName (),
+						keyn   = key.match (/[^\s]+$/)[0],
+						value  = direct ? vars ? 'var ' + arg.iterator.declarations [1].name : arg.iterator.right.name : f (arg.iterator);
+
+					result = 'for(' + key + '=0;' + keyn + '<' + collection + '.length;' + keyn + '++){' 
+						+ eol + value + '=' + collection + '[' + keyn + '];' + eol + body 
+						+ value.match (/[^\s]+$/)[0] + '=undefined }';
+				} else if (arg.token == 'in'){
+					if (direct){
+						if (vars){
+							var temp = 'var ' + arg.iterator.declarations [1].name + '=' + collection + '[' + arg.iterator.declarations [0].name + '];' + eol;
+							arg.iterator.declarations.length = 1;
+						} else {
+							var temp = arg.iterator.right.name + '=' + collection + '[' + arg.iterator.left.name + '];' + eol;
+							arg.iterator = arg.iterator.left;
+						}
+						body = '{' + eol + temp + body + '}' + eol;
+					}
+
+					result = 'for(' + f (arg.iterator) + ' in ' + collection + ')' + body;
+				} else
+					Node.fatalError ('No formatter for ForInStatement (token: ' + arg.token + ')');
+
+				return (cacheMode ? '{ var ' + collection + '=' + f (arg.collection) + ';' + eol + result + collection + '=undefined }' : result) + eol;
+			},
+			FunctionCall:             lambda f (arg.name) + '(' + arg.arguments.map (f).join (',') + ')',
+
 			Raw:                      lambda arg.value,
 			SpecialComment:           lambda commentParse (arg.tag, arg.value) || '',
 			NumericLiteral:           lambda arg.value,
@@ -38,7 +92,6 @@ module Format {
 			VariableStatement:        lambda 'var ' + arg.declarations.map (f).join (', ') + ';',
 			VariableDeclarations:     lambda 'var ' + arg.declarations.map (f).join (', '),
 			VariableDeclaration:      lambda arg.value ? arg.name + ' = ' + f (arg.value) : arg.name,
-			FunctionCall:             lambda f (arg.name) + ' (' + arg.arguments.map (f).join (', ') + ')',
 			Function:                 lambda 'function' + (arg.name ? ' ' + arg.name : '') + ' (' + arg.params.join (',') + '){'
 				+ eol + arg.elements.map (f).join (eol) + eol + '}',
 			StringLiteral:            lambda JSON.stringify (arg.value),
@@ -61,42 +114,6 @@ module Format {
 			ThrowStatement:           lambda 'throw ' + f (arg.exception) + ';',
 			ForStatement:             lambda 'for (' + (arg.initializer ? f (arg.initializer) : '') + '; ' + eol 
 				+ (arg.test ? f (arg.test) : '') + '; ' + (arg.counter ? f (arg.counter) : '') + ')' + eol + f (arg.statement),
-			ForInStatementExt:        lambda {
-				if (arg.token == 'in-array'){
-					var chmd = !arg.collection || arg.collection.type != 'Variable',
-						name = chmd ? randomName () : f (arg.collection);
-
-					if (!arg.value){
-						var counter = randomName ();
-						return (chmd ? '{ var ' + name + ' = ' + f (arg.collection) + '; ' : '')
-						       + 'for (var ' + counter + ' = 0; ' + counter + ' < ' + name + '.length; ' + counter + ' ++){' + eol 
-							   + 'var ' + f (arg.iterator) + ' = ' + name + '[' + counter + '];' + eol 
-							   + (arg.statement && arg.statement.type == 'Block' ? f (arg.statement).slice (1, -1).trim () : f (arg.statement)) + eol + '}'
-							   + (chmd ? '}' : '');
-					} else {
-						if (!arg.iterator.name)
-							throw new Error ('Not implemented.');
-						return (chmd ? '{ var ' + name + ' = ' + f (arg.collection) + '; ' : '')
-						       + 'for (var ' + f (arg.iterator) + ' = 0; ' + arg.iterator.name + ' < ' + name + '.length; ' + arg.iterator.name + ' ++){' + eol 
-							   + 'var ' + f (arg.value) + ' = ' + name + '[' + arg.iterator.name + '];' + eol 
-							   + (arg.statement && arg.statement.type == 'Block' ? f (arg.statement).slice (1, -1).trim () : f (arg.statement)) + eol + '}'
-							   + (chmd ? '}' : '');
-					}
-				}
-
-				if (arg.value){
-					var chmd = !arg.collection || arg.collection.type != 'Variable',
-						name = chmd ? randomName () : f (arg.collection);
-
-					return (chmd ? '{ var ' + name + ' = ' + f (arg.collection) + '; ' : '')
-						   + 'for (var ' + f (arg.iterator) + ' in ' + name + '){' + eol 
-						   + 'var ' + f (arg.value) + ' = ' + name + '[' + f (arg.iterator) + '];' + eol 
-						   + (arg.statement && arg.statement.type == 'Block' ? f (arg.statement).slice (1, -1).trim () : f (arg.statement)) + eol + '}'
-						   + (chmd ? '}' : '');
-				}
-
-				return 'for (var ' + f (arg.iterator) + ' in ' + f (arg.collection) + ')' + eol + f (arg.statement);
-			},
 			WhileStatement:           lambda 'while (' + f (arg.condition) + ')' + eol + f (arg.statement),
 			DoWhileStatement:         lambda 'do' + eol + f (arg.statement) + eol + ' while (' + f (arg.condition) + ');',
 			SwitchStatement:          lambda 'switch (' + f (arg.expression) + '){' + eol + arg.clauses.map (f).join (eol) 
@@ -126,9 +143,13 @@ module Format {
 		
 	export function work (arg){
 		reset ();
+
+		var code = f (arg).trim ();
+
+		// console.log (code);
 	
 		return {
-			code: f (arg).trim (), 
+			code: code, 
 			additional: additional,
 			jsx: jsx
 		}
