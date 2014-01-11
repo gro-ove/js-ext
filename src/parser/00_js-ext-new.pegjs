@@ -51,8 +51,21 @@
  */
 
 start
-	= __ data:(ProgramElement __)* { return { type: "Program", elements: data.map (function (arg){ return arg [0] }) } }
+	= ___ data:(ProgramElement ___)* { return { type: "Program", elements: data.map (function (a){ return a [0] }) } }
 
 ProgramElement
-	= Module
+	= comment:Comments { return { type: "Comment", data: comment } }
+	/ Module
 	/ Statement
+
+Comments
+	= data:(Comment WhiteSpace* LineTerminatorSequence*)+ { return data.map (function (a){ return a [0].$ }) }
+
+___
+	= (WhiteSpace / LineTerminatorSequence)*
+
+SpecialComments
+	= "// ==Jsx==" LineTerminator SpecialComment "// ==/Jsx==" LineTerminator
+
+SpecialComment
+	= "//" WhiteSpace* "@" Identifier WhiteSpace+ (!LineTerminator .)
