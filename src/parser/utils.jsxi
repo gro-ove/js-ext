@@ -1,0 +1,32 @@
+    // Ensure the condition is true, otherwise throw an error.
+    // This is only to have a better contract semantic, i.e. another safety net
+    // to catch a logic error. The condition shall be fulfilled in normal case.
+    // Do NOT use this to enforce a certain condition on any user input.
+
+    function assert(condition, message) {
+        if (!condition) {
+            throw new Error('ASSERT: ' + message);
+        }
+    }
+
+    function sliceSource(from, to) {
+        return source.slice(from, to);
+    }
+
+    if (typeof 'esprima'[0] === 'undefined') {
+        sliceSource = function sliceArraySource(from, to) {
+            return source.slice(from, to).join('');
+        };
+    }
+
+    function isDecimalDigit(ch) {
+        return '0123456789'.indexOf(ch) >= 0;
+    }
+
+    function isHexDigit(ch) {
+        return '0123456789abcdefABCDEF'.indexOf(ch) >= 0;
+    }
+
+    function isOctalDigit(ch) {
+        return '01234567'.indexOf(ch) >= 0;
+    }
