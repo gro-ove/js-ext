@@ -1,5 +1,5 @@
 (function (){
-	ENTITIES = {
+	var ENTITIES = {
 		"amp" : "&",
 		"gt" : ">",
 		"lt" : "<",
