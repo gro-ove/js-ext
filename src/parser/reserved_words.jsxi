@@ -1,0 +1,40 @@
+    // 7.6.1.2 Future Reserved Words
+
+    function isFutureReservedWord(id) {
+        switch (id) {
+
+        // Future reserved words.
+        case 'class':
+        case 'enum':
+        case 'export':
+        case 'extends':
+        case 'import':
+        case 'super':
+            return true;
+        }
+
+        return false;
+    }
+
+    function isStrictModeReservedWord(id) {
+        switch (id) {
+
+        // Strict Mode reserved words.
+        case 'implements':
+        case 'interface':
+        case 'package':
+        case 'private':
+        case 'protected':
+        case 'public':
+        case 'static':
+        case 'yield':
+        case 'let':
+            return true;
+        }
+
+        return false;
+    }
+
+    function isRestrictedWord(id) {
+        return id === 'eval' || id === 'arguments';
+    }

@@ -1,32 +1,131 @@
-    // Ensure the condition is true, otherwise throw an error.
-    // This is only to have a better contract semantic, i.e. another safety net
-    // to catch a logic error. The condition shall be fulfilled in normal case.
-    // Do NOT use this to enforce a certain condition on any user input.
+    function advance (){
+        var ch, token;
 
-    function assert(condition, message) {
-        if (!condition) {
-            throw new Error('ASSERT: ' + message);
+        skipComment ();
+
+        if (index >= length) 
+            return {
+                type:           Token.EOF,
+                lineNumber:     lineNumber,
+                lineStart:      lineStart,
+                range:          [ index, index ]
+            };
+
+        token = scanPunctuator ();
+        if (typeof token !== 'undefined')
+            return token;
+
+        ch = source[index];
+        if (ch === '\'' || ch === '"') 
+            return scanStringLiteral ();
+
+        if (ch === '.' || isDecimalDigit (ch)) 
+            return scanNumericLiteral ();
+
+        token = scanIdentifier ();
+        if (typeof token !== 'undefined')
+            return token;
+
+        throwError ({}, Messages.UnexpectedToken, 'ILLEGAL');
+    }
+
+    function lex (){
+        var token;
+
+        if (buffer){
+            index       = buffer.range [1];
+            lineNumber  = buffer.lineNumber;
+            lineStart   = buffer.lineStart;
+            token       = buffer;
+            buffer      = null;
+            return token;
         }
+
+        buffer = null;
+        return advance ();
     }
 
-    function sliceSource(from, to) {
-        return source.slice(from, to);
+    function lookahead (){
+        var pos, line, start;
+
+        if (buffer !== null)
+            return buffer;
+
+        pos         = index;
+        line        = lineNumber;
+        start       = lineStart;
+        buffer      = advance ();
+        index       = pos;
+        lineNumber  = line;
+        lineStart   = start;
+
+        return buffer;
     }
 
-    if (typeof 'esprima'[0] === 'undefined') {
-        sliceSource = function sliceArraySource(from, to) {
-            return source.slice(from, to).join('');
-        };
+    // Return true if there is a line terminator before the next token.
+    function peekLineTerminator (){
+        var pos, line, start, found;
+
+        pos         = index;
+        line        = lineNumber;
+        start       = lineStart;
+
+        skipComment ();
+
+        found       = lineNumber !== line;
+        index       = pos;
+        lineNumber  = line;
+        lineStart   = start;
+
+        return found;
     }
 
-    function isDecimalDigit(ch) {
-        return '0123456789'.indexOf(ch) >= 0;
+    // Expect the next token to match the specified punctuator.
+    // If not, an exception will be thrown.
+    function expect (value){
+        var token = lex ();
+        if (token.type !== Token.Punctuator || token.value !== value) 
+            throwUnexpected (token);
     }
 
-    function isHexDigit(ch) {
-        return '0123456789abcdefABCDEF'.indexOf(ch) >= 0;
+    // Expect the next token to match the specified keyword.
+    // If not, an exception will be thrown.
+    function expectKeyword (keyword){
+        var token = lex ();
+        if (token.type !== Token.Keyword || token.value !== keyword) 
+            throwUnexpected (token);
     }
 
-    function isOctalDigit(ch) {
-        return '01234567'.indexOf(ch) >= 0;
+    // Return true if the next token matches the specified punctuator.
+    function match (value){
+        var token = lookahead ();
+        return token.type === Token.Punctuator && token.value === value;
+    }
+
+    // Return true if the next token matches the specified keyword
+    function matchKeyword (keyword){
+        var token = lookahead ();
+        return token.type === Token.Keyword && token.value === keyword;
+    }
+
+    // Return true if the next token is an assignment operator
+    function matchAssign (){
+        var token = lookahead (),
+            op = token.value;
+
+        if (token.type !== Token.Punctuator)
+            return false;
+
+        return op === '=' ||
+               op === '*=' ||
+               op === '/=' ||
+               op === '%=' ||
+               op === '+=' ||
+               op === '-=' ||
+               op === '<<=' ||
+               op === '>>=' ||
+               op === '>>>=' ||
+               op === '&=' ||
+               op === '^=' ||
+               op === '|=';
     }
