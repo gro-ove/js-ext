@@ -64,6 +64,6 @@ module App {
 		if (!file)
 			console.fatal ('Reading error');
 		else
-			console.log (JSON.stringify (Parser.parse (file), false, 4));
+			console.log (JSON.stringify (Parser.parse (file), false, 4).length);
 	}
 }
