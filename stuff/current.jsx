@@ -9,6 +9,6 @@ var f = lambda {
 		b: b
 	};
 
-var a = [ lambda a, lambda b ];
+var a = [ lambda { a: b }, lambda b ];
 
-[ lambda if (t) a else b, lambda if (q) return b ]
+[ lambda if (t){ a } else b, lambda if (q) return b ]

@@ -19,12 +19,16 @@
 	}
 
 	function parseBlock (){
-		var block;
+		var block, oldPreventSequence;
 
 		expect ('{');
+
+		oldPreventSequence = state.preventSequence;
 		state.preventSequence = false;
 
 		block = parseStatementList ();
+
+		state.preventSequence = oldPreventSequence;
 
 		expect ('}');
 

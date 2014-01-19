@@ -1,8 +1,10 @@
 	// 13 Function Definition
 	function parseFunctionSourceElements (){
 		var sourceElement, 
+			oldPreventSequence,
 			sourceElements = [];
 
+		oldPreventSequence = state.preventSequence;
 		state.preventSequence = false;
 
 		if (match ('{')){
@@ -20,6 +22,8 @@
 			expect ('}');
 		} else 
 			sourceElements.push (parseSourceElement ());
+
+		state.preventSequence = oldPreventSequence;
 
 		return {
 			type: 	Syntax.BlockStatement,
@@ -138,51 +142,38 @@
 	}
 
 	function parseLambdaSourceElements (){
-		var sourceElement, 
-			sourceElements = [],
+		var sourceElements,
+			oldPreventSequence,
 			saved;
 
+		oldPreventSequence = state.preventSequence;
+		state.preventSequence = true;
+
 		if (match ('{')){
-			state.preventSequence = false;
 			saved = saveAll ();
 
 			try {
 				expr = parseObjectInitialiser ();
 				consumeSemicolon ();
 
-				sourceElements.push (
+				sourceElements = [
 					setReturnStatement ({
 						type: Syntax.ExpressionStatement,
 						expression: expr
 					})
-				);
+				];
 			} catch {
 				restoreAll (saved);
-
-				expect ('{');
-
-				while (index < length){
-					if (match ('}'))
-						break;
-					sourceElement = parseSourceElement ();
-					if (typeof sourceElement === 'undefined') 
-						break;
-					sourceElements.push (sourceElement);
-				}
-
-				expect ('}');
+				sourceElements = parseFunctionSourceElements ();
 			}
-		} else {
-			state.preventSequence = true;
-
-			sourceElements.push (
+		} else 
+			sourceElements = [
 				setReturnStatement (
 					parseSourceElement ()
 				)
-			);
+			];
 
-			state.preventSequence = false;
-		}
+		state.preventSequence = oldPreventSequence;
 
 		return {
 			type: 	Syntax.BlockStatement,
