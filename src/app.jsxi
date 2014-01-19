@@ -56,6 +56,7 @@ module App {
 				// s - short, l - long, p - parameter (1 - one, 2 - multiple)
 				{ 	s: 'i', 	l: 'include', 	p: 2		},
 				{ 	s: 'o', 	l: 'output',  	p: 1		},
+				{   s: 'l',		l: 'length'					},
 				{   s: 'h',		l: 'usage'					}
 			]);
 
@@ -63,7 +64,8 @@ module App {
 
 		if (!file)
 			console.fatal ('Reading error');
-		else
-			console.log (JSON.stringify (Parser.parse (file), false, 4).length);
+		
+		var t = JSON.stringify (Parser.parse (file), false, 4);
+		console.log (args.l ? t.length : t);
 	}
 }

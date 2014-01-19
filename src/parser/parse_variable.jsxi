@@ -66,23 +66,3 @@
             kind: 'var'
         };
     }
-
-    // kind may be `const` or `let`
-    // Both are experimental and not in the specification yet.
-    // see http://wiki.ecmascript.org/doku.php?id=harmony:const
-    // and http://wiki.ecmascript.org/doku.php?id=harmony:let
-    function parseConstLetDeclaration(kind) {
-        var declarations;
-
-        expectKeyword(kind);
-
-        declarations = parseVariableDeclarationList(kind);
-
-        consumeSemicolon();
-
-        return {
-            type: Syntax.VariableDeclaration,
-            declarations: declarations,
-            kind: kind
-        };
-    }

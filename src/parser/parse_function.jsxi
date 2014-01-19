@@ -1,231 +1,243 @@
-    // 13 Function Definition
+	// 13 Function Definition
+	function parseFunctionSourceElements (){
+		var sourceElement, 
+			sourceElements = [], 
+			token, 
+			directive, 
+			firstRestricted,
+			oldLabelSet, 
+			oldInIteration, 
+			oldInSwitch, 
+			oldInFunctionBody;
 
-    function parseFunctionSourceElements() {
-        var sourceElement, sourceElements = [], token, directive, firstRestricted,
-            oldLabelSet, oldInIteration, oldInSwitch, oldInFunctionBody;
+		expect ('{');
 
-        expect('{');
+		while (index < length){
+			token = lookahead ();
 
-        while (index < length) {
-            token = lookahead();
-            if (token.type !== Token.StringLiteral) {
-                break;
-            }
+			if (token.type !== Token.StringLiteral)
+				break;
 
-            sourceElement = parseSourceElement();
-            sourceElements.push(sourceElement);
-            if (sourceElement.expression.type !== Syntax.Literal) {
-                // this is not directive
-                break;
-            }
-            directive = sliceSource(token.range[0] + 1, token.range[1] - 1);
-            if (directive === 'use strict') {
-                strict = true;
-                if (firstRestricted) {
-                    throwErrorTolerant(firstRestricted, Messages.StrictOctalLiteral);
-                }
-            } else {
-                if (!firstRestricted && token.octal) {
-                    firstRestricted = token;
-                }
-            }
-        }
+			sourceElement = parseSourceElement ();
+			sourceElements.push (sourceElement);
 
-        oldLabelSet = state.labelSet;
-        oldInIteration = state.inIteration;
-        oldInSwitch = state.inSwitch;
-        oldInFunctionBody = state.inFunctionBody;
+			// this is not directive
+			if (sourceElement.expression.type !== Syntax.Literal)
+				break;
 
-        state.labelSet = {};
-        state.inIteration = false;
-        state.inSwitch = false;
-        state.inFunctionBody = true;
+			directive = sliceSource (token.range[0] + 1, token.range[1] - 1);
+			if (directive === 'use strict'){
+				strict = true;
+				if (firstRestricted) 
+					throwErrorTolerant (firstRestricted, Messages.StrictOctalLiteral);
+			} else if (!firstRestricted && token.octal) 
+				firstRestricted = token;
+		}
 
-        while (index < length) {
-            if (match('}')) {
-                break;
-            }
-            sourceElement = parseSourceElement();
-            if (typeof sourceElement === 'undefined') {
-                break;
-            }
-            sourceElements.push(sourceElement);
-        }
+		oldLabelSet 			= state.labelSet;
+		oldInIteration 			= state.inIteration;
+		oldInSwitch 			= state.inSwitch;
+		oldInFunctionBody 		= state.inFunctionBody;
 
-        expect('}');
+		state.labelSet 			= {};
+		state.inIteration 		= false;
+		state.inSwitch 			= false;
+		state.inFunctionBody 	= true;
 
-        state.labelSet = oldLabelSet;
-        state.inIteration = oldInIteration;
-        state.inSwitch = oldInSwitch;
-        state.inFunctionBody = oldInFunctionBody;
+		while (index < length){
+			if (match ('}'))
+				break;
+			sourceElement = parseSourceElement ();
+			if (typeof sourceElement === 'undefined') 
+				break;
+			sourceElements.push (sourceElement);
+		}
 
-        return {
-            type: Syntax.BlockStatement,
-            body: sourceElements
-        };
-    }
+		expect ('}');
 
-    function parseFunctionDeclaration() {
-        var id, param, params = [], body, token, stricted, firstRestricted, message, previousStrict, paramSet;
+		state.labelSet 			= oldLabelSet;
+		state.inIteration 		= oldInIteration;
+		state.inSwitch 			= oldInSwitch;
+		state.inFunctionBody 	= oldInFunctionBody;
 
-        expectKeyword('function');
-        token = lookahead();
-        id = parseVariableIdentifier();
-        if (strict) {
-            if (isRestrictedWord(token.value)) {
-                throwErrorTolerant(token, Messages.StrictFunctionName);
-            }
-        } else {
-            if (isRestrictedWord(token.value)) {
-                firstRestricted = token;
-                message = Messages.StrictFunctionName;
-            } else if (isStrictModeReservedWord(token.value)) {
-                firstRestricted = token;
-                message = Messages.StrictReservedWord;
-            }
-        }
+		return {
+			type: Syntax.BlockStatement,
+			body: sourceElements
+		};
+	}
 
-        expect('(');
+	function parseFunctionDeclaration (){
+		var id, 
+			param, 
+			params = [], 
+			body, 
+			token, 
+			stricted, 
+			firstRestricted, 
+			message, 
+			previousStrict, 
+			paramSet;
 
-        if (!match(')')) {
-            paramSet = {};
-            while (index < length) {
-                token = lookahead();
-                param = parseVariableIdentifier();
-                if (strict) {
-                    if (isRestrictedWord(token.value)) {
-                        stricted = token;
-                        message = Messages.StrictParamName;
-                    }
-                    if (Object.prototype.hasOwnProperty.call(paramSet, token.value)) {
-                        stricted = token;
-                        message = Messages.StrictParamDupe;
-                    }
-                } else if (!firstRestricted) {
-                    if (isRestrictedWord(token.value)) {
-                        firstRestricted = token;
-                        message = Messages.StrictParamName;
-                    } else if (isStrictModeReservedWord(token.value)) {
-                        firstRestricted = token;
-                        message = Messages.StrictReservedWord;
-                    } else if (Object.prototype.hasOwnProperty.call(paramSet, token.value)) {
-                        firstRestricted = token;
-                        message = Messages.StrictParamDupe;
-                    }
-                }
-                params.push(param);
-                paramSet[param.name] = true;
-                if (match(')')) {
-                    break;
-                }
-                expect(',');
-            }
-        }
+		expectKeyword ('function');
 
-        expect(')');
+		token 	= lookahead ();
+		id 		= parseVariableIdentifier ();
 
-        previousStrict = strict;
-        body = parseFunctionSourceElements();
-        if (strict && firstRestricted) {
-            throwError(firstRestricted, message);
-        }
-        if (strict && stricted) {
-            throwErrorTolerant(stricted, message);
-        }
-        strict = previousStrict;
+		if (strict) {
+			if (isRestrictedWord (token.value)) 
+				throwErrorTolerant (token, Messages.StrictFunctionName);
+		} else if (isRestrictedWord (token.value)) {
+			firstRestricted 	= token;
+			message 			= Messages.StrictFunctionName;
+		} else if (isStrictModeReservedWord (token.value)){
+			firstRestricted 	= token;
+			message 			= Messages.StrictReservedWord;
+		}
 
-        return {
-            type: Syntax.FunctionDeclaration,
-            id: id,
-            params: params,
-            defaults: [],
-            body: body,
-            rest: null,
-            generator: false,
-            expression: false
-        };
-    }
+		expect ('(');
 
-    function parseFunctionExpression() {
-        var token, id = null, stricted, firstRestricted, message, param, params = [], body, previousStrict, paramSet;
+		if (!match (')')){
+			paramSet = {};
 
-        expectKeyword('function');
+			while (index < length) {
+				token = lookahead ();
+				param = parseVariableIdentifier ();
 
-        if (!match('(')) {
-            token = lookahead();
-            id = parseVariableIdentifier();
-            if (strict) {
-                if (isRestrictedWord(token.value)) {
-                    throwErrorTolerant(token, Messages.StrictFunctionName);
-                }
-            } else {
-                if (isRestrictedWord(token.value)) {
-                    firstRestricted = token;
-                    message = Messages.StrictFunctionName;
-                } else if (isStrictModeReservedWord(token.value)) {
-                    firstRestricted = token;
-                    message = Messages.StrictReservedWord;
-                }
-            }
-        }
+				if (strict) {
+					if (isRestrictedWord(token.value)) {
+						stricted = token;
+						message = Messages.StrictParamName;
+					}
+					if (Object.prototype.hasOwnProperty.call(paramSet, token.value)) {
+						stricted = token;
+						message = Messages.StrictParamDupe;
+					}
+				} else if (!firstRestricted) {
+					if (isRestrictedWord(token.value)) {
+						firstRestricted = token;
+						message = Messages.StrictParamName;
+					} else if (isStrictModeReservedWord(token.value)) {
+						firstRestricted = token;
+						message = Messages.StrictReservedWord;
+					} else if (Object.prototype.hasOwnProperty.call(paramSet, token.value)) {
+						firstRestricted = token;
+						message = Messages.StrictParamDupe;
+					}
+				}
+				params.push (param);
+				paramSet [param.name] = true;
 
-        expect('(');
+				if (match (')')) 
+					break;
 
-        if (!match(')')) {
-            paramSet = {};
-            while (index < length) {
-                token = lookahead();
-                param = parseVariableIdentifier();
-                if (strict) {
-                    if (isRestrictedWord(token.value)) {
-                        stricted = token;
-                        message = Messages.StrictParamName;
-                    }
-                    if (Object.prototype.hasOwnProperty.call(paramSet, token.value)) {
-                        stricted = token;
-                        message = Messages.StrictParamDupe;
-                    }
-                } else if (!firstRestricted) {
-                    if (isRestrictedWord(token.value)) {
-                        firstRestricted = token;
-                        message = Messages.StrictParamName;
-                    } else if (isStrictModeReservedWord(token.value)) {
-                        firstRestricted = token;
-                        message = Messages.StrictReservedWord;
-                    } else if (Object.prototype.hasOwnProperty.call(paramSet, token.value)) {
-                        firstRestricted = token;
-                        message = Messages.StrictParamDupe;
-                    }
-                }
-                params.push(param);
-                paramSet[param.name] = true;
-                if (match(')')) {
-                    break;
-                }
-                expect(',');
-            }
-        }
+				expect(',');
+			}
+		}
 
-        expect(')');
+		expect(')');
 
-        previousStrict = strict;
-        body = parseFunctionSourceElements();
-        if (strict && firstRestricted) {
-            throwError(firstRestricted, message);
-        }
-        if (strict && stricted) {
-            throwErrorTolerant(stricted, message);
-        }
-        strict = previousStrict;
+		previousStrict = strict;
+		body = parseFunctionSourceElements();
+		if (strict && firstRestricted) {
+			throwError(firstRestricted, message);
+		}
+		if (strict && stricted) {
+			throwErrorTolerant(stricted, message);
+		}
+		strict = previousStrict;
 
-        return {
-            type: Syntax.FunctionExpression,
-            id: id,
-            params: params,
-            defaults: [],
-            body: body,
-            rest: null,
-            generator: false,
-            expression: false
-        };
-    }
+		return {
+			type: Syntax.FunctionDeclaration,
+			id: id,
+			params: params,
+			defaults: [],
+			body: body,
+			rest: null,
+			generator: false,
+			expression: false
+		};
+	}
+
+	function parseFunctionExpression() {
+		var token, id = null, stricted, firstRestricted, message, param, params = [], body, previousStrict, paramSet;
+
+		expectKeyword('function');
+
+		if (!match('(')) {
+			token = lookahead();
+			id = parseVariableIdentifier();
+			if (strict) {
+				if (isRestrictedWord(token.value)) {
+					throwErrorTolerant(token, Messages.StrictFunctionName);
+				}
+			} else {
+				if (isRestrictedWord(token.value)) {
+					firstRestricted = token;
+					message = Messages.StrictFunctionName;
+				} else if (isStrictModeReservedWord(token.value)) {
+					firstRestricted = token;
+					message = Messages.StrictReservedWord;
+				}
+			}
+		}
+
+		expect('(');
+
+		if (!match(')')) {
+			paramSet = {};
+			while (index < length) {
+				token = lookahead();
+				param = parseVariableIdentifier();
+				if (strict) {
+					if (isRestrictedWord(token.value)) {
+						stricted = token;
+						message = Messages.StrictParamName;
+					}
+					if (Object.prototype.hasOwnProperty.call(paramSet, token.value)) {
+						stricted = token;
+						message = Messages.StrictParamDupe;
+					}
+				} else if (!firstRestricted) {
+					if (isRestrictedWord(token.value)) {
+						firstRestricted = token;
+						message = Messages.StrictParamName;
+					} else if (isStrictModeReservedWord(token.value)) {
+						firstRestricted = token;
+						message = Messages.StrictReservedWord;
+					} else if (Object.prototype.hasOwnProperty.call(paramSet, token.value)) {
+						firstRestricted = token;
+						message = Messages.StrictParamDupe;
+					}
+				}
+				params.push(param);
+				paramSet[param.name] = true;
+				if (match(')')) {
+					break;
+				}
+				expect(',');
+			}
+		}
+
+		expect(')');
+
+		previousStrict = strict;
+		body = parseFunctionSourceElements();
+		if (strict && firstRestricted) {
+			throwError(firstRestricted, message);
+		}
+		if (strict && stricted) {
+			throwErrorTolerant(stricted, message);
+		}
+		strict = previousStrict;
+
+		return {
+			type: Syntax.FunctionExpression,
+			id: id,
+			params: params,
+			defaults: [],
+			body: body,
+			rest: null,
+			generator: false,
+			expression: false
+		};
+	}

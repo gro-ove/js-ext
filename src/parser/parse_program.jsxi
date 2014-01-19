@@ -5,9 +5,6 @@
 
 		if (token.type === Token.Keyword)
 			switch (token.value){
-				case 'const':
-				case 'let':
-					return parseConstLetDeclaration (token.value);
 				case 'function':
 					return parseFunctionDeclaration ();
 				default:
@@ -23,6 +20,7 @@
 
 		while (index < length){
 			token = lookahead ();
+			
 			if (token.type !== Token.StringLiteral)
 				break;
 
@@ -48,7 +46,7 @@
 				break;
 			sourceElements.push (sourceElement);
 		}
-		
+
 		return sourceElements;
 	}
 
