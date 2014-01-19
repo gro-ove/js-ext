@@ -64,7 +64,8 @@
 			};
 		}
 
-		consumeSemicolon ();
+		if (!state.preventSequence)
+			consumeSemicolon ();
 
 		return {
 			type: Syntax.ExpressionStatement,
