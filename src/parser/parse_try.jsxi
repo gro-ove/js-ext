@@ -1,57 +1,48 @@
+	// 12.14 The try statement
 
+	function parseCatchClause (){
+		var param;
 
-    // 12.14 The try statement
+		expectKeyword ('catch');
 
-    function parseCatchClause() {
-        var param;
+		expect ('(');
+		if (match (')'))
+			throwUnexpected (lookahead ());
 
-        expectKeyword('catch');
+		param = parseVariableIdentifier ();
 
-        expect('(');
-        if (match(')')) {
-            throwUnexpected(lookahead());
-        }
+		expect (')');
 
-        param = parseVariableIdentifier();
-        // 12.14.1
-        if (strict && isRestrictedWord(param.name)) {
-            throwErrorTolerant({}, Messages.StrictCatchVariable);
-        }
+		return {
+			type:   Syntax.CatchClause,
+			param:  param,
+			body:   parseBlock ()
+		};
+	}
 
-        expect(')');
+	function parseTryStatement (){
+		var block, handlers = [], finalizer = null;
 
-        return {
-            type: Syntax.CatchClause,
-            param: param,
-            body: parseBlock()
-        };
-    }
+		expectKeyword ('try');
 
-    function parseTryStatement() {
-        var block, handlers = [], finalizer = null;
+		block = parseBlock ();
 
-        expectKeyword('try');
+		if (matchKeyword ('catch'))
+			handlers.push (parseCatchClause ());
 
-        block = parseBlock();
+		if (matchKeyword ('finally')){
+			lex ();
+			finalizer = parseBlock ();
+		}
 
-        if (matchKeyword('catch')) {
-            handlers.push(parseCatchClause());
-        }
+		if (handlers.length === 0 && !finalizer) 
+			throwError ({}, Messages.NoCatchOrFinally);
 
-        if (matchKeyword('finally')) {
-            lex();
-            finalizer = parseBlock();
-        }
-
-        if (handlers.length === 0 && !finalizer) {
-            throwError({}, Messages.NoCatchOrFinally);
-        }
-
-        return {
-            type: Syntax.TryStatement,
-            block: block,
-            guardedHandlers: [],
-            handlers: handlers,
-            finalizer: finalizer
-        };
-    }
+		return {
+			type:               Syntax.TryStatement,
+			block:              block,
+			guardedHandlers:    [],
+			handlers:           handlers,
+			finalizer:          finalizer
+		};
+	}

@@ -1,29 +1,21 @@
-    // 11.13 Assignment Operators
+	// 11.13 Assignment Operators
+	function parseAssignmentExpression (){
+		var token, expr;
 
-    function parseAssignmentExpression() {
-        var token, expr;
+		token 	= lookahead ();
+		expr 	= parseConditionalExpression ();
 
-        token = lookahead();
-        expr = parseConditionalExpression();
+		if (matchAssign ()){
+			if (!isLeftHandSide (expr))
+				throwErrorTolerant ({}, Messages.InvalidLHSInAssignment);
 
-        if (matchAssign()) {
-            // LeftHandSideExpression
-            if (!isLeftHandSide(expr)) {
-                throwErrorTolerant({}, Messages.InvalidLHSInAssignment);
-            }
+			expr = {
+				type: 		Syntax.AssignmentExpression,
+				operator: 	lex ().value,
+				left: 		expr,
+				right: 		parseAssignmentExpression ()
+			};
+		}
 
-            // 11.13.1
-            if (strict && expr.type === Syntax.Identifier && isRestrictedWord(expr.name)) {
-                throwErrorTolerant(token, Messages.StrictLHSAssignment);
-            }
-
-            expr = {
-                type: Syntax.AssignmentExpression,
-                operator: lex().value,
-                left: expr,
-                right: parseAssignmentExpression()
-            };
-        }
-
-        return expr;
-    }
+		return expr;
+	}

@@ -1,14 +1,18 @@
-    // 7.6 Identifier Names and Identifiers
+	// 7.6 Identifier Names and Identifiers
 
-    function isIdentifierStart(ch) {
-        return (ch === '$') || (ch === '_') || (ch === '\\') ||
-            (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') ||
-            ((ch.charCodeAt(0) >= 0x80) && Regex.NonAsciiIdentifierStart.test(ch));
-    }
+	function isIdentifierStart (ch)
+		return ch === '$' || 
+			   ch === '_' || 
+			   ch === '\\' ||
+			   ch >= 'a' && ch <= 'z' || 
+			   ch >= 'A' && ch <= 'Z' ||
+			   ch.charCodeAt (0) >= 0x80 && Regex.NonAsciiIdentifierStart.test (ch);
 
-    function isIdentifierPart(ch) {
-        return (ch === '$') || (ch === '_') || (ch === '\\') ||
-            (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') ||
-            ((ch >= '0') && (ch <= '9')) ||
-            ((ch.charCodeAt(0) >= 0x80) && Regex.NonAsciiIdentifierPart.test(ch));
-    }
+	function isIdentifierPart(ch) 
+		return ch === '$' || 
+			   ch === '_' || 
+			   ch === '\\' ||
+			   ch >= 'a' && ch <= 'z' || 
+			   ch >= 'A' && ch <= 'Z' ||
+			   ch >= '0' && ch <= '9' ||
+			   ch.charCodeAt (0) >= 0x80 && Regex.NonAsciiIdentifierPart.test (ch);

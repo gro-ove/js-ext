@@ -16,11 +16,11 @@
 	}
 
 	function parseSourceElements (){
-		var sourceElement, sourceElements = [], token, directive, firstRestricted;
+		var sourceElement, sourceElements = [], token, directive;
 
 		while (index < length){
 			token = lookahead ();
-			
+
 			if (token.type !== Token.StringLiteral)
 				break;
 
@@ -31,13 +31,6 @@
 				break;
 
 			directive = sliceSource (token.range [0] + 1, token.range [1] - 1);
-
-			if (directive === 'use strict') {
-				strict = true;
-				if (firstRestricted) 
-					throwErrorTolerant (firstRestricted, Messages.StrictOctalLiteral);
-			} else if (!firstRestricted && token.octal) 
-				firstRestricted = token;
 		}
 
 		while (index < length) {
@@ -50,10 +43,8 @@
 		return sourceElements;
 	}
 
-	function parseProgram (){
-		strict = false;
+	function parseProgram ()
 		return program = {
 			type: Syntax.Program,
 			body: parseSourceElements ()
 		};
-	}

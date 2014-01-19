@@ -1,3 +1,3 @@
 	// 7.3 Line Terminators
 	function isLineTerminator (ch) 
-        return ch === '\n' || ch === '\r' || ch === '\u2028' || ch === '\u2029';
+        return ch === '\n' || ch === '\r'; // TODO: || ch === '\u2028' || ch === '\u2029';

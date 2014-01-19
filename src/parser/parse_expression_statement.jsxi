@@ -1,14 +1,11 @@
+	// 12.4 Expression Statement
 
+	function parseExpressionStatement (){
+		var expr = parseExpression ();
+		consumeSemicolon ();
 
-    // 12.4 Expression Statement
-
-    function parseExpressionStatement() {
-        var expr = parseExpression();
-
-        consumeSemicolon();
-
-        return {
-            type: Syntax.ExpressionStatement,
-            expression: expr
-        };
-    }
+		return {
+			type: 			Syntax.ExpressionStatement,
+			expression: 	expr
+		};
+	}

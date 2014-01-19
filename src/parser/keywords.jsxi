@@ -1,52 +1,54 @@
+	// 7.6.1.1 Keywords
+	function isKeyword (id){
+		var keyword = false;
 
-    // 7.6.1.1 Keywords
+		switch (id.length){
+			case 2:
+				keyword = (id === 'if') || (id === 'in') || (id === 'do');
+				break;
+			case 3:
+				keyword = (id === 'var') || (id === 'for') || (id === 'new') || (id === 'try');
+				break;
+			case 4:
+				keyword = (id === 'this') || (id === 'else') || (id === 'case') || (id === 'void') || (id === 'with');
+				break;
+			case 5:
+				keyword = (id === 'while') || (id === 'break') || (id === 'catch') || (id === 'throw');
+				break;
+			case 6:
+				keyword = (id === 'return') || (id === 'typeof') || (id === 'delete') || (id === 'switch');
+				break;
+			case 7:
+				keyword = (id === 'default') || (id === 'finally');
+				break;
+			case 8:
+				keyword = (id === 'function') || (id === 'continue') || (id === 'debugger');
+				break;
+			case 10:
+				keyword = (id === 'instanceof');
+				break;
+		}
 
-    function isKeyword(id) {
-        var keyword = false;
-        switch (id.length){
-            case 2:
-                keyword = (id === 'if') || (id === 'in') || (id === 'do');
-                break;
-            case 3:
-                keyword = (id === 'var') || (id === 'for') || (id === 'new') || (id === 'try');
-                break;
-            case 4:
-                keyword = (id === 'this') || (id === 'else') || (id === 'case') || (id === 'void') || (id === 'with');
-                break;
-            case 5:
-                keyword = (id === 'while') || (id === 'break') || (id === 'catch') || (id === 'throw');
-                break;
-            case 6:
-                keyword = (id === 'return') || (id === 'typeof') || (id === 'delete') || (id === 'switch');
-                break;
-            case 7:
-                keyword = (id === 'default') || (id === 'finally');
-                break;
-            case 8:
-                keyword = (id === 'function') || (id === 'continue') || (id === 'debugger');
-                break;
-            case 10:
-                keyword = (id === 'instanceof');
-                break;
-        }
+		if (keyword)
+			return true;
 
-        if (keyword)
-            return true;
+		return isFutureReservedWord (id);
+	}
 
-        switch (id) {
-            // Future reserved words.
-            // 'const' is specialized as Keyword in V8.
-            case 'const':
-                return true;
+	// 7.6.1.2 Future Reserved Words
+	function isFutureReservedWord (id)
+		switch (id){
+			// Future reserved words.
+			case 'class':
+			case 'enum':
+			case 'export':
+			case 'extends':
+			case 'import':
+			case 'super':
+				return true;
+			default:
+				return false;
+		}
 
-            // For compatiblity to SpiderMonkey and ES.next
-            case 'yield':
-            case 'let':
-                return true;
-        }
-
-        if (strict && isStrictModeReservedWord (id))
-            return true;
-
-        return isFutureReservedWord (id);
-    }
+	//function isRestrictedWord (id)
+	//	return id === 'eval' || id === 'arguments';

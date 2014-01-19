@@ -1,68 +1,56 @@
-    // 12.2 Variable Statement
+	// 12.2 Variable Statement
 
-    function parseVariableIdentifier() {
-        var token = lex();
+	function parseVariableIdentifier (){
+		var token = lex ();
 
-        if (token.type !== Token.Identifier) {
-            throwUnexpected(token);
-        }
+		if (token.type !== Token.Identifier)
+			throwUnexpected (token);
 
-        return {
-            type: Syntax.Identifier,
-            name: token.value
-        };
-    }
+		return {
+			type: 	Syntax.Identifier,
+			name: 	token.value
+		};
+	}
 
-    function parseVariableDeclaration(kind) {
-        var id = parseVariableIdentifier(),
-            init = null;
+	function parseVariableDeclaration (kind){
+		var id = parseVariableIdentifier (),
+			init = null;
 
-        // 12.2.1
-        if (strict && isRestrictedWord(id.name)) {
-            throwErrorTolerant({}, Messages.StrictVarName);
-        }
+		if (match ('=')){
+			lex ();
+			init = parseAssignmentExpression ();
+		}
 
-        if (kind === 'const') {
-            expect('=');
-            init = parseAssignmentExpression();
-        } else if (match('=')) {
-            lex();
-            init = parseAssignmentExpression();
-        }
+		return {
+			type: 	Syntax.VariableDeclarator,
+			id: 	id,
+			init: 	init
+		};
+	}
 
-        return {
-            type: Syntax.VariableDeclarator,
-            id: id,
-            init: init
-        };
-    }
+	function parseVariableDeclarationList (kind){
+		var list = [];
 
-    function parseVariableDeclarationList(kind) {
-        var list = [];
+		do {
+			list.push (parseVariableDeclaration (kind));
+			if (!match (','))
+				break;
+			lex ();
+		} while (index < length);
 
-        do {
-            list.push(parseVariableDeclaration(kind));
-            if (!match(',')) {
-                break;
-            }
-            lex();
-        } while (index < length);
+		return list;
+	}
 
-        return list;
-    }
+	function parseVariableStatement (){
+		var declarations;
 
-    function parseVariableStatement() {
-        var declarations;
+		expectKeyword ('var');
+		declarations = parseVariableDeclarationList ();
+		consumeSemicolon ();
 
-        expectKeyword('var');
-
-        declarations = parseVariableDeclarationList();
-
-        consumeSemicolon();
-
-        return {
-            type: Syntax.VariableDeclaration,
-            declarations: declarations,
-            kind: 'var'
-        };
-    }
+		return {
+			type: 			Syntax.VariableDeclaration,
+			declarations: 	declarations,
+			kind: 			'var'
+		};
+	}

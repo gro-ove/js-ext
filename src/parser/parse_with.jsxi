@@ -1,25 +1,20 @@
     // 12.10 The with statement
 
-    function parseWithStatement() {
+    function parseWithStatement (){
         var object, body;
 
-        if (strict) {
-            throwErrorTolerant({}, Messages.StrictModeWith);
-        }
+        expectKeyword ('with');
+        expect ('(');
 
-        expectKeyword('with');
+        object = parseExpression ();
 
-        expect('(');
+        expect (')');
 
-        object = parseExpression();
-
-        expect(')');
-
-        body = parseStatement();
+        body = parseStatement ();
 
         return {
-            type: Syntax.WithStatement,
-            object: object,
-            body: body
+            type:       Syntax.WithStatement,
+            object:     object,
+            body:       body
         };
     }

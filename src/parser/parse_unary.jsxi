@@ -1,57 +1,42 @@
+	// 11.4 Unary Operators
+	function parseUnaryExpression (){
+		var token, expr;
 
-    // 11.4 Unary Operators
+		token = lookahead ();
 
-    function parseUnaryExpression() {
-        var token, expr;
+		if (token.type !== Token.Punctuator && token.type !== Token.Keyword)
+			return parsePostfixExpression ();
 
-        token = lookahead();
-        if (token.type !== Token.Punctuator && token.type !== Token.Keyword) {
-            return parsePostfixExpression();
-        }
+		if (match ('++') || match ('--')){
+			token = lex ();
+			expr = parseUnaryExpression ();
 
-        if (match('++') || match('--')) {
-            token = lex();
-            expr = parseUnaryExpression();
-            // 11.4.4, 11.4.5
-            if (strict && expr.type === Syntax.Identifier && isRestrictedWord(expr.name)) {
-                throwErrorTolerant({}, Messages.StrictLHSPrefix);
-            }
+			if (!isLeftHandSide (expr))
+				throwErrorTolerant ({}, Messages.InvalidLHSInAssignment);
 
-            if (!isLeftHandSide(expr)) {
-                throwErrorTolerant({}, Messages.InvalidLHSInAssignment);
-            }
+			return {
+				type: 		Syntax.UpdateExpression,
+				operator: 	token.value,
+				argument: 	expr,
+				prefix: 	true
+			};
+		}
 
-            expr = {
-                type: Syntax.UpdateExpression,
-                operator: token.value,
-                argument: expr,
-                prefix: true
-            };
-            return expr;
-        }
+		if (match ('+') || match ('-') || match ('~') || match ('!'))
+			return{
+				type: 		Syntax.UnaryExpression,
+				operator: 	lex ().value,
+				argument: 	parseUnaryExpression (),
+				prefix: 	true
+			};
 
-        if (match('+') || match('-') || match('~') || match('!')) {
-            expr = {
-                type: Syntax.UnaryExpression,
-                operator: lex().value,
-                argument: parseUnaryExpression(),
-                prefix: true
-            };
-            return expr;
-        }
+		if (matchKeyword ('delete') || matchKeyword ('void') || matchKeyword ('typeof'))
+			return {
+				type: 		Syntax.UnaryExpression,
+				operator: 	lex ().value,
+				argument: 	parseUnaryExpression (),
+				prefix: 	true
+			};
 
-        if (matchKeyword('delete') || matchKeyword('void') || matchKeyword('typeof')) {
-            expr = {
-                type: Syntax.UnaryExpression,
-                operator: lex().value,
-                argument: parseUnaryExpression(),
-                prefix: true
-            };
-            if (strict && expr.operator === 'delete' && expr.argument.type === Syntax.Identifier) {
-                throwErrorTolerant({}, Messages.StrictDelete);
-            }
-            return expr;
-        }
-
-        return parsePostfixExpression();
-    }
+		return parsePostfixExpression ();
+	}
