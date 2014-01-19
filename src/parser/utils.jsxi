@@ -16,7 +16,7 @@
 			return token;
 
 		ch = source[index];
-		if (ch === '\'' || ch === '"') 
+		if (ch === '\'' || ch === '"' || ch === '`') 
 			return scanStringLiteral ();
 
 		if (ch === '.' || isDecimalDigit (ch)) 
