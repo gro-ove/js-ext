@@ -3,9 +3,9 @@
 		var sourceElement, 
 			sourceElements = [];
 
-		if (match ('{')){
-			state.preventSequence = false;
+		state.preventSequence = false;
 
+		if (match ('{')){
 			expect ('{');
 
 			while (index < length){
@@ -18,11 +18,8 @@
 			}
 
 			expect ('}');
-		} else {
-			state.preventSequence = true;
+		} else 
 			sourceElements.push (parseSourceElement ());
-			state.preventSequence = false;
-		}
 
 		return {
 			type: 	Syntax.BlockStatement,
@@ -125,13 +122,58 @@
 		};
 	}
 
+	function parseLambdaSourceElements (){
+		var sourceElement, 
+			sourceElements = [],
+			saved;
+
+		if (match ('{')){
+			state.preventSequence = false;
+			saved = saveAll ();
+
+			try {
+				expr = parseObjectInitialiser ();
+				consumeSemicolon ();
+
+				sourceElements.push ({
+					type: Syntax.ExpressionStatement,
+					expression: expr
+				});
+			} catch {
+				restoreAll (saved);
+
+				expect ('{');
+
+				while (index < length){
+					if (match ('}'))
+						break;
+					sourceElement = parseSourceElement ();
+					if (typeof sourceElement === 'undefined') 
+						break;
+					sourceElements.push (sourceElement);
+				}
+
+				expect ('}');
+			}
+		} else {
+			state.preventSequence = true;
+			sourceElements.push (parseSourceElement ());
+			state.preventSequence = false;
+		}
+
+		return {
+			type: 	Syntax.BlockStatement,
+			body: 	sourceElements
+		};
+	}
+
 	function parseLambdaExpression (){
 		var token, param, params = [], body;
 
 		expectKeyword ('lambda');
 
 		params = match ('(') ? parseFunctionArguments () : [];
-		body = parseFunctionSourceElements ();
+		body = parseLambdaSourceElements ();
 
 		return {
 			type: 			Syntax.FunctionExpression,
