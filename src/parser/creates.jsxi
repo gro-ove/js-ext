@@ -1,76 +1,52 @@
+	function createLiteral (token)
+		return {
+			type: 	Syntax.Literal,
+			value: 	token.value
+		};
 
+	function createRawLiteral (token)
+		return {
+			type: 	Syntax.Literal,
+			value: 	token.value,
+			raw: 	sliceSource (token.range [0], token.range [1])
+		};
 
-    function createLiteral(token) {
-        return {
-            type: Syntax.Literal,
-            value: token.value
-        };
-    }
+	function createLocationMarker (){
+		var marker = {};
 
-    function createRawLiteral(token) {
-        return {
-            type: Syntax.Literal,
-            value: token.value,
-            raw: sliceSource(token.range[0], token.range[1])
-        };
-    }
+		marker.range = [index, index];
+		marker.loc = {
+			start: 	{ line: lineNumber, column: index - lineStart },
+			end: 	{ line: lineNumber, column: index - lineStart }
+		};
 
-    function createLocationMarker() {
-        var marker = {};
+		marker.end = function (){
+			this.range [1] 			= index;
+			this.loc.end.line 		= lineNumber;
+			this.loc.end.column 	= index - lineStart;
+		};
 
-        marker.range = [index, index];
-        marker.loc = {
-            start: {
-                line: lineNumber,
-                column: index - lineStart
-            },
-            end: {
-                line: lineNumber,
-                column: index - lineStart
-            }
-        };
+		marker.applyGroup = function (node){
+			if (extra.range) 
+				node.groupRange = [ this.range [0], this.range [1] ];
 
-        marker.end = function () {
-            this.range[1] = index;
-            this.loc.end.line = lineNumber;
-            this.loc.end.column = index - lineStart;
-        };
+			if (extra.loc) 
+				node.groupLoc = {
+					start: 	{ line: this.loc.start.line, column: this.loc.start.column },
+					end: 	{ line: this.loc.end.line,   column: this.loc.end.column   }
+				};
+		};
 
-        marker.applyGroup = function (node) {
-            if (extra.range) {
-                node.groupRange = [this.range[0], this.range[1]];
-            }
-            if (extra.loc) {
-                node.groupLoc = {
-                    start: {
-                        line: this.loc.start.line,
-                        column: this.loc.start.column
-                    },
-                    end: {
-                        line: this.loc.end.line,
-                        column: this.loc.end.column
-                    }
-                };
-            }
-        };
+		marker.apply = function (node){
+			if (extra.range) 
+				node.range = [ this.range [0], this.range [1] ];
 
-        marker.apply = function (node) {
-            if (extra.range) {
-                node.range = [this.range[0], this.range[1]];
-            }
-            if (extra.loc) {
-                node.loc = {
-                    start: {
-                        line: this.loc.start.line,
-                        column: this.loc.start.column
-                    },
-                    end: {
-                        line: this.loc.end.line,
-                        column: this.loc.end.column
-                    }
-                };
-            }
-        };
+			if (extra.loc) 
+				node.loc = {
+					start: 	{ line: this.loc.start.line, column: this.loc.start.column },
+					end: 	{ line: this.loc.end.line,   column: this.loc.end.column   }
+				};
+		};
 
-        return marker;
-    }
+		return marker;
+	}
