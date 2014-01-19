@@ -1,50 +1,23 @@
 	// 13 Function Definition
 	function parseFunctionSourceElements (){
 		var sourceElement, 
-			sourceElements = [], 
-			token, 
-			oldInIteration, 
-			oldInSwitch, 
-			oldInFunctionBody;
+			sourceElements = [];
 
-		expect ('{');
+		if (match ('{')){
+			expect ('{');
 
-		while (index < length){
-			token = lookahead ();
+			while (index < length){
+				if (match ('}'))
+					break;
+				sourceElement = parseSourceElement ();
+				if (typeof sourceElement === 'undefined') 
+					break;
+				sourceElements.push (sourceElement);
+			}
 
-			if (token.type !== Token.StringLiteral)
-				break;
-
-			sourceElement = parseSourceElement ();
-			sourceElements.push (sourceElement);
-
-			// this is not directive
-			if (sourceElement.expression.type !== Syntax.Literal)
-				break;
-		}
-
-		oldInIteration 			= state.inIteration;
-		oldInSwitch 			= state.inSwitch;
-		oldInFunctionBody 		= state.inFunctionBody;
-
-		state.inIteration 		= false;
-		state.inSwitch 			= false;
-		state.inFunctionBody 	= true;
-
-		while (index < length){
-			if (match ('}'))
-				break;
-			sourceElement = parseSourceElement ();
-			if (typeof sourceElement === 'undefined') 
-				break;
-			sourceElements.push (sourceElement);
-		}
-
-		expect ('}');
-
-		state.inIteration 		= oldInIteration;
-		state.inSwitch 			= oldInSwitch;
-		state.inFunctionBody 	= oldInFunctionBody;
+			expect ('}');
+		} else 
+			sourceElements.push (parseSourceElement ());
 
 		return {
 			type: Syntax.BlockStatement,
