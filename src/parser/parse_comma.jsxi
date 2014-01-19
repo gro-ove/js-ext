@@ -1,22 +1,20 @@
-    // 11.14 Comma Operator
+	// 11.14 Comma Operator
+	function parseExpression (){
+		var expr = parseAssignmentExpression ();
 
-    function parseExpression() {
-        var expr = parseAssignmentExpression();
+		if (match (',')){
+			expr = {
+				type: Syntax.SequenceExpression,
+				expressions: [ expr ]
+			};
 
-        if (match(',')) {
-            expr = {
-                type: Syntax.SequenceExpression,
-                expressions: [ expr ]
-            };
-
-            while (index < length) {
-                if (!match(',')) {
-                    break;
-                }
-                lex();
-                expr.expressions.push(parseAssignmentExpression());
-            }
-
-        }
-        return expr;
-    }
+			while (index < length){
+				if (!match (',')) 
+					break;
+				lex ();
+				expr.expressions.push (parseAssignmentExpression ());
+			}
+		}
+		
+		return expr;
+	}

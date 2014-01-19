@@ -1,15 +1,12 @@
+	// 11.1.6 The Grouping Operator
+	function parseGroupExpression (){
+		var expr;
 
+		expect ('(');
 
-    // 11.1.6 The Grouping Operator
+		expr = parseExpression ();
 
-    function parseGroupExpression() {
-        var expr;
+		expect (')');
 
-        expect('(');
-
-        expr = parseExpression();
-
-        expect(')');
-
-        return expr;
-    }
+		return expr;
+	}

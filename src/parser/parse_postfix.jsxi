@@ -1,5 +1,4 @@
 	// 11.3 Postfix Expressions
-
 	function parsePostfixExpression (){
 		var expr = parseLeftHandSideExpressionAllowCall (), token;
 

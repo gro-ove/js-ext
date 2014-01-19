@@ -1,11 +1,6 @@
+	// 12.3 Empty Statement
 
-
-    // 12.3 Empty Statement
-
-    function parseEmptyStatement() {
-        expect(';');
-
-        return {
-            type: Syntax.EmptyStatement
-        };
-    }
+	function parseEmptyStatement (){
+		expect (';');
+		return { type: Syntax.EmptyStatement };
+	}

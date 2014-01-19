@@ -20,8 +20,8 @@
 			sourceElements.push (parseSourceElement ());
 
 		return {
-			type: Syntax.BlockStatement,
-			body: sourceElements
+			type: 	Syntax.BlockStatement,
+			body: 	sourceElements
 		};
 	}
 

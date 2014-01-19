@@ -147,7 +147,7 @@
 		state.allowIn 		= true;
 		expr 				= parseShiftExpression();
 
-		while (match ('<') || match ('>') || match ('<=') || match ('>=') || previousAllowIn && matchKeyword ('in') || matchKeyword('instanceof'))
+		while (match ('<') || match ('>') || match ('<=') || match ('>=') || previousAllowIn && matchKeyword ('in') || matchKeyword ('instanceof'))
 			expr = {
 				type: 		Syntax.BinaryExpression,
 				operator: 	lex ().value,
