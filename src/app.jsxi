@@ -73,7 +73,7 @@ module App {
 			if (c != +args.l)
 				console.fatal (3, 'Wrong length: ' + c);
 			else
-				console.log ('Ok :)')
+				console.log (args.data [0] + ' - ok :)')
 		} else {
 			var esmangle = require ('esmangle'),
 				escodegen = require ('escodegen');
