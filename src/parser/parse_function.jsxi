@@ -105,8 +105,29 @@
 		};
 	}
 
+	function parseFunctionArguments (){
+		var token, params = [];
+
+		expect ('(');
+
+		if (!match (')'))
+			while (index < length){
+				token = lookahead ();
+				params.push (parseVariableIdentifier ());
+
+				if (match (')'))
+					break;
+
+				expect (',');
+			}
+
+		expect (')');
+
+		return params;
+	}
+
 	function parseFunctionExpression (){
-		var token, id = null, param, params = [], body, paramSet;
+		var token, id = null, param, params, body;
 
 		expectKeyword ('function');
 
@@ -115,26 +136,7 @@
 			id 		= parseVariableIdentifier ();
 		}
 
-		expect ('(');
-
-		if (!match (')')){
-			paramSet = {};
-			while (index < length){
-				token 	= lookahead ();
-				param 	= parseVariableIdentifier ();
-
-				params.push (param);
-				paramSet [param.name] = true;
-
-				if (match (')'))
-					break;
-
-				expect (',');
-			}
-		}
-
-		expect (')');
-
+		params = parseFunctionArguments ();
 		body = parseFunctionSourceElements ();
 
 		return {
@@ -150,29 +152,11 @@
 	}
 
 	function parseLambdaExpression (){
-		var token, param, params = [], body, paramSet;
+		var token, param, params = [], body;
 
 		expectKeyword ('lambda');
-		expect ('(');
 
-		if (!match (')')){
-			paramSet = {};
-			while (index < length){
-				token 	= lookahead ();
-				param 	= parseVariableIdentifier ();
-
-				params.push (param);
-				paramSet [param.name] = true;
-
-				if (match (')'))
-					break;
-
-				expect (',');
-			}
-		}
-
-		expect (')');
-
+		params = match ('(') ? parseFunctionArguments () : [];
 		body = parseFunctionSourceElements ();
 
 		return {

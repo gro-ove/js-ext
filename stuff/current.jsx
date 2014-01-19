@@ -1,1 +1,2 @@
-var a = lambda (test){ check };
+var a = lambda (test){ result },
+	b = lambda { result };
