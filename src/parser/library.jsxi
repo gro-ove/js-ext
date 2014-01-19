@@ -15,6 +15,31 @@
 		state,
 		extra;
 
+	function saveAll (){
+		return JSON.stringify ({
+			source: 		source,
+			index: 			index,
+			lineNumber: 	lineNumber,
+			lineStart: 		lineStart,
+			length: 		length,
+			buffer: 		buffer,
+			state: 			state,
+			extra: 			extra
+		})
+	}
+
+	function restoreAll (data){
+		var obj 		= JSON.parse (data);
+		source 			= obj.source;
+		index 			= obj.index,
+		lineNumber 		= obj.lineNumber,
+		lineStart 		= obj.lineStart,
+		length 			= obj.length,
+		buffer 			= obj.buffer,
+		state			= obj.state,
+		extra 			= obj.extra
+	}
+
 	Token = {
 		BooleanLiteral: 1,
 		EOF: 2,
