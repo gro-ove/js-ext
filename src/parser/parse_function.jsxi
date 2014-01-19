@@ -106,12 +106,7 @@
 	}
 
 	function parseFunctionExpression (){
-		var token, 
-			id = null, 
-			param, 
-			params = [], 
-			body, 
-			paramSet;
+		var token, id = null, param, params = [], body, paramSet;
 
 		expectKeyword ('function');
 
@@ -145,6 +140,44 @@
 		return {
 			type: 			Syntax.FunctionExpression,
 			id: 			id,
+			params: 		params,
+			defaults: 		[],
+			body: 			body,
+			rest: 			null,
+			generator: 		false,
+			expression: 	false
+		};
+	}
+
+	function parseLambdaExpression (){
+		var token, param, params = [], body, paramSet;
+
+		expectKeyword ('lambda');
+		expect ('(');
+
+		if (!match (')')){
+			paramSet = {};
+			while (index < length){
+				token 	= lookahead ();
+				param 	= parseVariableIdentifier ();
+
+				params.push (param);
+				paramSet [param.name] = true;
+
+				if (match (')'))
+					break;
+
+				expect (',');
+			}
+		}
+
+		expect (')');
+
+		body = parseFunctionSourceElements ();
+
+		return {
+			type: 			Syntax.FunctionExpression,
+			id: 			null,
 			params: 		params,
 			defaults: 		[],
 			body: 			body,

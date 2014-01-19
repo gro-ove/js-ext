@@ -1,61 +1,54 @@
+	// 11.1 Primary Expressions
 
-    // 11.1 Primary Expressions
+	function parsePrimaryExpression (){
+		var token = lookahead (),
+			type = token.type;
 
-    function parsePrimaryExpression() {
-        var token = lookahead(),
-            type = token.type;
+		if (type === Token.Identifier)
+			return {
+				type: 	Syntax.Identifier,
+				name: 	lex ().value
+			};
 
-        if (type === Token.Identifier) {
-            return {
-                type: Syntax.Identifier,
-                name: lex().value
-            };
-        }
+		if (type === Token.StringLiteral || type === Token.NumericLiteral)
+			return createLiteral (lex ());
 
-        if (type === Token.StringLiteral || type === Token.NumericLiteral) {
-            return createLiteral(lex());
-        }
+		if (type === Token.Keyword){
+			if (matchKeyword ('this')){
+				lex ();
+				return { type: Syntax.ThisExpression };
+			}
 
-        if (type === Token.Keyword) {
-            if (matchKeyword('this')) {
-                lex();
-                return {
-                    type: Syntax.ThisExpression
-                };
-            }
+			if (matchKeyword ('function'))
+				return parseFunctionExpression ();
 
-            if (matchKeyword('function')) {
-                return parseFunctionExpression();
-            }
-        }
+			if (matchKeyword ('lambda'))
+				return parseLambdaExpression ();
+		}
 
-        if (type === Token.BooleanLiteral) {
-            lex();
-            token.value = (token.value === 'true');
-            return createLiteral(token);
-        }
+		if (type === Token.BooleanLiteral){
+			lex ();
+			token.value = token.value === 'true';
+			return createLiteral (token);
+		}
 
-        if (type === Token.NullLiteral) {
-            lex();
-            token.value = null;
-            return createLiteral(token);
-        }
+		if (type === Token.NullLiteral){
+			lex ();
+			token.value = null;
+			return createLiteral (token);
+		}
 
-        if (match('[')) {
-            return parseArrayInitialiser();
-        }
+		if (match ('['))
+			return parseArrayInitialiser ();
 
-        if (match('{')) {
-            return parseObjectInitialiser();
-        }
+		if (match ('{'))
+			return parseObjectInitialiser ();
 
-        if (match('(')) {
-            return parseGroupExpression();
-        }
+		if (match ('('))
+			return parseGroupExpression ();
 
-        if (match('/') || match('/=')) {
-            return createLiteral(scanRegExp());
-        }
+		if (match ('/') || match ('/='))
+			return createLiteral (scanRegExp ());
 
-        return throwUnexpected(lex());
-    }
+		return throwUnexpected (lex ());
+	}

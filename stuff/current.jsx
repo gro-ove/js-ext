@@ -1,3 +1,1 @@
-function test (){
-	
-}
+var a = lambda (test){ check };
