@@ -1,131 +1,131 @@
-    function advance (){
-        var ch, token;
+	function advance (){
+		var ch, token;
 
-        skipComment ();
+		skipComment ();
 
-        if (index >= length) 
-            return {
-                type:           Token.EOF,
-                lineNumber:     lineNumber,
-                lineStart:      lineStart,
-                range:          [ index, index ]
-            };
+		if (index >= length) 
+			return {
+				type:           Token.EOF,
+				lineNumber:     lineNumber,
+				lineStart:      lineStart,
+				range:          [ index, index ]
+			};
 
-        token = scanPunctuator ();
-        if (typeof token !== 'undefined')
-            return token;
+		token = scanPunctuator ();
+		if (typeof token !== 'undefined')
+			return token;
 
-        ch = source[index];
-        if (ch === '\'' || ch === '"') 
-            return scanStringLiteral ();
+		ch = source[index];
+		if (ch === '\'' || ch === '"') 
+			return scanStringLiteral ();
 
-        if (ch === '.' || isDecimalDigit (ch)) 
-            return scanNumericLiteral ();
+		if (ch === '.' || isDecimalDigit (ch)) 
+			return scanNumericLiteral ();
 
-        token = scanIdentifier ();
-        if (typeof token !== 'undefined')
-            return token;
+		token = scanIdentifier ();
+		if (typeof token !== 'undefined')
+			return token;
 
-        throwError ({}, Messages.UnexpectedToken, 'ILLEGAL');
-    }
+		throwError ({}, Messages.UnexpectedToken, 'ILLEGAL');
+	}
 
-    function lex (){
-        var token;
+	function lex (){
+		var token;
 
-        if (buffer){
-            index       = buffer.range [1];
-            lineNumber  = buffer.lineNumber;
-            lineStart   = buffer.lineStart;
-            token       = buffer;
-            buffer      = null;
-            return token;
-        }
+		if (buffer){
+			index       = buffer.range [1];
+			lineNumber  = buffer.lineNumber;
+			lineStart   = buffer.lineStart;
+			token       = buffer;
+			buffer      = null;
+			return token;
+		}
 
-        buffer = null;
-        return advance ();
-    }
+		buffer = null;
+		return advance ();
+	}
 
-    function lookahead (){
-        var pos, line, start;
+	function lookahead (){
+		var pos, line, start;
 
-        if (buffer !== null)
-            return buffer;
+		if (buffer !== null)
+			return buffer;
 
-        pos         = index;
-        line        = lineNumber;
-        start       = lineStart;
-        buffer      = advance ();
-        index       = pos;
-        lineNumber  = line;
-        lineStart   = start;
+		pos         = index;
+		line        = lineNumber;
+		start       = lineStart;
+		buffer      = advance ();
+		index       = pos;
+		lineNumber  = line;
+		lineStart   = start;
 
-        return buffer;
-    }
+		return buffer;
+	}
 
-    // Return true if there is a line terminator before the next token.
-    function peekLineTerminator (){
-        var pos, line, start, found;
+	// Return true if there is a line terminator before the next token.
+	function peekLineTerminator (){
+		var pos, line, start, found;
 
-        pos         = index;
-        line        = lineNumber;
-        start       = lineStart;
+		pos         = index;
+		line        = lineNumber;
+		start       = lineStart;
 
-        skipComment ();
+		skipComment ();
 
-        found       = lineNumber !== line;
-        index       = pos;
-        lineNumber  = line;
-        lineStart   = start;
+		found       = lineNumber !== line;
+		index       = pos;
+		lineNumber  = line;
+		lineStart   = start;
 
-        return found;
-    }
+		return found;
+	}
 
-    // Expect the next token to match the specified punctuator.
-    // If not, an exception will be thrown.
-    function expect (value){
-        var token = lex ();
-        if (token.type !== Token.Punctuator || token.value !== value) 
-            throwUnexpected (token);
-    }
+	// Expect the next token to match the specified punctuator.
+	// If not, an exception will be thrown.
+	function expect (value){
+		var token = lex ();
+		if (token.type !== Token.Punctuator || token.value !== value) 
+			throwUnexpected (token);
+	}
 
-    // Expect the next token to match the specified keyword.
-    // If not, an exception will be thrown.
-    function expectKeyword (keyword){
-        var token = lex ();
-        if (token.type !== Token.Keyword || token.value !== keyword) 
-            throwUnexpected (token);
-    }
+	// Expect the next token to match the specified keyword.
+	// If not, an exception will be thrown.
+	function expectKeyword (keyword){
+		var token = lex ();
+		if (token.type !== Token.Keyword || token.value !== keyword) 
+			throwUnexpected (token);
+	}
 
-    // Return true if the next token matches the specified punctuator.
-    function match (value){
-        var token = lookahead ();
-        return token.type === Token.Punctuator && token.value === value;
-    }
+	// Return true if the next token matches the specified punctuator.
+	function match (value){
+		var token = lookahead ();
+		return token.type === Token.Punctuator && token.value === value;
+	}
 
-    // Return true if the next token matches the specified keyword
-    function matchKeyword (keyword){
-        var token = lookahead ();
-        return token.type === Token.Keyword && token.value === keyword;
-    }
+	// Return true if the next token matches the specified keyword
+	function matchKeyword (keyword){
+		var token = lookahead ();
+		return token.type === Token.Keyword && token.value === keyword;
+	}
 
-    // Return true if the next token is an assignment operator
-    function matchAssign (){
-        var token = lookahead (),
-            op = token.value;
+	// Return true if the next token is an assignment operator
+	function matchAssign (){
+		var token = lookahead (),
+			op = token.value;
 
-        if (token.type !== Token.Punctuator)
-            return false;
+		if (token.type !== Token.Punctuator)
+			return false;
 
-        return op === '=' ||
-               op === '*=' ||
-               op === '/=' ||
-               op === '%=' ||
-               op === '+=' ||
-               op === '-=' ||
-               op === '<<=' ||
-               op === '>>=' ||
-               op === '>>>=' ||
-               op === '&=' ||
-               op === '^=' ||
-               op === '|=';
-    }
+		return op === '=' ||
+			   op === '*=' ||
+			   op === '/=' ||
+			   op === '%=' ||
+			   op === '+=' ||
+			   op === '-=' ||
+			   op === '<<=' ||
+			   op === '>>=' ||
+			   op === '>>>=' ||
+			   op === '&=' ||
+			   op === '^=' ||
+			   op === '|=';
+	}

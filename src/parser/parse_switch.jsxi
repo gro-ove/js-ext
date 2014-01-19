@@ -1,86 +1,73 @@
-    // 12.10 The swith statement
+	// 12.10 The swith statement
 
-    function parseSwitchCase() {
-        var test,
-            consequent = [],
-            statement;
+	function parseSwitchCase (){
+		var test,
+			consequent = [],
+			statement;
 
-        if (matchKeyword('default')) {
-            lex();
-            test = null;
-        } else {
-            expectKeyword('case');
-            test = parseExpression();
-        }
-        expect(':');
+		if (matchKeyword ('default')){
+			lex ();
+			test = null;
+		} else {
+			expectKeyword ('case');
+			test = parseExpression ();
+		}
 
-        while (index < length) {
-            if (match('}') || matchKeyword('default') || matchKeyword('case')) {
-                break;
-            }
-            statement = parseStatement();
-            if (typeof statement === 'undefined') {
-                break;
-            }
-            consequent.push(statement);
-        }
+		expect (':');
 
-        return {
-            type: Syntax.SwitchCase,
-            test: test,
-            consequent: consequent
-        };
-    }
+		while (index < length){
+			if (match ('}') || matchKeyword ('default') || matchKeyword ('case'))
+				break;
 
-    function parseSwitchStatement() {
-        var discriminant, cases, clause, oldInSwitch, defaultFound;
+			statement = parseStatement ();
+			if (typeof statement === 'undefined')
+				break;
 
-        expectKeyword('switch');
+			consequent.push (statement);
+		}
 
-        expect('(');
+		return {
+			type: 			Syntax.SwitchCase,
+			test: 			test,
+			consequent: 	consequent
+		};
+	}
 
-        discriminant = parseExpression();
+	function parseSwitchStatement (){
+		var discriminant, cases;
 
-        expect(')');
+		expectKeyword ('switch');
+		expect ('(');
 
-        expect('{');
+		discriminant = parseExpression ();
 
-        cases = [];
+		expect (')'); 
+		expect ('{');
 
-        if (match('}')) {
-            lex();
-            return {
-                type: Syntax.SwitchStatement,
-                discriminant: discriminant,
-                cases: cases
-            };
-        }
+		cases = [];
 
-        oldInSwitch = state.inSwitch;
-        state.inSwitch = true;
-        defaultFound = false;
+		if (match ('}')){
+			lex ();
 
-        while (index < length) {
-            if (match('}')) {
-                break;
-            }
-            clause = parseSwitchCase();
-            if (clause.test === null) {
-                if (defaultFound) {
-                    throwError({}, Messages.MultipleDefaultsInSwitch);
-                }
-                defaultFound = true;
-            }
-            cases.push(clause);
-        }
+			return {
+				type: 			Syntax.SwitchStatement,
+				discriminant: 	discriminant,
+				cases: 			cases
+			};
+		}
 
-        state.inSwitch = oldInSwitch;
+		while (index < length) {
+			if (match ('}'))
+				break;
 
-        expect('}');
+			cases.push (parseSwitchCase ());
+		}
 
-        return {
-            type: Syntax.SwitchStatement,
-            discriminant: discriminant,
-            cases: cases
-        };
-    }
+		expect ('}');
+
+		return {
+			type: 			Syntax.SwitchStatement,
+			discriminant: 	discriminant,
+			cases:			cases
+		};
+	}

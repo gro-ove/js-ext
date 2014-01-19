@@ -20,12 +20,7 @@ module Parser {
 		length          = source.length;
 		buffer          = null;
 
-		state 			= {
-			allowIn:            true,
-			inFunctionBody:     false,
-			inIteration:        false,
-			inSwitch:           false
-		};
+		state 			= { allowIn: true };
 
 		extra 			= {};
 		if (typeof options !== 'undefined'){

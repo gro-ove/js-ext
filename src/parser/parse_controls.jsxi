@@ -1,46 +1,30 @@
-
     // 12.7 The continue statement
-
-    function parseContinueStatement() {
+    function parseContinueStatement (){
         var token, label = null;
 
-        expectKeyword('continue');
+        expectKeyword ('continue');
 
         // Optimize the most common form: 'continue;'.
-        if (source[index] === ';') {
-            lex();
-
-            if (!state.inIteration) {
-                throwError({}, Messages.IllegalContinue);
-            }
+        if (source [index] === ';'){
+            lex ();
 
             return {
-                type: Syntax.ContinueStatement,
-                label: null
+                type: 	Syntax.ContinueStatement,
+                label: 	null
             };
         }
 
-        if (peekLineTerminator()) {
-            if (!state.inIteration) {
-                throwError({}, Messages.IllegalContinue);
-            }
-
+        if (peekLineTerminator ()) 
             return {
-                type: Syntax.ContinueStatement,
-                label: null
+                type: 	Syntax.ContinueStatement,
+                label: 	null
             };
-        }
 
-        token = lookahead();
-        if (token.type === Token.Identifier) {
-            label = parseVariableIdentifier();
-        }
+        token = lookahead ();
+        if (token.type === Token.Identifier)
+            label = parseVariableIdentifier ();
 
-        consumeSemicolon();
-
-        if (label === null && !state.inIteration) {
-            throwError({}, Messages.IllegalContinue);
-        }
+        consumeSemicolon ();
 
         return {
             type: Syntax.ContinueStatement,
@@ -49,118 +33,91 @@
     }
 
     // 12.8 The break statement
-
-    function parseBreakStatement() {
+    function parseBreakStatement (){
         var token, label = null;
 
-        expectKeyword('break');
+        expectKeyword ('break');
 
         // Optimize the most common form: 'break;'.
-        if (source[index] === ';') {
-            lex();
-
-            if (!(state.inIteration || state.inSwitch)) {
-                throwError({}, Messages.IllegalBreak);
-            }
+        if (source [index] === ';'){
+            lex ();
 
             return {
-                type: Syntax.BreakStatement,
-                label: null
+                type: 	Syntax.BreakStatement,
+                label: 	null
             };
         }
 
-        if (peekLineTerminator()) {
-            if (!(state.inIteration || state.inSwitch)) {
-                throwError({}, Messages.IllegalBreak);
-            }
-
+        if (peekLineTerminator ())
             return {
-                type: Syntax.BreakStatement,
-                label: null
+                type: 	Syntax.BreakStatement,
+                label: 	null
             };
-        }
 
-        token = lookahead();
-        if (token.type === Token.Identifier) {
-            label = parseVariableIdentifier();
-        }
+        token = lookahead ();
+        if (token.type === Token.Identifier)
+            label = parseVariableIdentifier ();
 
-        consumeSemicolon();
-
-        if (label === null && !(state.inIteration || state.inSwitch)) {
-            throwError({}, Messages.IllegalBreak);
-        }
+        consumeSemicolon ();
 
         return {
-            type: Syntax.BreakStatement,
-            label: label
+            type: 	Syntax.BreakStatement,
+            label: 	label
         };
     }
 
     // 12.9 The return statement
-
-    function parseReturnStatement() {
+    function parseReturnStatement (){
         var token, argument = null;
 
-        expectKeyword('return');
-
-        if (!state.inFunctionBody) {
-            throwErrorTolerant({}, Messages.IllegalReturn);
-        }
+        expectKeyword ('return');
 
         // 'return' followed by a space and an identifier is very common.
-        if (source[index] === ' ') {
-            if (isIdentifierStart(source[index + 1])) {
-                argument = parseExpression();
-                consumeSemicolon();
-                return {
-                    type: Syntax.ReturnStatement,
-                    argument: argument
-                };
-            }
-        }
+        if (source [index] === ' ' && isIdentifierStart (source [index + 1])){
+            argument = parseExpression ();
+            consumeSemicolon ();
 
-        if (peekLineTerminator()) {
             return {
-                type: Syntax.ReturnStatement,
-                argument: null
+                type: 		Syntax.ReturnStatement,
+                argument: 	argument
             };
         }
 
-        if (!match(';')) {
-            token = lookahead();
-            if (!match('}') && token.type !== Token.EOF) {
-                argument = parseExpression();
-            }
+        if (peekLineTerminator ())
+            return {
+                type: 		Syntax.ReturnStatement,
+                argument: 	null
+            };
+
+        if (!match (';')){
+            token = lookahead ();
+
+            if (!match ('}') && token.type !== Token.EOF)
+                argument = parseExpression ();
         }
 
-        consumeSemicolon();
+        consumeSemicolon ();
 
         return {
-            type: Syntax.ReturnStatement,
-            argument: argument
+            type: 		Syntax.ReturnStatement,
+            argument: 	argument
         };
     }
 
-
-
     // 12.13 The throw statement
-
-    function parseThrowStatement() {
+    function parseThrowStatement (){
         var argument;
 
-        expectKeyword('throw');
+        expectKeyword ('throw');
 
-        if (peekLineTerminator()) {
-            throwError({}, Messages.NewlineAfterThrow);
-        }
+        if (peekLineTerminator ())
+            throwError ({}, Messages.NewlineAfterThrow);
 
-        argument = parseExpression();
-
-        consumeSemicolon();
+        argument = parseExpression ();
+        consumeSemicolon ();
 
         return {
-            type: Syntax.ThrowStatement,
-            argument: argument
+            type: 		Syntax.ThrowStatement,
+            argument: 	argument
         };
     }

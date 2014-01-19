@@ -1,154 +1,127 @@
-
     // 12.6 Iteration Statements
+    function parseDoWhileStatement (){
+        var body, test;
 
-    function parseDoWhileStatement() {
-        var body, test, oldInIteration;
+        expectKeyword ('do');
 
-        expectKeyword('do');
+        body = parseStatement ();
 
-        oldInIteration = state.inIteration;
-        state.inIteration = true;
+        expectKeyword ('while');
+        expect ('(');
 
-        body = parseStatement();
-
-        state.inIteration = oldInIteration;
-
-        expectKeyword('while');
-
-        expect('(');
-
-        test = parseExpression();
+        test = parseExpression ();
 
         expect(')');
 
-        if (match(';')) {
-            lex();
-        }
+        if (match (';'))
+            lex ();
 
         return {
-            type: Syntax.DoWhileStatement,
-            body: body,
-            test: test
+            type: 	Syntax.DoWhileStatement,
+            body: 	body,
+            test: 	test
         };
     }
 
-    function parseWhileStatement() {
-        var test, body, oldInIteration;
+    function parseWhileStatement (){
+        var test, body;
 
-        expectKeyword('while');
+        expectKeyword ('while');
+        expect ('(');
 
-        expect('(');
+        test = parseExpression ();
 
-        test = parseExpression();
+        expect (')');
 
-        expect(')');
-
-        oldInIteration = state.inIteration;
-        state.inIteration = true;
-
-        body = parseStatement();
-
-        state.inIteration = oldInIteration;
+        body = parseStatement ();
 
         return {
-            type: Syntax.WhileStatement,
-            test: test,
-            body: body
+            type: 	Syntax.WhileStatement,
+            test: 	test,
+            body: 	body
         };
     }
 
-    function parseForVariableDeclaration() {
-        var token = lex();
+    function parseForVariableDeclaration (){
+        var token = lex ();
 
         return {
-            type: Syntax.VariableDeclaration,
-            declarations: parseVariableDeclarationList(),
-            kind: token.value
+            type: 			Syntax.VariableDeclaration,
+            declarations: 	parseVariableDeclarationList(),
+            kind: 			token.value
         };
     }
 
     function parseForStatement() {
-        var init, test, update, left, right, body, oldInIteration;
+        var init, test, update, left, right, body;
 
         init = test = update = null;
 
-        expectKeyword('for');
+        expectKeyword ('for');
+        expect ('(');
 
-        expect('(');
-
-        if (match(';')) {
-            lex();
+        if (match (';')){
+            lex ();
         } else {
-            if (matchKeyword('var') || matchKeyword('let')) {
-                state.allowIn = false;
-                init = parseForVariableDeclaration();
-                state.allowIn = true;
+            if (matchKeyword ('var')){
+                state.allowIn 	= false;
+                init			= parseForVariableDeclaration ();
+                state.allowIn 	= true;
 
-                if (init.declarations.length === 1 && matchKeyword('in')) {
-                    lex();
-                    left = init;
-                    right = parseExpression();
-                    init = null;
+                if (init.declarations.length === 1 && matchKeyword ('in')){
+                    lex ();
+                    left 	= init;
+                    right 	= parseExpression ();
+                    init 	= null;
                 }
             } else {
-                state.allowIn = false;
-                init = parseExpression();
-                state.allowIn = true;
+                state.allowIn 	= false;
+                init 			= parseExpression ();
+                state.allowIn 	= true;
 
-                if (matchKeyword('in')) {
+                if (matchKeyword ('in')){
                     // LeftHandSideExpression
-                    if (!isLeftHandSide(init)) {
-                        throwErrorTolerant({}, Messages.InvalidLHSInForIn);
-                    }
+                    if (!isLeftHandSide (init))
+                        throwErrorTolerant ({}, Messages.InvalidLHSInForIn);
 
-                    lex();
-                    left = init;
-                    right = parseExpression();
-                    init = null;
+                    lex ();
+                    left 	= init;
+                    right 	= parseExpression();
+                    init 	= null;
                 }
             }
 
-            if (typeof left === 'undefined') {
-                expect(';');
-            }
+            if (typeof left === 'undefined')
+                expect (';');
         }
 
-        if (typeof left === 'undefined') {
+        if (typeof left === 'undefined'){
+            if (!match (';'))
+                test = parseExpression ();
 
-            if (!match(';')) {
-                test = parseExpression();
-            }
-            expect(';');
+            expect (';');
 
-            if (!match(')')) {
-                update = parseExpression();
-            }
+            if (!match (')'))
+                update = parseExpression ();
         }
 
-        expect(')');
+        expect (')');
+        body = parseStatement ();
 
-        oldInIteration = state.inIteration;
-        state.inIteration = true;
-
-        body = parseStatement();
-
-        state.inIteration = oldInIteration;
-
-        if (typeof left === 'undefined') {
+        if (typeof left === 'undefined')
             return {
-                type: Syntax.ForStatement,
-                init: init,
-                test: test,
-                update: update,
-                body: body
+                type: 		Syntax.ForStatement,
+                init: 		init,
+                test: 		test,
+                update: 	update,
+                body: 		body
             };
-        }
 
         return {
-            type: Syntax.ForInStatement,
-            left: left,
-            right: right,
-            body: body,
-            each: false
+            type: 		Syntax.ForInStatement,
+            left: 		left,
+            right: 		right,
+            body: 		body,
+            each: 		false
         };
     }
