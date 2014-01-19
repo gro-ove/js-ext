@@ -1,4 +1,4 @@
-// Temporary
+	// Temporary
 
 	var Token,
 		TokenName,
@@ -14,17 +14,6 @@
 		buffer,
 		state,
 		extra;
-
-	function crash ()
-		try {
-			throw new Error ('GTFO');
-		} catch {
-			console.log (e.stack);
-			process.exit (1);
-		}
-
-	GLOBAL.__defineGetter__ ('strict', crash);
-	GLOBAL.__defineSetter__ ('strict', crash);
 
 	Token = {
 		BooleanLiteral: 1,
