@@ -1,0 +1,310 @@
+
+    function parseNonComputedProperty() {
+        var token = lex();
+
+        if (!isIdentifierName(token)) {
+            throwUnexpected(token);
+        }
+
+        return {
+            type: Syntax.Identifier,
+            name: token.value
+        };
+    }
+
+    function parseNonComputedMember() {
+        expect('.');
+
+        return parseNonComputedProperty();
+    }
+
+    function parseComputedMember() {
+        var expr;
+
+        expect('[');
+
+        expr = parseExpression();
+
+        expect(']');
+
+        return expr;
+    }
+
+    function parseNewExpression() {
+        var expr;
+
+        expectKeyword('new');
+
+        expr = {
+            type: Syntax.NewExpression,
+            callee: parseLeftHandSideExpression(),
+            'arguments': []
+        };
+
+        if (match('(')) {
+            expr['arguments'] = parseArguments();
+        }
+
+        return expr;
+    }
+
+    function parseLeftHandSideExpressionAllowCall() {
+        var expr;
+
+        expr = matchKeyword('new') ? parseNewExpression() : parsePrimaryExpression();
+
+        while (match('.') || match('[') || match('(')) {
+            if (match('(')) {
+                expr = {
+                    type: Syntax.CallExpression,
+                    callee: expr,
+                    'arguments': parseArguments()
+                };
+            } else if (match('[')) {
+                expr = {
+                    type: Syntax.MemberExpression,
+                    computed: true,
+                    object: expr,
+                    property: parseComputedMember()
+                };
+            } else {
+                expr = {
+                    type: Syntax.MemberExpression,
+                    computed: false,
+                    object: expr,
+                    property: parseNonComputedMember()
+                };
+            }
+        }
+
+        return expr;
+    }
+
+
+    function parseLeftHandSideExpression() {
+        var expr;
+
+        expr = matchKeyword('new') ? parseNewExpression() : parsePrimaryExpression();
+
+        while (match('.') || match('[')) {
+            if (match('[')) {
+                expr = {
+                    type: Syntax.MemberExpression,
+                    computed: true,
+                    object: expr,
+                    property: parseComputedMember()
+                };
+            } else {
+                expr = {
+                    type: Syntax.MemberExpression,
+                    computed: false,
+                    object: expr,
+                    property: parseNonComputedMember()
+                };
+            }
+        }
+
+        return expr;
+    }
+
+
+
+    // 11.5 Multiplicative Operators
+
+    function parseMultiplicativeExpression() {
+        var expr = parseUnaryExpression();
+
+        while (match('*') || match('/') || match('%')) {
+            expr = {
+                type: Syntax.BinaryExpression,
+                operator: lex().value,
+                left: expr,
+                right: parseUnaryExpression()
+            };
+        }
+
+        return expr;
+    }
+
+    // 11.6 Additive Operators
+
+    function parseAdditiveExpression() {
+        var expr = parseMultiplicativeExpression();
+
+        while (match('+') || match('-')) {
+            expr = {
+                type: Syntax.BinaryExpression,
+                operator: lex().value,
+                left: expr,
+                right: parseMultiplicativeExpression()
+            };
+        }
+
+        return expr;
+    }
+
+    // 11.7 Bitwise Shift Operators
+
+    function parseShiftExpression() {
+        var expr = parseAdditiveExpression();
+
+        while (match('<<') || match('>>') || match('>>>')) {
+            expr = {
+                type: Syntax.BinaryExpression,
+                operator: lex().value,
+                left: expr,
+                right: parseAdditiveExpression()
+            };
+        }
+
+        return expr;
+    }
+    // 11.8 Relational Operators
+
+    function parseRelationalExpression() {
+        var expr, previousAllowIn;
+
+        previousAllowIn = state.allowIn;
+        state.allowIn = true;
+
+        expr = parseShiftExpression();
+
+        while (match('<') || match('>') || match('<=') || match('>=') || (previousAllowIn && matchKeyword('in')) || matchKeyword('instanceof')) {
+            expr = {
+                type: Syntax.BinaryExpression,
+                operator: lex().value,
+                left: expr,
+                right: parseShiftExpression()
+            };
+        }
+
+        state.allowIn = previousAllowIn;
+        return expr;
+    }
+
+    // 11.9 Equality Operators
+
+    function parseEqualityExpression() {
+        var expr = parseRelationalExpression();
+
+        while (match('==') || match('!=') || match('===') || match('!==')) {
+            expr = {
+                type: Syntax.BinaryExpression,
+                operator: lex().value,
+                left: expr,
+                right: parseRelationalExpression()
+            };
+        }
+
+        return expr;
+    }
+
+    // 11.10 Binary Bitwise Operators
+
+    function parseBitwiseANDExpression() {
+        var expr = parseEqualityExpression();
+
+        while (match('&')) {
+            lex();
+            expr = {
+                type: Syntax.BinaryExpression,
+                operator: '&',
+                left: expr,
+                right: parseEqualityExpression()
+            };
+        }
+
+        return expr;
+    }
+
+    function parseBitwiseXORExpression() {
+        var expr = parseBitwiseANDExpression();
+
+        while (match('^')) {
+            lex();
+            expr = {
+                type: Syntax.BinaryExpression,
+                operator: '^',
+                left: expr,
+                right: parseBitwiseANDExpression()
+            };
+        }
+
+        return expr;
+    }
+
+    function parseBitwiseORExpression() {
+        var expr = parseBitwiseXORExpression();
+
+        while (match('|')) {
+            lex();
+            expr = {
+                type: Syntax.BinaryExpression,
+                operator: '|',
+                left: expr,
+                right: parseBitwiseXORExpression()
+            };
+        }
+
+        return expr;
+    }
+
+    // 11.11 Binary Logical Operators
+
+    function parseLogicalANDExpression() {
+        var expr = parseBitwiseORExpression();
+
+        while (match('&&')) {
+            lex();
+            expr = {
+                type: Syntax.LogicalExpression,
+                operator: '&&',
+                left: expr,
+                right: parseBitwiseORExpression()
+            };
+        }
+
+        return expr;
+    }
+
+    function parseLogicalORExpression() {
+        var expr = parseLogicalANDExpression();
+
+        while (match('||')) {
+            lex();
+            expr = {
+                type: Syntax.LogicalExpression,
+                operator: '||',
+                left: expr,
+                right: parseLogicalANDExpression()
+            };
+        }
+
+        return expr;
+    }
+
+    // 11.12 Conditional Operator
+
+    function parseConditionalExpression() {
+        var expr, previousAllowIn, consequent;
+
+        expr = parseLogicalORExpression();
+
+        if (match('?')) {
+            lex();
+            previousAllowIn = state.allowIn;
+            state.allowIn = true;
+            consequent = parseAssignmentExpression();
+            state.allowIn = previousAllowIn;
+            expect(':');
+
+            expr = {
+                type: Syntax.ConditionalExpression,
+                test: expr,
+                consequent: consequent,
+                alternate: parseAssignmentExpression()
+            };
+        }
+
+        return expr;
+    }

@@ -1,0 +1,174 @@
+
+    // 12.7 The continue statement
+
+    function parseContinueStatement() {
+        var token, label = null;
+
+        expectKeyword('continue');
+
+        // Optimize the most common form: 'continue;'.
+        if (source[index] === ';') {
+            lex();
+
+            if (!state.inIteration) {
+                throwError({}, Messages.IllegalContinue);
+            }
+
+            return {
+                type: Syntax.ContinueStatement,
+                label: null
+            };
+        }
+
+        if (peekLineTerminator()) {
+            if (!state.inIteration) {
+                throwError({}, Messages.IllegalContinue);
+            }
+
+            return {
+                type: Syntax.ContinueStatement,
+                label: null
+            };
+        }
+
+        token = lookahead();
+        if (token.type === Token.Identifier) {
+            label = parseVariableIdentifier();
+
+            if (!Object.prototype.hasOwnProperty.call(state.labelSet, label.name)) {
+                throwError({}, Messages.UnknownLabel, label.name);
+            }
+        }
+
+        consumeSemicolon();
+
+        if (label === null && !state.inIteration) {
+            throwError({}, Messages.IllegalContinue);
+        }
+
+        return {
+            type: Syntax.ContinueStatement,
+            label: label
+        };
+    }
+
+    // 12.8 The break statement
+
+    function parseBreakStatement() {
+        var token, label = null;
+
+        expectKeyword('break');
+
+        // Optimize the most common form: 'break;'.
+        if (source[index] === ';') {
+            lex();
+
+            if (!(state.inIteration || state.inSwitch)) {
+                throwError({}, Messages.IllegalBreak);
+            }
+
+            return {
+                type: Syntax.BreakStatement,
+                label: null
+            };
+        }
+
+        if (peekLineTerminator()) {
+            if (!(state.inIteration || state.inSwitch)) {
+                throwError({}, Messages.IllegalBreak);
+            }
+
+            return {
+                type: Syntax.BreakStatement,
+                label: null
+            };
+        }
+
+        token = lookahead();
+        if (token.type === Token.Identifier) {
+            label = parseVariableIdentifier();
+
+            if (!Object.prototype.hasOwnProperty.call(state.labelSet, label.name)) {
+                throwError({}, Messages.UnknownLabel, label.name);
+            }
+        }
+
+        consumeSemicolon();
+
+        if (label === null && !(state.inIteration || state.inSwitch)) {
+            throwError({}, Messages.IllegalBreak);
+        }
+
+        return {
+            type: Syntax.BreakStatement,
+            label: label
+        };
+    }
+
+    // 12.9 The return statement
+
+    function parseReturnStatement() {
+        var token, argument = null;
+
+        expectKeyword('return');
+
+        if (!state.inFunctionBody) {
+            throwErrorTolerant({}, Messages.IllegalReturn);
+        }
+
+        // 'return' followed by a space and an identifier is very common.
+        if (source[index] === ' ') {
+            if (isIdentifierStart(source[index + 1])) {
+                argument = parseExpression();
+                consumeSemicolon();
+                return {
+                    type: Syntax.ReturnStatement,
+                    argument: argument
+                };
+            }
+        }
+
+        if (peekLineTerminator()) {
+            return {
+                type: Syntax.ReturnStatement,
+                argument: null
+            };
+        }
+
+        if (!match(';')) {
+            token = lookahead();
+            if (!match('}') && token.type !== Token.EOF) {
+                argument = parseExpression();
+            }
+        }
+
+        consumeSemicolon();
+
+        return {
+            type: Syntax.ReturnStatement,
+            argument: argument
+        };
+    }
+
+
+
+    // 12.13 The throw statement
+
+    function parseThrowStatement() {
+        var argument;
+
+        expectKeyword('throw');
+
+        if (peekLineTerminator()) {
+            throwError({}, Messages.NewlineAfterThrow);
+        }
+
+        argument = parseExpression();
+
+        consumeSemicolon();
+
+        return {
+            type: Syntax.ThrowStatement,
+            argument: argument
+        };
+    }

@@ -1,0 +1,88 @@
+    // 12.2 Variable Statement
+
+    function parseVariableIdentifier() {
+        var token = lex();
+
+        if (token.type !== Token.Identifier) {
+            throwUnexpected(token);
+        }
+
+        return {
+            type: Syntax.Identifier,
+            name: token.value
+        };
+    }
+
+    function parseVariableDeclaration(kind) {
+        var id = parseVariableIdentifier(),
+            init = null;
+
+        // 12.2.1
+        if (strict && isRestrictedWord(id.name)) {
+            throwErrorTolerant({}, Messages.StrictVarName);
+        }
+
+        if (kind === 'const') {
+            expect('=');
+            init = parseAssignmentExpression();
+        } else if (match('=')) {
+            lex();
+            init = parseAssignmentExpression();
+        }
+
+        return {
+            type: Syntax.VariableDeclarator,
+            id: id,
+            init: init
+        };
+    }
+
+    function parseVariableDeclarationList(kind) {
+        var list = [];
+
+        do {
+            list.push(parseVariableDeclaration(kind));
+            if (!match(',')) {
+                break;
+            }
+            lex();
+        } while (index < length);
+
+        return list;
+    }
+
+    function parseVariableStatement() {
+        var declarations;
+
+        expectKeyword('var');
+
+        declarations = parseVariableDeclarationList();
+
+        consumeSemicolon();
+
+        return {
+            type: Syntax.VariableDeclaration,
+            declarations: declarations,
+            kind: 'var'
+        };
+    }
+
+    // kind may be `const` or `let`
+    // Both are experimental and not in the specification yet.
+    // see http://wiki.ecmascript.org/doku.php?id=harmony:const
+    // and http://wiki.ecmascript.org/doku.php?id=harmony:let
+    function parseConstLetDeclaration(kind) {
+        var declarations;
+
+        expectKeyword(kind);
+
+        declarations = parseVariableDeclarationList(kind);
+
+        consumeSemicolon();
+
+        return {
+            type: Syntax.VariableDeclaration,
+            declarations: declarations,
+            kind: kind
+        };
+    }

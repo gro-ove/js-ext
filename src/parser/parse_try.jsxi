@@ -1,0 +1,57 @@
+
+
+    // 12.14 The try statement
+
+    function parseCatchClause() {
+        var param;
+
+        expectKeyword('catch');
+
+        expect('(');
+        if (match(')')) {
+            throwUnexpected(lookahead());
+        }
+
+        param = parseVariableIdentifier();
+        // 12.14.1
+        if (strict && isRestrictedWord(param.name)) {
+            throwErrorTolerant({}, Messages.StrictCatchVariable);
+        }
+
+        expect(')');
+
+        return {
+            type: Syntax.CatchClause,
+            param: param,
+            body: parseBlock()
+        };
+    }
+
+    function parseTryStatement() {
+        var block, handlers = [], finalizer = null;
+
+        expectKeyword('try');
+
+        block = parseBlock();
+
+        if (matchKeyword('catch')) {
+            handlers.push(parseCatchClause());
+        }
+
+        if (matchKeyword('finally')) {
+            lex();
+            finalizer = parseBlock();
+        }
+
+        if (handlers.length === 0 && !finalizer) {
+            throwError({}, Messages.NoCatchOrFinally);
+        }
+
+        return {
+            type: Syntax.TryStatement,
+            block: block,
+            guardedHandlers: [],
+            handlers: handlers,
+            finalizer: finalizer
+        };
+    }

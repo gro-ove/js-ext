@@ -1,0 +1,86 @@
+    // 12.10 The swith statement
+
+    function parseSwitchCase() {
+        var test,
+            consequent = [],
+            statement;
+
+        if (matchKeyword('default')) {
+            lex();
+            test = null;
+        } else {
+            expectKeyword('case');
+            test = parseExpression();
+        }
+        expect(':');
+
+        while (index < length) {
+            if (match('}') || matchKeyword('default') || matchKeyword('case')) {
+                break;
+            }
+            statement = parseStatement();
+            if (typeof statement === 'undefined') {
+                break;
+            }
+            consequent.push(statement);
+        }
+
+        return {
+            type: Syntax.SwitchCase,
+            test: test,
+            consequent: consequent
+        };
+    }
+
+    function parseSwitchStatement() {
+        var discriminant, cases, clause, oldInSwitch, defaultFound;
+
+        expectKeyword('switch');
+
+        expect('(');
+
+        discriminant = parseExpression();
+
+        expect(')');
+
+        expect('{');
+
+        cases = [];
+
+        if (match('}')) {
+            lex();
+            return {
+                type: Syntax.SwitchStatement,
+                discriminant: discriminant,
+                cases: cases
+            };
+        }
+
+        oldInSwitch = state.inSwitch;
+        state.inSwitch = true;
+        defaultFound = false;
+
+        while (index < length) {
+            if (match('}')) {
+                break;
+            }
+            clause = parseSwitchCase();
+            if (clause.test === null) {
+                if (defaultFound) {
+                    throwError({}, Messages.MultipleDefaultsInSwitch);
+                }
+                defaultFound = true;
+            }
+            cases.push(clause);
+        }
+
+        state.inSwitch = oldInSwitch;
+
+        expect('}');
+
+        return {
+            type: Syntax.SwitchStatement,
+            discriminant: discriminant,
+            cases: cases
+        };
+    }

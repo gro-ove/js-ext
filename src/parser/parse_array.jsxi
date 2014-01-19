@@ -1,0 +1,24 @@
+    // 11.1.4 Array Initialiser
+    function parseArrayInitialiser (){
+        var elements = [];
+
+        expect ('[');
+
+        while (!match (']'))
+            if (match (',')){
+                lex ();
+                elements.push (null);
+            } else {
+                elements.push (parseAssignmentExpression ());
+
+                if (!match (']'))
+                    expect (',');
+            }
+
+        expect (']');
+
+        return {
+            type:       Syntax.ArrayExpression,
+            elements:   elements
+        };
+    }

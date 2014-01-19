@@ -1,0 +1,159 @@
+
+
+    // 11.1.5 Object Initialiser
+
+    function parsePropertyFunction(param, first) {
+        var previousStrict, body;
+
+        previousStrict = strict;
+        body = parseFunctionSourceElements();
+        if (first && strict && isRestrictedWord(param[0].name)) {
+            throwErrorTolerant(first, Messages.StrictParamName);
+        }
+        strict = previousStrict;
+
+        return {
+            type: Syntax.FunctionExpression,
+            id: null,
+            params: param,
+            defaults: [],
+            body: body,
+            rest: null,
+            generator: false,
+            expression: false
+        };
+    }
+
+    function parseObjectPropertyKey() {
+        var token = lex();
+
+        // Note: This function is called only from parseObjectProperty(), where
+        // EOF and Punctuator tokens are already filtered out.
+
+        if (token.type === Token.StringLiteral || token.type === Token.NumericLiteral) {
+            if (strict && token.octal) {
+                throwErrorTolerant(token, Messages.StrictOctalLiteral);
+            }
+            return createLiteral(token);
+        }
+
+        return {
+            type: Syntax.Identifier,
+            name: token.value
+        };
+    }
+
+    function parseObjectProperty() {
+        var token, key, id, param;
+
+        token = lookahead();
+
+        if (token.type === Token.Identifier) {
+
+            id = parseObjectPropertyKey();
+
+            // Property Assignment: Getter and Setter.
+
+            if (token.value === 'get' && !match(':')) {
+                key = parseObjectPropertyKey();
+                expect('(');
+                expect(')');
+                return {
+                    type: Syntax.Property,
+                    key: key,
+                    value: parsePropertyFunction([]),
+                    kind: 'get'
+                };
+            } else if (token.value === 'set' && !match(':')) {
+                key = parseObjectPropertyKey();
+                expect('(');
+                token = lookahead();
+                if (token.type !== Token.Identifier) {
+                    expect(')');
+                    throwErrorTolerant(token, Messages.UnexpectedToken, token.value);
+                    return {
+                        type: Syntax.Property,
+                        key: key,
+                        value: parsePropertyFunction([]),
+                        kind: 'set'
+                    };
+                } else {
+                    param = [ parseVariableIdentifier() ];
+                    expect(')');
+                    return {
+                        type: Syntax.Property,
+                        key: key,
+                        value: parsePropertyFunction(param, token),
+                        kind: 'set'
+                    };
+                }
+            } else {
+                expect(':');
+                return {
+                    type: Syntax.Property,
+                    key: id,
+                    value: parseAssignmentExpression(),
+                    kind: 'init'
+                };
+            }
+        } else if (token.type === Token.EOF || token.type === Token.Punctuator) {
+            throwUnexpected(token);
+        } else {
+            key = parseObjectPropertyKey();
+            expect(':');
+            return {
+                type: Syntax.Property,
+                key: key,
+                value: parseAssignmentExpression(),
+                kind: 'init'
+            };
+        }
+    }
+
+    function parseObjectInitialiser() {
+        var properties = [], property, name, kind, map = {}, toString = String;
+
+        expect('{');
+
+        while (!match('}')) {
+            property = parseObjectProperty();
+
+            if (property.key.type === Syntax.Identifier) {
+                name = property.key.name;
+            } else {
+                name = toString(property.key.value);
+            }
+            kind = (property.kind === 'init') ? PropertyKind.Data : (property.kind === 'get') ? PropertyKind.Get : PropertyKind.Set;
+            if (Object.prototype.hasOwnProperty.call(map, name)) {
+                if (map[name] === PropertyKind.Data) {
+                    if (strict && kind === PropertyKind.Data) {
+                        throwErrorTolerant({}, Messages.StrictDuplicateProperty);
+                    } else if (kind !== PropertyKind.Data) {
+                        throwErrorTolerant({}, Messages.AccessorDataProperty);
+                    }
+                } else {
+                    if (kind === PropertyKind.Data) {
+                        throwErrorTolerant({}, Messages.AccessorDataProperty);
+                    } else if (map[name] & kind) {
+                        throwErrorTolerant({}, Messages.AccessorGetSet);
+                    }
+                }
+                map[name] |= kind;
+            } else {
+                map[name] = kind;
+            }
+
+            properties.push(property);
+
+            if (!match('}')) {
+                expect(',');
+            }
+        }
+
+        expect('}');
+
+        return {
+            type: Syntax.ObjectExpression,
+            properties: properties
+        };
+    }
