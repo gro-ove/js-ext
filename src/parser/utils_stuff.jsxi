@@ -12,17 +12,16 @@
         if (lineNumber !== line)
             return;
 
-        //if (state.preventSequence && (match (',') || match (']') || match ('}') || match (')')))
-        //    return;
-
         if (match (';')){
             lex ();
             return;
         }
 
-        token = lookahead ();
-        if (token.type !== Token.EOF && !match ('}'))
-            throwUnexpected (token);
+        if (!state.preventSequence){
+            token = lookahead ();
+            if (token.type !== Token.EOF && !match ('}'))
+                throwUnexpected (token);
+        }
     }
 
     // Return true if provided expression is LeftHandSideExpression
