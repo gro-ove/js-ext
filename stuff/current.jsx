@@ -1,4 +1,10 @@
 var a = lambda (test){ result },
 	b = lambda { result },
 	c = lambda result,
-	d = lambda a + b;
+	d = lambda if (a){ b, c },
+	e = lambda a + b;
+
+var f = lambda {
+		//a: a,
+		//b: b
+	};

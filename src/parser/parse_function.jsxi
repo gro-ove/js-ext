@@ -4,6 +4,8 @@
 			sourceElements = [];
 
 		if (match ('{')){
+			state.preventSequence = false;
+
 			expect ('{');
 
 			while (index < length){
@@ -16,8 +18,11 @@
 			}
 
 			expect ('}');
-		} else 
+		} else {
+			state.preventSequence = true;
 			sourceElements.push (parseSourceElement ());
+			state.preventSequence = false;
+		}
 
 		return {
 			type: 	Syntax.BlockStatement,

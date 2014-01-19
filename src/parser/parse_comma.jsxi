@@ -2,7 +2,7 @@
 	function parseExpression (){
 		var expr = parseAssignmentExpression ();
 
-		if (match (',')){
+		if (!state.preventSequence && match (',')){
 			expr = {
 				type: Syntax.SequenceExpression,
 				expressions: [ expr ]
@@ -15,6 +15,6 @@
 				expr.expressions.push (parseAssignmentExpression ());
 			}
 		}
-		
+
 		return expr;
 	}
