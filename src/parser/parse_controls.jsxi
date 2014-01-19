@@ -34,10 +34,6 @@
         token = lookahead();
         if (token.type === Token.Identifier) {
             label = parseVariableIdentifier();
-
-            if (!Object.prototype.hasOwnProperty.call(state.labelSet, label.name)) {
-                throwError({}, Messages.UnknownLabel, label.name);
-            }
         }
 
         consumeSemicolon();
@@ -87,10 +83,6 @@
         token = lookahead();
         if (token.type === Token.Identifier) {
             label = parseVariableIdentifier();
-
-            if (!Object.prototype.hasOwnProperty.call(state.labelSet, label.name)) {
-                throwError({}, Messages.UnknownLabel, label.name);
-            }
         }
 
         consumeSemicolon();

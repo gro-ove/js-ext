@@ -3,7 +3,6 @@
 		var sourceElement, 
 			sourceElements = [], 
 			token, 
-			oldLabelSet, 
 			oldInIteration, 
 			oldInSwitch, 
 			oldInFunctionBody;
@@ -24,12 +23,10 @@
 				break;
 		}
 
-		oldLabelSet 			= state.labelSet;
 		oldInIteration 			= state.inIteration;
 		oldInSwitch 			= state.inSwitch;
 		oldInFunctionBody 		= state.inFunctionBody;
 
-		state.labelSet 			= {};
 		state.inIteration 		= false;
 		state.inSwitch 			= false;
 		state.inFunctionBody 	= true;
@@ -45,7 +42,6 @@
 
 		expect ('}');
 
-		state.labelSet 			= oldLabelSet;
 		state.inIteration 		= oldInIteration;
 		state.inSwitch 			= oldInSwitch;
 		state.inFunctionBody 	= oldInFunctionBody;

@@ -22,7 +22,6 @@ module Parser {
 
 		state 			= {
 			allowIn:            true,
-			labelSet:           {},
 			inFunctionBody:     false,
 			inIteration:        false,
 			inSwitch:           false
