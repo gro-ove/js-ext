@@ -4,7 +4,10 @@ var a = lambda (test){ result },
 	d = lambda if (a){ b, c },
 	e = lambda a + b;
 
-var f = lambda {
-		//a: a,
-		//b: b
-	};
+// var f = lambda {
+// 		//a: a,
+// 		//b: b
+// 	};
+
+
+var a = [ lambda a, lambda b ]

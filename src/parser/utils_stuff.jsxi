@@ -12,7 +12,10 @@
         if (lineNumber !== line)
             return;
 
-        if (match (';') || state.preventSequence && match (',')){
+        if (state.preventSequence && (match (',') || match (']') || match ('}') || match (')')))
+            return;
+
+        if (match (';')){
             lex ();
             return;
         }
