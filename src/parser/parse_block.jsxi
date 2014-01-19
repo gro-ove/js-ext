@@ -1,34 +1,34 @@
-    // 12.1 Block
+	// 12.1 Block
+	function parseStatementList (){
+		var list = [],
+			statement;
 
-    function parseStatementList() {
-        var list = [],
-            statement;
+		while (index < length){
+			if (match ('}'))
+				break;
+			
+			statement = parseSourceElement ();
 
-        while (index < length) {
-            if (match('}')) {
-                break;
-            }
-            statement = parseSourceElement();
-            if (typeof statement === 'undefined') {
-                break;
-            }
-            list.push(statement);
-        }
+			if (typeof statement === 'undefined')
+				break;
 
-        return list;
-    }
+			list.push (statement);
+		}
 
-    function parseBlock() {
-        var block;
+		return list;
+	}
 
-        expect('{');
+	function parseBlock (){
+		var block;
 
-        block = parseStatementList();
+		expect ('{');
 
-        expect('}');
+		block = parseStatementList ();
 
-        return {
-            type: Syntax.BlockStatement,
-            body: block
-        };
-    }
+		expect ('}');
+
+		return {
+			type: 	Syntax.BlockStatement,
+			body: 	block
+		};
+	}
