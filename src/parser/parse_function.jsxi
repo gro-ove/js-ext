@@ -122,6 +122,21 @@
 		};
 	}
 
+	function setReturnStatement (data){
+		if (data){
+			if (data.type === 'ExpressionStatement'){
+				data.type = 'ReturnStatement';
+				data.argument = data.expression;
+				delete data.expression;
+			} else if (data.type === 'IfStatement'){
+				setReturnStatement (data.consequent);
+				setReturnStatement (data.alternate);
+			}
+		}
+
+		return data;
+	}
+
 	function parseLambdaSourceElements (){
 		var sourceElement, 
 			sourceElements = [],
@@ -135,10 +150,12 @@
 				expr = parseObjectInitialiser ();
 				consumeSemicolon ();
 
-				sourceElements.push ({
-					type: Syntax.ExpressionStatement,
-					expression: expr
-				});
+				sourceElements.push (
+					setReturnStatement ({
+						type: Syntax.ExpressionStatement,
+						expression: expr
+					})
+				);
 			} catch {
 				restoreAll (saved);
 
@@ -157,7 +174,13 @@
 			}
 		} else {
 			state.preventSequence = true;
-			sourceElements.push (parseSourceElement ());
+
+			sourceElements.push (
+				setReturnStatement (
+					parseSourceElement ()
+				)
+			);
+
 			state.preventSequence = false;
 		}
 
