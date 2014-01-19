@@ -1,70 +1,61 @@
+	// 14 Program
 
-    // 14 Program
+	function parseSourceElement (){
+		var token = lookahead ();
 
-    function parseSourceElement() {
-        var token = lookahead();
+		if (token.type === Token.Keyword)
+			switch (token.value){
+				case 'const':
+				case 'let':
+					return parseConstLetDeclaration (token.value);
+				case 'function':
+					return parseFunctionDeclaration ();
+				default:
+					return parseStatement ();
+			}
 
-        if (token.type === Token.Keyword) {
-            switch (token.value) {
-            case 'const':
-            case 'let':
-                return parseConstLetDeclaration(token.value);
-            case 'function':
-                return parseFunctionDeclaration();
-            default:
-                return parseStatement();
-            }
-        }
+		if (token.type !== Token.EOF) 
+			return parseStatement ();
+	}
 
-        if (token.type !== Token.EOF) {
-            return parseStatement();
-        }
-    }
+	function parseSourceElements (){
+		var sourceElement, sourceElements = [], token, directive, firstRestricted;
 
-    function parseSourceElements() {
-        var sourceElement, sourceElements = [], token, directive, firstRestricted;
+		while (index < length){
+			token = lookahead ();
+			if (token.type !== Token.StringLiteral)
+				break;
 
-        while (index < length) {
-            token = lookahead();
-            if (token.type !== Token.StringLiteral) {
-                break;
-            }
+			sourceElement = parseSourceElement ();
+			sourceElements.push (sourceElement);
 
-            sourceElement = parseSourceElement();
-            sourceElements.push(sourceElement);
-            if (sourceElement.expression.type !== Syntax.Literal) {
-                // this is not directive
-                break;
-            }
-            directive = sliceSource(token.range[0] + 1, token.range[1] - 1);
-            if (directive === 'use strict') {
-                strict = true;
-                if (firstRestricted) {
-                    throwErrorTolerant(firstRestricted, Messages.StrictOctalLiteral);
-                }
-            } else {
-                if (!firstRestricted && token.octal) {
-                    firstRestricted = token;
-                }
-            }
-        }
+			if (sourceElement.expression.type !== Syntax.Literal)
+				break;
 
-        while (index < length) {
-            sourceElement = parseSourceElement();
-            if (typeof sourceElement === 'undefined') {
-                break;
-            }
-            sourceElements.push(sourceElement);
-        }
-        return sourceElements;
-    }
+			directive = sliceSource (token.range [0] + 1, token.range [1] - 1);
 
-    function parseProgram() {
-        var program;
-        strict = false;
-        program = {
-            type: Syntax.Program,
-            body: parseSourceElements()
-        };
-        return program;
-    }
+			if (directive === 'use strict') {
+				strict = true;
+				if (firstRestricted) 
+					throwErrorTolerant (firstRestricted, Messages.StrictOctalLiteral);
+			} else if (!firstRestricted && token.octal) 
+				firstRestricted = token;
+		}
+
+		while (index < length) {
+			sourceElement = parseSourceElement ();
+			if (typeof sourceElement === 'undefined') 
+				break;
+			sourceElements.push (sourceElement);
+		}
+		
+		return sourceElements;
+	}
+
+	function parseProgram (){
+		strict = false;
+		return program = {
+			type: Syntax.Program,
+			body: parseSourceElements ()
+		};
+	}

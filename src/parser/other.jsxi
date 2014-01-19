@@ -1,5 +1,3 @@
-
-
     function filterGroup(node) {
         var n, i, entry;
 
@@ -249,14 +247,4 @@
             advance = extra.advance;
             scanRegExp = extra.scanRegExp;
         }
-    }
-
-    function stringToArray(str) {
-        var length = str.length,
-            result = [],
-            i;
-        for (i = 0; i < length; ++i) {
-            result[i] = str.charAt(i);
-        }
-        return result;
     }

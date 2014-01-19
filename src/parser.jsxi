@@ -8,11 +8,10 @@
 
 module Parser {
 	export function parse (code, options) {
-		var program, toString;
+		var program;
 
-		toString = String;
-		if (typeof code !== 'string' && !(code instanceof String))
-			code = toString (code);
+		if (typeof code !== 'string')
+			code = '' + code;
 
 		source          = code;
 		index           = 0;
