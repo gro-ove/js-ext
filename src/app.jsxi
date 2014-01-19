@@ -75,8 +75,12 @@ module App {
 			else
 				console.log ('Ok :)')
 		} else {
-			var uglify = require ('uglify-js');
-			console.log (parsed);
+			var esmangle = require ('esmangle'),
+				escodegen = require ('escodegen');
+
+			console.log (escodegen.generate (parsed));
+
+			// console.log (parsed);
 		}
 	}
 }
