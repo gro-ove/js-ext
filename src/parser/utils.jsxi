@@ -1,3 +1,7 @@
+	var lastIdentifier = 0;
+	function newIdentifier ()
+		return '__t_' + lastIdentifier ++;
+
 	function advance (){
 		var ch, token;
 
