@@ -154,6 +154,15 @@
 			} else if (data.type === 'IfStatement'){
 				setReturnStatement (data.consequent);
 				setReturnStatement (data.alternate);
+			} else if (data.type === 'BlockStatement' && data.single){
+				setReturnStatement (data.body [0]); 
+			} else if (data.type === 'TryStatement'){
+				setReturnStatement (data.block);
+
+				if (data.handlers && data.handlers [0])
+					setReturnStatement (data.handlers [0].body);
+				if (data.finalizer)
+					setReturnStatement (data.finalizer);
 			}
 		}
 
