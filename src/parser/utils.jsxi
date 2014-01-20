@@ -10,8 +10,33 @@
 
 			for (var n, v in obj)
 				result [n] = clone (v);
+
+			return result;
 		} else
 			return obj;
+
+	function saveAll ()
+		return clone ({
+			source: 		source,
+			index: 			index,
+			lineNumber: 	lineNumber,
+			lineStart: 		lineStart,
+			length: 		length,
+			buffer: 		buffer,
+			state: 			state,
+			extra: 			extra
+		});
+
+	function restoreAll (obj){
+		source 			= obj.source;
+		index 			= obj.index,
+		lineNumber 		= obj.lineNumber,
+		lineStart 		= obj.lineStart,
+		length 			= obj.length,
+		buffer 			= obj.buffer,
+		state			= obj.state,
+		extra 			= obj.extra
+	}
 
 	function advance (){
 		var ch, token;
