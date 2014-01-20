@@ -75,7 +75,7 @@
 						throwError ({}, Messages.UnexpectedToken, 'ILLEGAL');
 				} else 
 					break;
-			} else if (isWhiteSpace (ch)) {
+			} else if (isWhiteSpace (ch)){
 				++ index;
 			} else if (isLineTerminator (ch)){
 				++ index;
