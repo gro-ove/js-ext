@@ -1,8 +1,9 @@
-try
-	something
-catch
-	ccc
-finally
-	another
+// ==Jsx==
+// @key value
+// @flag
+// ==/Jsx==
 
-var a = [ lambda try a, lambda try a catch b, lambda try a finally b ]
+// EXIT
+
+function hi ()
+	console.log ('WTF');
