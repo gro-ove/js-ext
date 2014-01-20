@@ -21,6 +21,18 @@
 		start = index;
 		id = source [index ++];
 
+		if (id === 'i' && source.substr (index, 7) === 'n-array'){
+			index += 7;
+			
+			return {
+				type:           Token.Keyword,
+				value:          'in-array',
+				lineNumber:     lineNumber,
+				lineStart:      lineStart,
+				range:          [ start, index ]
+			}
+		}
+
 		while (index < length){
 			if (!isIdentifierPart (source [index]))
 				break;

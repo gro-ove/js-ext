@@ -23,7 +23,7 @@
 				keyword = (id === 'default') || (id === 'finally');
 				break;
 			case 8:
-				keyword = (id === 'function') || (id === 'continue') || (id === 'debugger') || (id === 'in-array');
+				keyword = (id === 'function') || (id === 'continue') || (id === 'debugger');
 				break;
 			case 10:
 				keyword = (id === 'instanceof');
