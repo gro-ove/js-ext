@@ -5,18 +5,22 @@
 
 		expectKeyword ('catch');
 
-		expect ('(');
-		if (match (')'))
-			throwUnexpected (lookahead ());
-
-		param = parseVariableIdentifier ();
-
-		expect (')');
+		if (match ('(')){
+			expect ('(');
+			if (match (')'))
+				throwUnexpected (lookahead ());
+			param = parseVariableIdentifier ();
+			expect (')');
+		} else 
+			param = {
+				type: 'Identifier',
+				name: 'e'
+			};
 
 		return {
 			type:   Syntax.CatchClause,
 			param:  param,
-			body:   parseBlock ()
+			body:   parseBlockOrNotBlock ()
 		};
 	}
 
@@ -25,18 +29,15 @@
 
 		expectKeyword ('try');
 
-		block = parseBlock ();
+		block = parseBlockOrNotBlock ();
 
 		if (matchKeyword ('catch'))
 			handlers.push (parseCatchClause ());
 
 		if (matchKeyword ('finally')){
 			lex ();
-			finalizer = parseBlock ();
+			finalizer = parseBlockOrNotBlock ();
 		}
-
-		if (handlers.length === 0 && !finalizer) 
-			throwError ({}, Messages.NoCatchOrFinally);
 
 		return {
 			type:               Syntax.TryStatement,
