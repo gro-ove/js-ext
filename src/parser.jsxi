@@ -17,7 +17,6 @@ module Parser {
 		length          = source.length;
 		buffer          = null;
 		state 			= { allowIn: true, preventSequence: false };
-		extra 			= {};
 		information		= { comments: {} };
 
 		try {
