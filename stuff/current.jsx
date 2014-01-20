@@ -6,4 +6,4 @@
 // EXIT
 
 function hi ()
-	console.log ('WTF');
+	console.log ('WTF\u2028');
