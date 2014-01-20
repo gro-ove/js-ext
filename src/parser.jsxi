@@ -10,10 +10,7 @@ module Parser {
 	export function parse (code, options) {
 		var program;
 
-		if (typeof code !== 'string')
-			code = '' + code;
-
-		source          = code;
+		source          = '' + code;
 		index           = 0;
 		lineNumber      = (source.length > 0) ? 1 : 0;
 		lineStart       = 0;
@@ -23,39 +20,14 @@ module Parser {
 		extra 			= {};
 		information		= { comments: {} };
 
-		if (typeof options !== 'undefined'){
-			extra.range 	= !!options.range;
-			extra.loc 		= !!options.loc;
-			extra.raw 		= !!options.raw;
-
-			if (options.tokens) 
-				extra.tokens = [];
-
-			if (options.tolerant) 
-				extra.errors = [];
-		}
-
-		patch ();
 		try {
 			program = parseProgram ();
 
 			if (options && options.information)
 				program.information = information;
-
-			if (typeof extra.tokens !== 'undefined'){
-				filterTokenLocation ();
-				program.tokens = extra.tokens;
-			}
-
-			if (typeof extra.errors !== 'undefined')
-				program.errors = extra.errors;
-
-			if (extra.range || extra.loc)
-				program.body = filterGroup (program.body);
 		} catch {
 			throw e;
 		} finally {
-			unpatch ();
 			extra = {};
 		}
 
