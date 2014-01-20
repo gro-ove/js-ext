@@ -9,4 +9,5 @@
 
 // for (var KEY in OBJECT){ var VALUE = OBJECT [KEY] } 
 
+for (var KEY, VALUE in COMPLEX_OBJECT.TEST){ OPERATION }
 for (var KEY, VALUE in COMPLEX_OBJECT ()){ OPERATION }
