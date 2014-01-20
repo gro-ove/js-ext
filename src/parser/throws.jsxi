@@ -1,4 +1,5 @@
 	// Throw an exception
+
 	function throwError (token, messageFormat){
 		var error,
 			args 	= Array.prototype.slice.call (arguments, 2),
@@ -19,17 +20,8 @@
 		throw error;
 	}
 
-	function throwErrorTolerant ()
-		try {
-			throwError.apply (null, arguments);
-		} catch {
-			if (extra.errors) 
-				extra.errors.push (e);
-			else
-				throw e;
-		}
-
 	// Throw an exception because of the token.
+	
 	function throwUnexpected (token){
 		if (token.type === Token.EOF)
 			throwError (token, Messages.UnexpectedEOS);
