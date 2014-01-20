@@ -1,4 +1,65 @@
 	// 13 Function Definition
+
+	function parseFunctionArguments (defaults){
+		var token, temp, params = [];
+
+		expect ('(');
+
+		if (!match (')'))
+			while (index < length){
+				token = lookahead ();
+
+				temp = parseVariableIdentifier ();
+
+				if (defaults && match ('=')){
+					lex ();
+					defaults.push ({ name: temp.name, value: parseAssignmentExpression () });
+				}
+
+				params.push (temp);
+
+				if (match (')'))
+					break;
+
+				expect (',');
+			}
+
+		expect (')');
+
+		return params;
+	}
+
+	function getDefaultsSetter (defaults){
+		return defaults.map (lambda {
+			type: 'IfStatement',
+            test: {
+                type: 'BinaryExpression',
+                operator: '===',
+                left: {
+                    type: 'Identifier',
+                    name: arg.name
+                },
+                right: {
+                    type: 'Identifier',
+                    name: 'undefined'
+                }
+            },
+            consequent: {
+                type: 'ExpressionStatement',
+                expression: {
+                    type: 'AssignmentExpression',
+                    operator: '=',
+                    left: {
+                        type: 'Identifier',
+                        name: arg.name
+                    },
+                    right: arg.value
+                }
+            },
+            alternate: null
+		});
+	}
+
 	function parseFunctionSourceElements (){
 		var sourceElement, 
 			oldPreventSequence,
@@ -32,47 +93,23 @@
 	}
 
 	function parseFunctionDeclaration (){
-		var id, 
-			param, 
-			params = [], 
-			body, 
-			token, 
-			message, 
-			paramSet;
+		var id, param, params = [], defaults = [], body, token;
 
 		expectKeyword ('function');
 
 		token 	= lookahead ();
 		id 		= parseVariableIdentifier ();
+		params 	= parseFunctionArguments (defaults);
+		body 	= parseFunctionSourceElements ();
 
-		expect ('(');
-
-		if (!match (')')){
-			paramSet = {};
-
-			while (index < length) {
-				token = lookahead ();
-				param = parseVariableIdentifier ();
-
-				params.push (param);
-				paramSet [param.name] = true;
-
-				if (match (')')) 
-					break;
-
-				expect (',');
-			}
-		}
-
-		expect (')');
-
-		body = parseFunctionSourceElements ();
+		if (defaults.length)
+			body.body = getDefaultsSetter (defaults).concat (body.body);
 
 		return {
 			type: 			Syntax.FunctionDeclaration,
 			id: 			id,
 			params: 		params,
-			defaults: 		[],
+			defaults: 		defaults,
 			body: 			body,
 			rest: 			null,
 			generator: 		false,
@@ -80,29 +117,8 @@
 		};
 	}
 
-	function parseFunctionArguments (){
-		var token, params = [];
-
-		expect ('(');
-
-		if (!match (')'))
-			while (index < length){
-				token = lookahead ();
-				params.push (parseVariableIdentifier ());
-
-				if (match (')'))
-					break;
-
-				expect (',');
-			}
-
-		expect (')');
-
-		return params;
-	}
-
 	function parseFunctionExpression (){
-		var token, id = null, param, params, body;
+		var token, id = null, param, params, defaults = [], body;
 
 		expectKeyword ('function');
 
@@ -111,8 +127,11 @@
 			id 		= parseVariableIdentifier ();
 		}
 
-		params = parseFunctionArguments ();
-		body = parseFunctionSourceElements ();
+		params 	= parseFunctionArguments (defaults);
+		body 	= parseFunctionSourceElements (defaults);
+
+		if (defaults.length)
+			body.body = getDefaultsSetter (defaults).concat (body.body);
 
 		return {
 			type: 			Syntax.FunctionExpression,
@@ -182,12 +201,15 @@
 	}
 
 	function parseLambdaExpression (){
-		var token, param, params = [], body;
+		var token, param, defaults = [], params = [], body;
 
 		expectKeyword ('lambda');
 
-		params = match ('(') ? parseFunctionArguments () : [];
+		params = match ('(') ? parseFunctionArguments (defaults) : [];
 		body = parseLambdaSourceElements ();
+
+		if (defaults.length)
+			body.body = getDefaultsSetter (defaults).concat (body.body);
 
 		return {
 			type: 			Syntax.FunctionExpression,
