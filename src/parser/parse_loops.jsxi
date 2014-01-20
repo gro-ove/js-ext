@@ -69,7 +69,7 @@
 				init			= parseForVariableDeclaration ();
 				state.allowIn 	= true;
 
-				if (init.declarations.length <= 2 && (matchKeyword ('in-array') && (arrayMode = true) || matchKeyword ('in'))){
+				if (init.declarations.length <= 2 && (matchKeyword ('in-array') && (arrayMode = 1) || matchKeyword ('in'))){
 					lex ();
 					left 	= init;
 					right 	= parseExpression ();
@@ -80,7 +80,7 @@
 				init 			= parseExpression ();
 				state.allowIn 	= true;
 
-				if (matchKeyword ('in-array') && (arrayMode = true) || matchKeyword ('in')){
+				if (matchKeyword ('in-array') && (arrayMode = 1) || matchKeyword ('in')){
 					// LeftHandSideExpression
 					if (!isLeftHandSide (init) && (init.type != 'SequenceExpression' || init.expressions.length != 2))
 						throwErrorTolerant ({}, Messages.InvalidLHSInForIn);
@@ -109,6 +109,40 @@
 		expect (')');
 		body = parseStatement ();
 
+		if (arrayMode)
+			if (left.type === 'VariableDeclaration' && left.declarations.length === 1){
+				left.declarations = [
+					{
+	                    type: 'VariableDeclarator',
+	                    id: {
+	                        type: 'Identifier',
+	                        name: newIdentifier ()
+	                    }
+	                },
+					left.declarations [0]
+				]
+			} else if (left.type === 'Identifier'){
+				left = {
+					type: 'VariableDeclaration',
+					declarations: [
+						{
+		                    type: 'VariableDeclarator',
+		                    id: {
+		                        type: 'Identifier',
+		                        name: newIdentifier ()
+		                    }
+		                },
+		                {
+		                	type: 'VariableDeclarator',
+		                	id: left
+		                }
+					],
+		            kind: 'var'
+				};
+
+				arrayMode = 2;
+			}
+
 		if (typeof left === 'undefined'){
 			return {
 				type: 		Syntax.ForStatement,
@@ -117,6 +151,38 @@
 				update: 	update,
 				body: 		body
 			};
+		} else if (left.type === 'SequenceExpression' && left.expressions.length === 2 || arrayMode === 2){
+			temp = body;
+
+			body = {
+				type: 'BlockStatement',
+				body: [
+					{
+						type: 'ExpressionStatement',
+						expression: {
+							type: 'AssignmentExpression',
+							operator: '=',
+							left: arrayMode === 2 ? left.declarations [1].id : left.expressions [1],
+							right: {
+								type: 'MemberExpression',
+								computed: true,
+								object: right,
+								property: arrayMode === 2 ? left.declarations [0].id : left.expressions [0]
+							}
+						}
+					}
+				]
+			};
+
+			if (temp.type === 'BlockStatement')
+				body.body = body.body.concat (temp.body);
+			else
+				body.body.push (temp);
+
+			if (arrayMode === 2)
+				left.declarations.length = 1;
+			else
+				left = left.expressions [0];
 		} else if (left.type === 'VariableDeclaration' && left.declarations.length === 2){
 			temp = body;
 
@@ -144,43 +210,54 @@
 				body.body.push (temp);
 
 			left.declarations.length = 1;
-		} else if (left.type === 'SequenceExpression' && left.expressions.length === 2){
-			temp = body;
-
-			body = {
-				type: 'BlockStatement',
-				body: [
-					{
-						type: 'ExpressionStatement',
-						expression: {
-							type: 'AssignmentExpression',
-							operator: '=',
-							left: left.expressions [1],
-							right: {
-								type: 'MemberExpression',
-								computed: true,
-								object: right,
-								property: left.expressions [0]
-							}
-						}
-					}
-				]
-			};
-
-			if (temp.type === 'BlockStatement')
-				body.body = body.body.concat (temp.body);
-			else
-				body.body.push (temp);
-
-			left = left.expressions [0];
 		}
 
-		result = {
-			type: 		Syntax.ForInStatement,
-			left: 		left,
-			right: 		right,
-			body: 		body,
-			each: 		false
+		if (arrayMode){
+			if (left.type === 'VariableDeclaration' && !left.declarations [0].init)
+				left.declarations [0].init = {
+					type: 'Literal',
+					value: 0
+				};
+
+			temp = left.type === 'VariableDeclaration' 
+				? left.declarations [0].id 
+				: left.type === 'SequenceExpression'
+					? left.expressions [0]
+					: left;
+
+			result = {
+				type: 		Syntax.ForStatement,
+				init: 		left,
+				test: 		{
+								type: 'BinaryExpression',
+								operator: '<',
+								left: temp,
+								right: {
+									type: 'MemberExpression',
+									computed: false,
+									object: right,
+									property: {
+										type: 'Identifier',
+										name: 'length'
+									}
+								}
+							},
+				update: 	{
+				                type: 'UpdateExpression',
+				                operator: '++',
+				                argument: temp,
+				                prefix: false
+				            },
+				body: 		body
+			};
+		} else {
+			result = {
+				type: 		Syntax.ForInStatement,
+				left: 		left,
+				right: 		right,
+				body: 		body,
+				each: 		false
+			}
 		}
 
 		if (typeof temp !== 'undefined' && right.type !== 'Identifier'){
@@ -198,30 +275,30 @@
 				type: 'BlockStatement',
 				body: [
 					{
-                        type: 'VariableDeclaration',
-                        declarations: [
-                            {
-                                type: 'VariableDeclarator',
-                                id: right,
-                                init: temp
-                            }
-                        ],
-                        kind: 'var'
-                    },
+						type: 'VariableDeclaration',
+						declarations: [
+							{
+								type: 'VariableDeclarator',
+								id: right,
+								init: temp
+							}
+						],
+						kind: 'var'
+					},
 					result,
 					{ 
 						type: 'ExpressionStatement',
 						expression: {
-	                        type: 'AssignmentExpression',
-	                        operator: '=',
-	                        left: right,
-	                        right: {
-	                        	type: 'Literal',
-	                        	value: null,
-	                        	raw: 'null'
-	                        }
-	                    }
-	                }
+							type: 'AssignmentExpression',
+							operator: '=',
+							left: right,
+							right: {
+								type: 'Literal',
+								value: null,
+								raw: 'null'
+							}
+						}
+					}
 				]
 			};
 		}
