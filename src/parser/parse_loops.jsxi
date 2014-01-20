@@ -54,7 +54,7 @@
 	}
 
 	function parseForStatement (){
-		var init, test, update, left, right, body, temp, result;
+		var init, test, update, left, right, body, temp, result, arrayMode;
 
 		init = test = update = null;
 
@@ -69,7 +69,7 @@
 				init			= parseForVariableDeclaration ();
 				state.allowIn 	= true;
 
-				if (init.declarations.length <= 2 && matchKeyword ('in')){
+				if (init.declarations.length <= 2 && (matchKeyword ('in-array') && (arrayMode = true) || matchKeyword ('in'))){
 					lex ();
 					left 	= init;
 					right 	= parseExpression ();
@@ -80,7 +80,7 @@
 				init 			= parseExpression ();
 				state.allowIn 	= true;
 
-				if (matchKeyword ('in')){
+				if (matchKeyword ('in-array') && (arrayMode = true) || matchKeyword ('in')){
 					// LeftHandSideExpression
 					if (!isLeftHandSide (init) && (init.type != 'SequenceExpression' || init.expressions.length != 2))
 						throwErrorTolerant ({}, Messages.InvalidLHSInForIn);
