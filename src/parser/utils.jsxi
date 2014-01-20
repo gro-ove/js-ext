@@ -38,6 +38,12 @@
 		extra 			= obj.extra
 	}
 
+	function createLiteral (token)
+		return {
+			type: 	Syntax.Literal,
+			value: 	token.value
+		};
+
 	function advance (){
 		var ch, token;
 
