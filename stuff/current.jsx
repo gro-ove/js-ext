@@ -1,5 +1,8 @@
-for (var POSITION, VALUE in-array ARRAY){ OPERATION }
-for (var VALUE in-array ARRAY){ OPERATION }
+try
+	something
+catch
+	ccc
+finally
+	another
 
-for (VALUE in-array ARRAY){ OPERATION }
-for (POSITION, VALUE in-array ARRAY()){ OPERATION }
+var a = [ lambda try a, lambda try a catch b ]
