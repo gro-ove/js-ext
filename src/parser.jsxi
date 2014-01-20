@@ -19,10 +19,9 @@ module Parser {
 		lineStart       = 0;
 		length          = source.length;
 		buffer          = null;
-
 		state 			= { allowIn: true, preventSequence: false };
-
 		extra 			= {};
+		
 		if (typeof options !== 'undefined'){
 			extra.range 	= !!options.range;
 			extra.loc 		= !!options.loc;
