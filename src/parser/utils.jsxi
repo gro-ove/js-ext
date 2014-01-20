@@ -192,3 +192,33 @@
 			   op === '^=' ||
 			   op === '|=';
 	}
+
+	function consumeSemicolon (){
+		var token, line;
+
+		// Catch the very common case first.
+		if (source [index] === ';'){
+			lex ();
+			return;
+		}
+
+		line = lineNumber;
+		skipComment ();
+		if (lineNumber !== line)
+			return;
+
+		if (match (';')){
+			lex ();
+			return;
+		}
+
+		if (!state.preventSequence){
+			token = lookahead ();
+			if (token.type !== Token.EOF && !match ('}'))
+				throwUnexpected (token);
+		}
+	}
+
+	// Return true if provided expression is LeftHandSideExpression
+	function isLeftHandSide (expr)
+		return expr.type === Syntax.Identifier || expr.type === Syntax.MemberExpression;
