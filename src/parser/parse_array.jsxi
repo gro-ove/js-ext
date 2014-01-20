@@ -12,7 +12,7 @@
             } else {
                 elements.push (parseAssignmentExpression ());
 
-                if (!match (']'))
+                if (!match (']') && match (','))
                     expect (',');
             }
 

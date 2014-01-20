@@ -6,4 +6,4 @@
 // EXIT
 
 function hi ()
-	console.log ('WTF\u2028');
+	console.log ('\u2028' 187 lambda 15 lambda 18 { a: 20 b: 25 c: [ lambda 14 lambda 'hi' ] });

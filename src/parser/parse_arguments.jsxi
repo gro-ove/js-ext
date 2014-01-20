@@ -12,7 +12,8 @@
 				if (match (')')) 
 					break;
 
-				expect (',');
+				if (match (','))
+					expect (',');
 			}
 
 		expect (')');
