@@ -10,11 +10,6 @@
     function sliceSource (from, to) 
         return source.slice (from, to);
 
-    if (typeof 'esprima'[0] === 'undefined') 
-        sliceSource = function sliceArraySource (from, to){
-            return source.slice (from, to).join ('');
-        };
-
     function isDecimalDigit (ch)
         return '0123456789'.indexOf (ch) >= 0;
 

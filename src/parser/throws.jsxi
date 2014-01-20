@@ -3,7 +3,7 @@
 	function throwError (token, messageFormat){
 		var error,
 			args 	= Array.prototype.slice.call (arguments, 2),
-			msg 	= messageFormat.replace (/%(\d)/g, lambda (whole, index) args[index] || '');
+			msg 	= messageFormat.replace (/%(\d)/g, lambda (whole, index) args [index] || '');
 
 		if (typeof token.lineNumber === 'number'){
 			error 				= new Error ('Line ' + token.lineNumber + ': ' + msg);
@@ -21,7 +21,7 @@
 	}
 
 	// Throw an exception because of the token.
-	
+
 	function throwUnexpected (token){
 		if (token.type === Token.EOF)
 			throwError (token, Messages.UnexpectedEOS);
