@@ -118,34 +118,59 @@
 				body: 		body
 			};
 		} else if (left.type === 'VariableDeclaration' && left.declarations.length === 2){
+			temp = body;
 
+			body = {
+				type: 'BlockStatement',
+				body: [
+					{
+						type: 'VariableDeclaration',
+						declarations: [ left.declarations [1] ],
+						kind: 'var'
+					}
+				]
+			};
+
+			body.body [0].declarations [0].init = {
+				type: 'MemberExpression',
+				computed: true,
+				object: right,
+				property: left.declarations [0].id
+			};
+
+			if (temp.type === 'BlockStatement')
+				body.body = body.body.concat (temp.body);
+			else
+				body.body.push (temp);
+
+			left.declarations.length = 1;
 		} else if (left.type === 'SequenceExpression' && left.expressions.length === 2){
 			temp = body;
 
 			body = {
-                type: 'BlockStatement',
-                body: [
-                    {
-                        type: 'ExpressionStatement',
-                        expression: {
-                            type: 'AssignmentExpression',
-                            operator: '=',
-                            left: left.expressions [1],
-                            right: {
-                                type: 'MemberExpression',
-                                computed: true,
-                                object: right,
-                                property: left.expressions [0]
-                            }
-                        }
-                    }
-                ]
-            };
+				type: 'BlockStatement',
+				body: [
+					{
+						type: 'ExpressionStatement',
+						expression: {
+							type: 'AssignmentExpression',
+							operator: '=',
+							left: left.expressions [1],
+							right: {
+								type: 'MemberExpression',
+								computed: true,
+								object: right,
+								property: left.expressions [0]
+							}
+						}
+					}
+				]
+			};
 
-            if (temp.type === 'BlockStatement')
-            	body.body = body.body.concat (temp.body);
-            else
-            	body.body.push (temp);
+			if (temp.type === 'BlockStatement')
+				body.body = body.body.concat (temp.body);
+			else
+				body.body.push (temp);
 
 			left = left.expressions [0];
 		}
