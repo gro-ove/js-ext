@@ -8,7 +8,7 @@
 
 		if (matchAssign ()){
 			if (!isLeftHandSide (expr))
-				throwErrorTolerant ({}, Messages.InvalidLHSInAssignment);
+				throwError ({}, Messages.InvalidLHSInAssignment);
 
 			expr = {
 				type: 		Syntax.AssignmentExpression,

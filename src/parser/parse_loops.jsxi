@@ -83,7 +83,7 @@
 				if (matchKeyword ('in-array') && (arrayMode = 1) || matchKeyword ('in')){
 					// LeftHandSideExpression
 					if (!isLeftHandSide (init) && (init.type != 'SequenceExpression' || init.expressions.length != 2))
-						throwErrorTolerant ({}, Messages.InvalidLHSInForIn);
+						throwError ({}, Messages.InvalidLHSInForIn);
 
 					lex ();
 					left 	= init;

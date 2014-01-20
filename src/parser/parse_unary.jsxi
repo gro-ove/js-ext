@@ -1,4 +1,5 @@
 	// 11.4 Unary Operators
+
 	function parseUnaryExpression (){
 		var token, expr;
 
@@ -12,7 +13,7 @@
 			expr = parseUnaryExpression ();
 
 			if (!isLeftHandSide (expr))
-				throwErrorTolerant ({}, Messages.InvalidLHSInAssignment);
+				throwError ({}, Messages.InvalidLHSInAssignment);
 
 			return {
 				type: 		Syntax.UpdateExpression,

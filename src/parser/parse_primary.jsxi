@@ -1,4 +1,5 @@
 	// 11.1 Primary Expressions
+	
 	function parsePrimaryExpression (){
 		var token = lookahead (),
 			type = token.type;

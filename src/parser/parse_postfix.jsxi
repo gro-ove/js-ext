@@ -1,4 +1,5 @@
 	// 11.3 Postfix Expressions
+	
 	function parsePostfixExpression (){
 		var expr = parseLeftHandSideExpressionAllowCall (), token;
 
@@ -8,7 +9,7 @@
 
 		if ((match ('++') || match ('--')) && !peekLineTerminator ()){
 			if (!isLeftHandSide (expr))
-				throwErrorTolerant ({}, Messages.InvalidLHSInAssignment);
+				throwError ({}, Messages.InvalidLHSInAssignment);
 
 			expr = {
 				type:       Syntax.UpdateExpression,
