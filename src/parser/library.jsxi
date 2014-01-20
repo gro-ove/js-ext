@@ -1,7 +1,7 @@
 	// Temporary
 
 	var Token, PropertyKind, TokenName, Syntax, Messages, Regex,
-		source, index, lineNumber, lineStart, length, buffer, state, extra, information
+		source, index, lineNumber, lineStart, length, buffer, state, extra, information;
 
 	Token = {
 		BooleanLiteral: 	1,
