@@ -1,4 +1,5 @@
 	// 12.1 Block
+	
 	function parseStatementList (){
 		var list = [],
 			statement;

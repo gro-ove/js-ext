@@ -1,4 +1,5 @@
 	// 7.6.1.1 Keywords
+
 	function isKeyword (id){
 		var keyword = false;
 
@@ -36,6 +37,7 @@
 	}
 
 	// 7.6.1.2 Future Reserved Words
+
 	function isFutureReservedWord (id)
 		switch (id){
 			// Future reserved words.
@@ -49,6 +51,3 @@
 			default:
 				return false;
 		}
-
-	//function isRestrictedWord (id)
-	//	return id === 'eval' || id === 'arguments';
