@@ -1,5 +1,12 @@
-for (var n in a){} 
-for (var n, k in a){}
+for (var KEY in OBJECT){ OPERATION } 
+for (var KEY, VALUE in OBJECT){ OPERATION }
 
-for (var n in-array a){}
-for (var n, v in-array a){}
+for (KEY in OBJECT){ OPERATION } 
+for (KEY, VALUE in OBJECT){ OPERATION }
+
+for (KEY, VALUE in OBJECT) OPERATION;
+
+for (var KEY in OBJECT){ var VALUE = OBJECT [KEY] } 
+
+//for (var n in-array a){}
+//for (var n, v in-array a){}
