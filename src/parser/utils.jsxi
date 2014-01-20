@@ -55,7 +55,7 @@
 		if (typeof token !== 'undefined')
 			return token;
 
-		ch = source[index];
+		ch = source [index];
 		if (ch === '\'' || ch === '"' || ch === '`') 
 			return scanStringLiteral ();
 
