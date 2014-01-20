@@ -2,6 +2,17 @@
 	function newIdentifier ()
 		return '__t_' + lastIdentifier ++;
 
+	function clone (obj)
+		if (obj instanceof Array){
+			return obj.slice ();
+		} else if (typeof obj === 'object'){
+			var result = {};
+
+			for (var n, v in obj)
+				result [n] = clone (v);
+		} else
+			return obj;
+
 	function advance (){
 		var ch, token;
 
