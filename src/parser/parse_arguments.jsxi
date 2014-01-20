@@ -1,22 +1,21 @@
+	// 11.2 Left-Hand-Side Expressions
 
-    // 11.2 Left-Hand-Side Expressions
+	function parseArguments (){
+		var args = [];
 
-    function parseArguments() {
-        var args = [];
+		expect ('(');
 
-        expect('(');
+		if (!match (')'))
+			while (index < length){
+				args.push (parseAssignmentExpression ());
 
-        if (!match(')')) {
-            while (index < length) {
-                args.push(parseAssignmentExpression());
-                if (match(')')) {
-                    break;
-                }
-                expect(',');
-            }
-        }
+				if (match (')')) 
+					break;
 
-        expect(')');
+				expect (',');
+			}
 
-        return args;
-    }
+		expect (')');
+
+		return args;
+	}
