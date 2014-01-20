@@ -21,7 +21,8 @@ module Parser {
 		buffer          = null;
 		state 			= { allowIn: true, preventSequence: false };
 		extra 			= {};
-		
+		information		= { comments: {} };
+
 		if (typeof options !== 'undefined'){
 			extra.range 	= !!options.range;
 			extra.loc 		= !!options.loc;
@@ -29,9 +30,6 @@ module Parser {
 
 			if (options.tokens) 
 				extra.tokens = [];
-
-			if (options.comment) 
-				extra.comments = [];
 
 			if (options.tolerant) 
 				extra.errors = [];
@@ -41,10 +39,8 @@ module Parser {
 		try {
 			program = parseProgram ();
 
-			if (typeof extra.comments !== 'undefined') {
-				filterCommentLocation ();
-				program.comments = extra.comments;
-			}
+			if (options && options.information)
+				program.information = information;
 
 			if (typeof extra.tokens !== 'undefined'){
 				filterTokenLocation ();

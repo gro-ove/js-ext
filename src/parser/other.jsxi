@@ -89,13 +89,7 @@
     }
 
     function patch() {
-
         var wrapTracking;
-
-        if (extra.comments) {
-            extra.skipComment = skipComment;
-            skipComment = scanComment;
-        }
 
         if (extra.raw) {
             extra.createLiteral = createLiteral;
@@ -195,10 +189,6 @@
     }
 
     function unpatch() {
-        if (typeof extra.skipComment === 'function') {
-            skipComment = extra.skipComment;
-        }
-
         if (extra.raw) {
             createLiteral = extra.createLiteral;
         }

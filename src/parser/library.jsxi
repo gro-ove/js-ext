@@ -13,7 +13,8 @@
 		length,
 		buffer,
 		state,
-		extra;
+		extra,
+		information;
 
 	Token = {
 		BooleanLiteral: 1,

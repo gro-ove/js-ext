@@ -1,230 +1,229 @@
-    // 7.4 Comments
-    function skipComment (){
-        var ch, blockComment, lineComment;
+	// 7.4 Comments
 
-        blockComment = false;
-        lineComment = false;
+	function saveComment (mode, key, value){
+		if (!information [mode])
+			information [mode] = [];
+		
+		information [mode].push ({ 
+			key: 	key, 
+			value: 	value === undefined ? true : value 
+		});
+	}
 
-        while (index < length){
-            ch = source [index];
+	function skipComment (){
+		var ch, start, blockComment, lineComment, lineCommentFrom, temp, matched;
 
-            if (lineComment){
-                ch = source [index ++];
-                if (isLineTerminator (ch)){
-                    lineComment = false;
-                    if (ch === '\r' && source [index] === '\n') 
-                        ++ index;
-                    ++ lineNumber;
-                    lineStart = index;
-                }
-            } else if (blockComment){
-                if (isLineTerminator (ch)){
-                    if (ch === '\r' && source [index + 1] === '\n')
-                        ++ index;
-                    ++ lineNumber;
-                    ++ index;
-                    lineStart = index;
-                    if (index >= length)
-                        throwError ({}, Messages.UnexpectedToken, 'ILLEGAL');
-                } else {
-                    ch = source [index ++];
-                    if (index >= length)
-                        throwError ({}, Messages.UnexpectedToken, 'ILLEGAL');
-                    if (ch === '*') 
-                        ch = source [index];
-                        if (ch === '/'){
-                            ++ index;
-                            blockComment = false;
-                        }
-                }
-            } else if (ch === '/'){
-                ch = source [index + 1];
-                if (ch === '/'){
-                    index += 2;
-                    lineComment = true;
-                } else if (ch === '*'){
-                    index += 2;
-                    blockComment = true;
-                    if (index >= length) 
-                        throwError ({}, Messages.UnexpectedToken, 'ILLEGAL');
-                } else 
-                    break;
-            } else if (isWhiteSpace (ch)) {
-                ++ index;
-            } else if (isLineTerminator (ch)){
-                ++ index;
-                if (ch ===  '\r' && source [index] === '\n') 
-                    ++ index;
-                ++ lineNumber;
-                lineStart = index;
-            } else 
-                break;
-        }
-    }
+		blockComment = false;
+		lineComment = false;
+		specialMode = false;
 
-    // The following functions are needed only when the option to preserve
-    // the comments is active.
+		while (index < length){
+			ch = source [index];
 
-    function addComment(type, value, start, end, loc) {
-        assert(typeof start === 'number', 'Comment must have valid position');
+			if (lineComment){
+				ch = source [index ++];
+				if (isLineTerminator (ch)){
+					temp = source.substring (lineCommentFrom, index - 1).trim ();
 
-        // Because the way the actual token is scanned, often the comments
-        // (if any) are skipped twice during the lexical analysis.
-        // Thus, we need to skip adding a comment if the comment array already
-        // handled it.
-        if (extra.comments.length > 0) {
-            if (extra.comments[extra.comments.length - 1].range[1] > start) {
-                return;
-            }
-        }
+					if (!specialMode){
+						matched = temp.match (/^==([^=]+)==$/);
+						if (matched)
+							specialMode = matched [1];
+					} else if (temp [0] == '@'){
+						temp = temp.match (/@([^\s]+)(?:\s+([\s\S]+))?/);
+						saveComment (specialMode, temp [1], temp [2]);
+					} else if (temp === '==/' + specialMode + '=='){
+						specialMode = false;
+					}
 
-        extra.comments.push({
-            type: type,
-            value: value,
-            range: [start, end],
-            loc: loc
-        });
-    }
+					lineComment = false;
+					if (ch === '\r' && source [index] === '\n') 
+						++ index;
+					++ lineNumber;
+					lineStart = index;
+				}
+			} else if (blockComment){
+				if (isLineTerminator (ch)){
+					if (ch === '\r' && source [index + 1] === '\n')
+						++ index;
+					++ lineNumber;
+					++ index;
+					lineStart = index;
+					if (index >= length)
+						throwError ({}, Messages.UnexpectedToken, 'ILLEGAL');
+				} else {
+					ch = source [index ++];
+					if (index >= length)
+						throwError ({}, Messages.UnexpectedToken, 'ILLEGAL');
+					if (ch === '*') 
+						ch = source [index];
+						if (ch === '/'){
+							++ index;
+							blockComment = false;
+						}
+				}
+			} else if (ch === '/'){
+				ch = source [index + 1];
+				if (ch === '/'){
+					index += 2;
+					lineCommentFrom = index;
+					lineComment = true;
+				} else if (ch === '*'){
+					index += 2;
+					blockComment = true;
+					if (index >= length) 
+						throwError ({}, Messages.UnexpectedToken, 'ILLEGAL');
+				} else 
+					break;
+			} else if (isWhiteSpace (ch)) {
+				++ index;
+			} else if (isLineTerminator (ch)){
+				++ index;
+				if (ch ===  '\r' && source [index] === '\n') 
+					++ index;
+				++ lineNumber;
+				lineStart = index;
+			} else 
+				break;
+		}
+	}
 
-    function scanComment() {
-        var comment, ch, loc, start, blockComment, lineComment;
+	// The following functions are needed only when the option to preserve
+	// the comments is active.
+	function addComment (type, value, start, end, loc){
+		assert (typeof start === 'number', 'Comment must have valid position');
 
-        comment = '';
-        blockComment = false;
-        lineComment = false;
+		// Because the way the actual token is scanned, often the comments
+		// (if any) are skipped twice during the lexical analysis.
+		// Thus, we need to skip adding a comment if the comment array already
+		// handled it.
+		if (extra.comments.length > 0 && extra.comments [extra.comments.length - 1].range [1] > start)
+			return;
 
-        while (index < length) {
-            ch = source[index];
+		extra.comments.push ({
+			type: 	type,
+			value: 	value,
+			range: 	[ start, end ],
+			loc: 	loc
+		});
+	}
 
-            if (lineComment) {
-                ch = source[index++];
-                if (isLineTerminator(ch)) {
-                    loc.end = {
-                        line: lineNumber,
-                        column: index - lineStart - 1
-                    };
-                    lineComment = false;
-                    addComment('Line', comment, start, index - 1, loc);
-                    if (ch === '\r' && source[index] === '\n') {
-                        ++index;
-                    }
-                    ++lineNumber;
-                    lineStart = index;
-                    comment = '';
-                } else if (index >= length) {
-                    lineComment = false;
-                    comment += ch;
-                    loc.end = {
-                        line: lineNumber,
-                        column: length - lineStart
-                    };
-                    addComment('Line', comment, start, length, loc);
-                } else {
-                    comment += ch;
-                }
-            } else if (blockComment) {
-                if (isLineTerminator(ch)) {
-                    if (ch === '\r' && source[index + 1] === '\n') {
-                        ++index;
-                        comment += '\r\n';
-                    } else {
-                        comment += ch;
-                    }
-                    ++lineNumber;
-                    ++index;
-                    lineStart = index;
-                    if (index >= length) {
-                        throwError({}, Messages.UnexpectedToken, 'ILLEGAL');
-                    }
-                } else {
-                    ch = source[index++];
-                    if (index >= length) {
-                        throwError({}, Messages.UnexpectedToken, 'ILLEGAL');
-                    }
-                    comment += ch;
-                    if (ch === '*') {
-                        ch = source[index];
-                        if (ch === '/') {
-                            comment = comment.substr(0, comment.length - 1);
-                            blockComment = false;
-                            ++index;
-                            loc.end = {
-                                line: lineNumber,
-                                column: index - lineStart
-                            };
-                            addComment('Block', comment, start, index, loc);
-                            comment = '';
-                        }
-                    }
-                }
-            } else if (ch === '/') {
-                ch = source[index + 1];
-                if (ch === '/') {
-                    loc = {
-                        start: {
-                            line: lineNumber,
-                            column: index - lineStart
-                        }
-                    };
-                    start = index;
-                    index += 2;
-                    lineComment = true;
-                    if (index >= length) {
-                        loc.end = {
-                            line: lineNumber,
-                            column: index - lineStart
-                        };
-                        lineComment = false;
-                        addComment('Line', comment, start, index, loc);
-                    }
-                } else if (ch === '*') {
-                    start = index;
-                    index += 2;
-                    blockComment = true;
-                    loc = {
-                        start: {
-                            line: lineNumber,
-                            column: index - lineStart - 2
-                        }
-                    };
-                    if (index >= length) {
-                        throwError({}, Messages.UnexpectedToken, 'ILLEGAL');
-                    }
-                } else {
-                    break;
-                }
-            } else if (isWhiteSpace(ch)) {
-                ++index;
-            } else if (isLineTerminator(ch)) {
-                ++index;
-                if (ch ===  '\r' && source[index] === '\n') {
-                    ++index;
-                }
-                ++lineNumber;
-                lineStart = index;
-            } else {
-                break;
-            }
-        }
-    }
+	function scanComment (){
+		var comment, ch, loc, start, blockComment, lineComment;
 
-    function filterCommentLocation() {
-        var i, entry, comment, comments = [];
+		comment = '';
+		blockComment = false;
+		lineComment = false;
 
-        for (i = 0; i < extra.comments.length; ++i) {
-            entry = extra.comments[i];
-            comment = {
-                type: entry.type,
-                value: entry.value
-            };
-            if (extra.range) {
-                comment.range = entry.range;
-            }
-            if (extra.loc) {
-                comment.loc = entry.loc;
-            }
-            comments.push(comment);
-        }
+		while (index < length){
+			ch = source[index];
 
-        extra.comments = comments;
-    }
+			if (lineComment){
+				ch = source [index ++];
+				if (isLineTerminator (ch)){
+					loc.end = {
+						line: 		lineNumber,
+						column: 	index - lineStart - 1
+					};
+					lineComment = false;
+					addComment ('Line', comment, start, index - 1, loc);
+					if (ch === '\r' && source [index] === '\n')
+						++ index;
+					++ lineNumber;
+					lineStart = index;
+					comment = '';
+				} else if (index >= length){
+					lineComment = false;
+					comment += ch;
+					loc.end = {
+						line: 		lineNumber,
+						column: 	length - lineStart
+					};
+					addComment ('Line', comment, start, length, loc);
+				} else 
+					comment += ch;
+			} else if (blockComment) {
+				if (isLineTerminator(ch)) {
+					if (ch === '\r' && source[index + 1] === '\n') {
+						++index;
+						comment += '\r\n';
+					} else {
+						comment += ch;
+					}
+					++lineNumber;
+					++index;
+					lineStart = index;
+					if (index >= length) {
+						throwError({}, Messages.UnexpectedToken, 'ILLEGAL');
+					}
+				} else {
+					ch = source[index++];
+					if (index >= length) {
+						throwError({}, Messages.UnexpectedToken, 'ILLEGAL');
+					}
+					comment += ch;
+					if (ch === '*') {
+						ch = source[index];
+						if (ch === '/') {
+							comment = comment.substr(0, comment.length - 1);
+							blockComment = false;
+							++index;
+							loc.end = {
+								line: lineNumber,
+								column: index - lineStart
+							};
+							addComment('Block', comment, start, index, loc);
+							comment = '';
+						}
+					}
+				}
+			} else if (ch === '/') {
+				ch = source[index + 1];
+				if (ch === '/') {
+					loc = {
+						start: {
+							line: lineNumber,
+							column: index - lineStart
+						}
+					};
+					start = index;
+					index += 2;
+					lineComment = true;
+					if (index >= length) {
+						loc.end = {
+							line: lineNumber,
+							column: index - lineStart
+						};
+						lineComment = false;
+						addComment('Line', comment, start, index, loc);
+					}
+				} else if (ch === '*') {
+					start = index;
+					index += 2;
+					blockComment = true;
+					loc = {
+						start: {
+							line: lineNumber,
+							column: index - lineStart - 2
+						}
+					};
+					if (index >= length) {
+						throwError({}, Messages.UnexpectedToken, 'ILLEGAL');
+					}
+				} else {
+					break;
+				}
+			} else if (isWhiteSpace(ch)) {
+				++index;
+			} else if (isLineTerminator(ch)) {
+				++index;
+				if (ch ===  '\r' && source[index] === '\n') {
+					++index;
+				}
+				++lineNumber;
+				lineStart = index;
+			} else {
+				break;
+			}
+		}
+	}
