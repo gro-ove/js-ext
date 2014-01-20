@@ -1,13 +1,7 @@
-// for (var KEY in OBJECT){ OPERATION } 
-// for (var KEY, VALUE in OBJECT){ OPERATION }
+// for (var POSITION in-array ARRAY){ OPERATION }
+// for (var POSITION, VALUE in-array ARRAY){ OPERATION }
 
-// for (KEY in OBJECT){ OPERATION } 
-// for (KEY, VALUE in OBJECT){ OPERATION }
+// for (POSITION in-array ARRAY){ OPERATION }
+// for (POSITION, VALUE in-array ARRAY){ OPERATION }
 
-// for (var KEY, VALUE in OBJECT) OPERATION;
-// for (KEY, VALUE in OBJECT) OPERATION;
-
-// for (var KEY in OBJECT){ var VALUE = OBJECT [KEY] } 
-
-for (var KEY, VALUE in COMPLEX_OBJECT.TEST){ OPERATION }
-for (var KEY, VALUE in COMPLEX_OBJECT ()){ OPERATION }
+for (var POSITION in-array ARRAY){ OPERATION }
