@@ -60,16 +60,31 @@
 		});
 	}
 
+	function parseSourceElement (){
+		var token = lookahead ();
+
+		if (token.type === Token.Keyword)
+			switch (token.value){
+				case 'function':
+					return parseFunctionDeclaration ();
+				default:
+					return parseStatement ();
+			}
+
+		if (token.type !== Token.EOF) 
+			return parseStatement ();
+	}
+
 	function parseFunctionSourceElements (){
 		var sourceElement, 
 			oldPreventSequence,
 			sourceElements = [];
 
-		oldPreventSequence = state.preventSequence;
-		state.preventSequence = false;
-
 		if (match ('{')){
 			expect ('{');
+
+			oldPreventSequence = state.preventSequence;
+			state.preventSequence = false;
 
 			while (index < length){
 				if (match ('}'))
@@ -80,11 +95,11 @@
 				sourceElements.push (sourceElement);
 			}
 
+			state.preventSequence = oldPreventSequence;
+
 			expect ('}');
 		} else 
 			sourceElements.push (parseSourceElement ());
-
-		state.preventSequence = oldPreventSequence;
 
 		return {
 			type: 	Syntax.BlockStatement,
@@ -93,7 +108,7 @@
 	}
 
 	function parseFunctionDeclaration (){
-		var id, param, params = [], defaults = [], body, token;
+		var id, params = [], defaults = [], body, token;
 
 		expectKeyword ('function');
 

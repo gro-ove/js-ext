@@ -17,7 +17,7 @@
 				keyword = (id === 'while') || (id === 'break') || (id === 'catch') || (id === 'throw');
 				break;
 			case 6:
-				keyword = (id === 'return') || (id === 'typeof') || (id === 'delete') || (id === 'switch') || (id === 'lambda');
+				keyword = (id === 'return') || (id === 'typeof') || (id === 'delete') || (id === 'switch') || (id === 'lambda') || (id === 'module');
 				break;
 			case 7:
 				keyword = (id === 'default') || (id === 'finally');

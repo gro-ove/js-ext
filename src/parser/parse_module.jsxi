@@ -1,0 +1,167 @@
+	function createModule (name){
+		var moduleFnName = '__m';
+
+		return {
+            type: 'ExpressionStatement',
+            expression: {
+                type: 'CallExpression',
+                callee: {
+                    type: 'Identifier',
+                    name: moduleFnName
+                },
+                arguments: [
+                    {
+                        type: 'Literal',
+                        value: name
+                    },
+                    {
+                        type: 'FunctionExpression',
+                        id: null,
+                        params: [],
+                        defaults: [],
+                        body: {
+                            type: 'BlockStatement',
+                            body: [
+                               /* {
+                                    type: VariableDeclaration,
+                                    declarations: [
+                                        {
+                                            type: VariableDeclarator,
+                                            id: {
+                                                type: Identifier,
+                                                name: a
+                                            },
+                                            init: {
+                                                type: Literal,
+                                                value: 18
+                                            }
+                                        },
+                                        {
+                                            type: VariableDeclarator,
+                                            id: {
+                                                type: Identifier,
+                                                name: b
+                                            },
+                                            init: null
+                                        }
+                                    ],
+                                    kind: var
+                                },
+                                {
+                                    type: FunctionDeclaration,
+                                    id: {
+                                        type: Identifier,
+                                        name: init
+                                    },
+                                    params: [],
+                                    defaults: [],
+                                    body: {
+                                        type: BlockStatement,
+                                        body: []
+                                    },
+                                    rest: null,
+                                    generator: false,
+                                    expression: false
+                                },
+                                {
+                                    type: ReturnStatement,
+                                    argument: {
+                                        type: ObjectExpression,
+                                        properties: [
+                                            {
+                                                type: Property,
+                                                key: {
+                                                    type: Identifier,
+                                                    name: __s
+                                                },
+                                                value: {
+                                                    type: FunctionExpression,
+                                                    id: null,
+                                                    params: [],
+                                                    defaults: [],
+                                                    body: {
+                                                        type: BlockStatement,
+                                                        body: [
+                                                            {
+                                                                type: ExpressionStatement,
+                                                                expression: {
+                                                                    type: AssignmentExpression,
+                                                                    operator:=,
+                                                                    left: {
+                                                                        type:Identifier,
+                                                                        name:b
+                                                                    },
+                                                                    right: {
+                                                                        type: MemberExpression,
+                                                                        computed: false,
+                                                                        object: {
+                                                                            type: Identifier,
+                                                                            name: B
+                                                                        },
+                                                                        property: {
+                                                                            type: Identifier,
+                                                                            name: variable
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        ]
+                                                    },
+                                                    rest: null,
+                                                    generator: false,
+                                                    expression: false
+                                                },
+                                                kind: init
+                                            },
+                                            {
+                                                type: Property,
+                                                key: {
+                                                    type: Identifier,
+                                                    name: __i
+                                                },
+                                                value: {
+                                                    type: Identifier,
+                                                    name: init
+                                                },
+                                                kind: init
+                                            }
+                                        ]
+                                    }
+                                }*/
+                            ]
+                        },
+                        rest: null,
+                        generator: false,
+                        expression: false
+                    }
+                ]
+            }
+        };
+	}
+
+	function parseModuleSourceElements (){
+		return parseFunctionSourceElements ();
+	}
+
+	function parseModuleDeclaration (){
+		var id, body, token;
+
+		expectKeyword ('module');
+
+		token 	= lookahead ();
+		id 		= parseVariableIdentifier ();
+		body 	= parseModuleSourceElements ();
+
+		return createModule (id.name);
+
+		/*{
+			type: 			Syntax.FunctionDeclaration,
+			id: 			id,
+			params: 		[],
+			defaults: 		[],
+			body: 			body,
+			rest: 			null,
+			generator: 		false,
+			expression: 	false
+		};*/
+	}

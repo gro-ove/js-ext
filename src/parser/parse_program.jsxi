@@ -1,10 +1,12 @@
 	// 14 Program
 
-	function parseSourceElement (){
+	function parseProgramElement (){
 		var token = lookahead ();
 
 		if (token.type === Token.Keyword)
 			switch (token.value){
+				case 'module':
+					return parseModuleDeclaration ();
 				case 'function':
 					return parseFunctionDeclaration ();
 				default:
@@ -15,7 +17,7 @@
 			return parseStatement ();
 	}
 
-	function parseSourceElements (){
+	function parseProgramElements (){
 		var sourceElement, sourceElements = [], token, directive;
 
 		while (index < length){
@@ -24,7 +26,7 @@
 			if (token.type !== Token.StringLiteral)
 				break;
 
-			sourceElement = parseSourceElement ();
+			sourceElement = parseProgramElement ();
 			sourceElements.push (sourceElement);
 
 			if (sourceElement.expression.type !== Syntax.Literal)
@@ -34,7 +36,7 @@
 		}
 
 		while (index < length) {
-			sourceElement = parseSourceElement ();
+			sourceElement = parseProgramElement ();
 			if (typeof sourceElement === 'undefined') 
 				break;
 			sourceElements.push (sourceElement);
@@ -46,5 +48,5 @@
 	function parseProgram ()
 		return program = {
 			type: Syntax.Program,
-			body: parseSourceElements ()
+			body: parseProgramElements ()
 		};
