@@ -127,7 +127,7 @@
 
 			properties.push (property);
 
-			if (!match ('}') && match (','))
+			if (!match ('}'))
 				expect (',');
 		}
 

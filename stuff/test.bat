@@ -7,5 +7,5 @@ node build\js-ext.temp.js stuff\test-arguments.jsx -l 4568
 node build\js-ext.temp.js stuff\test-for-in-loops.jsx -l 19845
 node build\js-ext.temp.js stuff\test-for-in-array-loops.jsx -l 13719
 node build\js-ext.temp.js stuff\test-try.jsx -l 9875
-node build\js-ext.temp.js stuff\test-commafree.jsx -l 9476
+:: node build\js-ext.temp.js stuff\test-commafree.jsx -l 9476
 node build\js-ext.temp.js stuff\current.jsx
