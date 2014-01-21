@@ -15,8 +15,8 @@
 						: {
 							type: 	'VariableDeclarator',
 							id: 	arg.id
-						})
-				}
+						}
+				)
 			)
 		);
 
