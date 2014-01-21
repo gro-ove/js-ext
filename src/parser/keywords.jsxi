@@ -8,19 +8,19 @@
 				keyword = (id === 'if') || (id === 'in') || (id === 'do');
 				break;
 			case 3:
-				keyword = (id === 'var') || (id === 'for') || (id === 'new') || (id === 'try');
+				keyword = (id === 'var') || (id === 'for') || (id === 'new') || (id === 'try') || (id === 'use');
 				break;
 			case 4:
 				keyword = (id === 'this') || (id === 'else') || (id === 'case') || (id === 'void') || (id === 'with');
 				break;
 			case 5:
-				keyword = (id === 'while') || (id === 'break') || (id === 'catch') || (id === 'throw');
+				keyword = (id === 'while') || (id === 'break') || (id === 'catch') || (id === 'throw') || (id === 'class');
 				break;
 			case 6:
-				keyword = (id === 'return') || (id === 'typeof') || (id === 'delete') || (id === 'switch') || (id === 'lambda') || (id === 'module');
+				keyword = (id === 'return') || (id === 'typeof') || (id === 'delete') || (id === 'switch') || (id === 'lambda') || (id === 'static') || (id === 'public');
 				break;
 			case 7:
-				keyword = (id === 'default') || (id === 'finally');
+				keyword = (id === 'default') || (id === 'finally') || (id === 'private');
 				break;
 			case 8:
 				keyword = (id === 'function') || (id === 'continue') || (id === 'debugger');
@@ -41,10 +41,8 @@
 	function isFutureReservedWord (id)
 		switch (id){
 			// Future reserved words.
-			case 'class':
 			case 'enum':
 			case 'export':
-			case 'extends':
 			case 'import':
 			case 'super':
 				return true;
