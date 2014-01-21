@@ -1,5 +1,24 @@
-	function createModule (name){
+	function createModule (name, usedModules, variableDeclarations, functionDeclarations){
 		var moduleFnName = '__m';
+
+		var independVariableDeclarations = {
+			type: 'VariableDeclaration',
+			declarations: [],
+			kind: 'var'
+		};
+
+		variableDeclarations.forEach (
+			lambda arg.declarations.forEach (
+				lambda independVariableDeclarations.declarations.push (
+					!arg.init || arg.init.type === 'Literal'
+						? arg
+						: {
+							type: 	'VariableDeclarator',
+							id: 	arg.id
+						})
+				}
+			)
+		);
 
 		return {
             type: 'ExpressionStatement',
@@ -22,6 +41,9 @@
                         body: {
                             type: 'BlockStatement',
                             body: [
+                            	independVariableDeclarations
+                            ].concat (functionDeclarations)
+
                                /* {
                                     type: VariableDeclaration,
                                     declarations: [
@@ -128,7 +150,6 @@
                                         ]
                                     }
                                 }*/
-                            ]
                         },
                         rest: null,
                         generator: false,
@@ -140,28 +161,72 @@
 	}
 
 	function parseModuleSourceElements (){
-		return parseFunctionSourceElements ();
+		var sourceElement,
+			usedModules = [],
+			variableDeclarations = [],
+			functionDeclarations = [];
+
+		expect ('{');
+
+		while (index < length){
+			if (match ('}'))
+				break;
+
+			var token = lookahead ();
+
+			if (token.type === Token.Keyword)
+				switch (token.value){
+					case 'function':
+						functionDeclarations.push (parseFunctionDeclaration ());
+						continue;
+					case 'var':
+						variableDeclarations.push (parseStatement ());
+						continue;
+				}
+
+			throwError ({}, 'Module can contain variabled and functions only');
+		}
+
+		expect ('}');
+
+		return {
+			type: 	Syntax.BlockStatement,
+			body: 	variableDeclarations.concat (functionDeclarations)
+		};
 	}
 
 	function parseModuleDeclaration (){
-		var id, body, token;
+		var id, 
+			usedModules = [],
+			variableDeclarations = [],
+			functionDeclarations = [];
 
 		expectKeyword ('module');
 
-		token 	= lookahead ();
-		id 		= parseVariableIdentifier ();
-		body 	= parseModuleSourceElements ();
+		id = parseVariableIdentifier ();
 
-		return createModule (id.name);
+		expect ('{');
 
-		/*{
-			type: 			Syntax.FunctionDeclaration,
-			id: 			id,
-			params: 		[],
-			defaults: 		[],
-			body: 			body,
-			rest: 			null,
-			generator: 		false,
-			expression: 	false
-		};*/
+		while (index < length){
+			if (match ('}'))
+				break;
+
+			var token = lookahead ();
+
+			if (token.type === Token.Keyword)
+				switch (token.value){
+					case 'function':
+						functionDeclarations.push (parseFunctionDeclaration ());
+						continue;
+					case 'var':
+						variableDeclarations.push (parseStatement ());
+						continue;
+				}
+
+			throwError ({}, 'Module can contain variabled and functions only');
+		}
+
+		expect ('}');
+
+		return createModule (id.name, usedModules, variableDeclarations, functionDeclarations);
 	}

@@ -7,17 +7,17 @@ module A {
 	}
 }
 
-__m ('A', function (){
-	var a = 18, b;
+// __m ('A', function (){
+// 	var a = 18, b;
 
-	function init (){
+// 	function init (){
 
-	}
+// 	}
 
-	return {
-		__s: function (){
-			b = B.variable;
-		},
-		__i: init
-	}
-});
+// 	return {
+// 		__s: function (){
+// 			b = B.variable;
+// 		},
+// 		__i: init
+// 	}
+// });
