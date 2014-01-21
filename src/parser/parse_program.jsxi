@@ -5,8 +5,8 @@
 
 		if (token.type === Token.Keyword)
 			switch (token.value){
-				case 'module':
-					return parseModuleDeclaration ();
+				case 'class':
+					return parseClassDeclaration ();
 				case 'function':
 					return parseFunctionDeclaration ();
 				default:

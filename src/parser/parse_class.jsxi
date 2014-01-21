@@ -1,4 +1,4 @@
-	function createModule (name, usedModules, variableDeclarations, functionDeclarations){
+	function createClass (name, usedClasses, variableDeclarations, functionDeclarations){
 		var moduleFnName = '__m';
 
 		var independVariableDeclarations = {
@@ -195,13 +195,34 @@
 		};
 	}
 
-	function parseModuleDeclaration (){
+	function parseUseStatement (){
+		var list = [];
+
+		expectKeyword ('use');
+
+		do {
+			list.push (parseVariableIdentifier ());
+			if (!match (','))
+				break;
+			lex ();
+		} while (index < length);
+
+		consumeSemicolon ();
+
+		return list;
+	}
+
+	function parseClassDeclaration (){
 		var id, 
-			usedModules = [],
+			token,
+			temp,
+			staticMode,
+			publicMode,
+			usedClasses = [],
 			variableDeclarations = [],
 			functionDeclarations = [];
 
-		expectKeyword ('module');
+		expectKeyword ('class');
 
 		id = parseVariableIdentifier ();
 
@@ -211,22 +232,108 @@
 			if (match ('}'))
 				break;
 
-			var token = lookahead ();
+			publicMode = undefined;
+			staticMode = false;
 
-			if (token.type === Token.Keyword)
+			if (matchKeyword ('static')){
+				staticMode = true;
+				lex ();
+			}
+
+			if (matchKeyword ('public')){
+				publicMode = 'public';
+				lex ();
+			}
+
+			if (matchKeyword ('protected')){
+				if (publicMode)
+					throwError ({}, 'WTF MAN?');
+				publicMode = 'protected';
+				lex ();
+			}
+
+			if (matchKeyword ('private')){
+				if (publicMode)
+					throwError ({}, 'WTF MAN?');
+				publicMode = 'private';
+				lex ();
+			}
+
+			if (matchKeyword ('static')){
+				if (staticMode)
+					throwError ({}, 'WTF MAN?');
+				staticMode = true;
+				lex ();
+			}
+
+			token = lookahead ();
+			temp = null;
+
+			if (token.type === Token.Keyword){
 				switch (token.value){
+					case 'use':
+						if (staticMode || publicMode)
+							throwError ({}, 'WTF MAN?');
+						temp = true;
+						usedClasses = usedClasses.concat (parseUseStatement ());
+						continue;
 					case 'function':
-						functionDeclarations.push (parseFunctionDeclaration ());
-						continue;
-					case 'var':
-						variableDeclarations.push (parseStatement ());
-						continue;
-				}
+						temp = parseFunctionDeclaration ();
+						functionDeclarations.push (temp);
 
-			throwError ({}, 'Module can contain variabled and functions only');
+						// TODO
+						// if (temp.id === 'constructor')
+						break;
+					case 'var':
+						temp = parseVariableStatement ();
+						variableDeclarations.push (temp);
+
+						// TODO
+						// if (temp.id === 'constructor')
+						break;
+				}
+			} else if (token.type === Token.Punctuator){
+				if (token.value === '{'){
+					temp = {
+						type: 			Syntax.FunctionExpression,
+						id: 			'constructor',
+						params: 		[],
+						defaults: 		[],
+						body: 			parseFunctionSourceElements (),
+						rest: 			null,
+						generator: 		false,
+						expression: 	false
+					};
+
+					functionDeclarations.push (temp);
+				} else if (token.value === '('){
+					temp = parseFunctionArguments ();
+
+					temp = {
+						type: 			Syntax.FunctionExpression,
+						id: 			'constructor',
+						params: 		temp,
+						defaults: 		[],
+						body: 			parseFunctionSourceElements (),
+						rest: 			null,
+						generator: 		false,
+						expression: 	false
+					};
+					
+					functionDeclarations.push (temp);
+				}
+			}
+
+			if (temp){
+				temp.staticMode = staticMode;
+				temp.publicMode = publicMode;
+			} else {
+				console.log (token, temp);
+				throwError ({}, 'Class can contain variabled and functions only');
+			}
 		}
 
 		expect ('}');
 
-		return createModule (id.name, usedModules, variableDeclarations, functionDeclarations);
+		return createClass (id.name, usedClasses, variableDeclarations, functionDeclarations);
 	}

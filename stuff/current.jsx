@@ -1,4 +1,4 @@
-/*class A {
+class A {
 	use B, C;
 
 	static var a = 18,
@@ -18,46 +18,46 @@
 
 	var local, temp, hi = 18;
 
-	A (arg){
-		local = arg;
-	}
-
-	public workThis (){
+	public function workThis (){
 		hi = hi + 1;
 	}
-}*/
 
-__m ('A', function (){
-	var a = 18, b;
-
-	function localFunction (){
-		doSomethingLocal ();
+	(arg){
+		local = arg;
 	}
+}
 
-	function workAllDay (){
-		doSomething ();
-	}
+// __m ('A', function (){
+// 	var a = 18, b;
 
-	return {
-		workAllDay: workAllDay,
-		__s: function (){
-			b = B.variable;
-		},
-		__i: function (){
-			a = a * C.test ();
-		},
-		__c: {
-			__i: function (arg){
-				this.local = arg;
-				this.hi = 18;
-			},
+// 	function localFunction (){
+// 		doSomethingLocal ();
+// 	}
 
-			workThis: function (){
-				this.hi = this.hi + 1;
-			}
-		}
-	}
-}, [ 'B', 'C' ]);
+// 	function workAllDay (){
+// 		doSomething ();
+// 	}
+
+// 	return {
+// 		workAllDay: workAllDay,
+// 		__s: function (){
+// 			b = B.variable;
+// 		},
+// 		__i: function (){
+// 			a = a * C.test ();
+// 		},
+// 		__c: {
+// 			__i: function (arg){
+// 				this.local = arg;
+// 				this.hi = 18;
+// 			},
+
+// 			workThis: function (){
+// 				this.hi = this.hi + 1;
+// 			}
+// 		}
+// 	}
+// }, [ 'B', 'C' ]);
 
 
 // __m ('A', function (){
