@@ -18,8 +18,21 @@ class A {
 
 	var local, temp, hi = 18;
 
+	private var pvar = 20;
+
 	public function workThis (){
 		hi = hi + 1;
+
+		var pvar = function (){
+			temp = temp * pvar;
+		};
+
+		pvar ();
+
+		return {
+			hi: hi + 1,
+			pvar: pvar
+		}
 	}
 
 	(arg){

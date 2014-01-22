@@ -1,0 +1,89 @@
+var classes;
+
+function addClass (name, uses, variables, data){
+	if (classes [name])
+		throwError ({}, 'WTF MAN?');
+
+	var variablesObject = {};
+	for (var v in-array variables){
+		variablesObject [v.name] = v.publicMode;
+	}
+
+	classes [name] = {
+		uses: 		uses,
+		variables: 	variablesObject,
+		data: 		data
+	}
+}
+
+function initClasses (){
+	classes = {};
+}
+
+function setupClasses (){
+	var variables, exclusions;
+
+	function updateExclusions (obj){
+		if (obj.type === 'FunctionDeclaration' || obj.type === 'FunctionExpression'){
+			exclusions = {};
+			updateExclusions (obj.body);
+		} else if (obj.type === 'VariableDeclarator'){
+			exclusions [obj.id.name] = true;
+		} else if (obj instanceof Array){
+			for (var i = 0; i < obj.length; i ++)
+				if (obj [i].type !== 'FunctionDeclaration' && obj [i].type !== 'FunctionExpression')
+					updateExclusions (obj [i]);
+		} else if (obj.type){
+			for (var n in obj)
+				if (obj [n].type !== 'FunctionDeclaration' && obj [n].type !== 'FunctionExpression')
+					updateExclusions (obj [n]);
+		}
+	}
+
+	function thisify (obj){
+		var oldExclusions, temp;
+
+		if (obj){
+			if (obj.type === 'FunctionDeclaration' || obj.type === 'FunctionExpression'){
+				oldExclusions = exclusions;
+				updateExclusions (obj);
+			}
+
+			if (obj.type === 'Identifier' && variables [obj.name] && !exclusions [obj.name]){
+				return {
+					type: 		'MemberExpression',
+					computed: 	false,
+					object: 	{ type: 'ThisExpression' },
+					property: 	{ type: 'Identifier', name: obj.name }
+				};
+			} else if (obj instanceof Array){
+				for (var i = 0; i < obj.length; i ++)
+					obj [i] = thisify (obj [i]) || obj [i];
+			} else if (obj.type === 'Property'){
+				obj.value = thisify (obj.value) || obj.value;
+			} else if (obj.type && obj.type !== 'MemberExpression'){
+				for (var n in obj)
+					obj [n] = thisify (obj [n]) || obj [n];
+			}
+
+			if (oldExclusions)
+				exclusions = oldExclusions;
+		}
+	}
+
+	for (var name, entry in classes){
+		var body 		= entry.data.expression.arguments [1].body.body,
+			obj 		= body [body.length - 1].argument.properties.filter (lambda arg.key.name === '@o')[0],
+			functions 	= obj.value.properties;
+
+		variables = entry.variables;
+		thisify (functions, entry.variables);
+
+		// console.json (functions);
+		// console.json (entry.variables);
+	}
+}
+
+function resetClasses (){
+	classes = undefined;
+}
