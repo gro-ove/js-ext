@@ -76,6 +76,11 @@ function setupClasses (){
 			obj 		= body [body.length - 1].argument.properties.filter (lambda arg.key.name === '@o')[0],
 			functions 	= obj.value.properties;
 
+		for (var use in-array entry.uses){
+			if (!classes [use])
+				throwError ({}, 'Using class not found: ' + use);
+		}
+
 		variables = entry.variables;
 		thisify (functions, entry.variables);
 

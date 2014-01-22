@@ -263,6 +263,9 @@
 
 		id = parseVariableIdentifier ();
 
+		if (matchKeyword ('extends'))
+			lex ();
+
 		expect ('{');
 
 		while (index < length){

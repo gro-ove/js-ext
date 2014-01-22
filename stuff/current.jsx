@@ -1,3 +1,13 @@
+class B {
+	static public var variable = JSON.stringify ({ key: 'value' });
+}
+
+class C {
+	static public function test (){
+		return 187;
+	}
+}
+
 class A {
 	use B, C;
 
@@ -19,6 +29,7 @@ class A {
 	var local, temp, hi = 18;
 
 	private var pvar = 20;
+	protected var provar = 25;
 
 	public function workThis (){
 		hi = hi + 1;
@@ -37,6 +48,12 @@ class A {
 
 	(arg){
 		local = arg;
+	}
+}
+
+class Child extends A {
+	public function blaBlaBla (){
+		local = 'LOCAL!' + provar;
 	}
 }
 
