@@ -20,7 +20,7 @@
 				keyword = (id === 'return') || (id === 'typeof') || (id === 'delete') || (id === 'switch') || (id === 'lambda') || (id === 'static') || (id === 'public');
 				break;
 			case 7:
-				keyword = (id === 'default') || (id === 'finally') || (id === 'private');
+				keyword = (id === 'default') || (id === 'finally') || (id === 'private') || (id === 'extends');
 				break;
 			case 8:
 				keyword = (id === 'function') || (id === 'continue') || (id === 'debugger');
