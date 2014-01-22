@@ -1,5 +1,5 @@
 	function createClass (name, usedClasses, variableDeclarations, functionDeclarations){
-		var moduleFnName = '__m';
+		var moduleFnName = '__m', returnProperties, objectVariables = [], objectConstructor, temp;
 
 		var independVariableDeclarations = {
 			type: 'VariableDeclaration',
@@ -7,7 +7,26 @@
 			kind: 'var'
 		};
 
-		variableDeclarations.forEach (
+		for (var entry in-array variableDeclarations)
+			if (entry.staticMode){
+				entry.declarations.forEach (
+					lambda independVariableDeclarations.declarations.push (
+						!arg.init || arg.init.type === 'Literal'
+							? arg
+							: {
+								type: 	'VariableDeclarator',
+								id: 	arg.id
+							}
+					)
+				);
+			} else {
+				entry.declarations.forEach (lambda {
+					arg.publicMode = entry.publicMode;
+					objectVariables.push (arg);
+				});
+			}
+
+		variableDeclarations.filter (lambda arg.staticMode).forEach (
 			lambda arg.declarations.forEach (
 				lambda independVariableDeclarations.declarations.push (
 					!arg.init || arg.init.type === 'Literal'
@@ -20,149 +39,179 @@
 			)
 		);
 
-		return {
-            type: 'ExpressionStatement',
-            expression: {
-                type: 'CallExpression',
-                callee: {
-                    type: 'Identifier',
-                    name: moduleFnName
-                },
-                arguments: [
-                    {
-                        type: 'Literal',
-                        value: name
-                    },
-                    {
-                        type: 'FunctionExpression',
-                        id: null,
-                        params: [],
-                        defaults: [],
-                        body: {
-                            type: 'BlockStatement',
-                            body: [
-                            	independVariableDeclarations
-                            ].concat (functionDeclarations)
+		variableDeclarations.filter (lambda !arg.staticMode).forEach (
+			lambda arg.declarations.forEach (
+				lambda independVariableDeclarations.declarations.push (
+					!arg.init || arg.init.type === 'Literal'
+						? arg
+						: {
+							type: 	'VariableDeclarator',
+							id: 	arg.id
+						}
+				)
+			)
+		);
 
-                               /* {
-                                    type: VariableDeclaration,
-                                    declarations: [
-                                        {
-                                            type: VariableDeclarator,
-                                            id: {
-                                                type: Identifier,
-                                                name: a
-                                            },
-                                            init: {
-                                                type: Literal,
-                                                value: 18
-                                            }
-                                        },
-                                        {
-                                            type: VariableDeclarator,
-                                            id: {
-                                                type: Identifier,
-                                                name: b
-                                            },
-                                            init: null
-                                        }
-                                    ],
-                                    kind: var
-                                },
-                                {
-                                    type: FunctionDeclaration,
-                                    id: {
-                                        type: Identifier,
-                                        name: init
-                                    },
-                                    params: [],
-                                    defaults: [],
-                                    body: {
-                                        type: BlockStatement,
-                                        body: []
-                                    },
-                                    rest: null,
-                                    generator: false,
-                                    expression: false
-                                },
-                                {
-                                    type: ReturnStatement,
-                                    argument: {
-                                        type: ObjectExpression,
-                                        properties: [
-                                            {
-                                                type: Property,
-                                                key: {
-                                                    type: Identifier,
-                                                    name: __s
-                                                },
-                                                value: {
-                                                    type: FunctionExpression,
-                                                    id: null,
-                                                    params: [],
-                                                    defaults: [],
-                                                    body: {
-                                                        type: BlockStatement,
-                                                        body: [
-                                                            {
-                                                                type: ExpressionStatement,
-                                                                expression: {
-                                                                    type: AssignmentExpression,
-                                                                    operator:=,
-                                                                    left: {
-                                                                        type:Identifier,
-                                                                        name:b
-                                                                    },
-                                                                    right: {
-                                                                        type: MemberExpression,
-                                                                        computed: false,
-                                                                        object: {
-                                                                            type: Identifier,
-                                                                            name: B
-                                                                        },
-                                                                        property: {
-                                                                            type: Identifier,
-                                                                            name: variable
-                                                                        }
-                                                                    }
-                                                                }
-                                                            }
-                                                        ]
-                                                    },
-                                                    rest: null,
-                                                    generator: false,
-                                                    expression: false
-                                                },
-                                                kind: init
-                                            },
-                                            {
-                                                type: Property,
-                                                key: {
-                                                    type: Identifier,
-                                                    name: __i
-                                                },
-                                                value: {
-                                                    type: Identifier,
-                                                    name: init
-                                                },
-                                                kind: init
-                                            }
-                                        ]
-                                    }
-                                }*/
-                        },
-                        rest: null,
-                        generator: false,
-                        expression: false
-                    }
-                ]
-            }
-        };
+		returnProperties = functionDeclarations
+			.filter (lambda arg.staticMode && arg.publicMode === 'public' && arg.id.name [0] !== '@')
+			.map (lambda {
+				type: 	'Property',
+				key: 	arg.id,
+				value: 	arg.id,
+				kind: 	'init'
+			});
+
+		returnProperties = returnProperties.concat (
+			functionDeclarations.filter (lambda arg.staticMode && arg.id.name [0] === '@').map (lambda {
+				var result = {
+					type: 	'Property',
+					key: 	arg.id,
+					value: 	arg,
+					kind: 	'init'
+				};
+
+				result.value.id = null;
+				return result;
+			})
+		);
+
+		if (!functionDeclarations.filter (lambda !arg.staticMode && arg.id.name === '@c')[0])
+			functionDeclarations.push ({
+				type: 			Syntax.FunctionExpression,
+				id: 			'@c',
+				params: 		[],
+				defaults: 		[],
+				body: 			{ type: 'BlockStatement', body: [] },
+				rest: 			null,
+				generator: 		false,
+				expression: 	false
+			});
+
+		returnProperties.push ({
+			type: 'Property',
+			key: {
+				type: 'Identifier',
+				name: '@o'
+			},
+			value: {
+				type: 'ObjectExpression',
+				properties: functionDeclarations.filter (lambda !arg.staticMode).map (lambda {
+					arg.type = Syntax.FunctionExpression;
+
+					if (arg.id.name === '@c'){
+						temp = objectVariables.map (lambda {
+							type: 'ExpressionStatement',
+							expression: {
+								type: 'AssignmentExpression',
+								operator: '=',
+								left: {
+									type: 'MemberExpression',
+									computed: false,
+									object: {
+										type: 'ThisExpression'
+									},
+									property: arg.id
+								},
+								right: arg.init || { 
+									type: 'Identifier',
+									name: 'undefined'
+								}
+							}
+						});
+
+						arg.body.body = temp.concat (arg.body.body);
+					}
+
+					var result = {
+						type: 	'Property',
+						key: 	arg.id,
+						value: 	arg,
+						kind: 	'init'
+					};
+
+					result.value.id = null;
+					return result;
+				})
+			}
+		});
+
+		// return {
+		// 	type: 'ExpressionStatement',
+		// 	expression: {
+		// 		type: 'CallExpression',
+		// 		callee: {
+		// 			type: 'Identifier',
+		// 			name: moduleFnName
+		// 		},
+		// 		arguments: [
+		// 			{
+		// 				type: 'Literal',
+		// 				value: name
+		// 			},
+		// 			{
+		// 				type: 'FunctionExpression',
+		// 				id: null,
+		// 				params: [],
+		// 				defaults: [],
+		// 				body: {
+		// 					type: 'BlockStatement',
+		// 					body: [
+		// 						independVariableDeclarations
+		// 					].concat (functionDeclarations)
+
+		return {
+			type: 'ExpressionStatement',
+			expression: {
+				type: 'CallExpression',
+				callee: {
+					type: 'Identifier',
+					name: moduleFnName
+				},
+				arguments: [
+					{
+						type: 'Literal',
+						value: name
+					},
+					{
+						type: 'FunctionExpression',
+						id: null,
+						params: [],
+						defaults: [],
+						body: {
+							type: 'BlockStatement',
+							body: [
+								independVariableDeclarations
+							].concat (
+								functionDeclarations.filter (lambda arg.staticMode && arg.id).map (lambda {
+									arg.type = Syntax.FunctionDeclaration;
+									return arg;
+								})
+							).concat ([
+								{
+									type: 'ReturnStatement',
+									argument: {
+										'type': 'ObjectExpression',
+										'properties': returnProperties
+									}
+								}
+							])
+						}
+					},
+					{
+						type: 'ArrayExpression',
+						elements: usedClasses.map (lambda {
+							type: 'Literal',
+							value: arg.name
+						})
+					}
+				]
+			}
+		};
 	}
 
 	function parseModuleSourceElements (){
 		var sourceElement,
-			usedModules = [],
+			usedClasses = [],
 			variableDeclarations = [],
 			functionDeclarations = [];
 
@@ -280,48 +329,30 @@
 					case 'function':
 						temp = parseFunctionDeclaration ();
 						functionDeclarations.push (temp);
-
-						// TODO
-						// if (temp.id === 'constructor')
 						break;
 					case 'var':
 						temp = parseVariableStatement ();
 						variableDeclarations.push (temp);
-
-						// TODO
-						// if (temp.id === 'constructor')
 						break;
 				}
-			} else if (token.type === Token.Punctuator){
-				if (token.value === '{'){
-					temp = {
-						type: 			Syntax.FunctionExpression,
-						id: 			'constructor',
-						params: 		[],
-						defaults: 		[],
-						body: 			parseFunctionSourceElements (),
-						rest: 			null,
-						generator: 		false,
-						expression: 	false
-					};
+			} else if (token.type === Token.Punctuator && token.value === '(' || token.value === '{'){
+				temp = token.value === '(' ? parseFunctionArguments () : [];
 
-					functionDeclarations.push (temp);
-				} else if (token.value === '('){
-					temp = parseFunctionArguments ();
+				temp = {
+					type: 			Syntax.FunctionExpression,
+					id: 			{
+										type: 'Identifier',
+										name: staticMode ? '@i' : '@c'
+									},
+					params: 		temp,
+					defaults: 		[],
+					body: 			parseFunctionSourceElements (),
+					rest: 			null,
+					generator: 		false,
+					expression: 	false
+				};
 
-					temp = {
-						type: 			Syntax.FunctionExpression,
-						id: 			'constructor',
-						params: 		temp,
-						defaults: 		[],
-						body: 			parseFunctionSourceElements (),
-						rest: 			null,
-						generator: 		false,
-						expression: 	false
-					};
-					
-					functionDeclarations.push (temp);
-				}
+				functionDeclarations.push (temp);
 			}
 
 			if (temp){

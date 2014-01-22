@@ -40,14 +40,14 @@ class A {
 
 // 	return {
 // 		workAllDay: workAllDay,
-// 		__s: function (){
+// 		@s: function (){
 // 			b = B.variable;
 // 		},
-// 		__i: function (){
+// 		@i: function (){
 // 			a = a * C.test ();
 // 		},
-// 		__c: {
-// 			__i: function (arg){
+// 		@c: {
+// 			@i: function (arg){
 // 				this.local = arg;
 // 				this.hi = 18;
 // 			},
