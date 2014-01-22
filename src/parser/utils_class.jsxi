@@ -1,6 +1,6 @@
 var classes;
 
-function addClass (name, uses, variables, data){
+function addClass (name, parent, uses, variables, data){
 	if (classes [name])
 		throwError ({}, 'WTF MAN?');
 
@@ -10,6 +10,7 @@ function addClass (name, uses, variables, data){
 	}
 
 	classes [name] = {
+		parent: 	parent,
 		uses: 		uses,
 		variables: 	variablesObject,
 		data: 		data

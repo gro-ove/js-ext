@@ -1,4 +1,4 @@
-	function createClass (name, usedClasses, variableDeclarations, functionDeclarations){
+	function createClass (name, parent, usedClasses, variableDeclarations, functionDeclarations){
 		var moduleFnName = '__m', returnProperties, objectVariables = [], initVariables = [], objectConstructor, temp;
 
 		var independVariableDeclarations = {
@@ -190,6 +190,7 @@
 
 		addClass (
 			name, 
+			parent,
 			usedClasses.map (lambda arg.name), 
 			objectVariables.map (lambda { name: arg.id.name, publicMode: arg.publicMode }), 
 			result);
@@ -251,6 +252,7 @@
 
 	function parseClassDeclaration (){
 		var id, 
+			parent,
 			token,
 			temp,
 			staticMode,
@@ -263,8 +265,10 @@
 
 		id = parseVariableIdentifier ();
 
-		if (matchKeyword ('extends'))
+		if (matchKeyword ('extends')){
 			lex ();
+			parent = parseVariableIdentifier ();
+		}
 
 		expect ('{');
 
@@ -360,5 +364,5 @@
 
 		expect ('}');
 
-		return createClass (id.name, usedClasses, variableDeclarations, functionDeclarations);
+		return createClass (id.name, parent.name, usedClasses, variableDeclarations, functionDeclarations);
 	}
