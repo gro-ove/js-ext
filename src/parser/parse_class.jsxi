@@ -159,9 +159,9 @@
 						defaults: [],
 						body: {
 							type: 'BlockStatement',
-							body: [
+							body: (independVariableDeclarations.declarations.length ? [
 								independVariableDeclarations
-							].concat (
+							] : []).concat (
 								functionDeclarations.filter (lambda arg.staticMode && arg.id).map (lambda {
 									arg.type = Syntax.FunctionDeclaration;
 									return arg;
