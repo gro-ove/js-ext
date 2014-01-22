@@ -48,6 +48,8 @@
 					return parseWhileStatement ();
 				case 'with':
 					return parseWithStatement ();
+				case 'super':
+					return parseSuperStatement ();
 				default:
 					break;
 			}

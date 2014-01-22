@@ -58,6 +58,7 @@ class Child extends A {
 
 	(arg){
 		super ('QWERTY!');
+		super.super.workThis ('QWERTY!');
 	}
 }
 

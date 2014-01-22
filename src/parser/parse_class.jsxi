@@ -325,7 +325,11 @@
 						usedClasses = usedClasses.concat (parseUseStatement ());
 						continue;
 					case 'function':
+						if (!staticMode)
+							state.superAvailable = true;
 						temp = parseFunctionDeclaration ();
+						state.superAvailable = false;
+
 						functionDeclarations.push (temp);
 						break;
 					case 'var':
@@ -335,6 +339,9 @@
 				}
 			} else if (token.type === Token.Punctuator && token.value === '(' || token.value === '{'){
 				temp = token.value === '(' ? parseFunctionArguments () : [];
+
+				if (!staticMode)
+					state.superAvailable = true;
 
 				temp = {
 					type: 			Syntax.FunctionExpression,
@@ -350,6 +357,7 @@
 					expression: 	false
 				};
 
+				state.superAvailable = false;
 				functionDeclarations.push (temp);
 			}
 
@@ -365,4 +373,40 @@
 		expect ('}');
 
 		return createClass (id.name, parent ? parent.name : null, usedClasses, variableDeclarations, functionDeclarations);
+	}
+
+	function parseSuperStatement (){
+		var level = 1, name, arguments;
+
+		expectKeyword ('super');
+
+		if (!state.superAvailable)
+			throwError ({}, 'Super can be used in class functions only');
+
+		while (match ('.')){
+			lex ();
+
+			if (matchKeyword ('super')){
+				level ++;
+				lex ();
+			} else {
+				name = parseVariableIdentifier ();
+				break;
+			}
+		}
+
+		arguments = parseArguments ();
+		consumeSemicolon ();
+
+		return {
+			'type': 'ExpressionStatement',
+			'expression': {
+				'type': 'CallExpression',
+				'callee': {
+					'type': 'Identifier',
+					'name': 'super_' + level + '_' + name
+				},
+				'arguments': arguments
+			}
+		}
 	}
