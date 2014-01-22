@@ -4,7 +4,7 @@ console.fatal = function (code){
 };
 
 console.json = function (obj){
-	console.log (JSON.stringify (obj, false, 4));
+	console.log (JSON.stringify (obj, false, 2));
 };
 
 module App {
@@ -78,7 +78,7 @@ module App {
 			var esmangle = require ('esmangle'),
 				escodegen = require ('escodegen');
 
-			console.log (JSON.stringify (parsed, false, 2));
+			// console.log (JSON.stringify (parsed, false, 2));
 			console.log (escodegen.generate (parsed));
 
 			// console.log (parsed);
