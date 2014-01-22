@@ -364,5 +364,5 @@
 
 		expect ('}');
 
-		return createClass (id.name, parent.name, usedClasses, variableDeclarations, functionDeclarations);
+		return createClass (id.name, parent ? parent.name : null, usedClasses, variableDeclarations, functionDeclarations);
 	}

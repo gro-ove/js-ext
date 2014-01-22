@@ -14,7 +14,7 @@
 				keyword = (id === 'this') || (id === 'else') || (id === 'case') || (id === 'void') || (id === 'with');
 				break;
 			case 5:
-				keyword = (id === 'while') || (id === 'break') || (id === 'catch') || (id === 'throw') || (id === 'class');
+				keyword = (id === 'while') || (id === 'break') || (id === 'catch') || (id === 'throw') || (id === 'class') || (id === 'super');
 				break;
 			case 6:
 				keyword = (id === 'return') || (id === 'typeof') || (id === 'delete') || (id === 'switch') || (id === 'lambda') || (id === 'static') || (id === 'public');
@@ -24,6 +24,9 @@
 				break;
 			case 8:
 				keyword = (id === 'function') || (id === 'continue') || (id === 'debugger');
+				break;
+			case 9:
+				keyword = (id === 'protected');
 				break;
 			case 10:
 				keyword = (id === 'instanceof');
@@ -44,7 +47,6 @@
 			case 'enum':
 			case 'export':
 			case 'import':
-			case 'super':
 				return true;
 			default:
 				return false;

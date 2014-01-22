@@ -5,9 +5,8 @@ function addClass (name, parent, uses, variables, data){
 		throwError ({}, 'WTF MAN?');
 
 	var variablesObject = {};
-	for (var v in-array variables){
+	for (var v in-array variables)
 		variablesObject [v.name] = v.publicMode;
-	}
 
 	classes [name] = {
 		parent: 	parent,
@@ -21,10 +20,15 @@ function initClasses (){
 	classes = {};
 }
 
-function setupClasses (){
-	var variables, exclusions;
+function setupClass (name){
+	var entry = classes [name], exclusions, body, functions;
 
-	function updateExclusions (obj){
+	assert (entry, 'Class not found: ' + name);
+
+	if (entry.done)
+		return;
+
+	function updateExclusions (obj)
 		if (obj.type === 'FunctionDeclaration' || obj.type === 'FunctionExpression'){
 			exclusions = {};
 			updateExclusions (obj.body);
@@ -39,18 +43,20 @@ function setupClasses (){
 				if (obj [n].type !== 'FunctionDeclaration' && obj [n].type !== 'FunctionExpression')
 					updateExclusions (obj [n]);
 		}
-	}
 
-	function thisify (obj){
-		var oldExclusions, temp;
-
+	function thisify (obj)
 		if (obj){
+			var oldExclusions, temp;
+
 			if (obj.type === 'FunctionDeclaration' || obj.type === 'FunctionExpression'){
 				oldExclusions = exclusions;
 				updateExclusions (obj);
 			}
 
-			if (obj.type === 'Identifier' && variables [obj.name] && !exclusions [obj.name]){
+			if (obj.type === 'Identifier' && entry.variables [obj.name] && !exclusions [obj.name]){
+				if (entry.variables [obj.name] === 'locked')
+					throwError ({}, 'Attempt to access to private field: ' + obj.name);
+
 				return {
 					type: 		'MemberExpression',
 					computed: 	false,
@@ -70,24 +76,33 @@ function setupClasses (){
 			if (oldExclusions)
 				exclusions = oldExclusions;
 		}
-	}
 
-	for (var name, entry in classes){
-		var body 		= entry.data.expression.arguments [1].body.body,
-			obj 		= body [body.length - 1].argument.properties.filter (lambda arg.key.name === '@o')[0],
-			functions 	= obj.value.properties;
+	body 		= entry.data.expression.arguments [1].body.body;
+	functions 	= body [body.length - 1].argument.properties.filter (lambda arg.key.name === '@o')[0].value.properties;
 
-		for (var use in-array entry.uses){
-			if (!classes [use])
-				throwError ({}, 'Using class not found: ' + use);
+	if (entry.parent !== null)
+		if (!classes [entry.parent]){
+			throwError ({}, 'Parent class not found: ' + use);
+		} else {
+			setupClass (entry.parent);
+			for (var n, v in classes [entry.parent].variables)
+				if (!entry.variables [n])
+					entry.variables [n] = v === 'private' ? 'locked' : v;
 		}
 
-		variables = entry.variables;
-		thisify (functions, entry.variables);
-
-		// console.json (functions);
-		// console.json (entry.variables);
+	for (var use in-array entry.uses){
+		if (!classes [use])
+			throwError ({}, 'Using class not found: ' + use);
 	}
+
+	thisify (functions);
+
+	entry.done = true;
+}
+
+function setupClasses (){
+	for (var name in classes)
+		setupClass (name);
 }
 
 function resetClasses (){

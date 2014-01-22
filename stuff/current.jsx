@@ -26,7 +26,7 @@ class A {
 		a = a * C.test ();
 	}
 
-	var local, temp, hi = 18;
+	public var local, temp, hi = 18;
 
 	private var pvar = 20;
 	protected var provar = 25;
@@ -54,6 +54,10 @@ class A {
 class Child extends A {
 	public function blaBlaBla (){
 		local = 'LOCAL!' + provar;
+	}
+
+	(arg){
+		super ('QWERTY!');
 	}
 }
 
