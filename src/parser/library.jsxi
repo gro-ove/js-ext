@@ -94,7 +94,8 @@
 		IllegalBreak: 					'Illegal break statement',
 		IllegalReturn: 					'Illegal return statement',
 		AccessorDataProperty: 			'Object literal may not have data and accessor property with the same name',
-		AccessorGetSet:  				'Object literal may not have multiple get/set accessors with the same name'
+		AccessorGetSet:  				'Object literal may not have multiple get/set accessors with the same name',
+		WtfMan: 						'WTF, MAN'
 	};
 
 	// See also tools/generate-unicode-regex.py.
