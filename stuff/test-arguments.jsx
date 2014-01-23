@@ -1,4 +1,4 @@
-function test (a = 18){
+function testAuto (a = 18){
 	a;
 }
 
