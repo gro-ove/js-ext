@@ -84,28 +84,17 @@
 				lex ();
 			}
 
-			if (matchKeyword ('public')){
+			if (matchKeyword ('public'))
 				publicMode = 'public';
-				lex ();
-			}
-
-			if (matchKeyword ('protected')){
-				if (publicMode)
-					throwError ({}, Messages.WtfMan);
+			else if (matchKeyword ('protected'))
 				publicMode = 'protected';
-				lex ();
-			}
-
-			if (matchKeyword ('private')){
-				if (publicMode)
-					throwError ({}, Messages.WtfMan);
+			else if (matchKeyword ('private'))
 				publicMode = 'private';
-				lex ();
-			}
 
-			if (matchKeyword ('static')){
-				if (staticMode)
-					throwError ({}, Messages.WtfMan);
+			if (publicMode)
+				lex ();
+
+			if (!staticMode && matchKeyword ('static')){
 				staticMode = true;
 				lex ();
 			}
