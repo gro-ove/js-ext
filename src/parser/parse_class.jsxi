@@ -291,27 +291,27 @@
 
 			if (matchKeyword ('protected')){
 				if (publicMode)
-					throwError ({}, 'WTF MAN?');
+					throwError ({}, Messages.WtfMan);
 				publicMode = 'protected';
 				lex ();
 			}
 
 			if (matchKeyword ('private')){
 				if (publicMode)
-					throwError ({}, 'WTF MAN?');
+					throwError ({}, Messages.WtfMan);
 				publicMode = 'private';
 				lex ();
 			}
 
 			if (matchKeyword ('static')){
 				if (staticMode)
-					throwError ({}, 'WTF MAN?');
+					throwError ({}, Messages.WtfMan);
 				staticMode = true;
 				lex ();
 			}
 
 			if (staticMode && publicMode === 'protected')
-				throwError ({}, 'WTF MAN?');
+				throwError ({}, Messages.WtfMan);
 
 			token = lookahead ();
 			temp = null;
@@ -320,7 +320,7 @@
 				switch (token.value){
 					case 'use':
 						if (staticMode || publicMode)
-							throwError ({}, 'WTF MAN?');
+							throwError ({}, Messages.WtfMan);
 						temp = true;
 						usedClasses = usedClasses.concat (parseUseStatement ());
 						continue;
@@ -402,10 +402,7 @@
 			type: 'ExpressionStatement',
 			expression: {
 				type: 'CallExpression',
-				callee: name ? {
-					type: 'Identifier',
-					name: name
-				} : null,
+				callee: name || null,
 				arguments: arguments,
 				'super': level
 			}
