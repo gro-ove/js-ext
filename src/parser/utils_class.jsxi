@@ -16,17 +16,6 @@ function addClass (name, parent, uses, variables, functions, element){
 	for (var entry in-array variables)
 		if (entry.staticMode){
 			entry.declarations.forEach (lambda {
-				/*if (arg.init && arg.init.type !== 'Literal'){
-					temp = variableDeclarator (arg.id);
-
-					staticVariablesInitialization.push (
-						expressionStatement (
-							assignmentExpression (arg.id, arg.init)
-						)
-					);
-				} else*/
-					temp = arg;
-
 				arg.publicMode = entry.publicMode;
 				staticVariables.push (arg);
 			});
@@ -34,7 +23,6 @@ function addClass (name, parent, uses, variables, functions, element){
 			entry.declarations.forEach (lambda {
 				arg.publicMode = entry.publicMode;
 				objectVariables.push (arg);
-
 				objectFields [arg.id.name] = entry.publicMode;
 			});
 

@@ -1,217 +1,3 @@
-	function createClass (name, parent, usedClasses, variableDeclarations, functionDeclarations){
-		var result = variableDeclaration ([
-			variableDeclarator (name, undefined)
-		]);
-
-		addClass (
-			name, 
-			parent,
-			usedClasses.map (lambda arg.name), 
-			variableDeclarations,
-			functionDeclarations,
-			result.declarations [0]);
-
-		return result;
-
-		// var moduleFnName = '__m', returnProperties, objectVariables = [], initVariables = [], objectConstructor, temp;
-
-		// var independVariableDeclarations = {
-		// 	type: 'VariableDeclaration',
-		// 	declarations: [],
-		// 	kind: 'var'
-		// };
-
-		// for (var entry in-array variableDeclarations)
-		// 	if (entry.staticMode){
-		// 		entry.declarations.forEach (lambda {
-		// 			if (arg.init && arg.init.type !== 'Literal'){
-		// 				temp =  {
-		// 					type: 	'VariableDeclarator',
-		// 					id: 	arg.id
-		// 				};
-
-		// 				initVariables.push ({
-		// 					type: 'ExpressionStatement',
-		// 					expression: {
-		// 						type: 'AssignmentExpression',
-		// 						operator: '=',
-		// 						left: arg.id,
-		// 						right: arg.init
-		// 					}
-		// 				});
-		// 			} else
-		// 				temp = arg;
-
-		// 			independVariableDeclarations.declarations.push (temp);
-		// 		});
-		// 	} else {
-		// 		entry.declarations.forEach (lambda {
-		// 			arg.publicMode = entry.publicMode;
-		// 			objectVariables.push (arg);
-		// 		});
-		// 	}
-
-		// returnProperties = functionDeclarations
-		// 	.filter (lambda arg.staticMode && arg.publicMode === 'public' && arg.id.name [0] !== '@')
-		// 	.map (lambda {
-		// 		type: 	'Property',
-		// 		key: 	arg.id,
-		// 		value: 	arg.id,
-		// 		kind: 	'init'
-		// 	});
-
-		// returnProperties = returnProperties.concat (
-		// 	functionDeclarations.filter (lambda arg.staticMode && arg.id.name [0] === '@').map (lambda {
-		// 		var result = {
-		// 			type: 	'Property',
-		// 			key: 	arg.id,
-		// 			value: 	arg,
-		// 			kind: 	'init'
-		// 		};
-
-		// 		result.value.id = null;
-		// 		return result;
-		// 	})
-		// );
-
-		// if (!functionDeclarations.filter (lambda !arg.staticMode && arg.id.name === '@c')[0])
-		// 	functionDeclarations.push ({
-		// 		type: 			Syntax.FunctionExpression,
-		// 		id: 			{ type: 'Identifier', name: '@c' },
-		// 		params: 		[],
-		// 		defaults: 		[],
-		// 		body: 			{ type: 'BlockStatement', body: [] },
-		// 		rest: 			null,
-		// 		generator: 		false,
-		// 		expression: 	false
-		// 	});
-
-		// returnProperties.push ({
-		// 	type: 'Property',
-		// 	key: {
-		// 		type: 'Identifier',
-		// 		name: '@o'
-		// 	},
-		// 	value: {
-		// 		type: 'ObjectExpression',
-		// 		properties: functionDeclarations.filter (lambda !arg.staticMode).map (lambda {
-		// 			arg.type = Syntax.FunctionExpression;
-
-		// 			if (arg.id.name === '@c'){
-		// 				temp = objectVariables.map (lambda {
-		// 					type: 'ExpressionStatement',
-		// 					expression: {
-		// 						type: 'AssignmentExpression',
-		// 						operator: '=',
-		// 						left: {
-		// 							type: 'MemberExpression',
-		// 							computed: false,
-		// 							object: {
-		// 								type: 'ThisExpression'
-		// 							},
-		// 							property: arg.id
-		// 						},
-		// 						right: arg.init || { 
-		// 							type: 'Identifier',
-		// 							name: 'undefined'
-		// 						}
-		// 					}
-		// 				});
-
-		// 				arg.body.body = temp.concat (arg.body.body);
-		// 			}
-
-		// 			var result = {
-		// 				type: 	'Property',
-		// 				key: 	arg.id,
-		// 				value: 	arg,
-		// 				kind: 	'init'
-		// 			};
-
-		// 			result.value.id = null;
-		// 			return result;
-		// 		})
-		// 	}
-		// });
-
-		// if (initVariables.length)
-		// 	returnProperties.push ({
-		// 		type: 'Property',
-		// 		key: {
-		// 			type: 'Identifier',
-		// 			name: '@s'
-		// 		},
-		// 		value: {
-		// 			type: 			Syntax.FunctionExpression,
-		// 			id: 			null,
-		// 			params: 		[],
-		// 			defaults: 		[],
-		// 			body: 			{ type: 'BlockStatement', body: initVariables },
-		// 			rest: 			null,
-		// 			generator: 		false,
-		// 			expression: 	false
-		// 		}
-		// 	});
-
-		// var result = {
-		// 	type: 'ExpressionStatement',
-		// 	expression: {
-		// 		type: 'CallExpression',
-		// 		callee: {
-		// 			type: 'Identifier',
-		// 			name: moduleFnName
-		// 		},
-		// 		arguments: [
-		// 			{
-		// 				type: 'Literal',
-		// 				value: name
-		// 			},
-		// 			{
-		// 				type: 'FunctionExpression',
-		// 				id: null,
-		// 				params: [],
-		// 				defaults: [],
-		// 				body: {
-		// 					type: 'BlockStatement',
-		// 					body: (independVariableDeclarations.declarations.length ? [
-		// 						independVariableDeclarations
-		// 					] : []).concat (
-		// 						functionDeclarations.filter (lambda arg.staticMode && arg.id).map (lambda {
-		// 							arg.type = Syntax.FunctionDeclaration;
-		// 							return arg;
-		// 						})
-		// 					).concat ([
-		// 						{
-		// 							type: 'ReturnStatement',
-		// 							argument: {
-		// 								'type': 'ObjectExpression',
-		// 								'properties': returnProperties
-		// 							}
-		// 						}
-		// 					])
-		// 				}
-		// 			},
-		// 			{
-		// 				type: 'ArrayExpression',
-		// 				elements: usedClasses.map (lambda {
-		// 					type: 'Literal',
-		// 					value: arg.name
-		// 				})
-		// 			}
-		// 		]
-		// 	}
-		// };
-
-		// addClass (
-		// 	name, 
-		// 	parent,
-		// 	usedClasses.map (lambda arg.name), 
-		// 	objectVariables.map (lambda { name: arg.id.name, publicMode: arg.publicMode }), 
-		// 	result);
-
-		// return result;
-	}
-
 	function parseModuleSourceElements (){
 		var sourceElement,
 			usedClasses = [],
@@ -374,7 +160,19 @@
 
 		expect ('}');
 
-		return createClass (id.name, parent ? parent.name : null, usedClasses, variableDeclarations, functionDeclarations);
+		var result = variableDeclaration ([
+			variableDeclarator (id.name, undefined)
+		]);
+
+		addClass (
+			id.name, 
+			parent ? parent.name : null,
+			usedClasses.map (lambda arg.name), 
+			variableDeclarations,
+			functionDeclarations,
+			result.declarations [0]);
+
+		return result;
 	}
 
 	function parseSuperStatement (){
