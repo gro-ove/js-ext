@@ -150,7 +150,7 @@
 		expect ('}');
 
 		var result = variableDeclaration ([
-			variableDeclarator (id.name, undefined)
+			variableDeclarator (id.name, 'undefined')
 		]);
 
 		addClass (
@@ -187,13 +187,10 @@
 		arguments = parseArguments ();
 		consumeSemicolon ();
 
-		return {
-			type: 'ExpressionStatement',
-			expression: {
-				type: 'CallExpression',
-				callee: name || null,
-				arguments: arguments,
-				'super': level
-			}
-		}
+		return expressionStatement ({
+			type: 'CallExpression',
+			callee: name || null,
+			arguments: arguments,
+			'super': level
+		});
 	}
