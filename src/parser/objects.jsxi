@@ -1,0 +1,70 @@
+	function identifier (arg)
+		return !arg ? null : typeof arg === 'string' ? {
+			type: 			Syntax.Identifier,
+			name: 			arg
+		} : arg
+
+	function block (body = [])
+		return body.type !== Syntax.BlockStatement ? {
+			type: 			Syntax.BlockStatement,
+			body: 			body
+		} : body
+
+	function variableDeclarator (id)
+		return {
+			type: 			Syntax.VariableDeclarator,
+			id: 			id
+		}
+
+	function memberExpression (obj, property, computed = false)
+		return {
+			type: 			Syntax.MemberExpression,
+			computed: 		computed,
+			object: 		identifier (obj),
+			property: 		identifier (obj)
+		}
+
+	function callExpression (name, arguments = [])
+		return {
+			type: 			Syntax.CallExpression,
+			callee: 		identifier (name),
+			arguments: 		arguments
+		}
+
+	function assignmentExpression (left, right)
+		return {
+			type: 			Syntax.AssignmentExpression,
+			operator: 		'=',
+			left: 			identifier (left),
+			right: 			identifier (right)
+		}
+
+	function expressionStatement (expression)
+		return {
+			type: 			Syntax.ExpressionStatement,
+			expression: 	expression
+		}
+
+	function functionExpression (name, params = [], body)
+		return {
+			type: 			Syntax.FunctionExpression,
+			id: 			identifier (name),
+			params: 		params,
+			defaults: 		[],
+			body: 			block (body),
+			rest: 			null,
+			generator: 		false,
+			expression: 	false
+		};
+
+	function functionDeclaration (name, params = [], body)
+		return {
+			type: 			Syntax.FunctionDeclaration,
+			id: 			identifier (name),
+			params: 		params,
+			defaults: 		[],
+			body: 			block (body),
+			rest: 			null,
+			generator: 		false,
+			expression: 	false
+		};
