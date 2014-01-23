@@ -78,7 +78,7 @@ module App {
 			var esmangle = require ('esmangle'),
 				escodegen = require ('escodegen');
 
-			// console.log (console.json (parsed));
+			console.log (console.json (parsed));
 			console.log (escodegen.generate (parsed));
 
 			// console.log (parsed);

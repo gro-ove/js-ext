@@ -1,4 +1,29 @@
-class B {
+{
+	A = function (arg){
+		this.local = arg;
+		this.pvar = 20;
+		this.provar = 25;
+		this.hi = 18;
+	};
+
+	(function (){
+		A.prototype.workThis = function (){}
+
+		var a = 18;
+
+		function localFunction (){
+			doSomethingLocal ();
+		}
+
+		function workAllDay (){
+			doSomething ();
+		}
+
+		A.workAllDay = workAllDay;
+	})();
+}
+
+/*class B {
 	static public var variable = JSON.stringify ({ key: 'value' });
 }
 
@@ -72,6 +97,7 @@ class ChildChild extends Child {
 	}
 }
 
+*/
 // __m ('A', function (){
 // 	var a = 18, b;
 
