@@ -1,19 +1,83 @@
 var classes;
 
-function addClass (name, parent, uses, variables, data){
+function addClass (name, parent, uses, variables, functions, element){
+	var objectVariables = [], 
+		staticVariables = [], 
+		objectFunctions = [], 
+		staticFunctions = [], 
+		objectFields = {},
+		objectConstructor, 
+		staticInitialization, 
+		staticVariablesInitialization = [];
+
 	if (classes [name])
 		throwError ({}, Messages.WtfMan);
 
-	var variablesObject = {};
-	for (var v in-array variables)
-		variablesObject [v.name] = v.publicMode;
+	for (var entry in-array variables)
+		if (entry.staticMode){
+			entry.declarations.forEach (lambda {
+				/*if (arg.init && arg.init.type !== 'Literal'){
+					temp = variableDeclarator (arg.id);
+
+					staticVariablesInitialization.push (
+						expressionStatement (
+							assignmentExpression (arg.id, arg.init)
+						)
+					);
+				} else*/
+					temp = arg;
+
+				arg.publicMode = entry.publicMode;
+				staticVariables.push (arg);
+			});
+		} else 
+			entry.declarations.forEach (lambda {
+				arg.publicMode = entry.publicMode;
+				objectVariables.push (arg);
+
+				objectFields [arg.id.name] = entry.publicMode;
+			});
+
+	for (var entry in-array functions)
+		if (entry.staticMode){
+			if (entry.id.name === '@'){
+				staticInitialization = entry;
+			} else {
+				staticFunctions.push (entry);
+			}
+		} else {
+			if (entry.id.name === '@'){
+				objectConstructor = entry;
+			} else {
+				objectFunctions.push (entry);
+				objectFields [entry.id.name] = entry.publicMode;
+			}
+		}
+
+	if (!objectConstructor)
+		objectConstructor = functionExpression ();
+	else
+		objectConstructor.id = null;
+
+	if (!staticInitialization)
+		staticInitialization = functionExpression ();
+	else
+		staticInitialization.id = null;
+
+	staticInitialization.body.body = staticVariablesInitialization.concat (staticInitialization.body.body);
 
 	classes [name] = {
-		name: 		name,
-		parent: 	parent,
-		uses: 		uses,
-		variables: 	variablesObject,
-		data: 		data
+		name: 							name,
+		parent: 						parent,
+		uses: 							uses,
+		objectVariables: 				objectVariables,
+		staticVariables: 				staticVariables,
+		objectFunctions: 				objectFunctions,
+		staticFunctions: 				staticFunctions,
+		objectConstructor: 				objectConstructor,
+		staticInitialization: 			staticInitialization,
+		objectFields: 					objectFields,
+		element: 						element
 	}
 }
 
@@ -47,20 +111,6 @@ function setupClass (name){
 			}
 		}
 
-	function memberExpression (obj, property)
-		return {
-			type: 'MemberExpression',
-			computed: false,
-			object: typeof obj === 'string' ? {
-				type: 'Identifier',
-				name: obj
-			} : obj,
-			property: {
-				type: 'Identifier',
-				name: property
-			}
-		};
-
 	function update (obj, name, second)
 		if (obj instanceof Array){
 			for (var i = 0; i < obj.length; i ++)
@@ -76,8 +126,8 @@ function setupClass (name){
 			} else if (obj.type === 'Property'){
 				obj.value = update (obj.value, name, true) || obj.value;
 
-			} else if (obj.type === 'Identifier' && entry.variables [obj.name] && !exclusions [obj.name]){
-				if (entry.variables [obj.name] === 'locked')
+			} else if (obj.type === 'Identifier' && entry.objectFields [obj.name] && !exclusions [obj.name]){
+				if (entry.objectFields [obj.name] === 'locked')
 					throwError ({}, 'Attempt to access to private field: ' + obj.name);
 
 				return {
@@ -104,7 +154,7 @@ function setupClass (name){
 					console.log (obj);
 
 					obj.callee = memberExpression (
-						callee === '@c' 
+						callee === '@' 
 							? parent.name
 							: memberExpression (
 								memberExpression (
@@ -122,8 +172,8 @@ function setupClass (name){
 			}
 		}
 
-	body 		= entry.data.expression.arguments [1].body.body;
-	functions 	= body [body.length - 1].argument.properties.filter (lambda arg.key.name === '@o')[0].value.properties;
+	/*body 		= entry.data.expression.arguments [1].body.body;
+	functions 	= body [body.length - 1].argument.properties.filter (lambda arg.key.name === '@o')[0].value.properties;*/
 
 	if (entry.parent !== null)
 		if (!classes [entry.parent]){
@@ -140,7 +190,60 @@ function setupClass (name){
 			throwError ({}, 'Using class not found: ' + use);
 	}
 
-	functions.forEach (lambda update (arg.value, arg.key.name));
+	update (entry.objectConstructor, '@');
+	entry.objectFunctions.forEach (lambda update (arg, arg.id.name));
+
+	entry.element.init = callExpression (
+		functionExpression (
+			null, 
+			[], 
+			[ 
+				variableDeclaration ([
+					variableDeclarator (entry.name, entry.objectConstructor) 
+				])
+			].concat (
+				entry.objectFunctions.map (lambda 
+					expressionStatement (
+						assignmentExpression (
+							memberExpression (
+								memberExpression (
+									entry.name,
+									'prototype'
+								),
+								arg.id.name
+							),
+							functionExpression (
+								null,
+								arg.params,
+								arg.body
+							)
+						)
+					)
+				)
+			).concat (
+				[ variableDeclaration (entry.staticVariables) ]
+			).concat (
+				entry.staticFunctions
+			).concat (
+				entry.staticFunctions
+					.filter (lambda arg.publicMode === 'public')
+					.map (lambda 
+						expressionStatement (
+							assignmentExpression (
+								memberExpression (
+									entry.name,
+									arg.id.name
+								),
+								arg.id.name
+							)
+						)
+					)
+			).concat (
+				[ returnStatement (entry.name) ]
+			)
+		)
+	);
+
 	entry.done = true;
 }
 
