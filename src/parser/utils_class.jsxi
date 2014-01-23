@@ -9,6 +9,7 @@ function addClass (name, parent, uses, variables, data){
 		variablesObject [v.name] = v.publicMode;
 
 	classes [name] = {
+		name: 		name,
 		parent: 	parent,
 		uses: 		uses,
 		variables: 	variablesObject,
@@ -21,60 +22,61 @@ function initClasses (){
 }
 
 function setupClass (name){
-	var entry = classes [name], exclusions, body, functions;
+	var entry = classes [name], exclusions = null, body, functions;
 
 	assert (entry, 'Class not found: ' + name);
 
 	if (entry.done)
 		return;
 
-	function updateExclusions (obj)
-		if (obj.type === 'FunctionDeclaration' || obj.type === 'FunctionExpression'){
-			exclusions = {};
-			updateExclusions (obj.body);
-		} else if (obj.type === 'VariableDeclarator'){
-			exclusions [obj.id.name] = true;
-		} else if (obj instanceof Array){
+	function updateExclusions (obj, second)
+		if (obj instanceof Array){
 			for (var i = 0; i < obj.length; i ++)
-				if (obj [i].type !== 'FunctionDeclaration' && obj [i].type !== 'FunctionExpression')
-					updateExclusions (obj [i]);
-		} else if (obj.type){
-			for (var n in obj)
-				if (obj [n].type !== 'FunctionDeclaration' && obj [n].type !== 'FunctionExpression')
-					updateExclusions (obj [n]);
+				updateExclusions (obj [i], true);
+		} else if (obj && obj.type){
+			if (obj.type === 'FunctionDeclaration' || obj.type === 'FunctionExpression'){
+				if (!second){
+					exclusions = {};
+					updateExclusions (obj.body, true);
+				}
+			} else if (obj.type === 'VariableDeclarator'){
+				exclusions [obj.id.name] = true;
+			} else {
+				for (var n in obj)
+					updateExclusions (obj [n], true);
+			}
 		}
 
-	function update (obj, top)
-		if (obj){
-			var oldExclusions, temp;
+	function memberExpression (obj, property)
+		return {
+			type: 'MemberExpression',
+			computed: false,
+			object: typeof obj === 'string' ? {
+				type: 'Identifier',
+				name: obj
+			} : obj,
+			property: {
+				type: 'Identifier',
+				name: property
+			}
+		};
+
+	function update (obj, name, second)
+		if (obj instanceof Array){
+			for (var i = 0; i < obj.length; i ++)
+				obj [i] = update (obj [i], name, true) || obj [i];
+		} else if (obj && obj.type){
+			var oldExclusions = undefined, temp;
 
 			if (obj.type === 'FunctionDeclaration' || obj.type === 'FunctionExpression'){
 				oldExclusions = exclusions;
 				updateExclusions (obj);
+				update (obj.body.body, second ? null : name, true);
+				exclusions = oldExclusions;
+			} else if (obj.type === 'Property'){
+				obj.value = update (obj.value, name, true) || obj.value;
 
-				/*if (top){
-					update (obj.body.body, top);
-					return;
-				}*/
-			}
-
-			console.log (obj.type, obj ['super']);
-
-			if (obj.type === 'CallExpression' && obj ['super'])
-				obj.callee = {
-					type: 'MemberExpression',
-					computed: false,
-					object: {
-						type: 'Identifier',
-						name: entry.parent
-					},
-					property: {
-						type: 'Identifier',
-						name: fn
-					}
-				};
-
-			if (obj.type === 'Identifier' && entry.variables [obj.name] && !exclusions [obj.name]){
+			} else if (obj.type === 'Identifier' && entry.variables [obj.name] && !exclusions [obj.name]){
 				if (entry.variables [obj.name] === 'locked')
 					throwError ({}, 'Attempt to access to private field: ' + obj.name);
 
@@ -84,18 +86,40 @@ function setupClass (name){
 					object: 	{ type: 'ThisExpression' },
 					property: 	{ type: 'Identifier', name: obj.name }
 				};
-			} else if (obj instanceof Array){
-				for (var i = 0; i < obj.length; i ++)
-					obj [i] = update (null, obj [i]) || obj [i];
-			} else if (obj.type === 'Property'){
-				obj.value = update (null, obj.value) || obj.value;
-			} else if (obj.type && obj.type !== 'MemberExpression'){
-				for (var n in obj)
-					obj [n] = update (null, obj [n]) || obj [n];
-			}
 
-			if (oldExclusions)
-				exclusions = oldExclusions;
+			} else {
+				if (obj.type === 'CallExpression' && obj ['super']){
+					if (name === null && obj.callee === null)
+						throwError ({}, Messages.WtfMan);
+
+					var parent = entry,
+						callee = obj.callee ? obj.callee.name : name;
+
+					for (var i = 0; i < obj ['super']; i ++){
+						parent = classes [parent.parent];
+						if (!parent)
+							throwError ({}, Messages.WtfMan);
+					}
+
+					console.log (obj);
+
+					obj.callee = memberExpression (
+						callee === '@c' 
+							? parent.name
+							: memberExpression (
+								memberExpression (
+									parent.name, 
+									'prototype'),
+								callee),
+						'call');
+
+					obj.arguments = [ { type: 'ThisExpression' } ].concat (obj.arguments);
+				}
+
+				if (obj.type !== 'MemberExpression')
+					for (var n in obj)
+						obj [n] = update (obj [n], name, true) || obj [n];
+			}
 		}
 
 	body 		= entry.data.expression.arguments [1].body.body;
@@ -117,13 +141,17 @@ function setupClass (name){
 	}
 
 	functions.forEach (lambda update (arg.value, arg.key.name));
-
 	entry.done = true;
 }
 
 function setupClasses (){
 	for (var name in classes)
 		setupClass (name);
+
+	return {
+		before: [],
+		after: []
+	};
 }
 
 function resetClasses (){
