@@ -399,14 +399,15 @@
 		consumeSemicolon ();
 
 		return {
-			'type': 'ExpressionStatement',
-			'expression': {
-				'type': 'CallExpression',
-				'callee': {
-					'type': 'Identifier',
-					'name': 'super_' + level + '_' + name
-				},
-				'arguments': arguments
+			type: 'ExpressionStatement',
+			expression: {
+				type: 'CallExpression',
+				callee: name ? {
+					type: 'Identifier',
+					name: name
+				} : null,
+				arguments: arguments,
+				'super': level
 			}
 		}
 	}
