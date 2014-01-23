@@ -65,23 +65,21 @@ module App {
 		if (!file)
 			console.fatal (2, 'Reading error');
 
+		var parsed = Parser.parse (file, { information: true });
+
 		if (args.l){
-			var c = JSON.stringify (Parser.parse (file, { information: true }), false, 4).length;
+			var c = JSON.stringify (parsed, false, 4).length;
 
 			if (c != +args.l)
 				console.fatal (3, 'Wrong length: ' + c);
 			else
 				console.log (args.data [0] + ' - ok :)')
 		} else {
-			var parsed = Parser.parse (file, { information: true });
-
 			var esmangle = require ('esmangle'),
 				escodegen = require ('escodegen');
 
-			console.log (console.json (parsed));
+			// console.log (console.json (parsed));
 			console.log (escodegen.generate (parsed));
-
-			// console.log (parsed);
 		}
 	}
 }
