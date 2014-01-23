@@ -1,3 +1,9 @@
+	function literal (value)
+		return typeof value === 'object' ? value : {
+			type: Syntax.Literal,
+			value: value
+		}
+
 	function identifier (arg)
 		return !arg ? null : typeof arg === 'string' ? {
 			type: 			Syntax.Identifier,
@@ -5,7 +11,7 @@
 		} : arg
 
 	function block (body = [])
-		return body.type !== Syntax.BlockStatement ? {
+		return body instanceof Array ? {
 			type: 			Syntax.BlockStatement,
 			body: 			body
 		} : body
@@ -21,7 +27,7 @@
 			type: 			Syntax.MemberExpression,
 			computed: 		computed,
 			object: 		identifier (obj),
-			property: 		identifier (obj)
+			property: 		identifier (property)
 		}
 
 	function callExpression (name, arguments = [])
@@ -31,7 +37,7 @@
 			arguments: 		arguments
 		}
 
-	function assignmentExpression (left, right)
+	function assignmentExpression (left, right = 'undefined')
 		return {
 			type: 			Syntax.AssignmentExpression,
 			operator: 		'=',
@@ -43,6 +49,12 @@
 		return {
 			type: 			Syntax.ExpressionStatement,
 			expression: 	expression
+		}
+
+	function returnStatement (arg)
+		return {
+			type: 			Syntax.ReturnStatement,
+			argument: 		identifier (arg)
 		}
 
 	function functionExpression (name, params = [], body)
@@ -68,3 +80,18 @@
 			generator: 		false,
 			expression: 	false
 		};
+
+	function variableDeclarator (name, value){
+		return {
+			type: 			Syntax.VariableDeclarator,
+			id: 			identifier (name),
+			init: 			identifier (value)
+		}
+	}
+
+	function variableDeclaration (variables)
+		return {
+			type: 			Syntax.VariableDeclaration,
+			declarations: 	variables,
+			kind: 			'var'
+		}
