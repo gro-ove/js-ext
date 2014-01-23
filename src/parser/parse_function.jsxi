@@ -13,7 +13,14 @@
 
 				if (defaults && match ('=')){
 					lex ();
-					defaults.push ({ name: temp.name, value: parseAssignmentExpression () });
+					defaults.push (
+						ifStatement (
+							binaryExpression (temp.name, '===', 'undefined'),
+							expressionStatement (
+								assignmentExpression (temp.name, parseAssignmentExpression ())
+							)
+						)
+					);
 				}
 
 				params.push (temp);
@@ -27,37 +34,6 @@
 		expect (')');
 
 		return params;
-	}
-
-	function getDefaultsSetter (defaults){
-		return defaults.map (lambda {
-			type: 'IfStatement',
-            test: {
-                type: 'BinaryExpression',
-                operator: '===',
-                left: {
-                    type: 'Identifier',
-                    name: arg.name
-                },
-                right: {
-                    type: 'Identifier',
-                    name: 'undefined'
-                }
-            },
-            consequent: {
-                type: 'ExpressionStatement',
-                expression: {
-                    type: 'AssignmentExpression',
-                    operator: '=',
-                    left: {
-                        type: 'Identifier',
-                        name: arg.name
-                    },
-                    right: arg.value
-                }
-            },
-            alternate: null
-		});
 	}
 
 	function parseSourceElement (){
@@ -118,7 +94,7 @@
 		body 	= parseFunctionSourceElements ();
 
 		if (defaults.length)
-			body.body = getDefaultsSetter (defaults).concat (body.body);
+			body.body = defaults.concat (body.body);
 
 		return {
 			type: 			Syntax.FunctionDeclaration,
@@ -146,7 +122,7 @@
 		body 	= parseFunctionSourceElements (defaults);
 
 		if (defaults.length)
-			body.body = getDefaultsSetter (defaults).concat (body.body);
+			body.body = defaults.concat (body.body);
 
 		return {
 			type: 			Syntax.FunctionExpression,
@@ -233,7 +209,7 @@
 		body = parseLambdaSourceElements ();
 
 		if (defaults.length)
-			body.body = getDefaultsSetter (defaults).concat (body.body);
+			body.body = defaults.concat (body.body);
 
 		return {
 			type: 			Syntax.FunctionExpression,
