@@ -1,5 +1,5 @@
 class A {
-	// use B, C;
+	use B, C;
 
 	static var a = 18, b = test;
 
@@ -32,33 +32,33 @@ class A {
 	}
 }
 
-// class B {
-// 	static public var variable = JSON.stringify ({ key: 'value' });
-// }
+class B {
+	static public var variable = JSON.stringify ({ key: 'value' });
+}
 
-// class C {
-// 	static public function test (){
-// 		return 187;
-// 	}
-// }
+class C {
+	static public function test (){
+		return 187;
+	}
+}
 
-/*class Child extends A {
-	public function blaBlaBla (){
-		super ('QWERTY!');
-		local = 'LOCAL!' + provar;
+class Child extends A {
+	public function publicObject (){
+		super ('publicObject from A');
+		publicVar = protectedVar;
 	}
 
 	(arg){
-		super ('QWERTY!');
-		super.workThis ();
+		super ('A constructor');
+		super.publicObject ();
 	}
 }
 
 class ChildChild extends Child {
 	(){
-		super ('super');
-		super.super.workThis (provar);
+		super ('Child constructor');
+		super.super.publicObject ('publicObject from A');
 
-		workThis ();
+		publicObject (protectedVar);
 	}
-}*/
+}
