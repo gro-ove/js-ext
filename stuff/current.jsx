@@ -53,12 +53,22 @@ class A {
 
 class Child extends A {
 	public function blaBlaBla (){
+		super ('QWERTY!');
 		local = 'LOCAL!' + provar;
 	}
 
 	(arg){
 		super ('QWERTY!');
-		super.super.workThis ('QWERTY!');
+		super.workThis ();
+	}
+}
+
+class ChildChild extends Child {
+	(){
+		super ('super');
+		super.super.workThis (provar);
+
+		workThis ();
 	}
 }
 
