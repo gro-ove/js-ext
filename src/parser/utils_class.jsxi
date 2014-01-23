@@ -2,7 +2,7 @@ var classes;
 
 function addClass (name, parent, uses, variables, data){
 	if (classes [name])
-		throwError ({}, 'WTF MAN?');
+		throwError ({}, Messages.WtfMan);
 
 	var variablesObject = {};
 	for (var v in-array variables)
