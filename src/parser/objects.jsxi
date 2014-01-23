@@ -37,7 +37,7 @@
 			arguments: 		arguments
 		}
 
-	function assignmentExpression (left, right = 'undefined')
+	function assignmentExpression (left, right)
 		return {
 			type: 			Syntax.AssignmentExpression,
 			operator: 		'=',
@@ -45,10 +45,26 @@
 			right: 			identifier (right)
 		}
 
+	function binaryExpression (left, operator, right)
+		return {
+            type: 			Syntax.BinaryExpression,
+            operator: 		operator,
+			left: 			identifier (left),
+			right: 			identifier (right)
+        }
+
 	function expressionStatement (expression)
 		return {
 			type: 			Syntax.ExpressionStatement,
 			expression: 	expression
+		}
+
+	function ifStatement (test, trueStatement, falseStatement = null)
+		return {
+			type: 			Syntax.IfStatement,
+            test: 			test,
+            consequent: 	trueStatement,
+            alternate: 		falseStatement
 		}
 
 	function returnStatement (arg)
