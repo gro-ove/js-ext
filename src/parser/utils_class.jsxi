@@ -168,9 +168,9 @@ function setupClass (name){
 			throwError ({}, 'Parent class not found: ' + use);
 		} else {
 			setupClass (entry.parent);
-			for (var n, v in classes [entry.parent].variables)
-				if (!entry.variables [n])
-					entry.variables [n] = v === 'private' ? 'locked' : v;
+			for (var n, v in classes [entry.parent].objectFields)
+				if (!entry.objectFields [n])
+					entry.objectFields [n] = v === 'private' ? 'locked' : v;
 		}
 
 	for (var use in-array entry.uses){
@@ -209,7 +209,9 @@ function setupClass (name){
 					)
 				)
 			).concat (
-				[ variableDeclaration (entry.staticVariables) ]
+				entry.staticVariables.length 
+					? [ variableDeclaration (entry.staticVariables) ] 
+					: []
 			).concat (
 				entry.staticFunctions
 			).concat (
