@@ -1,35 +1,38 @@
 class A {
 	use B, C;
 
-	static var a = 18, b = test;
+	static var a = 18, b = B.variable, c = C.test;
 
 	static function privateStatic (){
-		doSomethingLocal
+		console.debug ('A: static private')
 	}
 
 	static public function publicStatic (){
-		doSomething
+		console.debug ('A: static public');
+		privateStatic ();
 	}
 
 	static {
-		staticInitialize
+		console.debug ('A: static initialize');
+		publicStatic ();
 	}
 
 	public var publicVar = 1;
 	private var privateVar = 2;
 	protected var protectedVar = 3;
-	
+
 	var undefinedVar;
 
-	public function publicObject (){
+	public function publicObject (arg){
+		console.debug ('A: object public (' + arg + ')');
+
 		protectedVar = protectedVar + 1;
-
 		var publicVar = function (){};
-
 		publicVar ();
 	}
 
 	(arg){
+		console.debug ('A: constructor (' + arg + ')');
 		privateVar = privateVar + arg;
 	}
 }
@@ -46,12 +49,15 @@ class C {
 
 class Child extends A {
 	public function publicObject (){
-		super ('publicObject from A');
+		console.debug ('Child: object public');
+		super ('HI');
 		publicVar = protectedVar;
 	}
 
 	(arg){
-		super ('A constructor');
+		super (arg + ', PKYSLF');
+		console.debug ('Child: constructor (' + arg + ')');
+
 		super.publicObject ();
 	}
 }
@@ -62,8 +68,10 @@ class ChildChild extends Child {
 	}
 
 	(){
-		super ('Child constructor');
-		super.super.publicObject ('publicObject from A');
+		super ('WTFMAN');
+		console.debug ('ChildChild: constructor');
+
+		super.super.publicObject ('ALLO A ETO TI?');
 
 		publicObject (protectedVar);
 	}
