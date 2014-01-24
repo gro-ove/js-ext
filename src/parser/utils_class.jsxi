@@ -74,7 +74,7 @@ function initClasses (){
 }
 
 function setupClass (name){
-	var entry = classes [name], exclusions = null, body, functions;
+	var entry = classes [name], variable, exclusions = null, body, functions, variables, temp, extendsStatements;
 
 	assert (entry, 'Class not found: ' + name);
 
@@ -90,6 +90,7 @@ function setupClass (name){
 				if (!second){
 					exclusions = {};
 					updateExclusions (obj.body, true);
+					obj.params.forEach (lambda exclusions [arg.name] = true);
 				}
 			} else if (obj.type === 'VariableDeclarator'){
 				exclusions [obj.id.name] = true;
@@ -139,8 +140,6 @@ function setupClass (name){
 							throwError ({}, Messages.WtfMan);
 					}
 
-					console.log (obj);
-
 					obj.callee = memberExpression (
 						callee === '@' 
 							? parent.name
@@ -160,9 +159,6 @@ function setupClass (name){
 			}
 		}
 
-	/*body 		= entry.data.expression.arguments [1].body.body;
-	functions 	= body [body.length - 1].argument.properties.filter (lambda arg.key.name === '@o')[0].value.properties;*/
-
 	if (entry.parent !== null)
 		if (!classes [entry.parent]){
 			throwError ({}, 'Parent class not found: ' + use);
@@ -181,21 +177,79 @@ function setupClass (name){
 	update (entry.objectConstructor, '@');
 	entry.objectFunctions.forEach (lambda update (arg, arg.id.name));
 
+	variable = newIdentifier ();
+
+	variables = [
+		variableDeclarator (variable, entry.objectConstructor)
+	];
+
+	if (entry.parent){
+		temp = newIdentifier ();
+		variables.push (variableDeclarator (temp, functionExpression ()));
+		extendsStatements = [
+			expressionStatement (
+				assignmentExpression (
+					memberExpression (
+						temp,
+						'prototype'
+					),
+					memberExpression (
+						entry.parent,
+						'prototype'
+					)
+				)
+			),
+			expressionStatement (
+				assignmentExpression (
+					memberExpression (
+						variable,
+						'prototype'
+					),
+					newExpression (
+						temp
+					)
+				)
+			),
+			expressionStatement (
+				assignmentExpression (
+					memberExpression (
+						memberExpression (
+							variable,
+							'prototype'
+						),
+						'constructor'
+					),
+					variable
+				)
+			),
+			expressionStatement (
+				assignmentExpression (
+					temp,
+					'undefined'
+				)
+			)
+		];
+	} else
+		extendsStatements = [];
+
+	if (entry.staticVariables.length)
+		variables = variables.concat (entry.staticVariables);
+
 	entry.element.init = callExpression (
 		functionExpression (
 			null, 
 			[], 
 			[ 
-				variableDeclaration ([
-					variableDeclarator (entry.name, entry.objectConstructor) 
-				])
+				variableDeclaration (variables)
 			].concat (
+				extendsStatements
+			).concat (
 				entry.objectFunctions.map (lambda 
 					expressionStatement (
 						assignmentExpression (
 							memberExpression (
 								memberExpression (
-									entry.name,
+									variable,
 									'prototype'
 								),
 								arg.id.name
@@ -209,10 +263,6 @@ function setupClass (name){
 					)
 				)
 			).concat (
-				entry.staticVariables.length 
-					? [ variableDeclaration (entry.staticVariables) ] 
-					: []
-			).concat (
 				entry.staticFunctions
 			).concat (
 				entry.staticFunctions
@@ -221,7 +271,7 @@ function setupClass (name){
 						expressionStatement (
 							assignmentExpression (
 								memberExpression (
-									entry.name,
+									variable,
 									arg.id.name
 								),
 								arg.id.name
@@ -229,7 +279,7 @@ function setupClass (name){
 						)
 					)
 			).concat (
-				[ returnStatement (entry.name) ]
+				[ returnStatement (variable) ]
 			)
 		)
 	);
