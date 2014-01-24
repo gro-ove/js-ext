@@ -65,7 +65,7 @@ function addClass (name, parent, uses, variables, functions, element){
 	else
 		staticInitialization.id = null;
 
-	objectConstructor.body.body = objectVariablesInitialization.concat (staticInitialization.body.body);
+	objectConstructor.body.body = objectVariablesInitialization.concat (objectConstructor.body.body);
 	staticInitialization.body.body = staticVariablesInitialization.concat (staticInitialization.body.body);
 
 	classes [name] = {
@@ -121,27 +121,20 @@ function setupClass (name){
 		} else if (obj && obj.type){
 			var oldExclusions = undefined, temp;
 
-			if (obj.type === 'FunctionDeclaration' || obj.type === 'FunctionExpression'){
+			if (obj.type === Syntax.FunctionDeclaration || obj.type === Syntax.FunctionExpression){
 				oldExclusions = exclusions;
 				updateExclusions (obj);
 				update (obj.body.body, second ? null : name, true);
 				exclusions = oldExclusions;
-			} else if (obj.type === 'Property'){
+			} else if (obj.type === Syntax.Property){
 				obj.value = update (obj.value, name, true) || obj.value;
-
-			} else if (obj.type === 'Identifier' && entry.objectFields [obj.name] && !exclusions [obj.name]){
+			} else if (obj.type === Syntax.Identifier && entry.objectFields [obj.name] && !exclusions [obj.name]){
 				if (entry.objectFields [obj.name] === 'locked')
 					throwError ({}, 'Attempt to access to private field: ' + obj.name);
 
-				return {
-					type: 		'MemberExpression',
-					computed: 	false,
-					object: 	{ type: 'ThisExpression' },
-					property: 	{ type: 'Identifier', name: obj.name }
-				};
-
+				return memberExpression (thisExpression (), obj.name);
 			} else {
-				if (obj.type === 'CallExpression' && obj ['super']){
+				if (obj.type === Syntax.CallExpression && obj ['super']){
 					if (name === null && obj.callee === null)
 						throwError ({}, Messages.WtfMan);
 
@@ -162,10 +155,10 @@ function setupClass (name){
 								callee),
 						'call');
 
-					obj.arguments = [ { type: 'ThisExpression' } ].concat (obj.arguments);
+					obj.arguments = [ thisExpression () ].concat (obj.arguments);
 				}
 
-				if (obj.type !== 'MemberExpression')
+				if (obj.type !== Syntax.MemberExpression)
 					for (var n in obj)
 						obj [n] = update (obj [n], name, true) || obj [n];
 			}
