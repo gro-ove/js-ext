@@ -2,6 +2,7 @@ TODO:
 	V Arguments to exclusions list
 	V Classes extends
 	- Initialization order
+	- Super requested in constuctors
 	- Strings format
 	- Static classes
 	- NotImplemented operator
