@@ -18,6 +18,8 @@ class A {
 	public var publicVar = 1;
 	private var privateVar = 2;
 	protected var protectedVar = 3;
+	
+	var undefinedVar;
 
 	public function publicObject (){
 		protectedVar = protectedVar + 1;

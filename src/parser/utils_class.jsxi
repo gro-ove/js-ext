@@ -8,6 +8,7 @@ function addClass (name, parent, uses, variables, functions, element){
 		objectFields = {},
 		objectConstructor, 
 		staticInitialization, 
+		objectVariablesInitialization = [],
 		staticVariablesInitialization = [];
 
 	if (classes [name])
@@ -24,6 +25,18 @@ function addClass (name, parent, uses, variables, functions, element){
 				arg.publicMode = entry.publicMode;
 				objectVariables.push (arg);
 				objectFields [arg.id.name] = entry.publicMode;
+
+				objectVariablesInitialization.push (
+					expressionStatement (
+						assignmentExpression (
+							memberExpression (
+								thisExpression (),
+								arg.id.name
+							),
+							arg.init || 'undefined'
+						)
+					)
+				);
 			});
 
 	for (var entry in-array functions)
@@ -52,6 +65,7 @@ function addClass (name, parent, uses, variables, functions, element){
 	else
 		staticInitialization.id = null;
 
+	objectConstructor.body.body = objectVariablesInitialization.concat (staticInitialization.body.body);
 	staticInitialization.body.body = staticVariablesInitialization.concat (staticInitialization.body.body);
 
 	classes [name] = {
@@ -144,9 +158,7 @@ function setupClass (name){
 						callee === '@' 
 							? parent.name
 							: memberExpression (
-								memberExpression (
-									parent.name, 
-									'prototype'),
+								memberExpression (parent.name, 'prototype'),
 								callee),
 						'call');
 
@@ -189,44 +201,27 @@ function setupClass (name){
 		extendsStatements = [
 			expressionStatement (
 				assignmentExpression (
-					memberExpression (
-						temp,
-						'prototype'
-					),
-					memberExpression (
-						entry.parent,
-						'prototype'
-					)
+					memberExpression (temp, 'prototype'),
+					memberExpression (entry.parent, 'prototype')
+				)
+			),
+			expressionStatement (
+				assignmentExpression (
+					memberExpression (variable, 'prototype'),
+					newExpression (temp)
 				)
 			),
 			expressionStatement (
 				assignmentExpression (
 					memberExpression (
-						variable,
-						'prototype'
-					),
-					newExpression (
-						temp
-					)
-				)
-			),
-			expressionStatement (
-				assignmentExpression (
-					memberExpression (
-						memberExpression (
-							variable,
-							'prototype'
-						),
+						memberExpression (variable, 'prototype'),
 						'constructor'
 					),
 					variable
 				)
 			),
 			expressionStatement (
-				assignmentExpression (
-					temp,
-					'undefined'
-				)
+				assignmentExpression (temp, 'undefined')
 			)
 		];
 	} else
@@ -248,17 +243,10 @@ function setupClass (name){
 					expressionStatement (
 						assignmentExpression (
 							memberExpression (
-								memberExpression (
-									variable,
-									'prototype'
-								),
+								memberExpression (variable, 'prototype'),
 								arg.id.name
 							),
-							functionExpression (
-								null,
-								arg.params,
-								arg.body
-							)
+							functionExpression (null, arg.params, arg.body)
 						)
 					)
 				)
@@ -270,10 +258,7 @@ function setupClass (name){
 					.map (lambda 
 						expressionStatement (
 							assignmentExpression (
-								memberExpression (
-									variable,
-									arg.id.name
-								),
+								memberExpression (variable, arg.id.name),
 								arg.id.name
 							)
 						)
