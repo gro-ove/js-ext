@@ -45,6 +45,13 @@
 			right: 			identifier (right)
 		}
 
+	function newExpression (callee, arguments = [])
+		return {
+			type: 			Syntax.NewExpression,
+			callee: 		identifier (callee),
+			arguments: 		arguments
+		}
+
 	function binaryExpression (left, operator, right)
 		return {
             type: 			Syntax.BinaryExpression,
