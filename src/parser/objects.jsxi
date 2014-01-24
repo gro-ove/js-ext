@@ -37,6 +37,11 @@
 			arguments: 		arguments
 		}
 
+	function thisExpression ()
+		return {
+			type: 			Syntax.ThisExpression
+		}
+
 	function assignmentExpression (left, right)
 		return {
 			type: 			Syntax.AssignmentExpression,
