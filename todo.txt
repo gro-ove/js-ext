@@ -3,3 +3,9 @@ TODO:
 	V Classes extends
 	- Initialization order
 	- Strings format
+	- Static classes
+	- NotImplemented operator
+	- Array initializer operator
+	- New loop: for-in-only (?)
+	- Inner classes (?)
+	- Warnings
