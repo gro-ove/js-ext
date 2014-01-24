@@ -13,7 +13,7 @@ class A {
 	}
 
 	static {
-		console.debug ('A: static initialize');
+		console.debug ('A: static initialize (' + B.variable + ')');
 		publicStatic ();
 	}
 
