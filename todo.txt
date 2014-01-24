@@ -1,0 +1,5 @@
+TODO:
+	V Arguments to exclusions list
+	V Classes extends
+	- Initialization order
+	- Strings format
