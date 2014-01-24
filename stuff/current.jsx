@@ -55,6 +55,10 @@ class Child extends A {
 }
 
 class ChildChild extends Child {
+	function test (publicVar){
+		protectedVar = publicVar
+	}
+
 	(){
 		super ('Child constructor');
 		super.super.publicObject ('publicObject from A');
