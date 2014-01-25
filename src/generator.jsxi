@@ -2,7 +2,11 @@ module Generator {
 	var currentFileName, tabs, tab = '    ';
 
 	function _ (s)
-		return s.slice (0, s [s.length - 1] === '\n' ? -1 : -tab.length);
+		return s [s.length - 1] === '\n' 
+			? s.slice (0, -1) 
+			: s.slice (-tab.length) === tab 
+				? s.slice (0, -tab.length)
+				: s;
 
 	function t (s, full)
 		return s.replace (full ? (/(\/\/[\s\S]+)?[\n\s]+$/g) : (/[\n\s]+$/g), '');
@@ -33,7 +37,7 @@ module Generator {
 		var result = '; // ';
 
 		if (arg.lineNumber)
-			result += currentFileName + ':' + arg.lineNumber;
+			result += currentFileName + ' [' + arg.lineNumber + ':' + (arg.index - arg.lineStart) + ']';
 		if (arg.comment)
 			if (arg.lineNumber)
 				result += ' (' + arg.comment + ')';
@@ -49,7 +53,7 @@ module Generator {
 	function f (element, arg){
 		if (!fn [element.type]){
 			console.log (element);
-			return '[ ' + element.type.toUpperCase () + ' ]';
+			return '[ ' + element.type.toUpperCase () + ' ]' + $ (element);
 		} else {
 			var oldTabs = tabs,
 				result = fn [element.type](element, arg);
@@ -64,10 +68,10 @@ module Generator {
 		Literal:                lambda arg.value === null 
 									? 'null'
 									: typeof arg.value === 'string' 
-										? '"' + arg.value + '"' 
+										? JSON.stringify (arg.value)
 										: typeof arg.value === 'number' 
 											? arg.value 
-											: '[ ' + (typeof arg.value).toUpperCase () + ' ]',
+											: '[ ' + arg.value + ' ]',
 		Property: 				lambda f (arg.key) + ': ' + f (arg.value),
 
 		BlockStatement:         lambda arg.body.length ? '{' + n (1) + _ (c (arg.body)) + '}' + (arguments [1] ? ' ' : n (-1)) : '{}',
@@ -75,10 +79,18 @@ module Generator {
 		ReturnStatement:        lambda 'return' + (arg.argument ? ' ' + f (arg.argument) : '') + $ (arg),
 		IfStatement:        	lambda 'if (' + f (arg.test) + ')' + x (arg.consequent, arg.alternate) + (arg.alternate ? 'else ' + x (arg.alternate) : ''),
 		WhileStatement:    		lambda 'while (' + f (arg.test) + ')' + x (arg.body),
+		DoWhileStatement: 		lambda 'do ' + x (arg.body, true) + 'while (' + f (arg.test) + ')' + $ (arg),
 		ForStatement:    		lambda 'for (' + (arg.init ? f (arg.init, true) : '') + ';' + (arg.test ? ' ' + f (arg.test) : '') + ';' + (arg.update ? ' ' + f (arg.update) : '') + ')' + x (arg.body),
 		ForInStatement:    		lambda 'for (' + f (arg.left, true) + ' in ' + f (arg.right) + ')' + x (arg.body),
 		TryStatement:    		lambda 'try ' + f (arg.block, true) + c (arg.handlers, '', arg.finalizer) + (arg.finalizer ? 'finally ' + f (arg.finalizer) : '') + tabs, 
 		CatchClause:            lambda 'catch (' + f (arg.param) + ')' + f (arg.body, arguments [1]),
+		LabeledStatement:       lambda f (arg.label) + ': ' + f (arg.body),
+		BreakStatement:       	lambda 'break' + (arg.label ? ' ' + f (arg.label) : '') + $ (arg),
+		ContinueStatement:      lambda 'continue' + (arg.label ? ' ' + f (arg.label) : '') + $ (arg),
+		ThrowStatement:      	lambda 'throw ' + f (arg.argument) + $ (arg),
+		DebuggerStatement:      lambda 'debugger' + $ (arg),
+		SwitchStatement:        lambda 'switch (' + f (arg.discriminant) + '){' + n (1) + _ (c (arg.cases)) + '}',
+		SwitchCase:             lambda (arg.test ? 'case ' + f (arg.test) : 'default') + ':' + n (1) + _ (c (arg.consequent)),
 
 		NewExpression:          lambda 'new ' + f (arg.callee) + ' (' + c (arg.arguments, ', ') + ')',
 		ThisExpression:         lambda 'this',
