@@ -70,9 +70,10 @@ module App {
 		if (args.l){
 			var c = JSON.stringify (parsed, false, 4).length;
 
-			if (c != +args.l)
+			if (c != +args.l){
+				console.log (console.json (parsed));
 				console.fatal (3, 'Wrong length: ' + c);
-			else
+			} else
 				console.log (args.data [0] + ' - ok :)')
 		} else {
 			var esmangle = require ('esmangle'),
