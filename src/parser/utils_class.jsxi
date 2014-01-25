@@ -65,17 +65,20 @@ function addClass (name, parent, uses, variables, functions, at){
 		if (!objectConstructor)
 			objectConstructor = functionExpression ();
 		objectConstructor.body.body = objectVariablesInitialization.concat (objectConstructor.body.body);
-	} else if (objectConstructor)
-		objectConstructor.id = null;
+	}
 
 	if (staticVariablesInitialization.length){
 		if (!staticInitialization)
 			staticInitialization = functionExpression ();
 		staticInitialization.body.body = staticVariablesInitialization.concat (staticInitialization.body.body);
-	} else if (staticInitialization && staticInitialization.body.body.length > 0){
-		staticInitialization.id = null;
 	} else if (staticInitialization)
 		staticInitialization = null;
+
+	if (objectConstructor && objectConstructor.id)
+		objectConstructor.id = null;
+
+	if (staticInitialization && staticInitialization.id)
+		staticInitialization.id = null;
 
 	classes.push (classesByNames [name.name] = {
 		name: 							name,
@@ -254,7 +257,7 @@ function processClass (entry){
 		variable = newIdentifier ();
 
 		if (entry.mode === 'default'){
-			variables.push (variableDeclarator (variable, entry.objectConstructor));
+			variables.push (variableDeclarator (variable, entry.objectConstructor || functionExpression ()));
 
 			if (entry.parent){
 				temp = newIdentifier ();
