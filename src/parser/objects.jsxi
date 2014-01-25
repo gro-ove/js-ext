@@ -5,12 +5,19 @@
 		}
 
 	function identifier (arg)
-		return !arg ? null : typeof arg === 'string' ? {
-			type: 			Syntax.Identifier,
-			name: 			arg
-		} : arg
+		if (typeof arg === 'string'){
+			return state.inClass ? {
+				type: 			Syntax.Identifier,
+				name: 			arg,
+				lineNumber:     lineNumber
+			} : {
+				type: 			Syntax.Identifier,
+				name: 			arg
+			};
+		} else 
+			return arg || null;
 
-	function block (body = [])
+	function blockStatement (body = [])
 		return body instanceof Array ? {
 			type: 			Syntax.BlockStatement,
 			body: 			body
@@ -42,19 +49,41 @@
 			type: 			Syntax.ThisExpression
 		}
 
-	function assignmentExpression (left, right)
+	function assignmentExpression (left, operator, right){
+		if (typeof operator !== 'string' || operator [operator.length - 1] !== '='){
+			right = operator;
+			operator = '=';
+		}
+
 		return {
 			type: 			Syntax.AssignmentExpression,
-			operator: 		'=',
+			operator: 		operator,
 			left: 			identifier (left),
 			right: 			identifier (right)
 		}
+	}
 
 	function newExpression (callee, arguments = [])
 		return {
 			type: 			Syntax.NewExpression,
 			callee: 		identifier (callee),
 			arguments: 		arguments
+		}
+
+	function conditionalExpression (test, trueExpression, falseExpression)
+		return {
+			type: 			Syntax.ConditionalExpression,
+			test: 			test,
+			consequent: 	identifier (trueExpression),
+			alternate: 		identifier (falseExpression)
+		}
+
+	function logicalExpression (left, operator, right)
+		return {
+			type: 			Syntax.LogicalExpression,
+			operator: 		operator,
+			left: 			identifier (left),
+			right: 			identifier (right)
 		}
 
 	function binaryExpression (left, operator, right)
@@ -91,7 +120,7 @@
 			id: 			identifier (name),
 			params: 		params,
 			defaults: 		[],
-			body: 			block (body),
+			body: 			blockStatement (body),
 			rest: 			null,
 			generator: 		false,
 			expression: 	false
@@ -103,7 +132,7 @@
 			id: 			identifier (name),
 			params: 		params,
 			defaults: 		[],
-			body: 			block (body),
+			body: 			blockStatement (body),
 			rest: 			null,
 			generator: 		false,
 			expression: 	false
