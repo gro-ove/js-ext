@@ -4,10 +4,7 @@
 		if (!isIdentifierName (token))
 			throwUnexpected (token);
 
-		return {
-			type: 	Syntax.Identifier,
-			name: 	token.value
-		};
+		return identifier (token.value);
 	}
 
 	function parseNonComputedMember (){
@@ -30,16 +27,12 @@
 
 		expectKeyword ('new');
 
-		expr = {
-			type: 			Syntax.NewExpression,
-			callee: 		parseLeftHandSideExpression (),
-			arguments: 		[]
-		};
-
-		if (match ('('))
-			expr ['arguments'] = parseArguments ();
-
-		return expr;
+		return newExpression (
+			parseLeftHandSideExpression (), 
+			match ('(') 
+				? parseArguments () 
+				: []
+		);
 	}
 
 	function parseLeftHandSideExpressionAllowCall (){

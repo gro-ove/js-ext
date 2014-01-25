@@ -20,10 +20,7 @@
 		if (token.type === Token.StringLiteral || token.type === Token.NumericLiteral) 
 			return createLiteral (token);
 
-		return {
-			type: 	Syntax.Identifier,
-			name: 	token.value
-		};
+		return identifier (token.value);
 	}
 
 	function parseObjectProperty (){
