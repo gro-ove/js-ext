@@ -1,10 +1,14 @@
 	function mark (obj){
+		if (state.parsingComplete && obj)
+			return obj;
+
 		if (obj === undefined)
 			obj = {};
 
 		obj.lineNumber 	= lineNumber;
 		obj.lineStart 	= lineStart;
 		obj.index 		= index;
+
 		return obj;
 	}
 
@@ -15,30 +19,23 @@
 		}
 
 	function identifier (arg)
-		if (typeof arg === 'string'){
-			return state.inClass ? {
-				type: 			Syntax.Identifier,
-				name: 			arg,
-				lineNumber:     lineNumber,
-				lineStart:      lineStart,
-				index:          index
-			} : {
-				type: 			Syntax.Identifier,
-				name: 			arg
-			};
-		} else 
-			return arg || null;
+		return typeof arg !== 'string' ? arg || null : mark ({
+			type: 			Syntax.Identifier,
+			name: 			arg
+		});
 
-	function blockStatement (body = [])
-		return body instanceof Array ? {
-			type: 			Syntax.BlockStatement,
-			body: 			body
-		} : body
-
-	function variableDeclarator (id)
+	function property (key, value, kind = 'init')
 		return {
-			type: 			Syntax.VariableDeclarator,
-			id: 			id
+			type: 			Syntax.Property,
+			key: 			identifier (key),
+			value: 			identifier (value),
+			kind: 			kind
+		};
+
+	function objectExpression (properties = [])
+		return {
+			type: 			Syntax.ObjectExpression,
+			properties: 	properties
 		}
 
 	function memberExpression (obj, property, computed = false)
@@ -67,19 +64,18 @@
             elements:   	elements
 		}
 
-	function assignmentExpression (left, operator, right){
-		if (typeof operator !== 'string' || operator [operator.length - 1] !== '='){
-			right = operator;
-			operator = '=';
-		}
-
-		return {
+	function assignmentExpression (left, operator, right)
+		return typeof operator !== 'string' || operator [operator.length - 1] !== '=' ? {
+			type: 			Syntax.AssignmentExpression,
+			operator: 		'=',
+			left: 			identifier (left),
+			right: 			identifier (operator)
+		} : {
 			type: 			Syntax.AssignmentExpression,
 			operator: 		operator,
 			left: 			identifier (left),
 			right: 			identifier (right)
 		}
-	}
 
 	function newExpression (callee, arguments = [])
 		return {
@@ -118,39 +114,55 @@
 			right: 			identifier (right)
         }
 
+	function blockStatement (body = [], single)
+		return body instanceof Array ? mark ({
+			type: 			Syntax.BlockStatement,
+			body: 			body,
+			single:         single
+		}) : body
+
 	function expressionStatement (expression)
-		return {
+		return mark ({
 			type: 			Syntax.ExpressionStatement,
 			expression: 	expression
-		}
+		})
 
 	function ifStatement (test, trueStatement, falseStatement = null)
-		return {
+		return mark ({
 			type: 			Syntax.IfStatement,
             test: 			test,
             consequent: 	trueStatement,
             alternate: 		falseStatement
-		}
+		})
 
 	function returnStatement (arg)
-		return {
+		return mark ({
 			type: 			Syntax.ReturnStatement,
 			argument: 		identifier (arg)
-		}
+		})
 
-	function property (key, value, kind = 'init')
-		return {
-			type: 			Syntax.Property,
-			key: 			identifier (key),
-			value: 			identifier (value),
-			kind: 			kind
-		};
+	function throwStatement (arg)
+		return mark ({
+			type: 			Syntax.ThrowStatement,
+			argument: 		identifier (arg)
+		})
 
-	function objectExpression (properties = [])
-		return {
-			type: 			Syntax.ObjectExpression,
-			properties: 	properties
-		}
+	function breakStatement (arg)
+		return mark ({
+			type: 			Syntax.BreakStatement,
+			label: 			identifier (arg)
+		})
+
+	function continueStatement (arg)
+		return mark ({
+			type: 			Syntax.ContinueStatement,
+			label: 			identifier (arg)
+		})
+
+	function debuggerStatement ()
+		return mark ({ 
+			type: 			Syntax.DebuggerStatement
+		})
 
 	function functionExpression (name, params = [], body)
 		return {
@@ -165,7 +177,7 @@
 		};
 
 	function functionDeclaration (name, params = [], body)
-		return {
+		return mark ({
 			type: 			Syntax.FunctionDeclaration,
 			id: 			identifier (name),
 			params: 		params,
@@ -174,25 +186,24 @@
 			rest: 			null,
 			generator: 		false,
 			expression: 	false
-		};
+		});
 
-	function variableDeclarator (name, value){
+	function variableDeclarator (name, value)
 		return {
 			type: 			Syntax.VariableDeclarator,
 			id: 			identifier (name),
 			init: 			identifier (value)
 		}
-	}
 
 	function variableDeclaration (variables)
-		return {
+		return mark ({
 			type: 			Syntax.VariableDeclaration,
 			declarations: 	variables,
 			kind: 			'var'
-		}
+		})
 
 	function program (elements)
 		return {
 			type: 			Syntax.Program,
 			body: 			elements
-		};
+		}
