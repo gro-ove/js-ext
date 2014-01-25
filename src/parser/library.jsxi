@@ -88,13 +88,12 @@
 		InvalidLHSInForIn:  			'Invalid left-hand side in for-in',
 		MultipleDefaultsInSwitch: 		'More than one default clause in switch statement',
 		NoCatchOrFinally:  				'Missing catch or finally after try',
-		UnknownLabel: 					'Undefined label \'%0\'',
-		Redeclaration: 					'%0 \'%1\' has already been declared',
 		IllegalContinue: 				'Illegal continue statement',
 		IllegalBreak: 					'Illegal break statement',
 		IllegalReturn: 					'Illegal return statement',
 		AccessorDataProperty: 			'Object literal may not have data and accessor property with the same name',
 		AccessorGetSet:  				'Object literal may not have multiple get/set accessors with the same name',
+		CyclicDependencyDetected: 		'Cyclic dependency detected: %0 from %1',
 		WtfMan: 						'WTF, MAN'
 	};
 
