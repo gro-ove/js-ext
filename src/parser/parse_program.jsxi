@@ -18,7 +18,9 @@
 	}
 
 	function parseProgramElements (){
-		var sourceElement, sourceElements = [], token, directive;
+		var sourceElement, sourceElements = [], token, directive, temp;
+
+		initClasses ();
 
 		while (index < length){
 			token = lookahead ();
@@ -44,11 +46,15 @@
 			sourceElements.push (sourceElement);
 		}
 
+		temp = processClasses ();
+		if (typeof temp !== 'undefined')
+			sourceElements.push (temp);
+
 		return sourceElements;
 	}
 
 	function parseProgram ()
-		return program = {
+		return {
 			type: Syntax.Program,
 			body: parseProgramElements ()
 		};

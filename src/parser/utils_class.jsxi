@@ -1,16 +1,10 @@
-var classes;
+var classes, classesByNames, probablyUseOtherMaxValue = 100;
 
-function getPosByName (name){
-	for (var i, entry in-array classes)
-		if (entry.name === name)
-			return i;
-	return -1;
-}
+function getPosByName (name)
+	return classes.indexOf (classesByNames [name]);
 
 function getByName (name)
-	for (var entry in-array classes)
-		if (entry.name === name)
-			return entry;
+	return classesByNames [name];
 
 function addClass (name, parent, uses, variables, functions){
 	var objectVariables = [], 
@@ -80,7 +74,7 @@ function addClass (name, parent, uses, variables, functions){
 	objectConstructor.body.body = objectVariablesInitialization.concat (objectConstructor.body.body);
 	staticInitialization.body.body = staticVariablesInitialization.concat (staticInitialization.body.body);
 
-	classes.push ({
+	classes.push (classesByNames [name] = {
 		name: 							name,
 		parent: 						parent,
 		uses: 							uses,
@@ -96,9 +90,10 @@ function addClass (name, parent, uses, variables, functions){
 
 function initClasses (){
 	classes = [];
+	classesByNames = {};
 }
 
-function setupClass (entry){
+function processClass (entry){
 	if (typeof entry === 'string')
 		assert (entry = getByName (entry), 'Class not found');
 
@@ -140,11 +135,20 @@ function setupClass (entry){
 				exclusions = oldExclusions;
 			} else if (obj.type === Syntax.Property){
 				obj.value = update (obj.value, name, true) || obj.value;
-			} else if (obj.type === Syntax.Identifier && entry.objectFields [obj.name] && !exclusions [obj.name]){
-				if (entry.objectFields [obj.name] === 'locked')
-					throwError ({}, 'Attempt to access to private field: ' + obj.name);
+			} else if (obj.type === Syntax.Identifier){
+				if (!exclusions [obj.name]){
+					if (entry.objectFields [obj.name]){
+						if (entry.objectFields [obj.name] === 'locked')
+							throwError ({}, 'Attempt to access to private field: ' + obj.name);
 
-				return memberExpression (thisExpression (), obj.name);
+						return memberExpression (thisExpression (), obj.name);
+					} else if (classesByNames [obj.name])
+						entry.probablyUseOther = (entry.probablyUseOther || 0) + 1;
+				}
+			} else if (obj.type === Syntax.MemberExpression){
+				obj.object = update (obj.object, name, true) || obj.object;
+				if (obj.computed)
+					obj.property = update (obj.property, name, true) || obj.property;
 			} else {
 				if (obj.type === Syntax.CallExpression && obj ['super']){
 					if (name === null && obj.callee === null)
@@ -170,8 +174,8 @@ function setupClass (entry){
 					obj.arguments = [ thisExpression () ].concat (obj.arguments);
 				}
 
-				if (obj.type !== Syntax.MemberExpression)
-					for (var n in obj)
+				for (var n in obj)
+					if (n !== 'type')
 						obj [n] = update (obj [n], name, true) || obj [n];
 			}
 		}
@@ -180,7 +184,7 @@ function setupClass (entry){
 		if (!getByName (entry.parent)){
 			throwError ({}, 'Parent class not found: ' + entry.parent);
 		} else {
-			setupClass (entry.parent);
+			processClass (entry.parent);
 			for (var n, v in getByName (entry.parent).objectFields)
 				if (!entry.objectFields [n])
 					entry.objectFields [n] = v === 'private' ? 'locked' : v;
@@ -236,7 +240,7 @@ function setupClass (entry){
 		variables = variables.concat (entry.staticVariables);
 
 	entry.element = variableDeclarator (
-		id.name,
+		entry.name,
 		callExpression (
 			functionExpression (
 				null, 
@@ -282,47 +286,71 @@ function setupClass (entry){
 	);
 }
 
-function swap (a, b){
-	var id = classes [a].element.id,
-		init = classes [a].element.init;
+function checkForCircular (){
+	var current;
 
-	classes [a].element.id 		= classes [b].element.id;
-	classes [a].element.init 	= classes [b].element.init;
+	function check (entry, parent){
+		if (parent === undefined)
+			current = {};
 
-	classes [b].element.id 		= id;
-	classes [b].element.init 	= init;
+		if (typeof entry === 'string')
+			assert (entry = getByName (entry), 'Class not found: ' + entry);
 
-	var temp = classes [a];
-	classes [a] = classes [b];
-	classes [b] = temp;
-}
+		if (current [entry.name])
+			throwError ({}, Messages.CyclicDependencyDetected, entry.name, parent);
 
-function setupClasses (program){
-	var temp, other;
+		current [entry.name] = true;
+
+		if (entry.parent)
+			check (entry.parent, entry.name);
+		for (var use in-array entry.uses)
+			check (use, entry.name);
+	}
 
 	for (var entry in-array classes)
-		setupClass (entry);
-
-	/*for (var i, entry in-array classes)
-		for (var u in-array entry.uses){
-			j = getPosByName (u);
-
-			if (j > i){
-				console.log ('swap: ' + classes [i].name + ', ' + classes [j].name + ' (' + i + ', ' + j + ')')
-				swap (i, j);
-				i = 0;
-				break;
-			}
-		}
-
-	return {
-		before: [],
-		after: []
-	};*/
-
-	return variableDeclaration (classes.map (lambda arg.element));
+		check (entry);
 }
 
-function resetClasses (){
-	classes = undefined;
+function sortClasses (){
+	function getWeight (entry){
+		if (typeof entry === 'string')
+			assert (entry = getByName (entry), 'Class not found: ' + entry);
+
+		if (entry.weight)
+			return entry.weight;
+
+		entry.weight = entry.probablyUseOther ? 1 + Math.min (entry.probablyUseOther, probablyUseOtherMaxValue) / (probablyUseOtherMaxValue + 1) : 1;
+
+		if (entry.parent)
+			entry.weight += getWeight (entry.parent);
+		for (var use in-array entry.uses)
+			entry.weight += getWeight (use);
+		return entry.weight;
+	}
+
+	for (var entry in-array classes)
+		getWeight (entry);
+
+	classes.sort (lambda (a, b) a.weight > b.weight);
+
+	console.json (classes.map (lambda {
+		name: arg.name,
+		probablyUseOther: arg.probablyUseOther,
+		weight: arg.weight
+	}));
+}
+
+function processClasses (program){
+	var temp, other;
+
+	if (classes.length === 0)
+		return;
+
+	for (var entry in-array classes)
+		processClass (entry);
+
+	checkForCircular ();
+	sortClasses ();
+
+	return variableDeclaration (classes.map (lambda arg.element));
 }

@@ -20,17 +20,12 @@ module Parser {
 		information		= { comments: {} };
 
 		try {
-			initClasses ();
 			program = parseProgram ();
-			setupClasses ();
 
 			if (options && options.information)
 				program.information = information;
-		} catch {
+		} catch
 			throw e;
-		} finally {
-			resetClasses ();
-		}
 
 		return program;
 	}
