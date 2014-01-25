@@ -77,14 +77,11 @@
 		} else 
 			sourceElements.push (parseSourceElement ());
 
-		return {
-			type: 	Syntax.BlockStatement,
-			body: 	sourceElements
-		};
+		return blockStatement (sourceElements);
 	}
 
 	function parseFunctionDeclaration (){
-		var id, params = [], defaults = [], body, token;
+		var token, id, params, defaults = [], body;
 
 		expectKeyword ('function');
 
@@ -100,7 +97,7 @@
 	}
 
 	function parseFunctionExpression (){
-		var token, id = null, param, params, defaults = [], body;
+		var token, id = null, params, defaults = [], body;
 
 		expectKeyword ('function');
 
