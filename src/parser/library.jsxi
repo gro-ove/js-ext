@@ -94,6 +94,8 @@
 		AccessorDataProperty: 			'Object literal may not have data and accessor property with the same name',
 		AccessorGetSet:  				'Object literal may not have multiple get/set accessors with the same name',
 		CyclicDependencyDetected: 		'Cyclic dependency detected: %0 from %1',
+		PrivateAccessError: 			'Attempt to access to private field %0',
+		ObjectAccessError: 				'Attempt to access to object field %0 from static method',
 		WtfMan: 						'WTF, MAN'
 	};
 
