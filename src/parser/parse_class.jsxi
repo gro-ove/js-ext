@@ -56,11 +56,17 @@
 			token,
 			temp,
 			staticMode,
+			staticModeOnly,
 			publicMode,
 			usedClasses = [],
 			variableDeclarations = [],
 			functionDeclarations = [],
 			oldInClass;
+
+		if (matchKeyword ('static')){
+			lex ();
+			staticModeOnly = true;
+		}
 
 		expectKeyword ('class');
 
@@ -81,7 +87,7 @@
 				break;
 
 			publicMode = undefined;
-			staticMode = false;
+			staticMode = staticModeOnly || false;
 
 			if (matchKeyword ('static')){
 				staticMode = true;
