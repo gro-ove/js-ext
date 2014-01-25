@@ -118,7 +118,7 @@
 			if (token.type === Token.Keyword){
 				switch (token.value){
 					case 'use':
-						if (staticMode || publicMode)
+						if (staticMode && !staticModeOnly || publicMode)
 							throwError ({}, Messages.WtfMan);
 						temp = true;
 						usedClasses = usedClasses.concat (parseUseStatement ());

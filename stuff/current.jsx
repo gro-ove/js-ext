@@ -38,9 +38,9 @@ class A {
 	}
 }
 
-class B {
+static class B {
 	use C;
-	static public var variable = JSON.stringify ({ key: 'value' });
+	public var variable = JSON.stringify ({ key: 'value' });
 }
 
 class C {
