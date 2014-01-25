@@ -10,13 +10,7 @@
 		if ((match ('++') || match ('--')) && !peekLineTerminator ()){
 			if (!isLeftHandSide (expr))
 				throwError ({}, Messages.InvalidLHSInAssignment);
-
-			expr = {
-				type:       Syntax.UpdateExpression,
-				operator:   lex ().value,
-				argument:   expr,
-				prefix:     false
-			};
+			expr = unaryExpression (expr, lex ().value, false);
 		}
 
 		return expr;

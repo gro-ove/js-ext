@@ -17,15 +17,11 @@
 		if (match (';'))
 			lex ();
 
-		return {
-			type: 	Syntax.DoWhileStatement,
-			body: 	body,
-			test: 	test
-		};
+		return doWhileStatement (body, test);
 	}
 
 	function parseWhileStatement (){
-		var test, body;
+		var test;
 
 		expectKeyword ('while');
 		expect ('(');
@@ -34,23 +30,12 @@
 
 		expect (')');
 
-		body = parseStatement ();
-
-		return {
-			type: 	Syntax.WhileStatement,
-			test: 	test,
-			body: 	body
-		};
+		return whileStatement (test, parseStatement ());
 	}
 
 	function parseForVariableDeclaration (){
-		var token = lex ();
-
-		return {
-			type: 			Syntax.VariableDeclaration,
-			declarations: 	parseVariableDeclarationList(),
-			kind: 			token.value
-		};
+		lex ();
+		return variableDeclaration (parseVariableDeclarationList ());
 	}
 
 	function parseForStatement (){
@@ -71,9 +56,9 @@
 
 				if (init.declarations.length <= 2 && (matchKeyword ('in-array') && (arrayMode = 1) || matchKeyword ('in'))){
 					lex ();
-					left 	= init;
-					right 	= parseExpression ();
-					init 	= null;
+					left 		= init;
+					right 		= parseExpression ();
+					init 		= null;
 				}
 			} else {
 				state.allowIn 	= false;
@@ -86,9 +71,9 @@
 						throwError ({}, Messages.InvalidLHSInForIn);
 
 					lex ();
-					left 	= init;
-					right 	= parseExpression();
-					init 	= null;
+					left 		= init;
+					right 		= parseExpression();
+					init 		= null;
 				}
 			}
 
@@ -110,36 +95,10 @@
 		body = parseStatement ();
 
 		if (arrayMode)
-			if (left.type === 'VariableDeclaration' && left.declarations.length === 1){
-				left.declarations = [
-					{
-	                    type: 'VariableDeclarator',
-	                    id: {
-	                        type: 'Identifier',
-	                        name: newIdentifier ()
-	                    }
-	                },
-					left.declarations [0]
-				]
-			} else if (left.type === 'Identifier'){
-				left = {
-					type: 'VariableDeclaration',
-					declarations: [
-						{
-		                    type: 'VariableDeclarator',
-		                    id: {
-		                        type: 'Identifier',
-		                        name: newIdentifier ()
-		                    }
-		                },
-		                {
-		                	type: 'VariableDeclarator',
-		                	id: left
-		                }
-					],
-		            kind: 'var'
-				};
-
+			if (left.type === Syntax.VariableDeclaration && left.declarations.length === 1){
+				left.declarations = [ variableDeclarator (newIdentifier ()), left.declarations [0] ]
+			} else if (left.type === Syntax.Identifier){
+				left = variableDeclaration ([ variableDeclarator (newIdentifier ()), variableDeclarator (left) ]);
 				arrayMode = 2;
 			}
 
@@ -151,30 +110,15 @@
 				update: 	update,
 				body: 		body
 			};
-		} else if (left.type === 'SequenceExpression' && left.expressions.length === 2 || arrayMode === 2){
+		} else if (left.type === Syntax.SequenceExpression && left.expressions.length === 2 || arrayMode === 2){
 			temp = body;
 
-			body = {
-				type: 'BlockStatement',
-				body: [
-					{
-						type: 'ExpressionStatement',
-						expression: {
-							type: 'AssignmentExpression',
-							operator: '=',
-							left: arrayMode === 2 ? left.declarations [1].id : left.expressions [1],
-							right: {
-								type: 'MemberExpression',
-								computed: true,
-								object: right,
-								property: arrayMode === 2 ? left.declarations [0].id : left.expressions [0]
-							}
-						}
-					}
-				]
-			};
+			body = blockStatement ([ 
+				expressionStatement (assignmentExpression (
+						arrayMode === 2 ? left.declarations [1].id : left.expressions [1],
+						memberExpression (right, arrayMode === 2 ? left.declarations [0].id : left.expressions [0], true))) ]);
 
-			if (temp.type === 'BlockStatement')
+			if (temp.type === Syntax.BlockStatement)
 				body.body = body.body.concat (temp.body);
 			else
 				body.body.push (temp);
@@ -183,28 +127,12 @@
 				left.declarations.length = 1;
 			else
 				left = left.expressions [0];
-		} else if (left.type === 'VariableDeclaration' && left.declarations.length === 2){
+		} else if (left.type === Syntax.VariableDeclaration && left.declarations.length === 2){
 			temp = body;
+			body = blockStatement ([ variableDeclaration ([ left.declarations [1] ]) ]);
+			body.body [0].declarations [0].init = memberExpression (right, left.declarations [0].id, true);
 
-			body = {
-				type: 'BlockStatement',
-				body: [
-					{
-						type: 'VariableDeclaration',
-						declarations: [ left.declarations [1] ],
-						kind: 'var'
-					}
-				]
-			};
-
-			body.body [0].declarations [0].init = {
-				type: 'MemberExpression',
-				computed: true,
-				object: right,
-				property: left.declarations [0].id
-			};
-
-			if (temp.type === 'BlockStatement')
+			if (temp.type === Syntax.BlockStatement)
 				body.body = body.body.concat (temp.body);
 			else
 				body.body.push (temp);
@@ -213,54 +141,24 @@
 		}
 
 		if (arrayMode){
-			if (left.type === 'VariableDeclaration' && !left.declarations [0].init)
-				left.declarations [0].init = {
-					type: 'Literal',
-					value: 0
-				};
+			if (left.type === Syntax.VariableDeclaration && !left.declarations [0].init)
+				left.declarations [0].init = literal (0);
 
-			temp = left.type === 'VariableDeclaration' 
+			temp = left.type === Syntax.VariableDeclaration
 				? left.declarations [0].id 
-				: left.type === 'SequenceExpression'
+				: left.type === Syntax.SequenceExpression
 					? left.expressions [0]
 					: left;
 
-			result = {
-				type: 		Syntax.ForStatement,
-				init: 		left,
-				test: 		{
-								type: 'BinaryExpression',
-								operator: '<',
-								left: temp,
-								right: {
-									type: 'MemberExpression',
-									computed: false,
-									object: right,
-									property: {
-										type: 'Identifier',
-										name: 'length'
-									}
-								}
-							},
-				update: 	{
-				                type: 'UpdateExpression',
-				                operator: '++',
-				                argument: temp,
-				                prefix: false
-				            },
-				body: 		body
-			};
-		} else {
-			result = {
-				type: 		Syntax.ForInStatement,
-				left: 		left,
-				right: 		right,
-				body: 		body,
-				each: 		false
-			}
-		}
+			result = forStatement (
+				left, 
+				binaryExpression (temp, '<', memberExpression (right, 'length')), 
+				unaryExpression (temp, '++', false), 
+				body);
+		} else 
+			result = forInStatement (left, right, body);
 
-		if (typeof temp !== 'undefined' && right.type !== 'Identifier'){
+		if (typeof temp !== 'undefined' && right.type !== Syntax.Identifier){
 			var identifier = newIdentifier ();
 
 			temp = clone (right);
@@ -268,39 +166,14 @@
 			for (var n in right)
 				delete right [n];
 
-			right.type = 'Identifier';
+			right.type = Syntax.Identifier;
 			right.name = identifier;
 
-			return {
-				type: 'BlockStatement',
-				body: [
-					{
-						type: 'VariableDeclaration',
-						declarations: [
-							{
-								type: 'VariableDeclarator',
-								id: right,
-								init: temp
-							}
-						],
-						kind: 'var'
-					},
-					result,
-					{ 
-						type: 'ExpressionStatement',
-						expression: {
-							type: 'AssignmentExpression',
-							operator: '=',
-							left: right,
-							right: {
-								type: 'Literal',
-								value: null,
-								raw: 'null'
-							}
-						}
-					}
-				]
-			};
+			return blockStatement ([
+				variableDeclaration ([ variableDeclarator (right, temp) ]),
+				result,
+				expressionStatement (assignmentExpression (right, 'undefined'))
+			]);
 		}
 
 		return result;
