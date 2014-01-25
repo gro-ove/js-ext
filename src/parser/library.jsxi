@@ -66,7 +66,6 @@
 		ThrowStatement: 				'ThrowStatement',
 		TryStatement: 					'TryStatement',
 		UnaryExpression: 				'UnaryExpression',
-		UpdateExpression: 				'UpdateExpression',
 		VariableDeclaration:			'VariableDeclaration',
 		VariableDeclarator: 			'VariableDeclarator',
 		WhileStatement: 				'WhileStatement',
