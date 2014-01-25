@@ -149,19 +149,14 @@
 
 		expect ('}');
 
-		var result = variableDeclaration ([
-			variableDeclarator (id.name, 'undefined')
-		]);
-
 		addClass (
 			id.name, 
 			parent ? parent.name : null,
 			usedClasses.map (lambda arg.name), 
 			variableDeclarations,
-			functionDeclarations,
-			result.declarations [0]);
+			functionDeclarations);
 
-		return result;
+		return null;
 	}
 
 	function parseSuperStatement (){

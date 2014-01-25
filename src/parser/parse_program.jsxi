@@ -37,6 +37,8 @@
 
 		while (index < length) {
 			sourceElement = parseProgramElement ();
+			if (sourceElement === null)
+				continue;
 			if (typeof sourceElement === 'undefined') 
 				break;
 			sourceElements.push (sourceElement);
