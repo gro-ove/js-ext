@@ -61,18 +61,21 @@ function addClass (name, parent, uses, variables, functions, at){
 			}
 		}
 
-	if (!objectConstructor)
-		objectConstructor = functionExpression ();
-	else
+	if (objectVariablesInitialization.length){
+		if (!objectConstructor)
+			objectConstructor = functionExpression ();
+		objectConstructor.body.body = objectVariablesInitialization.concat (objectConstructor.body.body);
+	} else if (objectConstructor)
 		objectConstructor.id = null;
 
-	if (!staticInitialization)
-		staticInitialization = functionExpression ();
-	else
+	if (staticVariablesInitialization.length){
+		if (!staticInitialization)
+			staticInitialization = functionExpression ();
+		staticInitialization.body.body = staticVariablesInitialization.concat (staticInitialization.body.body);
+	} else if (staticInitialization && staticInitialization.body.body.length > 0){
 		staticInitialization.id = null;
-
-	objectConstructor.body.body = objectVariablesInitialization.concat (objectConstructor.body.body);
-	staticInitialization.body.body = staticVariablesInitialization.concat (staticInitialization.body.body);
+	} else if (staticInitialization)
+		staticInitialization = null;
 
 	classes.push (classesByNames [name.name] = {
 		name: 							name,
@@ -98,7 +101,17 @@ function processClass (entry){
 	if (typeof entry === 'string')
 		assert (entry = getByName (entry), 'Class ' + entry + ' not found');
 
-	var variable, exclusions = null, staticMode, body, functions, variables, temp, extendsStatements;
+	var variable, 
+		exclusions = null, 
+		staticMode, 
+		mode,
+		body, 
+		functions, 
+		variables, 
+		temp, 
+		extendsStatements, 
+		publicStaticFunctions,
+		resultFunction;
 
 	if (entry.element)
 		return;
@@ -195,6 +208,10 @@ function processClass (entry){
 			throwError (entry.parent, Messages.ParentClassNotFound, entry.parent.name);
 		} else {
 			processClass (entry.parent.name);
+
+			if (getByName (entry.parent.name).mode !== 'default')
+				throwError (entry.parent, Messages.ParentClassIsStatic, entry.parent.name);
+
 			for (var n, v in getByName (entry.parent.name).objectFields)
 				if (!entry.objectFields [n])
 					entry.objectFields [n] = v === 'private' ? 'locked' : v;
@@ -205,97 +222,82 @@ function processClass (entry){
 			throwError (use, Messages.UsingClassNotFound, use.name);
 	}
 
-	update (entry.objectConstructor, '@');
+	if (entry.objectConstructor)
+		update (entry.objectConstructor, '@');
 	entry.objectFunctions.forEach (lambda update (arg, arg.id.name));
-	update (entry.staticInitialization, '@');
+	if (entry.staticInitialization)
+		update (entry.staticInitialization, '@');
 	entry.staticFunctions.forEach (lambda update (arg, arg.id.name));
 
-	variable = newIdentifier ();
+	entry.mode = 'default';
+	if (!entry.objectConstructor && 
+		!entry.parent && 
+		!entry.objectFunctions.length && 
+		!entry.objectVariables.length){
 
-	variables = [
-		variableDeclarator (variable, entry.objectConstructor)
-	];
+		entry.mode = 'static';
 
-	if (entry.parent){
-		temp = newIdentifier ();
-		variables.push (variableDeclarator (temp, functionExpression ()));
-		extendsStatements = [
-			expressionStatement (
-				assignmentExpression (
-					memberExpression (temp, 'prototype'),
-					memberExpression (entry.parent.name, 'prototype')
-				)
-			),
-			expressionStatement (
-				assignmentExpression (
-					memberExpression (variable, 'prototype'),
-					newExpression (temp)
-				)
-			),
-			expressionStatement (
-				assignmentExpression (
-					memberExpression (
-						memberExpression (variable, 'prototype'),
-						'constructor'
-					),
-					variable
-				)
-			),
-			expressionStatement (
-				assignmentExpression (temp, 'undefined')
-			)
-		];
-	} else
-		extendsStatements = [];
+		if (!entry.staticInitialization && 
+			!entry.staticVariables.length){
 
-	if (entry.staticVariables.length)
-		variables = variables.concat (entry.staticVariables);
+			if (!entry.staticFunctions.length)
+				entry.mode = 'empty';
+		}
+	}
 
-	entry.element = variableDeclarator (
-		entry.name.name,
-		callExpression (
-			functionExpression (
-				null, 
-				[], 
-				[ 
-					variableDeclaration (variables)
-				].concat (
-					extendsStatements
-				).concat (
-					entry.objectFunctions.map (lambda 
-						expressionStatement (
-							assignmentExpression (
-								memberExpression (
-									memberExpression (variable, 'prototype'),
-									arg.id.name
-								),
-								functionExpression (null, arg.params, arg.body)
-							)
-						)
-					)
-				).concat (
-					entry.staticInitialization.body.body.length 
-						? [ expressionStatement (callExpression (entry.staticInitialization)) ]
-						: []
-				).concat (
-					entry.staticFunctions
-				).concat (
-					entry.staticFunctions
-						.filter (lambda arg.publicMode === 'public')
-						.map (lambda 
-							expressionStatement (
-								assignmentExpression (
-									memberExpression (variable, arg.id.name),
-									arg.id.name
-								)
-							)
-						)
-				).concat (
-					[ returnStatement (variable) ]
-				)
-			)
-		)
-	);
+	if (entry.mode === 'empty'){
+		entry.element = variableDeclarator (entry.name.name, objectExpression ());
+		entry.uses = [];
+	} else {
+		var resultFunction = [ variableDeclaration (variables = []) ];
+
+		variable = newIdentifier ();
+
+		if (entry.mode === 'default'){
+			variables.push (variableDeclarator (variable, entry.objectConstructor));
+
+			if (entry.parent){
+				temp = newIdentifier ();
+				variables.push (variableDeclarator (temp, functionExpression ()));
+
+				resultFunction.push (
+					expressionStatement (assignmentExpression (
+							memberExpression (temp, 'prototype'), memberExpression (entry.parent.name, 'prototype'))),
+					expressionStatement (assignmentExpression (
+							memberExpression (variable, 'prototype'), newExpression (temp))),
+					expressionStatement (assignmentExpression (
+							memberExpression (memberExpression (variable, 'prototype'), 'constructor'), variable)),
+					expressionStatement (assignmentExpression (temp, 'undefined'))
+				);
+			}
+
+			for (var f in-array entry.objectFunctions)
+				resultFunction.push (expressionStatement (
+					assignmentExpression (
+						memberExpression (memberExpression (variable, 'prototype'), f.id.name), 
+						functionExpression (null, f.params, f.body))));
+		} else if (entry.mode === 'static'){
+			variables.push (variableDeclarator (variable, objectExpression ()));
+		}
+
+		for (var v in-array entry.staticVariables)
+			variables.push (v);
+
+		for (var f in-array entry.staticFunctions){
+			resultFunction.push (f);
+
+			if (f.publicMode === 'public')
+				resultFunction.push (expressionStatement (
+					assignmentExpression (memberExpression (variable, f.id.name), f.id.name)));
+		}
+
+		if (entry.staticInitialization)
+			resultFunction.push (expressionStatement (callExpression (entry.staticInitialization)));
+
+		resultFunction.push (returnStatement (variable));
+
+		entry.element = variableDeclarator (entry.name, callExpression (functionExpression (null, [], resultFunction)));
+	}
 }
 
 function checkForCircular (){
@@ -330,7 +332,8 @@ function sortClasses (){
 		if (entry.weight)
 			return entry.weight;
 
-		entry.weight = entry.probablyUseOther ? 1 + Math.min (entry.probablyUseOther, probablyUseOtherMaxValue) / (probablyUseOtherMaxValue + 1) : 1;
+		entry.weight = entry.probablyUseOther ? 1 + 
+			Math.min (entry.probablyUseOther, probablyUseOtherMaxValue) / (probablyUseOtherMaxValue + 1) : 1;
 
 		if (entry.parent)
 			entry.weight += getWeight (entry.parent.name);

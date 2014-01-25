@@ -2,9 +2,10 @@ TODO:
 	V Arguments to exclusions list
 	V Classes extends
 	V Initialization order
+	V Static classes
 	- Super requested in constuctors
 	- Strings format
-	- Static classes
+	- Private and protected variables
 	- NotImplemented operator
 	- Array initializer operator
 	- New loop: for-in-only (?)
