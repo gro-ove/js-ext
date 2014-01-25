@@ -1,3 +1,13 @@
+	function mark (obj){
+		if (obj === undefined)
+			obj = {};
+		
+		obj.lineNumber 	= lineNumber;
+		obj.lineStart 	= lineStart;
+		obj.index 		= index;
+		return obj;
+	}
+
 	function literal (value)
 		return typeof value === 'object' ? value : {
 			type: Syntax.Literal,

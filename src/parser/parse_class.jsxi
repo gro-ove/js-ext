@@ -64,11 +64,11 @@
 
 		expectKeyword ('class');
 
-		id = parseVariableIdentifier ();
+		id = mark (parseVariableIdentifier ());
 
 		if (matchKeyword ('extends')){
 			lex ();
-			parent = parseVariableIdentifier ();
+			parent = mark (parseVariableIdentifier ());
 		}
 
 		expect ('{');
@@ -154,9 +154,9 @@
 		expect ('}');
 
 		addClass (
-			id.name, 
-			parent ? parent.name : null,
-			usedClasses.map (lambda arg.name), 
+			id, 
+			parent || null,
+			usedClasses, 
 			variableDeclarations,
 			functionDeclarations);
 		
@@ -166,7 +166,7 @@
 	}
 
 	function parseSuperStatement (){
-		var level = 1, name, arguments;
+		var level = 1, name, temp, arguments;
 
 		expectKeyword ('super');
 
@@ -188,10 +188,8 @@
 		arguments = parseArguments ();
 		consumeSemicolon ();
 
-		return expressionStatement ({
-			type: 'CallExpression',
-			callee: name || null,
-			arguments: arguments,
-			'super': level
-		});
+		temp = callExpression (name || null, arguments);
+		temp ['super'] = level;
+
+		return expressionStatement (mark (temp));
 	}

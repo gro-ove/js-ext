@@ -6,7 +6,7 @@ function getPosByName (name)
 function getByName (name)
 	return classesByNames [name];
 
-function addClass (name, parent, uses, variables, functions){
+function addClass (name, parent, uses, variables, functions, at){
 	var objectVariables = [], 
 		staticVariables = [], 
 		objectFunctions = [], 
@@ -17,8 +17,8 @@ function addClass (name, parent, uses, variables, functions){
 		objectVariablesInitialization = [],
 		staticVariablesInitialization = [];
 
-	if (getByName (name))
-		throwError ({}, Messages.WtfMan);
+	if (getByName (name.name))
+		throwError (name, Messages.ClassAlreadyDefined, name.name);
 
 	for (var entry in-array variables)
 		if (entry.staticMode){
@@ -74,7 +74,7 @@ function addClass (name, parent, uses, variables, functions){
 	objectConstructor.body.body = objectVariablesInitialization.concat (objectConstructor.body.body);
 	staticInitialization.body.body = staticVariablesInitialization.concat (staticInitialization.body.body);
 
-	classes.push (classesByNames [name] = {
+	classes.push (classesByNames [name.name] = {
 		name: 							name,
 		parent: 						parent,
 		uses: 							uses,
@@ -84,7 +84,8 @@ function addClass (name, parent, uses, variables, functions){
 		staticFunctions: 				staticFunctions,
 		objectConstructor: 				objectConstructor,
 		staticInitialization: 			staticInitialization,
-		objectFields: 					objectFields
+		objectFields: 					objectFields,
+		at: 							at
 	})
 }
 
@@ -95,7 +96,7 @@ function initClasses (){
 
 function processClass (entry){
 	if (typeof entry === 'string')
-		assert (entry = getByName (entry), 'Class not found');
+		assert (entry = getByName (entry), 'Class ' + entry + ' not found');
 
 	var variable, exclusions = null, staticMode, body, functions, variables, temp, extendsStatements;
 
@@ -144,8 +145,6 @@ function processClass (entry){
 			} else if (obj.type === Syntax.Identifier){
 				if (!exclusions [obj.name]){
 					if (entry.objectFields [obj.name]){
-						console.log (obj);
-						
 						if (staticMode)
 							throwError (obj, Messages.ObjectAccessError, obj.name);
 
@@ -163,15 +162,15 @@ function processClass (entry){
 			} else {
 				if (obj.type === Syntax.CallExpression && obj ['super']){
 					if (name === null && obj.callee === null)
-						throwError ({}, Messages.WtfMan);
+						throwError (obj, Messages.WtfMan);
 
 					var parent = entry,
 						callee = obj.callee ? obj.callee.name : name;
 
 					for (var i = 0; i < obj ['super']; i ++){
-						parent = getByName (parent.parent);
+						parent = getByName (parent.parent.name);
 						if (!parent)
-							throwError ({}, Messages.WtfMan);
+							throwError (obj, Messages.SuperMethodsAreNotAvailable);
 					}
 
 					obj.callee = memberExpression (
@@ -192,18 +191,18 @@ function processClass (entry){
 		}
 
 	if (entry.parent !== null)
-		if (!getByName (entry.parent)){
-			throwError ({}, 'Parent class not found: ' + entry.parent);
+		if (!getByName (entry.parent.name)){
+			throwError (entry.parent, Messages.ParentClassNotFound, entry.parent.name);
 		} else {
-			processClass (entry.parent);
-			for (var n, v in getByName (entry.parent).objectFields)
+			processClass (entry.parent.name);
+			for (var n, v in getByName (entry.parent.name).objectFields)
 				if (!entry.objectFields [n])
 					entry.objectFields [n] = v === 'private' ? 'locked' : v;
 		}
 
 	for (var use in-array entry.uses){
-		if (!getByName (use))
-			throwError ({}, 'Using class not found: ' + use);
+		if (!getByName (use.name))
+			throwError (use, Messages.UsingClassNotFound, use.name);
 	}
 
 	update (entry.objectConstructor, '@');
@@ -224,7 +223,7 @@ function processClass (entry){
 			expressionStatement (
 				assignmentExpression (
 					memberExpression (temp, 'prototype'),
-					memberExpression (entry.parent, 'prototype')
+					memberExpression (entry.parent.name, 'prototype')
 				)
 			),
 			expressionStatement (
@@ -253,7 +252,7 @@ function processClass (entry){
 		variables = variables.concat (entry.staticVariables);
 
 	entry.element = variableDeclarator (
-		entry.name,
+		entry.name.name,
 		callExpression (
 			functionExpression (
 				null, 
@@ -302,17 +301,14 @@ function processClass (entry){
 function checkForCircular (){
 	var current;
 
-	function check (entry, parent){
-		if (parent === undefined)
-			current = {};
+	function check (identifier){
+		var entry = getByName (identifier.name);
+		assert (entry, 'Class not found: ' + identifier.name);
 
-		if (typeof entry === 'string')
-			assert (entry = getByName (entry), 'Class not found: ' + entry);
+		if (current [identifier.name])
+			throwError (identifier, Messages.CyclicDependencyDetected, identifier.name);
 
-		if (current [entry.name])
-			throwError ({}, Messages.CyclicDependencyDetected, entry.name, parent);
-
-		current [entry.name] = true;
+		current [identifier.name] = true;
 
 		if (entry.parent)
 			check (entry.parent, entry.name);
@@ -320,8 +316,10 @@ function checkForCircular (){
 			check (use, entry.name);
 	}
 
-	for (var entry in-array classes)
-		check (entry);
+	for (var entry in-array classes){
+		current = {};
+		check (entry.name);
+	}
 }
 
 function sortClasses (){
@@ -335,9 +333,9 @@ function sortClasses (){
 		entry.weight = entry.probablyUseOther ? 1 + Math.min (entry.probablyUseOther, probablyUseOtherMaxValue) / (probablyUseOtherMaxValue + 1) : 1;
 
 		if (entry.parent)
-			entry.weight += getWeight (entry.parent);
+			entry.weight += getWeight (entry.parent.name);
 		for (var use in-array entry.uses)
-			entry.weight += getWeight (use);
+			entry.weight += getWeight (use.name);
 		return entry.weight;
 	}
 
@@ -345,12 +343,6 @@ function sortClasses (){
 		getWeight (entry);
 
 	classes.sort (lambda (a, b) a.weight > b.weight);
-
-	console.json (classes.map (lambda {
-		name: arg.name,
-		probablyUseOther: arg.probablyUseOther,
-		weight: arg.weight
-	}));
 }
 
 function processClasses (program){
