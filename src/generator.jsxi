@@ -1,0 +1,83 @@
+module Generator {
+	var currentFileName, tabs, tab = '    ';
+
+	function n (n, s){
+		if (n === 1){
+			tabs += tab;
+		} else if (n === -1){
+			tabs = tabs.slice (0, -tab.length);
+			console.assert (tabs.length, 'Too much tabs have been removed!');
+		}
+
+		return tabs;
+	}
+
+	function $ (arg, mn){
+		if (!arg.comment && !arg.lineNumber)
+			return ';' + tabs;
+
+		var result = '; // ';
+
+		if (arg.lineNumber)
+			result += currentFileName + ':' + arg.lineNumber;
+		if (arg.comment)
+			if (arg.lineNumber)
+				result += ' (' + arg.comment + ')';
+			else
+				result += arg.comment;
+
+		if (mn)
+			n (-1);
+
+		return result + tabs;
+	}
+
+	function c (a, j = '')
+		return a.map (f).join (j);
+
+	function f (element){
+		if (!fn [element.type]){
+			console.log (element);
+			return '[ ' + element.type.toUpperCase () + ' ]';
+		} else {
+			var oldTabs = tabs,
+				result = fn [element.type](element);
+
+			tabs = oldTabs;
+			return result;
+		}
+	}
+
+	var fn = {
+		Identifier: 			lambda arg.name,
+		Literal:                lambda typeof arg.value === 'string' ? '"' + arg.value + '"' : typeof arg.value === 'number' ? arg.value : '[ ' + (typeof arg.value).toUpperCase () + ' ]',
+		Property: 				lambda f (arg.key) + ': ' + f (arg.value),
+
+		BlockStatement:         lambda '{' + n (1) + c (arg.body) + n (-1) + '}',
+		ExpressionStatement:    lambda f (arg.expression) + $ (arg),
+		ReturnStatement:        lambda 'return' + (arg.argument ? ' ' + f (arg.argument) : '') + $ (arg),
+
+		NewExpression:          lambda 'new ' + f (arg.callee) + ' (' + c (arg.arguments, ', ') + ')',
+		ThisExpression:         lambda 'this',
+		CallExpression:         lambda f (arg.callee) + ' (' + c (arg.arguments, ', ') + ')',
+		ObjectExpression:       lambda '{' + arg.properties.map (f) + '}',
+		MemberExpression:       lambda f (arg.object) + (arg.computed ? '[' + f (arg.property) + ']' : '.' + f (arg.property)),
+		FunctionExpression:     lambda 'function ' + (arg.id ? f (arg.id) + ' ' : '') + '(' + c (arg.params, ', ') + ')' + f (arg.body),
+		AssignmentExpression:   lambda f (arg.left) + ' ' + arg.operator + ' ' + f (arg.right),
+		BinaryExpression:   	lambda f (arg.left) + ' ' + arg.operator + ' ' + f (arg.right),
+		
+		VariableDeclaration:    lambda n (1) && arg.kind + ' ' + arg.declarations.map (f).join (',' + tabs) + $ (arg, true),
+		VariableDeclarator:     lambda arg.init ? f (arg.id) + ' = ' + f (arg.init) : f (arg.id),
+
+		FunctionDeclaration:    lambda 'function ' + f (arg.id) + ' (' + c (arg.params, ', ') + ')' + f (arg.body) + tabs,
+
+		Program: 				lambda c (arg.body),
+	};
+
+	export function work (element, fileName){
+		currentFileName = fileName;
+		tabs = '\n';
+
+		return f (element);
+	}
+}
