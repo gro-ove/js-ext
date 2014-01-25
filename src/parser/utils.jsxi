@@ -24,7 +24,11 @@
 
 	var newIdentifier = (lambda {
 		var lastIdentifier = 0;
-		return lambda '__t_' + lastIdentifier ++
+		return lambda {
+			var str;
+			while (source.indexOf (str = '_' + (lastIdentifier ++).toString (32)) != -1);
+			return str;
+		}
 	})();
 
 	function clone (obj)
