@@ -23,6 +23,10 @@ class A {
 
 	var undefinedVar;
 
+	function privateObject (){
+		console.debug ('A: object private');
+	}
+
 	public function publicObject (arg){
 		console.debug ('A: object public (' + arg + ')');
 
@@ -35,6 +39,8 @@ class A {
 		console.debug ('A: constructor (' + arg + ')');
 		privateVar = privateVar + arg;
 		privateVar [privateVar]();
+
+		privateObject ();
 	}
 }
 
