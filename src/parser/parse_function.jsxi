@@ -96,16 +96,7 @@
 		if (defaults.length)
 			body.body = defaults.concat (body.body);
 
-		return {
-			type: 			Syntax.FunctionDeclaration,
-			id: 			id,
-			params: 		params,
-			defaults: 		defaults,
-			body: 			body,
-			rest: 			null,
-			generator: 		false,
-			expression: 	false
-		};
+		return functionDeclaration (id, params, body);
 	}
 
 	function parseFunctionExpression (){
@@ -124,30 +115,21 @@
 		if (defaults.length)
 			body.body = defaults.concat (body.body);
 
-		return {
-			type: 			Syntax.FunctionExpression,
-			id: 			id,
-			params: 		params,
-			defaults: 		[],
-			body: 			body,
-			rest: 			null,
-			generator: 		false,
-			expression: 	false
-		};
+		return functionExpression (id, params, body);
 	}
 
 	function setReturnStatement (data){
 		if (data){
-			if (data.type === 'ExpressionStatement'){
-				data.type = 'ReturnStatement';
+			if (data.type === Syntax.ExpressionStatement){
+				data.type = Syntax.ReturnStatement;
 				data.argument = data.expression;
 				delete data.expression;
-			} else if (data.type === 'IfStatement'){
+			} else if (data.type === Syntax.IfStatement){
 				setReturnStatement (data.consequent);
 				setReturnStatement (data.alternate);
-			} else if (data.type === 'BlockStatement' && data.single){
+			} else if (data.type === Syntax.BlockStatement && data.single){
 				setReturnStatement (data.body [0]); 
-			} else if (data.type === 'TryStatement'){
+			} else if (data.type === Syntax.TryStatement){
 				setReturnStatement (data.block);
 
 				if (data.handlers && data.handlers [0])
@@ -163,6 +145,7 @@
 	function parseLambdaSourceElements (){
 		var sourceElements,
 			oldPreventSequence,
+			temp,
 			saved;
 
 		oldPreventSequence = state.preventSequence;
@@ -172,32 +155,19 @@
 			saved = saveAll ();
 
 			try {
-				expr = parseObjectInitialiser ();
+				temp = parseObjectInitialiser ();
 				consumeSemicolon ();
-
-				sourceElements = [
-					setReturnStatement ({
-						type: Syntax.ExpressionStatement,
-						expression: expr
-					})
-				];
+				sourceElements = [ setReturnStatement (expressionStatement (temp)) ];
 			} catch {
 				restoreAll (saved);
 				sourceElements = parseFunctionSourceElements ();
 			}
 		} else 
-			sourceElements = [
-				setReturnStatement (
-					parseSourceElement ()
-				)
-			];
+			sourceElements = [ setReturnStatement (parseSourceElement ()) ];
 
 		state.preventSequence = oldPreventSequence;
 
-		return {
-			type: 	Syntax.BlockStatement,
-			body: 	sourceElements
-		};
+		return blockStatement (sourceElements);
 	}
 
 	function parseLambdaExpression (){
@@ -211,14 +181,5 @@
 		if (defaults.length)
 			body.body = defaults.concat (body.body);
 
-		return {
-			type: 			Syntax.FunctionExpression,
-			id: 			null,
-			params: 		params,
-			defaults: 		[],
-			body: 			body,
-			rest: 			null,
-			generator: 		false,
-			expression: 	false
-		};
+		return functionExpression (null, params, body);
 	}

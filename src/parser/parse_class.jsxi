@@ -59,7 +59,8 @@
 			publicMode,
 			usedClasses = [],
 			variableDeclarations = [],
-			functionDeclarations = [];
+			functionDeclarations = [],
+			oldInClass;
 
 		expectKeyword ('class');
 
@@ -71,6 +72,9 @@
 		}
 
 		expect ('{');
+
+		oldInClass = state.inClass;
+		state.inClass = true;
 
 		while (index < length){
 			if (match ('}'))
@@ -155,6 +159,8 @@
 			usedClasses.map (lambda arg.name), 
 			variableDeclarations,
 			functionDeclarations);
+		
+		state.inClass = oldInClass;
 
 		return null;
 	}
