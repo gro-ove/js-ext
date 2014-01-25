@@ -47,6 +47,8 @@
 			sourceElements.push (sourceElement);
 		}
 
+		state.parsingComplete = true;
+
 		temp = processClasses ();
 		if (typeof temp !== 'undefined')
 			sourceElements.push (temp);
