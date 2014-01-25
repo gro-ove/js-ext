@@ -13,14 +13,9 @@
 
 				if (defaults && match ('=')){
 					lex ();
-					defaults.push (
-						ifStatement (
+					defaults.push (ifStatement (
 							binaryExpression (temp.name, '===', 'undefined'),
-							expressionStatement (
-								assignmentExpression (temp.name, parseAssignmentExpression ())
-							)
-						)
-					);
+							expressionStatement (assignmentExpression (temp.name, parseAssignmentExpression ()))));
 				}
 
 				params.push (temp);
