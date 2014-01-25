@@ -8,7 +8,7 @@ console.json = function (obj){
 };
 
 module App {
-	import Parser;
+	import Parser, Generator;
 
 	function parseArgs (data, args){
 		var result = { 
@@ -76,13 +76,11 @@ module App {
 			} else
 				console.log (args.data [0] + ' - ok :)')
 		} else {
-			var esmangle = require ('esmangle'),
-				escodegen = require ('escodegen');
-
+			var str = Generator.work (parsed, require ('path').basename (args.data [0]));
 			try 
-				console.log (escodegen.generate (parsed));
+				console.log (str);
 			catch
-				console.log (console.json (parsed));
+				console.json (parsed);
 		}
 	}
 }
