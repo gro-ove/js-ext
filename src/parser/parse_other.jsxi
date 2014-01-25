@@ -211,3 +211,22 @@
 
 		return temp;
 	}
+
+	// 11.14 Comma Operator
+
+	function parseExpression (){
+		var temp = parseAssignmentExpression ();
+
+		if (!state.preventSequence && match (',')){
+			temp = sequenceExpression ([ temp ]);
+
+			while (index < length){
+				if (!match (',')) 
+					break;
+				lex ();
+				temp.expressions.push (parseAssignmentExpression ());
+			}
+		}
+
+		return temp;
+	}
