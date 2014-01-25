@@ -3,9 +3,9 @@ TODO:
 	V Classes extends
 	V Initialization order
 	V Static classes
+	V Private and protected variables
 	- Super requested in constuctors
 	- Strings format
-	- Private and protected variables
 	- Static variables
 	- NotImplemented operator
 	- Array initializer operator

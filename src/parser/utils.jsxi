@@ -23,10 +23,22 @@
 		return token.type === Token.Identifier || token.type === Token.Keyword || token.type === Token.BooleanLiteral || token.type === Token.NullLiteral;
 
 	var newIdentifier = (lambda {
+		function busy (str)
+			return source.indexOf (str) !== -1;
+
 		var lastIdentifier = 0;
+
 		return lambda {
 			var str;
-			while (source.indexOf (str = '_' + (lastIdentifier ++).toString (32)) != -1);
+
+			if (arg){
+				if (busy (arg))
+					for (var i = 0; busy (str = arg + (lastIdentifier ++).toString (32)); i ++);
+				else 
+					str = arg;
+			} else 
+				while (busy (str = '_' + (lastIdentifier ++).toString (32)));
+
 			return str;
 		}
 	})();

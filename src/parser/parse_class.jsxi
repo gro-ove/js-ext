@@ -134,8 +134,6 @@
 					case 'var':
 						temp = parseVariableStatement ();
 						variableDeclarations.push (temp);
-						if (!staticMode)
-							temp.declarations.forEach (lambda if (arg.id.name [0] === '_') throwError ({}, Messages.InvalidIdentifier));
 						break;
 				}
 			} else if (token.type === Token.Punctuator && token.value === '(' || token.value === '{'){

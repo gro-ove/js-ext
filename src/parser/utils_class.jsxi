@@ -15,7 +15,8 @@ function addClass (name, parent, uses, variables, functions, at){
 		objectConstructor, 
 		staticInitialization, 
 		objectVariablesInitialization = [],
-		staticVariablesInitialization = [];
+		staticVariablesInitialization = [],
+		temp;
 
 	if (getByName (name.name))
 		throwError (name, Messages.ClassAlreadyDefined, name.name);
@@ -30,19 +31,22 @@ function addClass (name, parent, uses, variables, functions, at){
 			entry.declarations.forEach (lambda {
 				arg.publicMode = entry.publicMode;
 				objectVariables.push (arg);
-				objectFields [arg.id.name] = entry.publicMode;
+				objectFields [arg.id.name] = { 
+					publicMode: 	entry.publicMode, 
+					name: 			entry.publicMode === 'public' 
+						? arg.id.name
+						: newIdentifier () 
+				};
 
-				objectVariablesInitialization.push (
-					expressionStatement (
-						assignmentExpression (
-							memberExpression (
-								thisExpression (),
-								arg.id.name
-							),
-							arg.init || 'undefined'
-						)
+				temp = expressionStatement (
+					assignmentExpression (
+						memberExpression (thisExpression (), objectFields [arg.id.name].name),
+						arg.init || 'undefined'
 					)
 				);
+
+				temp.comment = arg.id.name;
+				objectVariablesInitialization.push (temp);
 			});
 
 	for (var entry in-array functions)
@@ -57,7 +61,10 @@ function addClass (name, parent, uses, variables, functions, at){
 				objectConstructor = entry;
 			} else {
 				objectFunctions.push (entry);
-				objectFields [entry.id.name] = entry.publicMode;
+				objectFields [entry.id.name] = { 
+					publicMode: 	entry.publicMode, 
+					name: 			entry.publicMode == 'public' ? entry.id.name : newIdentifier () 
+				};
 			}
 		}
 
@@ -96,8 +103,9 @@ function addClass (name, parent, uses, variables, functions, at){
 }
 
 function initClasses (){
-	classes = [];
-	classesByNames = {};
+	classes 		= [];
+	classesByNames 	= {};
+	dictionary 		= {};
 }
 
 function processClass (entry){
@@ -164,10 +172,10 @@ function processClass (entry){
 						if (staticMode)
 							throwError (obj, Messages.ObjectAccessError, obj.name);
 
-						if (entry.objectFields [obj.name] === 'locked')
+						if (entry.objectFields [obj.name].publicMode === 'locked')
 							throwError (obj, Messages.PrivateAccessError, obj.name);
 
-						return memberExpression (thisExpression (), obj.name);
+						return memberExpression (thisExpression (), entry.objectFields [obj.name].name);
 					} else if (classesByNames [obj.name])
 						entry.probablyUseOther = (entry.probablyUseOther || 0) + 1;
 				}
@@ -217,7 +225,10 @@ function processClass (entry){
 
 			for (var n, v in getByName (entry.parent.name).objectFields)
 				if (!entry.objectFields [n])
-					entry.objectFields [n] = v === 'private' ? 'locked' : v;
+					entry.objectFields [n] = {
+						publicMode: 	v.publicMode === 'private' ? 'locked' : v.publicMode,
+						name: 			v.name 
+					};
 		}
 
 	for (var use in-array entry.uses){
