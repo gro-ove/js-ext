@@ -57,15 +57,11 @@
 		expr = parseExpression ();
 
 		// 12.12 Labelled Statements
-		
+
 		if (expr.type === Syntax.Identifier && match (':')){
 			lex ();
 
-			return {
-				type: 	Syntax.LabeledStatement,
-				label: 	expr,
-				body: 	parseStatement ()
-			};
+			return labeledStatement (expr, parseStatement ());
 		}
 
 		consumeSemicolon ();

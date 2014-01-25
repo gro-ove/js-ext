@@ -182,6 +182,13 @@
 			each: 				false
 		})
 
+	function labeledStatement (label, statement)
+		return mark ({
+			type: 				Syntax.LabeledStatement,
+			label: 				identifier (label),
+			body: 				statement
+		})
+
 	function catchClause (param, body)
 		return {
 			type:   			Syntax.CatchClause,
