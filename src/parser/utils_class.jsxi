@@ -97,7 +97,7 @@ function processClass (entry){
 	if (typeof entry === 'string')
 		assert (entry = getByName (entry), 'Class not found');
 
-	var variable, exclusions = null, body, functions, variables, temp, extendsStatements;
+	var variable, exclusions = null, staticMode, body, functions, variables, temp, extendsStatements;
 
 	if (entry.element)
 		return;
@@ -126,20 +126,29 @@ function processClass (entry){
 			for (var i = 0; i < obj.length; i ++)
 				obj [i] = update (obj [i], name, true) || obj [i];
 		} else if (obj && obj.type){
-			var oldExclusions = undefined, temp;
+			var oldExclusions = undefined, oldStaticMode, temp;
 
 			if (obj.type === Syntax.FunctionDeclaration || obj.type === Syntax.FunctionExpression){
-				oldExclusions = exclusions;
+				oldExclusions 	= exclusions;
+				oldStaticMode 	= staticMode;
+
 				updateExclusions (obj);
+				staticMode 		= obj.staticMode;
+
 				update (obj.body.body, second ? null : name, true);
-				exclusions = oldExclusions;
+
+				exclusions 		= oldExclusions;
+				staticMode 		= oldStaticMode;
 			} else if (obj.type === Syntax.Property){
 				obj.value = update (obj.value, name, true) || obj.value;
 			} else if (obj.type === Syntax.Identifier){
 				if (!exclusions [obj.name]){
 					if (entry.objectFields [obj.name]){
+						if (staticMode)
+							throwError ({}, Messages.ObjectAccessError, obj.name);
+
 						if (entry.objectFields [obj.name] === 'locked')
-							throwError ({}, 'Attempt to access to private field: ' + obj.name);
+							throwError ({}, Messages.PrivateAccessError, obj.name);
 
 						return memberExpression (thisExpression (), obj.name);
 					} else if (classesByNames [obj.name])
@@ -197,6 +206,8 @@ function processClass (entry){
 
 	update (entry.objectConstructor, '@');
 	entry.objectFunctions.forEach (lambda update (arg, arg.id.name));
+	update (entry.staticInitialization, '@');
+	entry.staticFunctions.forEach (lambda update (arg, arg.id.name));
 
 	variable = newIdentifier ();
 
