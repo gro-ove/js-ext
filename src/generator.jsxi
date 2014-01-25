@@ -1,18 +1,32 @@
 module Generator {
 	var currentFileName, tabs, tab = '    ';
 
+	function _ (s)
+		return s.slice (0, s [s.length - 1] === '\n' ? -1 : -tab.length);
+
+	function t (s, full)
+		return s.replace (full ? (/(\/\/[\s\S]+)?[\n\s]+$/g) : (/[\n\s]+$/g), '');
+
 	function n (n, s){
 		if (n === 1){
 			tabs += tab;
 		} else if (n === -1){
-			tabs = tabs.slice (0, -tab.length);
+			tabs = _ (tabs);
 			console.assert (tabs.length, 'Too much tabs have been removed!');
 		}
 
 		return tabs;
 	}
 
+	function x (b, s)
+		return b.type === 'BlockStatement' 
+			? f (b, s)
+			: n (1) + t (f (b)) + n (-1);
+
 	function $ (arg, mn){
+		if (mn)
+			n (-1);
+
 		if (!arg.comment && !arg.lineNumber)
 			return ';' + tabs;
 
@@ -26,22 +40,19 @@ module Generator {
 			else
 				result += arg.comment;
 
-		if (mn)
-			n (-1);
-
 		return result + tabs;
 	}
 
 	function c (a, j = '')
-		return a.map (f).join (j);
+		return a.map (lambda f (arg)).join (j);
 
-	function f (element){
+	function f (element, arg){
 		if (!fn [element.type]){
 			console.log (element);
 			return '[ ' + element.type.toUpperCase () + ' ]';
 		} else {
 			var oldTabs = tabs,
-				result = fn [element.type](element);
+				result = fn [element.type](element, arg);
 
 			tabs = oldTabs;
 			return result;
@@ -50,23 +61,38 @@ module Generator {
 
 	var fn = {
 		Identifier: 			lambda arg.name,
-		Literal:                lambda typeof arg.value === 'string' ? '"' + arg.value + '"' : typeof arg.value === 'number' ? arg.value : '[ ' + (typeof arg.value).toUpperCase () + ' ]',
+		Literal:                lambda arg.value === null 
+									? 'null'
+									: typeof arg.value === 'string' 
+										? '"' + arg.value + '"' 
+										: typeof arg.value === 'number' 
+											? arg.value 
+											: '[ ' + (typeof arg.value).toUpperCase () + ' ]',
 		Property: 				lambda f (arg.key) + ': ' + f (arg.value),
 
-		BlockStatement:         lambda '{' + n (1) + c (arg.body) + n (-1) + '}',
+		BlockStatement:         lambda arg.body.length ? '{' + n (1) + _ (c (arg.body)) + '}' + (arguments [1] ? ' ' : n (-1)) : '{}',
 		ExpressionStatement:    lambda f (arg.expression) + $ (arg),
 		ReturnStatement:        lambda 'return' + (arg.argument ? ' ' + f (arg.argument) : '') + $ (arg),
+		IfStatement:        	lambda 'if (' + f (arg.test) + ')' + x (arg.consequent, arg.alternate) + (arg.alternate ? 'else ' + x (arg.alternate) : ''),
+		WhileStatement:    		lambda 'while (' + f (arg.test) + ')' + x (arg.body),
+		ForStatement:    		lambda 'for (' + f (arg.init, true) + '; ' + f (arg.test) + '; ' + f (arg.update) + ')' + x (arg.body),
+		ForInStatement:    		lambda 'for (' + f (arg.left, true) + ' in ' + f (arg.right) + ')' + x (arg.body),
 
 		NewExpression:          lambda 'new ' + f (arg.callee) + ' (' + c (arg.arguments, ', ') + ')',
 		ThisExpression:         lambda 'this',
 		CallExpression:         lambda f (arg.callee) + ' (' + c (arg.arguments, ', ') + ')',
-		ObjectExpression:       lambda '{' + arg.properties.map (f) + '}',
+		ArrayExpression:        lambda arg.elements.length ? '[' + n (1) + c (arg.elements, ',' + tabs) + n (-1) + ']' : '[]',
+		ObjectExpression:       lambda arg.properties.length ? '{' + n (1) + c (arg.properties, ',' + tabs) + n (-1) + '}' : '{}',
 		MemberExpression:       lambda f (arg.object) + (arg.computed ? '[' + f (arg.property) + ']' : '.' + f (arg.property)),
 		FunctionExpression:     lambda 'function ' + (arg.id ? f (arg.id) + ' ' : '') + '(' + c (arg.params, ', ') + ')' + f (arg.body),
-		AssignmentExpression:   lambda f (arg.left) + ' ' + arg.operator + ' ' + f (arg.right),
 		BinaryExpression:   	lambda f (arg.left) + ' ' + arg.operator + ' ' + f (arg.right),
+		LogicalExpression:   	lambda f (arg.left) + ' ' + arg.operator + ' ' + f (arg.right),
+		AssignmentExpression:   lambda f (arg.left) + ' ' + arg.operator + ' ' + f (arg.right),
+		UnaryExpression:   		lambda arg.prefix ? (arg.operator.length == 1 ? arg.operator : arg.operator + ' ') + f (arg.argument) : f (arg.argument) + ' ' + arg.operator,
+		SequenceExpression:     lambda n (1) && c (arg.expressions, ',' + tabs),
+		ConditionalExpression:  lambda f (arg.test) + ' ? ' + f (arg.consequent) + ' : ' + f (arg.alternate),
 		
-		VariableDeclaration:    lambda n (1) && arg.kind + ' ' + arg.declarations.map (f).join (',' + tabs) + $ (arg, true),
+		VariableDeclaration:    lambda n (1) && arg.kind + ' ' + arg.declarations.map (f).join (',' + tabs) + (arguments [1] ? '' : $ (arg, true)),
 		VariableDeclarator:     lambda arg.init ? f (arg.id) + ' = ' + f (arg.init) : f (arg.id),
 
 		FunctionDeclaration:    lambda 'function ' + f (arg.id) + ' (' + c (arg.params, ', ') + ')' + f (arg.body) + tabs,
