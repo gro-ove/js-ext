@@ -144,11 +144,13 @@ function processClass (entry){
 			} else if (obj.type === Syntax.Identifier){
 				if (!exclusions [obj.name]){
 					if (entry.objectFields [obj.name]){
+						console.log (obj);
+						
 						if (staticMode)
-							throwError ({}, Messages.ObjectAccessError, obj.name);
+							throwError (obj, Messages.ObjectAccessError, obj.name);
 
 						if (entry.objectFields [obj.name] === 'locked')
-							throwError ({}, Messages.PrivateAccessError, obj.name);
+							throwError (obj, Messages.PrivateAccessError, obj.name);
 
 						return memberExpression (thisExpression (), obj.name);
 					} else if (classesByNames [obj.name])

@@ -5,7 +5,12 @@
 			args 	= Array.prototype.slice.call (arguments, 2),
 			msg 	= messageFormat.replace (/%(\d)/g, lambda (whole, index) args [index] || '');
 
-		if (typeof token.lineNumber === 'number'){
+		if (typeof token.index === 'number'){
+			error 				= new Error ('Line ' + token.lineNumber + ': ' + msg);
+			error.index 		= token.index;
+			error.lineNumber 	= token.lineNumber;
+			error.column 		= token.index - token.lineStart + 1;
+		} else if (typeof token.lineNumber === 'number'){
 			error 				= new Error ('Line ' + token.lineNumber + ': ' + msg);
 			error.index 		= token.range [0];
 			error.lineNumber 	= token.lineNumber;
