@@ -103,13 +103,7 @@
 			}
 
 		if (typeof left === 'undefined'){
-			return {
-				type: 		Syntax.ForStatement,
-				init: 		init,
-				test: 		test,
-				update: 	update,
-				body: 		body
-			};
+			return forStatement (init, test, update, body);
 		} else if (left.type === Syntax.SequenceExpression && left.expressions.length === 2 || arrayMode === 2){
 			temp = body;
 
@@ -149,6 +143,9 @@
 				: left.type === Syntax.SequenceExpression
 					? left.expressions [0]
 					: left;
+
+			if (left.type === Syntax.Identifier)
+				left = assignmentExpression (left, literal (0));
 
 			result = forStatement (
 				left, 
