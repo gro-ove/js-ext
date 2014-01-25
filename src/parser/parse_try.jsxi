@@ -17,11 +17,7 @@
 				name: 'e'
 			};
 
-		return {
-			type:   Syntax.CatchClause,
-			param:  param,
-			body:   parseBlockOrNotBlock ()
-		};
+		return catchClause (param, parseBlockOrNotBlock ());
 	}
 
 	function parseTryStatement (){
@@ -39,11 +35,8 @@
 			finalizer = parseBlockOrNotBlock ();
 		}
 
-		return {
-			type:               Syntax.TryStatement,
-			block:              block,
-			guardedHandlers:    [],
-			handlers:           handlers,
-			finalizer:          finalizer
-		};
+		if (finalizer === null && handlers.length === 0)
+			handlers.push (catchClause ('e', blockStatement ()));
+
+		return tryStatement (block, handlers, finalizer);
 	}

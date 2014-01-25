@@ -43,8 +43,8 @@ module Generator {
 		return result + tabs;
 	}
 
-	function c (a, j = '')
-		return a.map (lambda f (arg)).join (j);
+	function c (a, j = '', b)
+		return a.map (lambda f (arg, b)).join (j);
 
 	function f (element, arg){
 		if (!fn [element.type]){
@@ -75,8 +75,10 @@ module Generator {
 		ReturnStatement:        lambda 'return' + (arg.argument ? ' ' + f (arg.argument) : '') + $ (arg),
 		IfStatement:        	lambda 'if (' + f (arg.test) + ')' + x (arg.consequent, arg.alternate) + (arg.alternate ? 'else ' + x (arg.alternate) : ''),
 		WhileStatement:    		lambda 'while (' + f (arg.test) + ')' + x (arg.body),
-		ForStatement:    		lambda 'for (' + f (arg.init, true) + '; ' + f (arg.test) + '; ' + f (arg.update) + ')' + x (arg.body),
+		ForStatement:    		lambda 'for (' + (arg.init ? f (arg.init, true) : '') + ';' + (arg.test ? ' ' + f (arg.test) : '') + ';' + (arg.update ? ' ' + f (arg.update) : '') + ')' + x (arg.body),
 		ForInStatement:    		lambda 'for (' + f (arg.left, true) + ' in ' + f (arg.right) + ')' + x (arg.body),
+		TryStatement:    		lambda 'try ' + f (arg.block, true) + c (arg.handlers, '', arg.finalizer) + (arg.finalizer ? 'finally ' + f (arg.finalizer) : '') + tabs, 
+		CatchClause:            lambda 'catch (' + f (arg.param) + ')' + f (arg.body, arguments [1]),
 
 		NewExpression:          lambda 'new ' + f (arg.callee) + ' (' + c (arg.arguments, ', ') + ')',
 		ThisExpression:         lambda 'this',
