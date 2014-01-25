@@ -1,5 +1,5 @@
 class A {
-	use B, C;
+	use B;
 
 	static var a = 18, b = B.variable, c = C.test;
 
@@ -34,16 +34,18 @@ class A {
 	(arg){
 		console.debug ('A: constructor (' + arg + ')');
 		privateVar = privateVar + arg;
+		privateVar [privateVar]();
 	}
 }
 
 class B {
+	use C;
 	static public var variable = JSON.stringify ({ key: 'value' });
 }
 
 class C {
 	static public function test (){
-		return 187;
+		return Empty.variable;
 	}
 }
 
@@ -75,4 +77,8 @@ class ChildChild extends Child {
 
 		publicObject (protectedVar);
 	}
+}
+
+class Empty {
+	
 }
