@@ -54,7 +54,4 @@
 	}
 
 	function parseProgram ()
-		return {
-			type: Syntax.Program,
-			body: parseProgramElements ()
-		};
+		return program (parseProgramElements ());

@@ -18,8 +18,5 @@
 
         expect (']');
 
-        return {
-            type:       Syntax.ArrayExpression,
-            elements:   elements
-        };
+        return arrayExpression (elements);
     }

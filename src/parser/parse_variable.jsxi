@@ -6,10 +6,7 @@
 		if (token.type !== Token.Identifier)
 			throwUnexpected (token);
 
-		return {
-			type: 	Syntax.Identifier,
-			name: 	token.value
-		};
+		return identifier (token.value);
 	}
 
 	function parseVariableDeclaration (kind){
@@ -21,11 +18,7 @@
 			init = parseAssignmentExpression ();
 		}
 
-		return {
-			type: 	Syntax.VariableDeclarator,
-			id: 	id,
-			init: 	init
-		};
+		return variableDeclarator (id, init);
 	}
 
 	function parseVariableDeclarationList (kind){
@@ -48,9 +41,5 @@
 		declarations = parseVariableDeclarationList ();
 		consumeSemicolon ();
 
-		return {
-			type: 			Syntax.VariableDeclaration,
-			declarations: 	declarations,
-			kind: 			'var'
-		};
+		return variableDeclaration (declarations);
 	}
