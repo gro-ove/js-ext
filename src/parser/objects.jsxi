@@ -13,7 +13,7 @@
 	}
 
 	function literal (value)
-		return typeof value === 'object' ? value : {
+		return typeof value === 'object' && value !== null ? value : {
 			type: Syntax.Literal,
 			value: value
 		}
@@ -60,8 +60,8 @@
 
 	function arrayExpression (elements)
 		return {
-            type:       	Syntax.ArrayExpression,
-            elements:   	elements
+			type:       	Syntax.ArrayExpression,
+			elements:   	elements
 		}
 
 	function assignmentExpression (left, operator, right)
@@ -108,11 +108,19 @@
 
 	function binaryExpression (left, operator, right)
 		return {
-            type: 			Syntax.BinaryExpression,
-            operator: 		operator,
+			type: 			Syntax.BinaryExpression,
+			operator: 		operator,
 			left: 			identifier (left),
 			right: 			identifier (right)
-        }
+		}
+
+	function unaryExpression (argument, operator, prefix = false)
+		return {
+			type: 			Syntax.UnaryExpression,
+			operator: 		operator,
+			argument: 		identifier (argument),
+			prefix: 		prefix
+		}
 
 	function blockStatement (body = [], single)
 		return body instanceof Array ? mark ({
@@ -130,9 +138,48 @@
 	function ifStatement (test, trueStatement, falseStatement = null)
 		return mark ({
 			type: 			Syntax.IfStatement,
-            test: 			test,
-            consequent: 	trueStatement,
-            alternate: 		falseStatement
+			test: 			test,
+			consequent: 	trueStatement,
+			alternate: 		falseStatement
+		})
+
+	function whileStatement (test, body)
+		return mark ({
+			type: 			Syntax.WhileStatement,
+			test: 			test,
+			body: 			body
+		})
+
+	function doWhileStatement (body, test)
+		return  mark ({
+			type: 			Syntax.DoWhileStatement,
+			body: 			body,
+			test: 			test
+		})
+
+	function doWhileStatement (body, test)
+		return  mark ({
+			type: 			Syntax.DoWhileStatement,
+			body: 			body,
+			test: 			test
+		})
+
+	function forStatement (left, test, update, body)
+		return mark ({
+			type: 			Syntax.ForStatement,
+			init: 			left,
+			test: 			test,
+			update: 		update,
+			body: 			body
+		})
+
+	function forInStatement (left, right, body)
+		return mark ({
+			type: 			Syntax.ForInStatement,
+			left: 			left,
+			right: 			right,
+			body: 			body,
+			each: 			false
 		})
 
 	function returnStatement (arg)
