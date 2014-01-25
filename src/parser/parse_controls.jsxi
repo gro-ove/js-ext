@@ -1,4 +1,5 @@
     // 12.7 The continue statement
+
     function parseContinueStatement (){
         var token, label = null;
 
@@ -7,32 +8,22 @@
         // Optimize the most common form: 'continue;'.
         if (source [index] === ';'){
             lex ();
-
-            return {
-                type: 	Syntax.ContinueStatement,
-                label: 	null
-            };
+            return continueStatement ();
         }
 
         if (peekLineTerminator ()) 
-            return {
-                type: 	Syntax.ContinueStatement,
-                label: 	null
-            };
+            return continueStatement ();
 
         token = lookahead ();
         if (token.type === Token.Identifier)
             label = parseVariableIdentifier ();
 
         consumeSemicolon ();
-
-        return {
-            type: Syntax.ContinueStatement,
-            label: label
-        };
+        return continueStatement (label);
     }
 
     // 12.8 The break statement
+
     function parseBreakStatement (){
         var token, label = null;
 
@@ -41,32 +32,22 @@
         // Optimize the most common form: 'break;'.
         if (source [index] === ';'){
             lex ();
-
-            return {
-                type: 	Syntax.BreakStatement,
-                label: 	null
-            };
+            return breakStatement ();
         }
 
         if (peekLineTerminator ())
-            return {
-                type: 	Syntax.BreakStatement,
-                label: 	null
-            };
+            return breakStatement ();
 
         token = lookahead ();
         if (token.type === Token.Identifier)
             label = parseVariableIdentifier ();
 
         consumeSemicolon ();
-
-        return {
-            type: 	Syntax.BreakStatement,
-            label: 	label
-        };
+        return breakStatement (label);
     }
 
     // 12.9 The return statement
+
     function parseReturnStatement (){
         var token, argument = null;
 
@@ -76,35 +57,24 @@
         if (source [index] === ' ' && isIdentifierStart (source [index + 1])){
             argument = parseExpression ();
             consumeSemicolon ();
-
-            return {
-                type: 		Syntax.ReturnStatement,
-                argument: 	argument
-            };
+            return returnStatement (argument);
         }
 
         if (peekLineTerminator ())
-            return {
-                type: 		Syntax.ReturnStatement,
-                argument: 	null
-            };
+            return returnStatement ();
 
         if (!match (';')){
             token = lookahead ();
-
             if (!match ('}') && token.type !== Token.EOF)
                 argument = parseExpression ();
         }
 
         consumeSemicolon ();
-
-        return {
-            type: 		Syntax.ReturnStatement,
-            argument: 	argument
-        };
+        return returnStatement (argument);
     }
 
     // 12.13 The throw statement
+
     function parseThrowStatement (){
         var argument;
 
@@ -116,8 +86,5 @@
         argument = parseExpression ();
         consumeSemicolon ();
 
-        return {
-            type: 		Syntax.ThrowStatement,
-            argument: 	argument
-        };
+        return throwStatement (argument);
     }

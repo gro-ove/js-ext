@@ -1,13 +1,9 @@
 	// 11.1.6 The Grouping Operator
 	
 	function parseGroupExpression (){
-		var expr;
-
 		expect ('(');
-
-		expr = parseExpression ();
-
+		var result = parseExpression ();
 		expect (')');
 
-		return expr;
+		return result;
 	}

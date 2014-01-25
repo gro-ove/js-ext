@@ -33,22 +33,14 @@
 
 		expect ('}');
 
-		return {
-			type: 	Syntax.BlockStatement,
-			body: 	block
-		};
+		return blockStatement (block);
 	}
 
 	function parseBlockOrNotBlock (){
 		var block, oldPreventSequence;
 
-		if (match ('{')){
+		if (match ('{'))
 			return parseBlock ();
-		} else {
-			return {
-				type: 	Syntax.BlockStatement,
-				body: 	[ parseSourceElement () ],
-				single: true
-			}
-		}
+		else
+			return blockStatement ([ parseSourceElement () ], true);
 	}

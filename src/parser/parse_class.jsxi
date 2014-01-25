@@ -197,5 +197,5 @@
 		temp = callExpression (name || null, arguments);
 		temp ['super'] = level;
 
-		return expressionStatement (mark (temp));
+		return expressionStatement (temp);
 	}
