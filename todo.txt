@@ -6,6 +6,7 @@ TODO:
 	- Super requested in constuctors
 	- Strings format
 	- Private and protected variables
+	- Static variables
 	- NotImplemented operator
 	- Array initializer operator
 	- New loop: for-in-only (?)

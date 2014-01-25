@@ -83,6 +83,7 @@
 		UnexpectedEOS:  				'Unexpected end of input',
 		NewlineAfterThrow: 				'Illegal newline after throw',
 		InvalidRegExp: 					'Invalid regular expression',
+		InvalidIdentifier: 				'Invalid identifier',
 		UnterminatedRegExp:  			'Invalid regular expression: missing /',
 		InvalidLHSInAssignment:  		'Invalid left-hand side in assignment',
 		InvalidLHSInForIn:  			'Invalid left-hand side in for-in',
