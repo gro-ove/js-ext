@@ -1,7 +1,7 @@
 	function mark (obj){
 		if (obj === undefined)
 			obj = {};
-		
+
 		obj.lineNumber 	= lineNumber;
 		obj.lineStart 	= lineStart;
 		obj.index 		= index;
@@ -136,6 +136,20 @@
 		return {
 			type: 			Syntax.ReturnStatement,
 			argument: 		identifier (arg)
+		}
+
+	function property (key, value, kind = 'init')
+		return {
+			type: 			Syntax.Property,
+			key: 			identifier (key),
+			value: 			identifier (value),
+			kind: 			kind
+		};
+
+	function objectExpression (properties = [])
+		return {
+			type: 			Syntax.ObjectExpression,
+			properties: 	properties
 		}
 
 	function functionExpression (name, params = [], body)

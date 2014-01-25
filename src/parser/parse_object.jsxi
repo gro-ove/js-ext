@@ -36,12 +36,7 @@
 				key = parseObjectPropertyKey ();
 				expect ('(');
 				expect (')');
-				return {
-					type: 	Syntax.Property,
-					key: 	key,
-					value: 	parsePropertyFunction([]),
-					kind: 	'get'
-				};
+				return property (key, parsePropertyFunction ([]), 'get');
 			} else if (token.value === 'set' && !match (':')){
 				key = parseObjectPropertyKey();
 				expect ('(');
@@ -50,42 +45,22 @@
 				if (token.type !== Token.Identifier){
 					expect (')');
 					throwError (token, Messages.UnexpectedToken, token.value);
-					return {
-						type: 	Syntax.Property,
-						key: 	key,
-						value: 	parsePropertyFunction([]),
-						kind: 	'set'
-					};
+					return property (key, parsePropertyFunction ([]), 'set');
 				} else {
 					param = [ parseVariableIdentifier () ];
 					expect (')');
-					return {
-						type: 	Syntax.Property,
-						key: 	key,
-						value: 	parsePropertyFunction(param, token),
-						kind: 	'set'
-					};
+					return property (key, parsePropertyFunction (param, token), 'set');
 				}
 			} else {
 				expect (':');
-				return {
-					type: 	Syntax.Property,
-					key: 	id,
-					value: 	parseAssignmentExpression(),
-					kind: 	'init'
-				};
+				return property (id, parseAssignmentExpression ());
 			}
 		} else if (token.type === Token.EOF || token.type === Token.Punctuator){
 			throwUnexpected (token);
 		} else {
 			key = parseObjectPropertyKey ();
 			expect (':');
-			return {
-				type: 	Syntax.Property,
-				key: 	key,
-				value: 	parseAssignmentExpression(),
-				kind: 	'init'
-			};
+			return property (key, parseAssignmentExpression ());
 		}
 	}
 
@@ -130,8 +105,5 @@
 
 		expect ('}');
 
-		return {
-			type: 			Syntax.ObjectExpression,
-			properties: 	properties
-		};
+		return objectExpression (properties);
 	}
