@@ -13,18 +13,14 @@
 	}
 
 	function parseComputedMember (){
-		var expr;
-
 		expect ('[');
-		expr = parseExpression ();
+		var temp = parseExpression ();
 		expect (']');
 
-		return expr;
+		return temp;
 	}
 
 	function parseNewExpression (){
-		var expr;
-
 		expectKeyword ('new');
 
 		return newExpression (
@@ -36,224 +32,156 @@
 	}
 
 	function parseLeftHandSideExpressionAllowCall (){
-		var expr = matchKeyword ('new') ? parseNewExpression () : parsePrimaryExpression ();
+		var temp = matchKeyword ('new') ? parseNewExpression () : parsePrimaryExpression ();
 
 		while (match ('.') || match ('[') || match ('('))
-			if (match ('(')){
-				expr = {
-					type: 			Syntax.CallExpression,
-					callee: 		expr,
-					arguments: 		parseArguments ()
-				};
-			} else if (match ('[')){
-				expr = {
-					type: 			Syntax.MemberExpression,
-					computed: 		true,
-					object: 		expr,
-					property: 		parseComputedMember()
-				};
-			} else {
-				expr = {
-					type: 			Syntax.MemberExpression,
-					computed: 		false,
-					object: 		expr,
-					property: 		parseNonComputedMember()
-				};
-			}
+			if (match ('('))
+				temp = callExpression (temp, parseArguments ());
+			else if (match ('['))
+				temp = memberExpression (temp, parseComputedMember (), true);
+			else
+				temp = memberExpression (temp, parseNonComputedMember (), false);
 
-		return expr;
+		return temp;
 	}
 
 	function parseLeftHandSideExpression (){
-		var expr = matchKeyword ('new') ? parseNewExpression () : parsePrimaryExpression ();
+		var temp = matchKeyword ('new') ? parseNewExpression () : parsePrimaryExpression ();
 
 		while (match ('.') || match ('['))
-			if (match ('[')){
-				expr = {
-					type: 		Syntax.MemberExpression,
-					computed: 	true,
-					object: 	expr,
-					property: 	parseComputedMember ()
-				};
-			} else {
-				expr = {
-					type: 		Syntax.MemberExpression,
-					computed: 	false,
-					object: 	expr,
-					property: 	parseNonComputedMember()
-				};
-			}
+			if (match ('['))
+				temp = memberExpression (temp, parseComputedMember (), true);
+			else 
+				temp = memberExpression (temp, parseNonComputedMember (), false);
 
-		return expr;
+		return temp;
 	}
 
 	// 11.5 Multiplicative Operators
+
 	function parseMultiplicativeExpression (){
-		var expr = parseUnaryExpression ();
+		var temp = parseUnaryExpression ();
 
 		while (match ('*') || match ('/') || match ('%'))
-			expr = {
-				type: 		Syntax.BinaryExpression,
-				operator: 	lex ().value,
-				left: 		expr,
-				right: 		parseUnaryExpression ()
-			};
+			temp = binaryExpression (temp, lex ().value, parseUnaryExpression ());
 
-		return expr;
+		return temp;
 	}
 
 	// 11.6 Additive Operators
+
 	function parseAdditiveExpression (){
-		var expr = parseMultiplicativeExpression ();
+		var temp = parseMultiplicativeExpression ();
 
 		while (match ('+') || match ('-'))
-			expr = {
-				type: 		Syntax.BinaryExpression,
-				operator: 	lex ().value,
-				left: 		expr,
-				right: 		parseMultiplicativeExpression ()
-			};
+			temp = binaryExpression (temp, lex ().value, parseMultiplicativeExpression ());
 
-		return expr;
+		return temp;
 	}
 
 	// 11.7 Bitwise Shift Operators
-	function parseShiftExpression() {
-		var expr = parseAdditiveExpression ();
+
+	function parseShiftExpression (){
+		var temp = parseAdditiveExpression ();
 
 		while (match ('<<') || match ('>>') || match ('>>>'))
-			expr = {
-				type: 		Syntax.BinaryExpression,
-				operator: 	lex ().value,
-				left: 		expr,
-				right: 		parseAdditiveExpression ()
-			};
+			temp = binaryExpression (temp, lex ().value, parseAdditiveExpression ());
 
-		return expr;
+		return temp;
 	}
 
 	// 11.8 Relational Operators
+
 	function parseRelationalExpression (){
-		var expr, previousAllowIn;
+		var temp, previousAllowIn;
 
 		previousAllowIn 	= state.allowIn;
 		state.allowIn 		= true;
-		expr 				= parseShiftExpression();
+		temp 				= parseShiftExpression();
 
 		while (match ('<') || match ('>') || match ('<=') || match ('>=') || previousAllowIn && matchKeyword ('in') || matchKeyword ('instanceof'))
-			expr = {
-				type: 		Syntax.BinaryExpression,
-				operator: 	lex ().value,
-				left: 		expr,
-				right: 		parseShiftExpression ()
-			};
+			temp = binaryExpression (temp, lex ().value, parseShiftExpression ());
 
 		state.allowIn 		= previousAllowIn;
-		return expr;
+		return temp;
 	}
 
 	// 11.9 Equality Operators
+
 	function parseEqualityExpression (){
-		var expr = parseRelationalExpression ();
+		var temp = parseRelationalExpression ();
 
 		while (match ('==') || match ('!=') || match ('===') || match ('!=='))
-			expr = {
-				type: 		Syntax.BinaryExpression,
-				operator: 	lex ().value,
-				left: 		expr,
-				right: 		parseRelationalExpression ()
-			};
+			temp = binaryExpression (temp, lex ().value, parseRelationalExpression ());
 
-		return expr;
+		return temp;
 	}
 
 	// 11.10 Binary Bitwise Operators
+
 	function parseBitwiseANDExpression (){
-		var expr = parseEqualityExpression ();
+		var temp = parseEqualityExpression ();
 
 		while (match ('&')){
 			lex ();
-			expr = {
-				type: 		Syntax.BinaryExpression,
-				operator: 	'&',
-				left: 		expr,
-				right:		parseEqualityExpression()
-			};
+			temp = binaryExpression (temp, '&', parseEqualityExpression ());
 		}
 
-		return expr;
+		return temp;
 	}
 
 	function parseBitwiseXORExpression (){
-		var expr = parseBitwiseANDExpression ();
+		var temp = parseBitwiseANDExpression ();
 
 		while (match ('^')){
 			lex ();
-			expr = {
-				type: 		Syntax.BinaryExpression,
-				operator: 	'^',
-				left: 		expr,
-				right: 		parseBitwiseANDExpression ()
-			};
+			temp = binaryExpression (temp, '^', parseBitwiseANDExpression ());
 		}
 
-		return expr;
+		return temp;
 	}
 
 	function parseBitwiseORExpression (){
-		var expr = parseBitwiseXORExpression ();
+		var temp = parseBitwiseXORExpression ();
 
 		while (match ('|')){
 			lex ();
-			expr = {
-				type: 		Syntax.BinaryExpression,
-				operator:	'|',
-				left: 		expr,
-				right: 		parseBitwiseXORExpression ()
-			};
+			temp = binaryExpression (temp, '|', parseBitwiseXORExpression ());
 		}
 
-		return expr;
+		return temp;
 	}
 
 	// 11.11 Binary Logical Operators
+
 	function parseLogicalANDExpression (){
-		var expr = parseBitwiseORExpression ();
+		var temp = parseBitwiseORExpression ();
 
 		while (match ('&&')){
 			lex ();
-			expr = {
-				type: 		Syntax.LogicalExpression,
-				operator: 	'&&',
-				left: 		expr,
-				right: 		parseBitwiseORExpression ()
-			};
+			temp = logicalExpression (temp, '&&', parseBitwiseORExpression ());
 		}
 
-		return expr;
+		return temp;
 	}
 
 	function parseLogicalORExpression (){
-		var expr = parseLogicalANDExpression ();
+		var temp = parseLogicalANDExpression ();
 
 		while (match ('||')){
 			lex ();
-			expr = {
-				type: 		Syntax.LogicalExpression,
-				operator: 	'||',
-				left: 		expr,
-				right: 		parseLogicalANDExpression ()
-			};
+			temp = logicalExpression (temp, '||', parseLogicalANDExpression ());
 		}
 
-		return expr;
+		return temp;
 	}
 
 	// 11.12 Conditional Operator
-	function parseConditionalExpression (){
-		var expr, previousAllowIn, consequent;
 
-		expr = parseLogicalORExpression ();
+	function parseConditionalExpression (){
+		var temp, previousAllowIn, consequent;
+
+		temp = parseLogicalORExpression ();
 
 		if (match ('?')){
 			lex ();
@@ -263,13 +191,23 @@
 			state.allowIn 		= previousAllowIn;
 			expect (':');
 
-			expr = {
-				type: 			Syntax.ConditionalExpression,
-				test: 			expr,
-				consequent: 	consequent,
-				alternate: 		parseAssignmentExpression ()
-			};
+			temp = conditionalExpression (temp, consequent, parseAssignmentExpression ());
 		}
 
-		return expr;
+		return temp;
+	}
+	
+	function parseAssignmentExpression (){
+		var token, temp;
+
+		token 	= lookahead ();
+		temp 	= parseConditionalExpression ();
+
+		if (matchAssign ()){
+			if (!isLeftHandSide (temp))
+				throwError ({}, Messages.InvalidLHSInAssignment);
+			temp = assignmentExpression (temp, lex ().value, parseAssignmentExpression ());
+		}
+
+		return temp;
 	}
