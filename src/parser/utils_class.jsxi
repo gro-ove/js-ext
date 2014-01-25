@@ -1,6 +1,18 @@
 var classes;
 
-function addClass (name, parent, uses, variables, functions, element){
+function getPosByName (name){
+	for (var i, entry in-array classes)
+		if (entry.name === name)
+			return i;
+	return -1;
+}
+
+function getByName (name)
+	for (var entry in-array classes)
+		if (entry.name === name)
+			return entry;
+
+function addClass (name, parent, uses, variables, functions){
 	var objectVariables = [], 
 		staticVariables = [], 
 		objectFunctions = [], 
@@ -11,7 +23,7 @@ function addClass (name, parent, uses, variables, functions, element){
 		objectVariablesInitialization = [],
 		staticVariablesInitialization = [];
 
-	if (classes [name])
+	if (getByName (name))
 		throwError ({}, Messages.WtfMan);
 
 	for (var entry in-array variables)
@@ -68,7 +80,7 @@ function addClass (name, parent, uses, variables, functions, element){
 	objectConstructor.body.body = objectVariablesInitialization.concat (objectConstructor.body.body);
 	staticInitialization.body.body = staticVariablesInitialization.concat (staticInitialization.body.body);
 
-	classes [name] = {
+	classes.push ({
 		name: 							name,
 		parent: 						parent,
 		uses: 							uses,
@@ -78,21 +90,21 @@ function addClass (name, parent, uses, variables, functions, element){
 		staticFunctions: 				staticFunctions,
 		objectConstructor: 				objectConstructor,
 		staticInitialization: 			staticInitialization,
-		objectFields: 					objectFields,
-		element: 						element
-	}
+		objectFields: 					objectFields
+	})
 }
 
 function initClasses (){
-	classes = {};
+	classes = [];
 }
 
-function setupClass (name){
-	var entry = classes [name], variable, exclusions = null, body, functions, variables, temp, extendsStatements;
+function setupClass (entry){
+	if (typeof entry === 'string')
+		assert (entry = getByName (entry), 'Class not found');
 
-	assert (entry, 'Class not found: ' + name);
+	var variable, exclusions = null, body, functions, variables, temp, extendsStatements;
 
-	if (entry.done)
+	if (entry.element)
 		return;
 
 	function updateExclusions (obj, second)
@@ -142,7 +154,7 @@ function setupClass (name){
 						callee = obj.callee ? obj.callee.name : name;
 
 					for (var i = 0; i < obj ['super']; i ++){
-						parent = classes [parent.parent];
+						parent = getByName (parent.parent);
 						if (!parent)
 							throwError ({}, Messages.WtfMan);
 					}
@@ -165,17 +177,17 @@ function setupClass (name){
 		}
 
 	if (entry.parent !== null)
-		if (!classes [entry.parent]){
-			throwError ({}, 'Parent class not found: ' + use);
+		if (!getByName (entry.parent)){
+			throwError ({}, 'Parent class not found: ' + entry.parent);
 		} else {
 			setupClass (entry.parent);
-			for (var n, v in classes [entry.parent].objectFields)
+			for (var n, v in getByName (entry.parent).objectFields)
 				if (!entry.objectFields [n])
 					entry.objectFields [n] = v === 'private' ? 'locked' : v;
 		}
 
 	for (var use in-array entry.uses){
-		if (!classes [use])
+		if (!getByName (use))
 			throwError ({}, 'Using class not found: ' + use);
 	}
 
@@ -223,60 +235,92 @@ function setupClass (name){
 	if (entry.staticVariables.length)
 		variables = variables.concat (entry.staticVariables);
 
-	entry.element.init = callExpression (
-		functionExpression (
-			null, 
-			[], 
-			[ 
-				variableDeclaration (variables)
-			].concat (
-				extendsStatements
-			).concat (
-				entry.objectFunctions.map (lambda 
-					expressionStatement (
-						assignmentExpression (
-							memberExpression (
-								memberExpression (variable, 'prototype'),
-								arg.id.name
-							),
-							functionExpression (null, arg.params, arg.body)
-						)
-					)
-				)
-			).concat (
-				entry.staticInitialization.body.body.length 
-					? [ expressionStatement (callExpression (entry.staticInitialization)) ]
-					: []
-			).concat (
-				entry.staticFunctions
-			).concat (
-				entry.staticFunctions
-					.filter (lambda arg.publicMode === 'public')
-					.map (lambda 
+	entry.element = variableDeclarator (
+		id.name,
+		callExpression (
+			functionExpression (
+				null, 
+				[], 
+				[ 
+					variableDeclaration (variables)
+				].concat (
+					extendsStatements
+				).concat (
+					entry.objectFunctions.map (lambda 
 						expressionStatement (
 							assignmentExpression (
-								memberExpression (variable, arg.id.name),
-								arg.id.name
+								memberExpression (
+									memberExpression (variable, 'prototype'),
+									arg.id.name
+								),
+								functionExpression (null, arg.params, arg.body)
 							)
 						)
 					)
-			).concat (
-				[ returnStatement (variable) ]
+				).concat (
+					entry.staticInitialization.body.body.length 
+						? [ expressionStatement (callExpression (entry.staticInitialization)) ]
+						: []
+				).concat (
+					entry.staticFunctions
+				).concat (
+					entry.staticFunctions
+						.filter (lambda arg.publicMode === 'public')
+						.map (lambda 
+							expressionStatement (
+								assignmentExpression (
+									memberExpression (variable, arg.id.name),
+									arg.id.name
+								)
+							)
+						)
+				).concat (
+					[ returnStatement (variable) ]
+				)
 			)
 		)
 	);
-
-	entry.done = true;
 }
 
-function setupClasses (){
-	for (var name in classes)
-		setupClass (name);
+function swap (a, b){
+	var id = classes [a].element.id,
+		init = classes [a].element.init;
+
+	classes [a].element.id 		= classes [b].element.id;
+	classes [a].element.init 	= classes [b].element.init;
+
+	classes [b].element.id 		= id;
+	classes [b].element.init 	= init;
+
+	var temp = classes [a];
+	classes [a] = classes [b];
+	classes [b] = temp;
+}
+
+function setupClasses (program){
+	var temp, other;
+
+	for (var entry in-array classes)
+		setupClass (entry);
+
+	/*for (var i, entry in-array classes)
+		for (var u in-array entry.uses){
+			j = getPosByName (u);
+
+			if (j > i){
+				console.log ('swap: ' + classes [i].name + ', ' + classes [j].name + ' (' + i + ', ' + j + ')')
+				swap (i, j);
+				i = 0;
+				break;
+			}
+		}
 
 	return {
 		before: [],
 		after: []
-	};
+	};*/
+
+	return variableDeclaration (classes.map (lambda arg.element));
 }
 
 function resetClasses (){
