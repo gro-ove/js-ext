@@ -18,6 +18,7 @@ module Parser {
 		buffer          = null;
 		state 			= { allowIn: true, inClass: false, parsingComplete: false, preventSequence: false };
 		information		= { comments: {} };
+		fileName 		= options && options.fileName;
 
 		try {
 			program = parseProgram ();
