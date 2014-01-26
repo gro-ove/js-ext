@@ -1,4 +1,7 @@
-var classes, classesByNames, probablyUseOtherMaxValue = 100;
+var classes, 
+	classesByNames, 
+	probablyUseOtherMaxValue = 100, 
+	thatVariable;
 
 function getPosByName (name)
 	return classes.indexOf (classesByNames [name]);
@@ -107,6 +110,7 @@ function initClasses (){
 	classes 		= [];
 	classesByNames 	= {};
 	dictionary 		= {};
+	thatVariable    = newIdentifier ();
 }
 
 function processClass (entry){
@@ -152,7 +156,7 @@ function processClass (entry){
 			for (var i = 0; i < obj.length; i ++)
 				obj [i] = update (obj [i], name, true) || obj [i];
 		} else if (obj && obj.type){
-			var oldExclusions = undefined, oldStaticMode, temp;
+			var oldExclusions = undefined, oldStaticMode, createThat, temp;
 
 			if (obj.type === Syntax.FunctionDeclaration || obj.type === Syntax.FunctionExpression){
 				oldExclusions 	= exclusions;
@@ -161,7 +165,18 @@ function processClass (entry){
 				updateExclusions (obj);
 				staticMode 		= obj.staticMode;
 
+				if (!second)
+					createThat 	= false;
+
 				update (obj.body.body, second ? null : name, true);
+
+				if (createThat && !second){
+					temp = [ variableDeclarator (thatVariable, thisExpression ()) ];
+					if (obj.body.body [0] && obj.body.body [0].type === Syntax.VariableDeclaration)
+						obj.body.body [0].declarations = temp.concat (obj.body.body [0].declarations);
+					else
+						obj.body.body = [ variableDeclaration (temp) ].concat (obj.body.body);
+				}
 
 				exclusions 		= oldExclusions;
 				staticMode 		= oldStaticMode;
@@ -176,7 +191,10 @@ function processClass (entry){
 						if (entry.objectFields [obj.name].publicMode === 'locked')
 							throwError (obj, Messages.PrivateAccessError, obj.name);
 
-						return memberExpression (thisExpression (), entry.objectFields [obj.name].name);
+						if (!name)
+							createThat = true;
+
+						return memberExpression (name ? thisExpression () : thatVariable, entry.objectFields [obj.name].name);
 					} else if (classesByNames [obj.name])
 						entry.probablyUseOther = (entry.probablyUseOther || 0) + 1;
 				}
