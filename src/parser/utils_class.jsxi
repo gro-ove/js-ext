@@ -80,8 +80,7 @@ function addClass (name, parent, uses, variables, functions, at){
 		if (!staticInitialization)
 			staticInitialization = functionExpression ();
 		staticInitialization.body.body = staticVariablesInitialization.concat (staticInitialization.body.body);
-	} else if (staticInitialization)
-		staticInitialization = null;
+	}
 
 	if (objectConstructor && objectConstructor.id)
 		objectConstructor.id = null;
@@ -115,7 +114,7 @@ function processClass (entry){
 		assert (entry = getByName (entry), 'Class ' + entry + ' not found');
 
 	var variable, 
-		exclusions = null, 
+		exclusions = {}, 
 		staticMode, 
 		mode,
 		body, 
@@ -136,7 +135,7 @@ function processClass (entry){
 		} else if (obj && obj.type){
 			if (obj.type === 'FunctionDeclaration' || obj.type === 'FunctionExpression'){
 				if (!second){
-					exclusions = {};
+					exclusions = clone (exclusions);
 					updateExclusions (obj.body, true);
 					obj.params.forEach (lambda exclusions [arg.name] = true);
 				}
@@ -364,7 +363,7 @@ function sortClasses (){
 	classes.sort (lambda (a, b) a.weight > b.weight);
 }
 
-function processClasses (program){
+function processClasses (){
 	var temp, other;
 
 	if (classes.length === 0)
@@ -376,5 +375,5 @@ function processClasses (program){
 	checkForCircular ();
 	sortClasses ();
 
-	return variableDeclaration (classes.map (lambda arg.element));
+	return [ variableDeclaration (classes.map (lambda arg.element)) ];
 }
