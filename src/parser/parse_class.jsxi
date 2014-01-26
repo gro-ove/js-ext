@@ -109,9 +109,6 @@
 				lex ();
 			}
 
-			if (staticMode && publicMode === 'protected')
-				throwError ({}, Messages.WtfMan);
-
 			token = lookahead ();
 			temp = null;
 
