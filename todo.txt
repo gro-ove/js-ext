@@ -6,7 +6,7 @@ TODO:
 	V Private and protected variables
 	V Static variables
 	V Initialization statement
-	- Super requested in constuctors
+	V Super requested in constuctors
 	- Strings format
 	- NotImplemented operator
 	- Array initializer operator

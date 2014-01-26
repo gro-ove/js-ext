@@ -1,3 +1,5 @@
+console.log = lambda process.stdout.write (arguments [0]);
+
 class A {
 
 }
@@ -19,19 +21,29 @@ class D extends C {
 
 class E extends D {
 	(arg){
-		console.log ('E: ' + arg);
+		console.log ('E(' + arg + ')');
 	}
 }
 
-class F extends D {
+class F extends E {
 	(arg){
-		// super (arg);
-		console.log ('F: ' + arg);
+		super (arg);
+		console.log ('F(' + arg + ')');
 	}
+}
+
+class G extends F {}
+
+class H extends G {
+	var temp = 19;
 }
 
 {
-	var f = new F ();
+	for (var i = 'A'; this [i]; i = String.fromCharCode (i.charCodeAt (0) + 1)){
+		console.log (i + '> '); 
+		new this [i](i.charCodeAt (0) - 'A'.charCodeAt (0)); 
+		console.log ('\n');
+	}
 }
 
 // class Something {

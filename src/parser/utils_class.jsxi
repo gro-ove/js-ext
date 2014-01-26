@@ -84,8 +84,11 @@ function addClass (name, parent, uses, variables, functions, at){
 		}
 
 	if (objectVariablesInitialization.length){
-		if (!objectConstructor)
+		if (!objectConstructor){
 			objectConstructor = functionExpression ();
+			objectConstructor.autocreated = true;
+		}
+
 		objectConstructor.body.body = objectVariablesInitialization.concat (objectConstructor.body.body);
 	}
 
@@ -376,6 +379,8 @@ function checkForCircular (){
 }
 
 function connectClass (entry, from){
+	var parent;
+
 	if (typeof entry === 'string')
 		assert (entry = getByName (entry), 'Class ' + entry + ' not found');
 
@@ -385,27 +390,46 @@ function connectClass (entry, from){
 	if (entry.connected)
 		return;
 
-	if (entry.parent !== null)
-		if (!getByName (entry.parent.name)){
+	if (entry.parent !== null){
+		parent = getByName (entry.parent.name);
+
+		if (!parent){
 			throwError (entry.parent, Messages.ParentClassNotFound, entry.parent.name);
 		} else {
 			connectClass (entry.parent.name, entry.name);
 
-			for (var n, v in getByName (entry.parent.name).objectFields)
+			for (var n, v in parent.objectFields)
 				if (!entry.objectFields [n])
 					entry.objectFields [n] = {
 						publicMode: 	v.publicMode === 'private' ? 'locked' : v.publicMode,
 						name: 			v.name 
 					};
 
-			for (var n, v in getByName (entry.parent.name).staticFields)
+			for (var n, v in parent.staticFields)
 				if (!entry.staticFields [n])
 					entry.staticFields [n] = {
 						publicMode: 	v.publicMode === 'private' ? 'locked' : v.publicMode,
 						name: 			v.name,
 						className: 		v.className
 					};
+
+			if (parent.objectConstructor){
+				if (!entry.objectConstructor){
+					entry.objectConstructor = functionExpression (null, parent.objectConstructor.params, [
+						expressionStatement (superExpression (null, parent.objectConstructor.params))
+					]);
+				} else if (!entry.objectConstructor.body.body.filter (lambda arg.type === Syntax.ExpressionStatement && arg.expression ['super']).length){
+					if (entry.objectConstructor.autocreated || parent.objectConstructor.params.length === 0){
+						if (entry.objectConstructor.autocreated)
+							entry.objectConstructor.params = parent.objectConstructor.params;
+						entry.objectConstructor.body.body = [ expressionStatement (superExpression (null, parent.objectConstructor.params)) ].concat (entry.objectConstructor.body.body);
+					} else {
+						throwError (entry.objectConstructor, Messages.SuperConstructorCallNeeded);
+					}
+				}
+			}
 		}
+	}
 
 	for (var use in-array entry.uses){
 		if (!getByName (use.name))
