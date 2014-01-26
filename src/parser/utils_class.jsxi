@@ -15,6 +15,7 @@ function addClass (name, parent, uses, variables, functions, at){
 		objectFunctions = [], 
 		staticFunctions = [], 
 		objectFields = {},
+		staticFields = {},
 		objectConstructor, 
 		staticInitialization, 
 		objectVariablesInitialization = [],
@@ -29,6 +30,12 @@ function addClass (name, parent, uses, variables, functions, at){
 			entry.declarations.forEach (lambda {
 				arg.publicMode = entry.publicMode;
 				staticVariables.push (arg);
+
+				staticFields [arg.id.name] = { 
+					className: 		name,
+					publicMode: 	entry.publicMode, 
+					name: 			entry.publicMode !== 'protected' ? arg.id.name : newIdentifier () 
+				};
 			});
 		} else 
 			entry.declarations.forEach (lambda {
@@ -50,10 +57,18 @@ function addClass (name, parent, uses, variables, functions, at){
 
 	for (var entry in-array functions)
 		if (entry.staticMode){
-			if (entry.id.name === '@')
+			if (entry.id.name === '@'){
 				staticInitialization = entry;
-			else
+			} else {
 				staticFunctions.push (entry);
+				staticFields [entry.id.name] = { 
+					className: 		name,
+					publicMode: 	entry.publicMode, 
+					name: 			entry.publicMode !== 'protected' ? entry.id.name : newIdentifier () 
+				};
+
+				entry.id.name = staticFields [entry.id.name].name;
+			}
 		} else {
 			if (entry.id.name === '@'){
 				objectConstructor = entry;
@@ -98,6 +113,7 @@ function addClass (name, parent, uses, variables, functions, at){
 		objectConstructor: 				objectConstructor,
 		staticInitialization: 			staticInitialization,
 		objectFields: 					objectFields,
+		staticFields: 					staticFields,
 		at: 							at
 	})
 }
@@ -113,7 +129,7 @@ function processClass (entry){
 	if (typeof entry === 'string')
 		assert (entry = getByName (entry), 'Class ' + entry + ' not found');
 
-	var variable, 
+	var variable = newIdentifier (), 
 		exclusions = {}, 
 		staticMode, 
 		createThat, 
@@ -191,6 +207,13 @@ function processClass (entry){
 							createThat = true;
 
 						return memberExpression (name ? thisExpression () : thatVariable, entry.objectFields [obj.name].name);
+					} else if (entry.staticFields [obj.name] && entry.staticFields [obj.name].publicMode !== 'private'){
+						if (entry.staticFields [obj.name].publicMode === 'locked')
+							throwError (obj, Messages.PrivateAccessError, obj.name);
+
+						return memberExpression (entry.staticFields [obj.name].className === entry.name 
+							? variable 
+							: entry.staticFields [obj.name].className.name, entry.staticFields [obj.name].name);
 					} else if (classesByNames [obj.name])
 						entry.probablyUseOther = (entry.probablyUseOther || 0) + 1;
 				}
@@ -272,8 +295,6 @@ function processClass (entry){
 	} else {
 		var resultFunction = [ variableDeclaration (variables = []) ];
 
-		variable = newIdentifier ();
-
 		if (entry.mode === 'default'){
 			variables.push (variableDeclarator (variable, entry.objectConstructor || functionExpression ()));
 
@@ -293,23 +314,32 @@ function processClass (entry){
 			}
 
 			for (var f in-array entry.objectFunctions)
-				resultFunction.push (expressionStatement (
-					assignmentExpression (
+				resultFunction.push (expressionStatement (assignmentExpression (
 						memberExpression (memberExpression (variable, 'prototype'), f.id.name), 
 						functionExpression (null, f.params, f.body))));
 		} else if (entry.mode === 'static'){
 			variables.push (variableDeclarator (variable, objectExpression ()));
 		}
 
-		for (var v in-array entry.staticVariables)
-			variables.push (v);
+		for (var v in-array entry.staticVariables){
+			if (v.publicMode !== 'private'){
+				var temp = expressionStatement (assignmentExpression (
+					memberExpression (variable, entry.staticFields [v.id.name].name), v.init || 'undefined'));
+				if (entry.staticFields [v.id.name].publicMode === 'protected')
+					temp.comment = v.id.name;
+				resultFunction.push (temp);
+			} else {
+				variables.push (v);
+			}
+		}
 
 		for (var f in-array entry.staticFunctions){
-			resultFunction.push (f);
-
-			if (f.publicMode === 'public')
-				resultFunction.push (expressionStatement (
-					assignmentExpression (memberExpression (variable, f.id.name), f.id.name)));
+			if (f.publicMode !== 'private')
+				resultFunction.push (expressionStatement (assignmentExpression (
+						memberExpression (variable, f.id.name),
+						functionExpression (null, f.params, f.body))));
+			else
+				resultFunction.push (f);
 		}
 
 		if (entry.staticInitialization)
@@ -366,6 +396,14 @@ function connectClass (entry, from){
 					entry.objectFields [n] = {
 						publicMode: 	v.publicMode === 'private' ? 'locked' : v.publicMode,
 						name: 			v.name 
+					};
+
+			for (var n, v in getByName (entry.parent.name).staticFields)
+				if (!entry.staticFields [n])
+					entry.staticFields [n] = {
+						publicMode: 	v.publicMode === 'private' ? 'locked' : v.publicMode,
+						name: 			v.name,
+						className: 		v.className
 					};
 		}
 
