@@ -49,7 +49,7 @@
 
 		state.parsingComplete = true;
 
-		temp = processClasses ();
+		temp = doClasses ();
 		if (typeof temp !== 'undefined')
 			Array.prototype.push.apply (sourceElements, temp);
 

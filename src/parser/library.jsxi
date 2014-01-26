@@ -99,7 +99,6 @@
 		SuperMethodsAreNotAvailable: 	'Super methods are not available for this class',
 		ClassAlreadyDefined: 			'Class with name %0 already defined',
 		ParentClassNotFound: 			'Parent class %0 not found',
-		ParentClassIsStatic: 			'Parent class %0 is static',
 		UsingClassNotFound: 			'Using class %0 not found',
 		WtfMan: 						'WTF, MAN'
 	};

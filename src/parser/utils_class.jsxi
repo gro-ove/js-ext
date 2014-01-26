@@ -36,29 +36,24 @@ function addClass (name, parent, uses, variables, functions, at){
 				objectVariables.push (arg);
 				objectFields [arg.id.name] = { 
 					publicMode: 	entry.publicMode, 
-					name: 			entry.publicMode === 'public' 
-						? arg.id.name
-						: newIdentifier () 
+					name: 			entry.publicMode === 'public' ? arg.id.name : newIdentifier () 
 				};
 
-				temp = expressionStatement (
-					assignmentExpression (
-						memberExpression (thisExpression (), objectFields [arg.id.name].name),
-						arg.init || 'undefined'
-					)
-				);
+				temp = expressionStatement (assignmentExpression (
+					memberExpression (thisExpression (), objectFields [arg.id.name].name), arg.init || 'undefined'));
 
-				temp.comment = arg.id.name;
+				temp.comment 		= arg.id.name;
+				temp.autocreated 	= true;
+
 				objectVariablesInitialization.push (temp);
 			});
 
 	for (var entry in-array functions)
 		if (entry.staticMode){
-			if (entry.id.name === '@'){
+			if (entry.id.name === '@')
 				staticInitialization = entry;
-			} else {
+			else
 				staticFunctions.push (entry);
-			}
 		} else {
 			if (entry.id.name === '@'){
 				objectConstructor = entry;
@@ -94,6 +89,7 @@ function addClass (name, parent, uses, variables, functions, at){
 	classes.push (classesByNames [name.name] = {
 		name: 							name,
 		parent: 						parent,
+		childs: 						[],
 		uses: 							uses,
 		objectVariables: 				objectVariables,
 		staticVariables: 				staticVariables,
@@ -120,6 +116,7 @@ function processClass (entry){
 	var variable, 
 		exclusions = {}, 
 		staticMode, 
+		createThat, 
 		mode,
 		body, 
 		functions, 
@@ -129,8 +126,7 @@ function processClass (entry){
 		publicStaticFunctions,
 		resultFunction;
 
-	if (entry.element)
-		return;
+	assert (!entry.element, 'Already processed');
 
 	function updateExclusions (obj, second)
 		if (obj instanceof Array){
@@ -156,7 +152,7 @@ function processClass (entry){
 			for (var i = 0; i < obj.length; i ++)
 				obj [i] = update (obj [i], name, true) || obj [i];
 		} else if (obj && obj.type){
-			var oldExclusions = undefined, oldStaticMode, createThat, temp;
+			var oldExclusions = undefined, oldStaticMode, temp;
 
 			if (obj.type === Syntax.FunctionDeclaration || obj.type === Syntax.FunctionExpression){
 				oldExclusions 	= exclusions;
@@ -233,54 +229,46 @@ function processClass (entry){
 			}
 		}
 
-	if (entry.parent !== null)
-		if (!getByName (entry.parent.name)){
-			throwError (entry.parent, Messages.ParentClassNotFound, entry.parent.name);
-		} else {
-			processClass (entry.parent.name);
+	if (entry.objectConstructor){
+		update (entry.objectConstructor, '@');
+		entry.objectConstructor.body.body = entry.objectConstructor.body.body.filter (lambda (arg, i, array){
+			if (arg.autocreated && arg.type === Syntax.ExpressionStatement && arg.expression.right.name === 'undefined')
+				for (var e in-array array){
+					if (e !== arg && e.type === Syntax.ExpressionStatement && e.expression.type === Syntax.AssignmentExpression && e.expression.left.type === Syntax.MemberExpression 
+						&& e.expression.left.object.type === Syntax.ThisExpression && e.expression.left.property.name === arg.expression.left.property.name)
+						return false;
+				}
 
-			if (getByName (entry.parent.name).mode !== 'default')
-				throwError (entry.parent, Messages.ParentClassIsStatic, entry.parent.name);
-
-			for (var n, v in getByName (entry.parent.name).objectFields)
-				if (!entry.objectFields [n])
-					entry.objectFields [n] = {
-						publicMode: 	v.publicMode === 'private' ? 'locked' : v.publicMode,
-						name: 			v.name 
-					};
-		}
-
-	for (var use in-array entry.uses){
-		if (!getByName (use.name))
-			throwError (use, Messages.UsingClassNotFound, use.name);
+			return true;
+		});
 	}
 
-	if (entry.objectConstructor)
-		update (entry.objectConstructor, '@');
 	entry.objectFunctions.forEach (lambda update (arg, arg.id.name));
 	if (entry.staticInitialization)
 		update (entry.staticInitialization, '@');
 	entry.staticFunctions.forEach (lambda update (arg, arg.id.name));
 
 	entry.mode = 'default';
-	if (!entry.objectConstructor && 
+	if (!entry.childs.length &&
+		!entry.objectConstructor && 
 		!entry.parent && 
 		!entry.objectFunctions.length && 
 		!entry.objectVariables.length){
 
 		entry.mode = 'static';
 
-		if (!entry.staticInitialization && 
-			!entry.staticVariables.length){
-
-			if (!entry.staticFunctions.length)
-				entry.mode = 'empty';
-		}
+		if (!entry.staticVariables.length && !entry.staticFunctions.length)
+			entry.mode = !entry.staticInitialization ? 'empty' : 'static-initialize-only';
 	}
 
 	if (entry.mode === 'empty'){
 		entry.element = variableDeclarator (entry.name.name, objectExpression ());
 		entry.uses = [];
+	} else if (entry.mode === 'static-initialize-only'){
+		entry.element = variableDeclarator (entry.name.name, sequenceExpression ([ 
+			callExpression (entry.staticInitialization),
+			objectExpression ()
+		]));
 	} else {
 		var resultFunction = [ variableDeclaration (variables = []) ];
 
@@ -329,7 +317,7 @@ function processClass (entry){
 
 		resultFunction.push (returnStatement (variable));
 
-		entry.element = variableDeclarator (entry.name, callExpression (functionExpression (null, [], resultFunction)));
+		entry.element = variableDeclarator (entry.name.name, callExpression (functionExpression (null, [], resultFunction)));
 	}
 }
 
@@ -357,6 +345,48 @@ function checkForCircular (){
 	}
 }
 
+function connectClass (entry, from){
+	if (typeof entry === 'string')
+		assert (entry = getByName (entry), 'Class ' + entry + ' not found');
+
+	if (from !== undefined)
+		entry.childs.push (from);
+
+	if (entry.connected)
+		return;
+
+	if (entry.parent !== null)
+		if (!getByName (entry.parent.name)){
+			throwError (entry.parent, Messages.ParentClassNotFound, entry.parent.name);
+		} else {
+			connectClass (entry.parent.name, entry.name);
+
+			for (var n, v in getByName (entry.parent.name).objectFields)
+				if (!entry.objectFields [n])
+					entry.objectFields [n] = {
+						publicMode: 	v.publicMode === 'private' ? 'locked' : v.publicMode,
+						name: 			v.name 
+					};
+		}
+
+	for (var use in-array entry.uses){
+		if (!getByName (use.name))
+			throwError (use, Messages.UsingClassNotFound, use.name);
+	}
+
+	entry.connected = true;
+}
+
+function connectClasses (){
+	for (var entry in-array classes)
+		connectClass (entry);
+}
+
+function processClasses (){
+	for (var entry in-array classes)
+		processClass (entry);
+}
+
 function sortClasses (){
 	function getWeight (entry){
 		if (typeof entry === 'string')
@@ -381,17 +411,13 @@ function sortClasses (){
 	classes.sort (lambda (a, b) a.weight > b.weight);
 }
 
-function processClasses (){
-	var temp, other;
+function doClasses (){
+	if (classes.length !== 0){
+		checkForCircular ();
+		connectClasses ();
+		sortClasses ();
+		processClasses ();
 
-	if (classes.length === 0)
-		return;
-
-	for (var entry in-array classes)
-		processClass (entry);
-
-	checkForCircular ();
-	sortClasses ();
-
-	return [ variableDeclaration (classes.map (lambda arg.element)) ];
+		return [ variableDeclaration (classes.map (lambda arg.element)) ];
+	}
 }
