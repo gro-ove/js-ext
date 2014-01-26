@@ -4,9 +4,10 @@ TODO:
 	V Initialization order
 	V Static classes
 	V Private and protected variables
+	V Static variables
+	- Initialization statement
 	- Super requested in constuctors
 	- Strings format
-	- Static variables
 	- NotImplemented operator
 	- Array initializer operator
 	- New loop: for-in-only (?)
