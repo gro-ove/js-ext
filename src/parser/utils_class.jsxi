@@ -449,7 +449,7 @@ function sortClasses (){
 	classes.sort (lambda (a, b) a.weight > b.weight);
 }
 
-function doClasses (){
+function doClasses ()
 	if (classes.length !== 0){
 		checkForCircular ();
 		connectClasses ();
@@ -457,5 +457,5 @@ function doClasses (){
 		processClasses ();
 
 		return [ variableDeclaration (classes.map (lambda arg.element)) ];
-	}
-}
+	} else
+		return [];
