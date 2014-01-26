@@ -51,7 +51,7 @@
 
 		temp = processClasses ();
 		if (typeof temp !== 'undefined')
-			sourceElements.push (temp);
+			Array.prototype.push.apply (sourceElements, temp);
 
 		return sourceElements;
 	}
