@@ -36,21 +36,6 @@
 
 		initClasses ();
 
-		while (index < length){
-			token = lookahead ();
-
-			if (token.type !== Token.StringLiteral)
-				break;
-
-			sourceElement = parseProgramElement ();
-			sourceElements.push (sourceElement);
-
-			if (sourceElement.expression.type !== Syntax.Literal)
-				break;
-
-			directive = sliceSource (token.range [0] + 1, token.range [1] - 1);
-		}
-
 		while (index < length) {
 			sourceElement = parseProgramElement ();
 			if (sourceElement === null)
