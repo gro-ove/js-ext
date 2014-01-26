@@ -5,7 +5,7 @@ TODO:
 	V Static classes
 	V Private and protected variables
 	V Static variables
-	- Initialization statement
+	V Initialization statement
 	- Super requested in constuctors
 	- Strings format
 	- NotImplemented operator

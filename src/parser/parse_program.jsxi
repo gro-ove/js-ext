@@ -14,11 +14,11 @@
 					return parseStatement ();
 			}
 
-		if (token.type === Token.Punctuator && token.value === '('){
+		if (token.type === Token.Punctuator && (token.value === '(' || token.value === '{')){
 			saved = saveAll ();
 
 			try {
-				temp 			= parseFunctionArguments ();
+				temp 			= token.value === '(' ? parseFunctionArguments () : [];
 				result 			= expressionStatement (callExpression (functionExpression (null, temp, parseBlock ())));
 				result.after 	= true;
 
