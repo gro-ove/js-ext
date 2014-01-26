@@ -65,13 +65,7 @@ module Generator {
 
 	var fn = {
 		Identifier: 			lambda arg.name,
-		Literal:                lambda arg.value === null 
-									? 'null'
-									: typeof arg.value === 'string' 
-										? JSON.stringify (arg.value)
-										: typeof arg.value === 'number' 
-											? arg.value 
-											: '[ ' + arg.value + ' ]',
+		Literal:                lambda typeof arg.value === 'string' ? '"' + arg.value + '"' : '' + arg.value,
 		Property: 				lambda f (arg.key) + ': ' + f (arg.value),
 
 		BlockStatement:         lambda arg.body.length ? '{' + n (1) + _ (c (arg.body)) + '}' + (arguments [1] ? ' ' : n (-1)) : '{}',
@@ -98,12 +92,12 @@ module Generator {
 		ArrayExpression:        lambda arg.elements.length ? '[' + n (1) + c (arg.elements, ',' + tabs) + n (-1) + ']' : '[]',
 		ObjectExpression:       lambda arg.properties.length ? '{' + n (1) + c (arg.properties, ',' + tabs) + n (-1) + '}' : '{}',
 		MemberExpression:       lambda f (arg.object) + (arg.computed ? '[' + f (arg.property) + ']' : '.' + f (arg.property)),
-		FunctionExpression:     lambda 'function ' + (arg.id ? f (arg.id) + ' ' : '') + '(' + c (arg.params, ', ') + ')' + f (arg.body),
+		FunctionExpression:     lambda '(function ' + (arg.id ? f (arg.id) + ' ' : '') + '(' + c (arg.params, ', ') + ')' + f (arg.body) + ')',
 		BinaryExpression:   	lambda f (arg.left) + ' ' + arg.operator + ' ' + f (arg.right),
 		LogicalExpression:   	lambda f (arg.left) + ' ' + arg.operator + ' ' + f (arg.right),
-		AssignmentExpression:   lambda f (arg.left) + ' ' + arg.operator + ' ' + f (arg.right),
-		UnaryExpression:   		lambda arg.prefix ? (arg.operator.length == 1 ? arg.operator : arg.operator + ' ') + f (arg.argument) : f (arg.argument) + ' ' + arg.operator,
-		SequenceExpression:     lambda n (1) && c (arg.expressions, ',' + tabs),
+		AssignmentExpression:   lambda '(' + (f (arg.left) + ' ' + arg.operator + ' ' + f (arg.right)) + ')',
+		UnaryExpression:   		lambda '(' + (arg.prefix ? (arg.operator.length == 1 ? arg.operator : arg.operator + ' ') + f (arg.argument) : f (arg.argument) + ' ' + arg.operator) + ')',
+		SequenceExpression:     lambda '(' + (n (1) && c (arg.expressions, ',' + tabs)) + ')',
 		ConditionalExpression:  lambda f (arg.test) + ' ? ' + f (arg.consequent) + ' : ' + f (arg.alternate),
 		
 		VariableDeclaration:    lambda n (1) && arg.kind + ' ' + arg.declarations.map (f).join (',' + tabs) + (arguments [1] ? '' : $ (arg, true)),
