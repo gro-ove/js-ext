@@ -71,12 +71,6 @@
 		buffer 			= obj.buffer;
 	}
 
-	function createLiteral (token)
-		return {
-			type: 	Syntax.Literal,
-			value: 	token.value
-		};
-
 	function advance (){
 		var ch, token;
 

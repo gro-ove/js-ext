@@ -23,7 +23,10 @@
 	}
 
 	function literal (value)
-		return typeof value === 'object' && value !== null ? value : {
+		return typeof value === 'object' && value !== null ? {
+			type: 				Syntax.Literal,
+			value: 				value.value
+		} : {
 			type: 				Syntax.Literal,
 			value: 				value
 		}

@@ -18,7 +18,7 @@
 		// Note: This function is called only from parseObjectProperty(), where
 		// EOF and Punctuator tokens are already filtered out.
 		if (token.type === Token.StringLiteral || token.type === Token.NumericLiteral) 
-			return createLiteral (token);
+			return literal (token);
 
 		return identifier (token.value);
 	}
