@@ -22,8 +22,6 @@
 
 						return expressionStatement (callExpression (
 							memberExpression ('console', 'warn'), [ literal ('Not implemented at ' + lineNumber + ' line of ' + fileName) ]));
-
-						`Not %0 implem %1 ented`(a, b)
 					}
 			}
 
