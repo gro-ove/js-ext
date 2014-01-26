@@ -88,3 +88,9 @@ class ChildChild extends Child {
 class Empty {
 	
 }
+
+class App {
+	use ChildChild;
+
+	var c = new ChildChild ();
+}

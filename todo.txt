@@ -8,8 +8,8 @@ TODO:
 	V Initialization statement
 	V Super requested in constuctors
 	V NotImplemented operator
+	V Strings format
 	- Multifile classes
-	- Strings format
 	- Array initializer operator
 	- New loop: for-in-only (?)
 	- Inner classes (?)

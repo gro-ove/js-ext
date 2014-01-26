@@ -1,14 +1,37 @@
+	function parseComplexString (str){
+		var args = parseArguments (),
+			splitted,
+			result,
+			temp;
+
+		if (args.length === 0 || str.length === 0)
+			return literal (str);
+
+		splitted = str
+			.split (new RegExp ('%(' + args.map (lambda (a, i) i).join ('|') + ')', 'g'))
+			.map (lambda (a, i) i % 2 ? args [+a] : a && literal (a))
+			.filter (lambda arg);
+
+		result = splitted [0];
+		for (var i = 1; i < splitted.length; i ++)
+			result = binaryExpression (result, '+', splitted [i]);
+		return result;
+	}
+
 	// 11.1 Primary Expressions
 	
 	function parsePrimaryExpression (){
-		var token = lookahead (),
-			type = token.type;
+		var token 	= lookahead (),
+			type 	= token.type,
+			temp;
 
 		if (type === Token.Identifier)
 			return identifier (lex ().value);
 
-		if (type === Token.StringLiteral || type === Token.NumericLiteral)
-			return createLiteral (lex ());
+		if (type === Token.StringLiteral || type === Token.NumericLiteral){
+			temp = lex ().value;
+			return match ('(') ? parseComplexString (temp) : literal (temp);
+		}
 
 		if (type === Token.Keyword){
 			if (matchKeyword ('this')){
@@ -26,13 +49,13 @@
 		if (type === Token.BooleanLiteral){
 			lex ();
 			token.value = token.value === 'true';
-			return createLiteral (token);
+			return literal (token);
 		}
 
 		if (type === Token.NullLiteral){
 			lex ();
 			token.value = null;
-			return createLiteral (token);
+			return literal (token);
 		}
 
 		if (match ('['))
@@ -45,7 +68,7 @@
 			return parseGroupExpression ();
 
 		if (match ('/') || match ('/='))
-			return createLiteral (scanRegExp ());
+			return literal (scanRegExp ());
 
 		return throwUnexpected (lex ());
 	}
