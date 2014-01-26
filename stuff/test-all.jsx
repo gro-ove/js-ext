@@ -1,7 +1,9 @@
 console.log = lambda process.stdout.write (arguments [0]);
 
 class A {
-
+	public function test (){
+		...
+	}
 }
 
 class B extends A {
@@ -44,6 +46,8 @@ class H extends G {
 		new this [i](i.charCodeAt (0) - 'A'.charCodeAt (0)); 
 		console.log ('\n');
 	}
+
+	new A ().test ();
 }
 
 // class Something {

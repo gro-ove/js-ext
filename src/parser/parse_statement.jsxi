@@ -14,8 +14,17 @@
 					return parseBlock ();
 				case '(':
 					return parseExpressionStatement ();
-				default:
-					break;
+				case '.':
+					if (source [token.range [0] + 1] === '.' && source [token.range [0] + 2] === '.'){
+						lex ();
+						lex ();
+						lex ();
+
+						return expressionStatement (callExpression (
+							memberExpression ('console', 'warn'), [ literal ('Not implemented at ' + lineNumber + ' line of ' + fileName) ]));
+
+						`Not %0 implem %1 ented`(a, b)
+					}
 			}
 
 		if (token.type === Token.Keyword)

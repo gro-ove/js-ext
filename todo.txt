@@ -7,8 +7,9 @@ TODO:
 	V Static variables
 	V Initialization statement
 	V Super requested in constuctors
+	V NotImplemented operator
+	- Multifile classes
 	- Strings format
-	- NotImplemented operator
 	- Array initializer operator
 	- New loop: for-in-only (?)
 	- Inner classes (?)
