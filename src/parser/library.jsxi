@@ -100,6 +100,7 @@
 		ClassAlreadyDefined: 			'Class with name %0 already defined',
 		ParentClassNotFound: 			'Parent class %0 not found',
 		UsingClassNotFound: 			'Using class %0 not found',
+		SuperConstructorCallNeeded: 	'Super constructor call is needed',
 		WtfMan: 						'WTF, MAN'
 	};
 
