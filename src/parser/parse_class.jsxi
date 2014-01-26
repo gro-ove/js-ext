@@ -55,6 +55,7 @@
 			parent,
 			token,
 			temp,
+			tempMark,
 			staticMode,
 			staticModeOnly,
 			publicMode,
@@ -134,12 +135,13 @@
 						break;
 				}
 			} else if (token.type === Token.Punctuator && token.value === '(' || token.value === '{'){
+				tempMark = mark ();
 				temp = token.value === '(' ? parseFunctionArguments () : [];
 
 				if (!staticMode)
 					state.superAvailable = true;
 
-				temp = functionExpression ('@', temp, parseFunctionSourceElements ());
+				temp = setMark (functionExpression ('@', temp, parseFunctionSourceElements ()), tempMark);
 
 				state.superAvailable = false;
 				functionDeclarations.push (temp);
@@ -191,8 +193,5 @@
 		arguments = parseArguments ();
 		consumeSemicolon ();
 
-		temp = callExpression (name || null, arguments);
-		temp ['super'] = level;
-
-		return expressionStatement (temp);
+		return expressionStatement (superExpression (name, arguments, level));
 	}
