@@ -1,7 +1,7 @@
 	// 14 Program
 
 	function parseProgramElement (){
-		var token = lookahead ();
+		var token = lookahead (), temp, result;
 
 		if (token.type === Token.Keyword)
 			switch (token.value){
@@ -13,6 +13,19 @@
 				default:
 					return parseStatement ();
 			}
+
+		if (token.type === Token.Punctuator && token.value === '('){
+			saved = saveAll ();
+
+			try {
+				temp 			= parseFunctionArguments ();
+				result 			= expressionStatement (callExpression (functionExpression (null, temp, parseBlock ())));
+				result.after 	= true;
+
+				return result;
+			} catch 
+				restoreAll (saved);
+		}
 
 		if (token.type !== Token.EOF) 
 			return parseStatement ();
@@ -50,7 +63,14 @@
 		state.parsingComplete = true;
 
 		temp = doClasses ();
-		if (typeof temp !== 'undefined')
+		sourceElements = sourceElements.filter (lambda 
+			if (arg.after){
+				temp.push (arg);
+				return false;
+			} else 
+				return true);
+
+		if (temp.length)
 			Array.prototype.push.apply (sourceElements, temp);
 
 		return sourceElements;
