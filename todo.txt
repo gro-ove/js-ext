@@ -9,8 +9,13 @@ TODO:
 	V Super requested in constuctors
 	V NotImplemented operator
 	V Strings format
+	- Macroses
+	- Imports and stuff
+
+LATER:
 	- Multifile classes
 	- Array initializer operator
 	- New loop: for-in-only (?)
 	- Inner classes (?)
 	- Warnings
+	- IE8 compilation mode
