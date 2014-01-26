@@ -88,7 +88,6 @@
 		};
 	}
 
-	// 7.7 Punctuators
 	function scanPunctuator (){
 		var start = index,
 			ch1 = source[index],
@@ -176,7 +175,6 @@
 			};
 	}
 
-	// 7.8.3 Numeric Literals
 	function scanNumericLiteral (){
 		var number, start, ch;
 
@@ -306,7 +304,6 @@
 		};
 	}
 
-	// 7.8.4 String Literals
 	function scanStringLiteral (){
 		var str = '', quote, start, ch, code, unescaped, restore, octal = false;
 
