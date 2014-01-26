@@ -65,7 +65,7 @@ module App {
 		if (!file)
 			console.fatal (2, 'Reading error');
 
-		var parsed = Parser.parse (file, { information: true });
+		var parsed = Parser.parse (file, { information: true, fileName: require ('path').basename (args.data [0]) });
 
 		if (args.l){
 			var c = JSON.stringify (parsed, false, 4).length;
@@ -78,7 +78,7 @@ module App {
 		} else {
 			var str = Generator.work (parsed, require ('path').basename (args.data [0]));
 			try 
-				console.log (str);
+				console.log (require ('escodegen').generate (parsed));
 			catch
 				console.json (parsed);
 		}

@@ -1,6 +1,7 @@
 	function setMark (obj, mark){
 		obj.lineNumber 	= mark.lineNumber;
 		obj.lineStart 	= mark.lineStart;
+		obj.fileName    = mark.fileName;
 		obj.index 		= mark.index;
 
 		return obj;
@@ -15,6 +16,7 @@
 
 		obj.lineNumber 	= lineNumber;
 		obj.lineStart 	= lineStart;
+		obj.fileName    = fileName;
 		obj.index 		= index;
 
 		return obj;
