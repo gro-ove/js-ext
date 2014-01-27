@@ -11,6 +11,7 @@ TODO:
 	V Strings format
 	- Macroses
 	- Imports and stuff
+	- New Generator
 
 LATER:
 	- Multifile classes

@@ -50,6 +50,208 @@ module App {
 			return result;
 	}
 
+	var macroses = {};
+
+	var Macros = function (){
+		var defaultArgs = [
+			{ name: 'args' },
+			{ name: 'fs', value: require ('fs') }, 
+			{ name: 'path', value: require ('path') }
+		];
+
+		return lambda (macrosArgs, macrosBody){
+			if (!macrosBody){
+				macrosBody = macrosArgs;
+				macrosArgs = null;
+			}
+
+			var fn = macrosArgs
+				? new Function (macrosArgs.map (lambda arg.name).join (','), convert (macrosBody, 'macro'))
+				: new Function (defaultArgs.map (lambda arg.name).join (), 'return ' + convert (macrosBody, 'macros'));
+
+			return lambda (args) fn.apply (null, macrosArgs ? args : defaultArgs.map (lambda arg.value || args));
+		}
+	}();
+
+	function loadFile (path){
+		try var file = require ('fs').readFileSync (args.data [0]);
+		if (!file)
+			console.fatal (2, 'Reading error: ' + file);
+
+		preparseFile (file.toString ());
+	}
+
+	function getParams (data){
+		var all = data.match (/(?:^|[\r\n])[ \t]*\/\/[ \t]*==([a-z]+)==[\s\S]+?[\r\n][ \t]*\/\/[ \t]*==\/\1==/gi),
+			result = {};
+
+		all.forEach (lambda {
+			var temp = {};
+
+			arg.replace (/[\r\n][ \t]*\/\/[ \t]*@[ \t]*([^\s]+)(?:[ \t]+([^\n\r]+))?/g, lambda (s, k, v){
+				k = k.trim ();
+				if (!temp [k])
+					temp [k] = [];
+				temp [k].push (v ? v.trim () : true);
+			});
+
+			result [arg.match (/==([a-z]+)==/i)[1].toLowerCase ()] = temp;
+		});
+
+		return result;
+	}
+
+	function convert (jsxCode, fileName){
+		return require ('escodegen').generate (typeof jsxCode === 'string' ? Parser.parse (jsxCode, { fileName: fileName }) : jsxCode);
+	}
+
+	function LiteParser (data, index = 0){
+		this.data 	= data;
+		this.index 	= index;
+	}
+
+	LiteParser.prototype.update = function (data, delta = 0){
+		this.data 	= data;
+		this.index  += delta;
+	}
+
+	LiteParser.prototype.findNext = function (){
+		var that = this;
+
+		try return [ Array.prototype.map.call (arguments, lambda { 
+				index: 	that.data.indexOf (arg, that.index), 
+				value: 	arg
+			}).filter (lambda arg.index > -1).reduce (lambda (a, b) a.index < b.index ? a : b) ].map (lambda (that.index = arg.index + arg.value.length) && arg)[0];
+		catch 
+			if (e.message !== 'Reduce of empty array with no initial value')
+				throw e;
+	}
+
+	function preparseFile (data){
+		var params = getParams (data),
+			cutted;
+
+		if (params.jsx && params.jsx.macros)
+			params.jsx.macros.forEach (lambda {
+				console.assert (cutted = arg.match (/^([^\s]+)\s+([\s\S]+)$/), 'Macros parsing error');
+				macroses [cutted [1]] = new Macros (cutted [2]);
+			});
+
+		var liteParser = new LiteParser (data),
+			found,
+			temp;
+
+		function commentsAndStringsSkip (found, liteParser){
+			switch (found.value){
+				case '//':
+					liteParser.findNext ('\n', '\r'/* TODO: , '\u2028', '\u2029'*/);
+					return true;
+				case '/*':
+					liteParser.findNext ('*/');
+					return true;
+				case '\'':
+				case '"':
+				case '`':
+					while (temp = liteParser.findNext ('\\' + found.value, found.value))
+						if (temp.value === found.value)
+							return true;
+			}
+		}
+
+		function bracketsSkip (liteParser){
+			var temp = tempLiteParser.findNext ('(', ')');
+			if (temp && temp.value === '(')
+				bracketsSkip (liteParser);
+		}
+
+		function cast (value){
+			// if (value.match (/^((\d+|\d*\.\d+)(e[+-]?\d+)?|0x[\da-f]+)$/i))
+			// 	return +value;
+
+			var data = Parser.parse (value, { fileName: 'macros arg' });
+
+			if (data.type === Syntax.BlockStatement){
+
+			} else {
+				try {
+					console.log ('data = ' + convert (data));
+					eval ('data = ' + convert (data));
+					return data;
+				} catch {
+					// TODO
+					throw e;
+				}
+			}
+
+			console.log (data);
+
+			/* var s = value [0], e = value [value.length - 1], r;
+			if ((s === '"' || s === '`' || s === '\'') && s === e || s === '{' && e === '}' || e === '[' && e === ']'){
+				console.log ('FFF: ' + s === e ? value : value.slice (1, -1));
+				try eval ('r = ' + convert (s === e ? value : value.slice (1, -1), 'macros arg'));
+				if (r)
+					return r;
+			}
+
+			console.log (value);*/
+
+			return value;
+		}
+
+		while (found = liteParser.findNext ('//', '/*', '@', '\'', '"', '`')){
+			if (commentsAndStringsSkip (found, liteParser))
+				continue;
+
+			if (found.value === '@'){
+				var matched = data.substr (found.index + 1).match (/([_$a-z][_$a-z0-9]*)(\s*\()?/i);
+
+
+				if (matched && macroses [matched [1]]){
+					var begin 		= found.index + 1 + matched [1].length,
+						arguments 	= [];
+
+					if (matched [2]){
+						var last 			= begin + matched [2].length,
+							tempLiteParser 	= new LiteParser (data, last),
+							tempFound;
+
+						tempLoop: while (tempFound = tempLiteParser.findNext ('//', '/*', '\'', '"', '`', '(', ')', ',', '{')){
+							if (commentsAndStringsSkip (tempFound, tempLiteParser))
+								continue;
+
+							switch (tempFound.value){
+								case ',':
+									arguments.push (cast (data.substring (last, tempFound.index).trim ()));
+									last = tempFound.index + 1;
+									break;
+								case ')':
+									arguments.push (cast (data.substring (last, tempFound.index).trim ()));
+									begin = tempFound.index + 1;
+									break tempLoop;
+								case '(':
+									bracketsSkip (tempLiteParser);
+									break;
+							}
+						}
+					}
+
+					data = data.substr (0, found.index) + macroses [matched [1]](arguments) + data.substr (begin);
+					liteParser.update (data, -1);
+				}
+			}
+		}
+
+		/*data = data.replace (/@([a-z]+)/ig, function (s, n){
+			console.log (n, macroses [n]);
+			if (macroses [n])
+				return macroses [n]();
+			else
+				return s;
+		});*/
+
+		console.log (data);
+	}
+
 	function init (){
 		// First and second args - "node" and script name
 		args = parseArgs (process.argv.slice (2), [
@@ -60,27 +262,27 @@ module App {
 				{   s: 'h',		l: 'usage'					}
 			]);
 
-		try var file = require ('fs').readFileSync (args.data [0]);
+		loadFile (args.data [0]);
 
-		if (!file)
-			console.fatal (2, 'Reading error');
+		// if (!file)
+		// 	console.fatal (2, 'Reading error');
 
-		var parsed = Parser.parse (file, { information: true, fileName: require ('path').basename (args.data [0]) });
+		// var parsed = Parser.parse (file, { information: true, fileName: require ('path').basename (args.data [0]) });
 
-		if (args.l){
-			var c = JSON.stringify (parsed, false, 4).length;
+		// if (args.l){
+		// 	var c = JSON.stringify (parsed, false, 4).length;
 
-			if (c != +args.l){
-				console.log (console.json (parsed));
-				console.fatal (3, 'Wrong length: ' + c);
-			} else
-				console.log (args.data [0] + ' - ok :)')
-		} else {
-			var str = Generator.work (parsed, require ('path').basename (args.data [0]));
-			try 
-				console.log (require ('escodegen').generate (parsed));
-			catch
-				console.json (parsed);
-		}
+		// 	if (c != +args.l){
+		// 		console.log (console.json (parsed));
+		// 		console.fatal (3, 'Wrong length: ' + c);
+		// 	} else
+		// 		console.log (args.data [0] + ' - ok :)')
+		// } else {
+		// 	var str = Generator.work (parsed, require ('path').basename (args.data [0]));
+		// 	try 
+		// 		console.log (require ('escodegen').generate (parsed));
+		// 	catch
+		// 		console.json (parsed);
+		// }
 	}
 }
