@@ -50,26 +50,26 @@ module App {
 			return result;
 	}
 
-	var macroses = {};
+	var macros = {};
 
-	var Macros = function (){
+	var Macro = function (){
 		var defaultArgs = [
 			{ name: 'args' },
 			{ name: 'fs', value: require ('fs') }, 
 			{ name: 'path', value: require ('path') }
 		];
 
-		return lambda (macrosArgs, macrosBody){
-			if (!macrosBody){
-				macrosBody = macrosArgs;
-				macrosArgs = null;
+		return lambda (macroArgs, macroBody){
+			if (!macroBody){
+				macroBody = macroArgs;
+				macroArgs = null;
 			}
 
-			var fn = macrosArgs
-				? new Function (macrosArgs.map (lambda arg.name).join (','), convert (macrosBody, 'macro'))
-				: new Function (defaultArgs.map (lambda arg.name).join (), 'return ' + convert (macrosBody, 'macros'));
+			var fn = macroArgs
+				? new Function (macroArgs.map (lambda arg.name).join (','), convert (macroBody, 'macro'))
+				: new Function (defaultArgs.map (lambda arg.name).join (), 'return ' + convert (macroBody, 'macros'));
 
-			return lambda (args) fn.apply (null, macrosArgs ? args : defaultArgs.map (lambda arg.value || args));
+			return lambda (args) fn.apply (null, macroArgs ? args : defaultArgs.map (lambda arg.value || args));
 		}
 	}();
 
@@ -131,10 +131,10 @@ module App {
 		var params = getParams (data),
 			cutted;
 
-		if (params.jsx && params.jsx.macros)
-			params.jsx.macros.forEach (lambda {
+		if (params.jsx && params.jsx.macro)
+			params.jsx.macro.forEach (lambda {
 				console.assert (cutted = arg.match (/^([^\s]+)\s+([\s\S]+)$/), 'Macros parsing error');
-				macroses [cutted [1]] = new Macros (cutted [2]);
+				macros [cutted [1]] = new Macro (cutted [2]);
 			});
 
 		var liteParser = new LiteParser (data),
@@ -168,7 +168,7 @@ module App {
 			// if (value.match (/^((\d+|\d*\.\d+)(e[+-]?\d+)?|0x[\da-f]+)$/i))
 			// 	return +value;
 
-			var data = Parser.parse (value, { fileName: 'macros arg' });
+			var data = Parser.parse (value, { fileName: 'macro arg' });
 
 			if (data.type === Syntax.BlockStatement){
 
@@ -206,7 +206,7 @@ module App {
 				var matched = data.substr (found.index + 1).match (/([_$a-z][_$a-z0-9]*)(\s*\()?/i);
 
 
-				if (matched && macroses [matched [1]]){
+				if (matched && macros [matched [1]]){
 					var begin 		= found.index + 1 + matched [1].length,
 						arguments 	= [];
 
@@ -235,7 +235,7 @@ module App {
 						}
 					}
 
-					data = data.substr (0, found.index) + macroses [matched [1]](arguments) + data.substr (begin);
+					data = data.substr (0, found.index) + macros [matched [1]](arguments) + data.substr (begin);
 					liteParser.update (data, -1);
 				}
 			}
@@ -252,37 +252,31 @@ module App {
 		console.log (data);
 	}
 
+	function simpleTransform (fileName){
+		try var file = require ('fs').readFileSync (fileName);
+
+		if (!file)
+			console.fatal (2, 'Reading error');
+
+		var parsed = Parser.parse (file, { information: true, fileName: require ('path').basename (args.data [0]) });
+
+		var str = Generator.work (parsed, require ('path').basename (args.data [0]));
+		try 
+			console.log (require ('escodegen').generate (parsed));
+		catch
+			console.json (parsed);
+	}
+
 	function init (){
 		// First and second args - "node" and script name
 		args = parseArgs (process.argv.slice (2), [
 				// s - short, l - long, p - parameter (1 - one, 2 - multiple)
 				{ 	s: 'i', 	l: 'include', 	p: 2		},
 				{ 	s: 'o', 	l: 'output',  	p: 1		},
-				{   s: 'l',		l: 'length',	p: 1		},
 				{   s: 'h',		l: 'usage'					}
 			]);
 
 		loadFile (args.data [0]);
-
-		// if (!file)
-		// 	console.fatal (2, 'Reading error');
-
-		// var parsed = Parser.parse (file, { information: true, fileName: require ('path').basename (args.data [0]) });
-
-		// if (args.l){
-		// 	var c = JSON.stringify (parsed, false, 4).length;
-
-		// 	if (c != +args.l){
-		// 		console.log (console.json (parsed));
-		// 		console.fatal (3, 'Wrong length: ' + c);
-		// 	} else
-		// 		console.log (args.data [0] + ' - ok :)')
-		// } else {
-		// 	var str = Generator.work (parsed, require ('path').basename (args.data [0]));
-		// 	try 
-		// 		console.log (require ('escodegen').generate (parsed));
-		// 	catch
-		// 		console.json (parsed);
-		// }
+		// simpleTransform (args.data [0]);
 	}
 }

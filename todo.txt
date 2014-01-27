@@ -9,7 +9,7 @@ TODO:
 	V Super requested in constuctors
 	V NotImplemented operator
 	V Strings format
-	- Macroses
+	- Macros
 	- Imports and stuff
 	- New Generator
 
