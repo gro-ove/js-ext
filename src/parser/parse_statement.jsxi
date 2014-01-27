@@ -1,7 +1,7 @@
 	// 12 Statements
 	
 	function parseStatement (){
-		var token = lookahead (), expr;
+		var token = lookahead (), expr, saved;
 
 		if (token.type === Token.EOF)
 			throwUnexpected (token);
@@ -11,7 +11,15 @@
 				case ';':
 					return parseEmptyStatement ();
 				case '{':
-					return parseBlock ();
+					try {
+						saved = saveAll ();
+						expr = parseObjectInitialiser ();
+						consumeSemicolon ();
+						return expressionStatement (expr);
+					} catch {
+						restoreAll (saved);
+						return parseBlock ();
+					}
 				case '(':
 					return parseExpressionStatement ();
 				case '.':
