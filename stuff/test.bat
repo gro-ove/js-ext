@@ -8,4 +8,4 @@ cmd /C js-ext.cmd src\js-ext.jsx -e -o build\js-ext.temp.js > nul || exit /b
 :: node build\js-ext.temp.js stuff\test-for-in-array-loops.jsx -l 16934 || exit /b
 :: node build\js-ext.temp.js stuff\test-try.jsx -l 13411 || exit /b
 :: node build\js-ext.temp.js stuff\test-commafree.jsx -l 9476 || exit /b
-node build\js-ext.temp.js stuff\test-all.jsx
+node build\js-ext.temp.js stuff\current.jsx
