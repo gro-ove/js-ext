@@ -106,36 +106,113 @@ module App {
 	}
 
 	function LiteParser (data, index = 0){
-		this.data 	= data;
-		this.index 	= index;
+		this.data 		= data;
+		this.index 		= index;
+		this.binded 	= [];
 	}
 
 	LiteParser.prototype.update = function (data, delta = 0){
-		this.data 	= data;
-		this.index  += delta;
+		this.data 		= data;
+		this.index  	+= delta;
+	}
+
+	LiteParser.prototype.on = function (what, fn){
+		this.binded.push ({ match: what, react: fn });
 	}
 
 	LiteParser.prototype.findNext = function (){
-		var that = this;
+		function indexOf (str, what, pos, id)
+			if (what instanceof RegExp){
+				var temp = str.substring (pos).match (what);
+				return {
+					id: 	id,
+					index: 	temp ? temp.index + pos : -1,
+					value: 	temp ? temp [0] : null,
+					raw: 	temp
+				};
+			} else 
+				return {
+					id: 	id,
+					index: 	str.indexOf (what, pos),
+					value: 	what
+				};
 
-		try return [ Array.prototype.map.call (arguments, lambda { 
-				index: 	that.data.indexOf (arg, that.index), 
-				value: 	arg
-			}).filter (lambda arg.index > -1).reduce (lambda (a, b) a.index < b.index ? a : b) ].map (lambda (that.index = arg.index + arg.value.length) && arg)[0];
-		catch 
-			if (e.message !== 'Reduce of empty array with no initial value')
-				throw e;
+		var min = Number.POSITIVE_INFINITY, 
+			value,
+			temp;
+
+		for ()
+
+		for (var i, arg in-array arguments){
+			temp = indexOf (this.data, arg, this.index, i);
+			if (temp.index !== -1 && temp.index < min){
+				value = temp;
+				this.index = temp.index + temp.value.length;
+			}
+		}
+
+		return temp;
 	}
 
 	function preparseFile (data){
+		var liteParser = new LiteParser (data).on ('//', lambda this.findNext ('\n', '\r')),
+			found;
+
+		var macros = [];
+
+		function find (){
+			var found;
+			while (found = LiteParser.prototype.findNext.apply (liteParser, arguments)){
+				switch (){
+
+				}
+			}
+		}
+
+		while (found = liteParser.findNext ('//', '/*', '\'', '"', '`', (/@macro\s+([_$a-z][_$a-z0-9]*)\s*(=)?/), '@', '{', '}')){
+			switch (found.id){
+				case 0: // //
+					liteParser.findNext ('\n', '\r'/* TODO: , '\u2028', '\u2029'*/);
+					break;
+				case 1: // /*
+					liteParser.findNext ('*/');
+					break;
+				case 2: // '
+				case 3: // "
+				case 4: // `
+					while (temp = liteParser.findNext ('\\' + found.value, found.value))
+						if (temp.value === found.value)
+							break;
+					break;
+				case 5: // @macro
+					var name = found.raw [1];
+					if (found.raw [2]){
+						// ...
+						liteParser.
+					} else {
+						console.log (data [liteParser.index]);
+						console.log (name, !!found.raw [2]);
+					}
+					break;
+				case 6:	// @
+					break;
+				case 7: // {
+					break;
+				case 8: // }
+					break;
+			}
+		}
+	}
+
+	function preparseFile2 (data){
 		var params = getParams (data),
 			cutted;
 
-		if (params.jsx && params.jsx.macro)
+		/*if (params.jsx && params.jsx.macro)
 			params.jsx.macro.forEach (lambda {
 				console.assert (cutted = arg.match (/^([^\s]+)\s+([\s\S]+)$/), 'Macros parsing error');
 				macros [cutted [1]] = new Macro (cutted [2]);
-			});
+			});*/
 
 		var liteParser = new LiteParser (data),
 			found,
@@ -158,23 +235,25 @@ module App {
 			}
 		}
 
-		function bracketsSkip (liteParser){
-			var temp = tempLiteParser.findNext ('(', ')');
-			if (temp && temp.value === '(')
+		function bracketsSkip (liteParser, open, close){
+			var temp = tempLiteParser.findNext (open, close);
+			if (temp && temp.value === open)
 				bracketsSkip (liteParser);
 		}
 
 		function cast (value){
-			// if (value.match (/^((\d+|\d*\.\d+)(e[+-]?\d+)?|0x[\da-f]+)$/i))
-			// 	return +value;
+			if (value.match (/^((\d+|\d*\.\d+)(e[+-]?\d+)?|0x[\da-f]+)$/i))
+			 	return +value;
 
-			var data = Parser.parse (value, { fileName: 'macro arg' });
+			var data = Parser.parse (value, { fileName: 'macro arg' }); // TODO
 
-			if (data.type === Syntax.BlockStatement){
-
+			if (data.body [0].type === Syntax.BlockStatement){
+				return {
+					ast: data.body,
+					raw: value.slice (1, -1).trim ()
+				};
 			} else {
 				try {
-					console.log ('data = ' + convert (data));
 					eval ('data = ' + convert (data));
 					return data;
 				} catch {
@@ -182,20 +261,6 @@ module App {
 					throw e;
 				}
 			}
-
-			console.log (data);
-
-			/* var s = value [0], e = value [value.length - 1], r;
-			if ((s === '"' || s === '`' || s === '\'') && s === e || s === '{' && e === '}' || e === '[' && e === ']'){
-				console.log ('FFF: ' + s === e ? value : value.slice (1, -1));
-				try eval ('r = ' + convert (s === e ? value : value.slice (1, -1), 'macros arg'));
-				if (r)
-					return r;
-			}
-
-			console.log (value);*/
-
-			return value;
 		}
 
 		while (found = liteParser.findNext ('//', '/*', '@', '\'', '"', '`')){
@@ -204,7 +269,6 @@ module App {
 
 			if (found.value === '@'){
 				var matched = data.substr (found.index + 1).match (/([_$a-z][_$a-z0-9]*)(\s*\()?/i);
-
 
 				if (matched && macros [matched [1]]){
 					var begin 		= found.index + 1 + matched [1].length,
@@ -229,13 +293,23 @@ module App {
 									begin = tempFound.index + 1;
 									break tempLoop;
 								case '(':
-									bracketsSkip (tempLiteParser);
+									bracketsSkip (tempLiteParser, '(', ')');
+									break;
+								case '{':
+									bracketsSkip (tempLiteParser, '{', '}');
+									break;
+								case '[':
+									bracketsSkip (tempLiteParser, '[', ']');
 									break;
 							}
 						}
 					}
 
-					data = data.substr (0, found.index) + macros [matched [1]](arguments) + data.substr (begin);
+					var result = macros [matched [1]](arguments);
+					if (result && result.type === Syntax.Program)
+						result = convert (data);
+
+					data = data.substr (0, found.index) + result + data.substr (begin);
 					liteParser.update (data, -1);
 				}
 			}
