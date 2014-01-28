@@ -7,7 +7,7 @@
 // Author: Ariya Hidayat
 
 module Parser {
-	export function parse (code, options) {
+	export function parse (code, args) {
 		var program;
 
 		source          = '' + code;
@@ -17,17 +17,9 @@ module Parser {
 		length          = source.length;
 		buffer          = null;
 		state 			= { allowIn: true, inClass: false, parsingComplete: false, preventSequence: false };
-		information		= { comments: {} };
+		options		    = args || { initializationAllowed: false };
 		fileName 		= options && options.fileName;
 
-		try {
-			program = parseProgram ();
-
-			if (options && options.information)
-				program.information = information;
-		} catch
-			throw e;
-
-		return program;
+		return parseProgram ();
 	}
 }

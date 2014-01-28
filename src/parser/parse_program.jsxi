@@ -14,7 +14,7 @@
 					return parseStatement ();
 			}
 
-		if (token.type === Token.Punctuator && (token.value === '(' || token.value === '{')){
+		if (options.initializationAllowed && token.type === Token.Punctuator && (token.value === '(' || token.value === '{')){
 			saved = saveAll ();
 
 			try {
