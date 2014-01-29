@@ -54,7 +54,7 @@ module App {
 
 	var Macro = function (){
 		var defaultArgs = [
-			{ name: 'args' },
+			{ name: 'arg' },
 			{ name: 'fs', value: require ('fs') }, 
 			{ name: 'path', value: require ('path') }
 		];
@@ -66,7 +66,7 @@ module App {
 			}
 
 			var fn = macroArgs
-				? new Function (macroArgs.map (lambda arg.name).join (','), convert (macroBody, 'macro'))
+				? new Function (macroArgs.map (lambda typeof arg && arg.name ? arg.name : arg).join (','), convert (macroBody, 'macro'))
 				: new Function (defaultArgs.map (lambda arg.name).join (), 'return ' + convert (macroBody, 'macros'));
 
 			return lambda (args) fn.apply (null, macroArgs ? args : defaultArgs.map (lambda arg.value || args));
@@ -283,18 +283,24 @@ module App {
 
 					break;
 				case 1:
-					var name = found.raw [1],
+					var name 		= found.raw [1],
+						arguments 	= [],
+						position 	= liteParser.index,
 						temp;
 
 					if (found.raw [2]){
-						// ...
-					} else {
-						temp = [];
+						while (temp = liteParser.findHere (',', ')')){
+							arguments.push (data.substring (position, liteParser.index - 1).trim ());
+							position = liteParser.index;
+
+							if (temp.value === ')')
+								break;
+						}
 					}
 
 					var pos = calls.push ({ 
 						name: 		name, 
-						arguments: 	temp, 
+						arguments: 	arguments, 
 						level: 		level 
 					}) - 1;
 
@@ -313,12 +319,12 @@ module App {
 
 		while (found = liteParser.findNext (/@call\.(\d+)/)){
 			var call = calls [+found.raw [1]];
-			console.assert (call, 'wrong call identifier');
+			console.assert (call, 'Wrong call identifier');
 
 			var macro = macros.filter (lambda arg.name === call.name && call.level.indexOf (arg.level) === 0).sort (lambda (a, b) b.level.length - a.level.length)[0];
-			console.assert (macro, 'macro not found');
+			console.assert (macro, 'Macro not found');
 
-			var result = macro.callee ();
+			var result = macro.callee (call.arguments);
 
 			partReplace (found.index, liteParser.index, result);
 		}
