@@ -202,24 +202,25 @@ module App {
 				.on ('//', lambda this.findNext ('\n', '\r'))
 				.on ('/*', lambda this.findNext ('*/'))
 				.on ('\'', '"', '`', lambda {
-					while (temp = liteParser.findNext ('\\' + found.value, found.value))
-						if (temp.value === found.value)
+					while (temp = liteParser.findNext ('\\' + arg.value, arg.value))
+						if (temp.value === arg.value)
 							break;
 				}),
 			macros 	= [],
 			calls 	= [],
 			level 	= '',
-			found,
-			temp,
-			name;
+			found;
 
 		function partReplace (from, to, by = ''){
 			console.assert (from <= to, 'Invalid args');
 
+			if (typeof by !== 'string')
+				by = '' + by;
+
 			if (liteParser.index >= to)
 				liteParser.index -= (to - from) - by.length;
 			else if (liteParser.index > from)
-				liteParser.index = from;
+				liteParser.update (from);
 
 			liteParser.update (data = data.substr (0, from) + by + data.substr (to));
 		}
@@ -230,7 +231,8 @@ module App {
 				'{', '}')){
 			switch (found.id){
 				case 0:
-					name = found.raw [1];
+					var name = found.raw [1],
+						temp;
 
 					if (found.raw [2]){
 						// ...
@@ -249,7 +251,8 @@ module App {
 
 					break;
 				case 1:
-					name = found.raw [1];
+					var name = found.raw [1],
+						temp;
 
 					if (found.raw [2]){
 						// ...
@@ -284,11 +287,13 @@ module App {
 			console.assert (macro, 'macro not found');
 
 			var result = macro.callee ();
+
 			partReplace (found.index, liteParser.index, result);
 		}
 
-		console.json (macros);
-		console.json (calls);
+		// console.json (macros);
+		// console.json (calls);
+
 		console.log (data);
 	}
 
