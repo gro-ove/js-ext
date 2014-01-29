@@ -82,7 +82,7 @@ module App {
 	}
 
 	function getParams (data){
-		var all = data.match (/(?:^|[\r\n])[ \t]*\/\/[ \t]*==([a-z]+)==[\s\S]+?[\r\n][ \t]*\/\/[ \t]*==\/\1==/gi),
+		var all = data.match (/(?:^|[\r\n])[ \t]*\/\/[ \t]*==([a-zA-Z]+)==[\s\S]+?[\r\n][ \t]*\/\/[ \t]*==\/\1==/g),
 			result = {};
 
 		all.forEach (lambda {
@@ -95,14 +95,19 @@ module App {
 				temp [k].push (v ? v.trim () : true);
 			});
 
-			result [arg.match (/==([a-z]+)==/i)[1].toLowerCase ()] = temp;
+			result [arg.match (/==([a-zA-Z]+)==/)[1].toLowerCase ()] = temp;
 		});
 
 		return result;
 	}
 
 	function convert (jsxCode, fileName){
-		return require ('escodegen').generate (typeof jsxCode === 'string' ? Parser.parse (jsxCode, { fileName: fileName }) : jsxCode);
+		try{
+			return require ('escodegen').generate (typeof jsxCode === 'string' ? Parser.parse (jsxCode, { fileName: fileName }) : jsxCode);
+		} catch {
+			console.log (jsxCode);
+			throw e;
+		}
 	}
 
 	function LiteParser (data, index = 0){
@@ -153,6 +158,7 @@ module App {
 
 		for (var i, arg in-array this.binded){
 			temp = indexOf (this.data, arg.match, this.index, i);
+
 			if (temp.index !== -1 && temp.index < value.index){
 				value = temp;
 				react = arg.react;
@@ -161,16 +167,19 @@ module App {
 
 		for (var i, arg in-array arguments){
 			temp = indexOf (this.data, arg, this.index, i);
+
 			if (temp.index !== -1 && temp.index < value.index){
 				value = temp;
 				react = null;
 			}
 		}
 
-		if (value.index === Number.POSITIVE_INFINITY)
+		if (value.index === Number.POSITIVE_INFINITY){
+			this.index = this.data.length;
 			return null;
+		}
 
-		this.index 	= value.index + value.value.length;
+		this.index = value.index + value.value.length;
 
 		if (react){
 			react.call (this, value);
@@ -226,8 +235,8 @@ module App {
 		}
 
 		while (found = liteParser.findNext (
-				/@macro\s+([_$a-z][_$a-z0-9]*)\s*(\()?/, 
-				/@([_$a-z][_$a-z0-9]*)\s*(\()?/, 
+				/@macro\s+([_$a-zA-Z][_$a-zA-Z0-9]*)\s*(\()?/, 
+				/@([_$a-zA-Z][_$a-zA-Z0-9]*)\s*(\()?/, 
 				'{', '}')){
 			switch (found.id){
 				case 0:
@@ -291,9 +300,13 @@ module App {
 			partReplace (found.index, liteParser.index, result);
 		}
 
-		// console.json (macros);
-		// console.json (calls);
+		console.log ('===\nMacros:');
+		console.json (macros);
 
+		console.log ('===\nCalls:');
+		console.json (calls);
+
+		console.log ('===\nResult:');
 		console.log (data);
 	}
 
