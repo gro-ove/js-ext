@@ -111,13 +111,23 @@ module App {
 		this.binded 	= [];
 	}
 
-	LiteParser.prototype.update = function (data, delta = 0){
-		this.data 		= data;
-		this.index  	+= delta;
+	LiteParser.prototype.update = function (data, delta){
+		if (typeof data === 'string')
+			this.data = data;
+
+		if (typeof delta === 'number')
+			this.index = delta;
+		else if (typeof data === 'number')
+			this.index = data;
+
+		return this;
 	}
 
-	LiteParser.prototype.on = function (what, fn){
-		this.binded.push ({ match: what, react: fn });
+	LiteParser.prototype.on = function (){
+		for (var i = 0; i < arguments.length - 1; i ++)
+			this.binded.push ({ match: arguments [i], react: arguments [arguments.length - 1] });
+		
+		return this;
 	}
 
 	LiteParser.prototype.findNext = function (){
@@ -137,71 +147,149 @@ module App {
 					value: 	what
 				};
 
-		var min = Number.POSITIVE_INFINITY, 
-			value,
+		var value = { index: Number.POSITIVE_INFINITY },
+			react,
 			temp;
 
-		for ()
+		for (var i, arg in-array this.binded){
+			temp = indexOf (this.data, arg.match, this.index, i);
+			if (temp.index !== -1 && temp.index < value.index){
+				value = temp;
+				react = arg.react;
+			}
+		}
 
 		for (var i, arg in-array arguments){
 			temp = indexOf (this.data, arg, this.index, i);
-			if (temp.index !== -1 && temp.index < min){
+			if (temp.index !== -1 && temp.index < value.index){
 				value = temp;
-				this.index = temp.index + temp.value.length;
+				react = null;
 			}
 		}
 
-		return temp;
+		if (value.index === Number.POSITIVE_INFINITY)
+			return null;
+
+		this.index 	= value.index + value.value.length;
+
+		if (react){
+			react.call (this, value);
+			return LiteParser.prototype.findNext.apply (this, arguments);
+		} else
+			return value;
+	}
+
+	LiteParser.prototype.findHere = function (){
+		var args 		= [].slice.call (arguments),
+			operators 	= [ '(', '{', '[' ],
+			others 		= [ ')', '}', ']' ],
+			found, 
+			temp;
+
+		while (found = LiteParser.prototype.findNext.apply (this, args.concat (operators))){
+			temp = operators.indexOf (found.value);
+			if (operators.indexOf (found.value) !== -1){
+				this.findHere (others [temp]);
+			} else if (args.indexOf (found.value) !== -1)
+				return found;
+		}
+
+		return null;
 	}
 
 	function preparseFile (data){
-		var liteParser = new LiteParser (data).on ('//', lambda this.findNext ('\n', '\r')),
-			found;
-
-		var macros = [];
-
-		function find (){
-			var found;
-			while (found = LiteParser.prototype.findNext.apply (liteParser, arguments)){
-				switch (){
-
-				}
-			}
-		}
-
-		while (found = liteParser.findNext ('//', '/*', '\'', '"', '`', (/@macro\s+([_$a-z][_$a-z0-9]*)\s*(=)?/), '@', '{', '}')){
-			switch (found.id){
-				case 0: // //
-					liteParser.findNext ('\n', '\r'/* TODO: , '\u2028', '\u2029'*/);
-					break;
-				case 1: // /*
-					liteParser.findNext ('*/');
-					break;
-				case 2: // '
-				case 3: // "
-				case 4: // `
+		var liteParser = new LiteParser (data)
+				.on ('//', lambda this.findNext ('\n', '\r'))
+				.on ('/*', lambda this.findNext ('*/'))
+				.on ('\'', '"', '`', lambda {
 					while (temp = liteParser.findNext ('\\' + found.value, found.value))
 						if (temp.value === found.value)
 							break;
-					break;
-				case 5: // @macro
-					var name = found.raw [1];
+				}),
+			macros 	= [],
+			calls 	= [],
+			level 	= '',
+			found,
+			temp,
+			name;
+
+		function partReplace (from, to, by = ''){
+			console.assert (from <= to, 'Invalid args');
+
+			if (liteParser.index >= to)
+				liteParser.index -= (to - from) - by.length;
+			else if (liteParser.index > from)
+				liteParser.index = from;
+
+			liteParser.update (data = data.substr (0, from) + by + data.substr (to));
+		}
+
+		while (found = liteParser.findNext (
+				/@macro\s+([_$a-z][_$a-z0-9]*)\s*(\()?/, 
+				/@([_$a-z][_$a-z0-9]*)\s*(\()?/, 
+				'{', '}')){
+			switch (found.id){
+				case 0:
+					name = found.raw [1];
+
 					if (found.raw [2]){
 						// ...
-						liteParser.
 					} else {
-						console.log (data [liteParser.index]);
-						console.log (name, !!found.raw [2]);
+						if ((temp = liteParser.findHere (';')) === null)
+							temp = { index: data.length };
+
+						macros.push ({ 
+							name: 		name, 
+							callee: 	new Macro (data.substring (found.index + found.value.length, temp.index).trim ()), 
+							level: 		level 
+						});
 					}
+
+					partReplace (found.index, liteParser.index);
+
 					break;
-				case 6:	// @
+				case 1:
+					name = found.raw [1];
+
+					if (found.raw [2]){
+						// ...
+					} else {
+						temp = [];
+					}
+
+					var pos = calls.push ({ 
+						name: 		name, 
+						arguments: 	temp, 
+						level: 		level 
+					}) - 1;
+
+					partReplace (found.index, liteParser.index, '@call.' + pos);
 					break;
-				case 7: // {
+				case 2:
+					level += '.' + found.index;
 					break;
-				case 8: // }
+				case 3:
+					level = level.replace (/\.\d+$/, '');
 					break;
 			}
 		}
+
+		liteParser.update (0);
+
+		while (found = liteParser.findNext (/@call\.(\d+)/)){
+			var call = calls [+found.raw [1]];
+			console.assert (call, 'wrong call identifier');
+
+			var macro = macros.filter (lambda arg.name === call.name && call.level.indexOf (arg.level) === 0).sort (lambda (a, b) b.level.length - a.level.length)[0];
+			console.assert (macro, 'macro not found');
+
+			var result = macro.callee ();
+			partReplace (found.index, liteParser.index, result);
+		}
+
+		console.json (macros);
+		console.json (calls);
+		console.log (data);
 	}
 
 	function preparseFile2 (data){
