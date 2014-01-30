@@ -54,7 +54,6 @@ module App {
 
 	var Macro = function (){
 		var defaultArgs = [
-			{ name: 'arg' },
 			{ name: 'fs', value: require ('fs') }, 
 			{ name: 'path', value: require ('path') }
 		];
@@ -65,11 +64,13 @@ module App {
 				macroArgs = null;
 			}
 
-			var fn = macroArgs
-				? new Function (macroArgs.map (lambda typeof arg && arg.name ? arg.name : arg).join (','), convert (macroBody, 'macro'))
-				: new Function (defaultArgs.map (lambda arg.name).join (), 'return ' + convert (macroBody, 'macros'));
+			if (macroArgs === null)
+				macroArgs = [ 'arg' ];
 
-			return lambda (args) fn.apply (null, macroArgs ? args : defaultArgs.map (lambda arg.value || args));
+			var temp = macroArgs.map (lambda ({ name: arg })).concat (defaultArgs),
+				fn = new Function (temp.map (lambda arg.name).join (','), macroBody);
+
+			return lambda fn.apply (null, temp.map (lambda (e, i) e.value || arg [i]));
 		}
 	}();
 
@@ -110,6 +111,8 @@ module App {
 		this.binded 	= [];
 	}
 
+	LiteParser.EOF = 1;
+
 	LiteParser.prototype.update = function (data, delta){
 		if (typeof data === 'string')
 			this.data = data;
@@ -132,17 +135,25 @@ module App {
 	LiteParser.prototype.findSimple = function (){
 		var value = { index: Number.POSITIVE_INFINITY };
 
-		for (var id, arg in-array arguments){
-			var index = this.data.indexOf (arg, this.index),
-				temp;
+		for (var id, arg in-array arguments)
+			if (arg === LiteParser.EOF){
+				if (value.index === Number.POSITIVE_INFINITY)
+					value = {
+						id: 	id,
+						index: 	this.data.length,
+						value: 	arg
+					};
+			} else {
+				var index = this.data.indexOf (arg, this.index),
+					temp;
 
-			if (index !== -1 && index < value.index)
-				value = {
-					id: 	id,
-					index: 	index,
-					value: 	arg
-				};
-		}
+				if (index !== -1 && index < value.index)
+					value = {
+						id: 	id,
+						index: 	index,
+						value: 	arg
+					};
+			}
 
 		if (value.index === Number.POSITIVE_INFINITY){
 			return null;
@@ -154,7 +165,13 @@ module App {
 
 	LiteParser.prototype.findNext = function (){
 		function indexOfExt (str, what, pos, id)
-			if (what instanceof RegExp){
+			if (what === LiteParser.EOF){
+				return {
+					id: 	id,
+					index: 	str.length,
+					value:  what
+				};
+			} else if (what instanceof RegExp){
 				var temp = str.substring (pos).match (what);
 				return {
 					id: 	id,
@@ -221,9 +238,9 @@ module App {
 		return null;
 	}
 
-	function macroProcess (data, topMacros = []){
+	function macroProcess (data, level = '', topMacros = []){
 		var liteParser = new LiteParser (data)
-				.on ('//', lambda this.findSimple ('\n', '\r'))
+				.on ('//', lambda this.findSimple ('\n', '\r', LiteParser.EOF))
 				.on ('/*', lambda this.findSimple ('*/'))
 				.on ('\'', '"', '`', lambda {
 					while (temp = liteParser.findSimple ('\\' + arg.value, arg.value))
@@ -233,7 +250,6 @@ module App {
 				}),
 			macros 	= topMacros.slice (),
 			calls 	= [],
-			level 	= '',
 			found;
 
 		function partReplace (from, to, by = ''){
@@ -256,44 +272,64 @@ module App {
 
 			try {
 				var data, 
-					code = macroProcess (value, macros);
+					code = macroProcess (value, level, macros);
 				eval ('data = ' + convert (code, 'macro arg'));
 				return data;
 			} catch {
-				console.log ('FAILED AT:\n' + code);
+				console.log ('FAILED AT:\n' + (value || '< EMPTY STRING >') + '\nWHAT HAS BEEN TRANSFORMED INTO:\n' + (code || '< EMPTY STRING >'));
 				// TODO
 				throw e;
 			}
 		}
 
 		function macroCall (call){
+			console.log ('> MACRO CALL:');
+			console.log (call);
+
 			var macro = macros.filter (lambda arg.name === call.name && call.level.indexOf (arg.level) === 0).sort (lambda (a, b) b.level.length - a.level.length)[0];
 			console.assert (macro, 'Macro ' + call.name + (call.level ? ' (' + call.level + ')' : '') + ' not found');
 
+			console.log (macro);
+
 			return macro.callee (call.arguments.map (cast));
 		}
+
+		console.log ('MACRO PROCESS FOR:\n', data);
 
 		while (found = liteParser.findNext (
 				/@macro\s+([_$a-zA-Z][_$a-zA-Z0-9]*)\s*(\()?/, 
 				/@([_$a-zA-Z][_$a-zA-Z0-9]*)\s*(\()?/, 
 				'{', '}')){
+			console.log ('> FOUND: ' + found.value);
 			switch (found.id){
 				case 0:
-					var name = found.raw [1],
-						temp;
+					var name 		= found.raw [1],
+						position 	= liteParser.index,
+						arguments,
+						temp,
+						body;
 
 					if (found.raw [2]){
-						// ...
-					} else {
-						if ((temp = liteParser.findHere (';')) === null)
-							temp = { index: data.length };
+						arguments = [];
 
-						macros.push ({ 
-							name: 		name, 
-							callee: 	new Macro (data.substring (found.index + found.value.length, temp.index).trim ()), 
-							level: 		level 
-						});
-					}
+						while (temp = liteParser.findHere (',', ')')){
+							arguments.push (data.substring (position, liteParser.index - 1).trim ());
+							position = liteParser.index;
+
+							if (temp.value === ')')
+								break;
+						}
+					} else 
+						arguments = null;
+						
+					body = data.substring (position, liteParser.findHere (';', LiteParser.EOF).index).trim ();
+
+					macros.push ({ 
+						name: 		name, 
+						debug: 		body,
+						callee: 	new Macro (arguments, 'return ' + convert (body, 'macro')),  // TODO
+						level: 		level 
+					});
 
 					partReplace (found.index, liteParser.index);
 
@@ -331,7 +367,17 @@ module App {
 			}
 		}
 
+		if (calls.length === 0){
+			console.log ('> CALLS NOT FOUND.')
+			return data;
+		}
+
 		liteParser.update (0);
+
+		console.log ('> MACROS:')
+		console.log (macros);
+		console.log ('> CALLS:');
+		console.log (calls);
 
 		while (found = liteParser.findNext (/@call\.(\d+)/)){
 			var call = calls [+found.raw [1]];
@@ -340,12 +386,13 @@ module App {
 			partReplace (found.index, liteParser.index, macroCall (call));
 		}
 
+		console.log ('> RESULT:\n' + data);
+
 		return data;
 	}
 
 	function preparseFile (data){
 		var processed = macroProcess (data);
-
 		console.log ('PREPARSED:\n' + processed);
 	}
 

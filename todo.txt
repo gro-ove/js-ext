@@ -12,8 +12,12 @@ TODO:
 	- Macros
 		V Macros as macros arguments
 		- Macros arguments
+		- Source code as macros arguments
 		- Macros in macros result
 		- Macros à la functions syntax
+			- One-line
+			- Blocks
+			- Default arguments values
 		- Anonynous macros
 		- One macro can call another
 		- Macros definion in macros
