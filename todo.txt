@@ -11,7 +11,7 @@ TODO:
 	V Strings format
 	- Macros
 		V Macros as macros arguments
-		- Macros arguments
+		V Macros arguments
 		- Source code as macros arguments
 		- Macros in macros result
 		- Macros à la functions syntax
