@@ -10,15 +10,15 @@ TODO:
 	V NotImplemented operator
 	V Strings format
 	- Macros
-		- Class macros
+		V Macros as macros arguments
 		- Macros arguments
-		- Macros as macros arguments
 		- Macros in macros result
 		- Macros à la functions syntax
 		- Anonynous macros
 		- One macro can call another
 		- Macros definion in macros
 		- Macros order and stuff
+		- Class macros
 	- One-line functions with result
 	- Functions without arguments
 	- Fix lambdas

@@ -101,14 +101,8 @@ module App {
 		return result;
 	}
 
-	function convert (jsxCode, fileName){
-		try{
-			return require ('escodegen').generate (typeof jsxCode === 'string' ? Parser.parse (jsxCode, { fileName: fileName }) : jsxCode);
-		} catch {
-			console.log (jsxCode);
-			throw e;
-		}
-	}
+	function convert (jsxCode, fileName)
+		return require ('escodegen').generate (typeof jsxCode === 'string' ? Parser.parse (jsxCode, { fileName: fileName }) : jsxCode);
 
 	function LiteParser (data, index = 0){
 		this.data 		= data;
@@ -227,7 +221,7 @@ module App {
 		return null;
 	}
 
-	function preparseFile (data){
+	function macroProcess (data, topMacros = []){
 		var liteParser = new LiteParser (data)
 				.on ('//', lambda this.findSimple ('\n', '\r'))
 				.on ('/*', lambda this.findSimple ('*/'))
@@ -237,7 +231,7 @@ module App {
 							return true;
 					return false;
 				}),
-			macros 	= [],
+			macros 	= topMacros.slice (),
 			calls 	= [],
 			level 	= '',
 			found;
@@ -256,11 +250,33 @@ module App {
 			liteParser.update (data = data.substr (0, from) + by + data.substr (to));
 		}
 
+		function cast (value){
+			if (value.match (/^((\d+|\d*\.\d+)(e[+-]?\d+)?|0x[\da-f]+)$/i))
+			 	return +value;
+
+			try {
+				var data, 
+					code = macroProcess (value, macros);
+				eval ('data = ' + convert (code, 'macro arg'));
+				return data;
+			} catch {
+				console.log ('FAILED AT:\n' + code);
+				// TODO
+				throw e;
+			}
+		}
+
+		function macroCall (call){
+			var macro = macros.filter (lambda arg.name === call.name && call.level.indexOf (arg.level) === 0).sort (lambda (a, b) b.level.length - a.level.length)[0];
+			console.assert (macro, 'Macro ' + call.name + (call.level ? ' (' + call.level + ')' : '') + ' not found');
+
+			return macro.callee (call.arguments.map (cast));
+		}
+
 		while (found = liteParser.findNext (
 				/@macro\s+([_$a-zA-Z][_$a-zA-Z0-9]*)\s*(\()?/, 
 				/@([_$a-zA-Z][_$a-zA-Z0-9]*)\s*(\()?/, 
 				'{', '}')){
-			console.log ('NEW ITERATION: ' + found.index + ', ' + found.value);
 			switch (found.id){
 				case 0:
 					var name = found.raw [1],
@@ -321,22 +337,16 @@ module App {
 			var call = calls [+found.raw [1]];
 			console.assert (call, 'Wrong call identifier');
 
-			var macro = macros.filter (lambda arg.name === call.name && call.level.indexOf (arg.level) === 0).sort (lambda (a, b) b.level.length - a.level.length)[0];
-			console.assert (macro, 'Macro not found');
-
-			var result = macro.callee (call.arguments);
-
-			partReplace (found.index, liteParser.index, result);
+			partReplace (found.index, liteParser.index, macroCall (call));
 		}
 
-		console.log ('===\nMacros:');
-		console.json (macros);
+		return data;
+	}
 
-		console.log ('===\nCalls:');
-		console.json (calls);
+	function preparseFile (data){
+		var processed = macroProcess (data);
 
-		console.log ('===\nResult:');
-		console.log (data);
+		console.log ('PREPARSED:\n' + processed);
 	}
 
 	function preparseFile2 (data){
