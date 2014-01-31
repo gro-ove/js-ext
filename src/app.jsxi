@@ -217,9 +217,11 @@ module App {
 
 							while (temp = liteParser.findHere (',', ')')){
 								argument = data.substring (position, liteParser.index - 1).trim ();
-								console.assert (argument.length || arguments.length === 0 && temp.value === ')', 'Missing argument');
 
-								arguments.push (argument);
+								if (argument.length)
+									arguments.push (argument);
+								else if (arguments.length || temp.value === ',')
+									throw new Error ('Missing argument');
 
 								if (temp.value === ')')
 									break;

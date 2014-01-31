@@ -17,7 +17,7 @@ var helloWorld = @crazyMacro {{
 	}};
 
 {
-	console.log (@const, @argsTest ([ @const ]));
+	console.log (@const (), @argsTest ([ @const ]));
 	@crazyMacro {{ RAW: @ } c } o } n } s } t } # } /* } #IS IT EQUALS TO TWENTY FIVE?# } */ } }}
 
 	@macro const 25;
