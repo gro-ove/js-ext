@@ -1,0 +1,38 @@
+	var MacroReturnType = { 
+		Object: 		'MacroReturnTypeObject',
+		String: 		'MacroReturnTypeString',
+		Raw: 			'MacroReturnTypeRaw',
+		SourceTree: 	'MacroReturnTypeSourceTree',
+	};
+
+	var Macro = function (){
+		var defaultArgs = [
+			{ 
+				name: 		'fs', 
+				value: 		require ('fs') 
+			}, 
+			{ 
+				name: 		'path', 
+				value: 		require ('path')
+			},
+			{ 
+				name: 		'MacroReturnType', 
+				value: 		MacroReturnType
+			}
+		];
+
+		return lambda (macroArgs, macroBody){
+			if (!macroBody){
+				macroBody = macroArgs;
+				macroArgs = null;
+			}
+
+			if (macroArgs === null)
+				macroArgs = [ 'arg' ];
+
+			var temp = macroArgs.map (lambda ({ name: arg })).concat (defaultArgs),
+				fn = new Function (temp.map (lambda arg.name).join (','), macroBody);
+
+			return lambda fn.apply (null, temp.map (lambda (e, i) e.value || arg [i]));
+		}
+	}();

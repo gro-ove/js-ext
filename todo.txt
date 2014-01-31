@@ -12,11 +12,12 @@ TODO:
 	- Macros
 		V Macros as macros arguments
 		V Macros arguments
-		- Source code as macros arguments
-		- Macros in macros result
+		V Source code as macros arguments
+			V Crazy source code support
+		V Macros in macros result
 		- Macros à la functions syntax
-			- One-line
-			- Blocks
+			V One-line
+			V Blocks
 			- Default arguments values
 		- Anonynous macros
 		- One macro can call another

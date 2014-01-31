@@ -17,7 +17,7 @@ module Parser {
 		length          = source.length;
 		buffer          = null;
 		state 			= { allowIn: true, inClass: false, parsingComplete: false, preventSequence: false };
-		options		    = args || { initializationAllowed: false };
+		options		    = args || { fileName: '[ not a file ]', insertReturn: false, initializationAllowed: false };
 		fileName 		= options && options.fileName;
 
 		return parseProgram ();

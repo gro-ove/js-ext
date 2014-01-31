@@ -47,6 +47,9 @@
 
 		state.parsingComplete = true;
 
+		if (options.insertReturn && sourceElements.length === 1)
+			setReturnStatement (sourceElements [0]);
+
 		temp = doClasses ();
 		sourceElements = sourceElements.filter (lambda 
 			if (arg.after){

@@ -1,0 +1,39 @@
+	function parseArgs (data, args){
+		var result = { 
+			data: [],
+			put: lambda (info, value){
+				if (info.p == 2){
+					if (!this [info.s])
+						this [info.s] = [];
+					this [info.s].push (value);
+				} else
+					this [info.s] = info.p ? value : true;
+			} 
+		};
+
+		for (var i, s in-array data){
+			function put (fn, info)
+				if (info = args.filter (fn)[0]){
+					result.put (info, data [i + 1]);
+					if (info.p)
+						++ i;
+				} else 
+					console.fatal (1, 'Invalid arguments. Use "--usage" for view help.');
+
+			if (s [0] == '-'){
+				if (s [1] == '-')
+					put (lambda arg.l == s.slice (2));
+				else 
+					for (var k in-array s.slice (1))
+						put (lambda arg.s == k);
+			} else
+				result.data.push (s);
+		}
+
+		if (result.h){
+			console.log ('Available args:')
+			args.forEach (lambda console.log (' -{0} (--{1})'.format (arg.s, arg.l)));
+			process.exit (0);
+		} else
+			return result;
+	}

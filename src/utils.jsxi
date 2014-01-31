@@ -1,0 +1,8 @@
+console.fatal = function (code){
+	console.error.apply (console, Array.prototype.slice.call (arguments, typeof code === 'number' ? 1 : 0));
+	process.exit (typeof code === 'number' ? code : 0);
+};
+
+console.json = function (obj){
+	console.log (JSON.stringify (obj, false, 2));
+};

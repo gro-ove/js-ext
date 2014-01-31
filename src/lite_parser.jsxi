@@ -1,0 +1,155 @@
+	function LiteParser (data, index = 0){
+		this.data 		= data;
+		this.index 		= index;
+		this.binded 	= [];
+	}
+
+	LiteParser.EOF = 1;
+
+	LiteParser.prototype.update = function (data, delta){
+		if (typeof data === 'string')
+			this.data = data;
+
+		if (typeof delta === 'number')
+			this.index = delta;
+		else if (typeof data === 'number')
+			this.index = data;
+
+		return this;
+	}
+
+	LiteParser.prototype.on = function (){
+		for (var i = 0; i < arguments.length - 1; i ++)
+			this.binded.push ({ match: arguments [i], react: arguments [arguments.length - 1] });
+		
+		return this;
+	}
+
+	LiteParser.prototype.findSimple = function (){
+		var value = { index: Number.POSITIVE_INFINITY };
+
+		for (var id, arg in-array arguments)
+			if (arg === LiteParser.EOF){
+				if (value.index === Number.POSITIVE_INFINITY)
+					value = {
+						id: 	id,
+						index: 	this.data.length,
+						value: 	arg
+					};
+			} else {
+				var index = this.data.indexOf (arg, this.index),
+					temp;
+
+				if (index !== -1 && index < value.index)
+					value = {
+						id: 	id,
+						index: 	index,
+						value: 	arg
+					};
+			}
+
+		if (value.index === Number.POSITIVE_INFINITY){
+			return null;
+		} else {
+			this.index = value.index + value.value.length;
+			return value;
+		}
+	}
+
+	LiteParser.prototype.findNext = function (){
+		return this.innerFindNext (arguments);
+	}
+
+	LiteParser.prototype.whatNext = function (){
+		return this.innerFindNext (arguments, true);
+	}
+
+	LiteParser.prototype.innerFindNext = function (args, fixedMode = false){
+		if (!args || !typeof args.length === 'number' || args.length && args [0] === undefined)
+			throw new Error ('Invalid argument type');
+
+		function indexOfExt (str, what, pos, id)
+			if (what === LiteParser.EOF){
+				return {
+					id: 	id,
+					index: 	str.length,
+					value:  what
+				};
+			} else if (what instanceof RegExp){
+				var temp = str.substring (pos).match (what);
+				return {
+					id: 	id,
+					index: 	temp ? temp.index + pos : -1,
+					value: 	temp ? temp [0] : null,
+					raw: 	temp
+				};
+			} else if (typeof what === 'string'){
+				return {
+					id: 	id,
+					index: 	str.indexOf (what, pos),
+					value: 	what
+				};
+			} else
+				throw new Error ('Invalid argument type');
+
+		var value 		= { index: Number.POSITIVE_INFINITY },
+			oldIndex 	= this.index,
+			react,
+			result;
+
+		for (var i, arg in-array this.binded){
+			var temp = indexOfExt (this.data, arg.match, this.index, i);
+
+			if (temp.index !== -1 && temp.index < value.index){
+				value = temp;
+				react = arg.react;
+			}
+		}
+
+		for (var i, arg in-array args){
+			var temp = indexOfExt (this.data, arg, this.index, i);
+
+			if (temp.index !== -1 && temp.index < value.index){
+				value = temp;
+				react = null;
+			}
+		}
+
+		if (value.index === Number.POSITIVE_INFINITY)
+			return null;
+
+		this.moveTo (value);
+
+		if (react)
+			result = react.call (this, value) ? this.innerFindNext (args, fixedMode) : null;
+		else
+			result = value;
+
+		if (fixedMode)
+			this.index = oldIndex;
+
+		return result;
+	}
+
+	LiteParser.prototype.moveTo = function (arg){
+		this.index = arg.index + arg.value.length;
+	}
+
+	LiteParser.prototype.findHere = function (arg){
+		var args 		= [].slice.call (arguments, arg instanceof Array ? 1 : 0),
+			operators 	= arg instanceof Array ? arg : [ '(', '{', '[' ],
+			others 		= { '(': ')', '{': '}', '[': ']' },
+			found, 
+			temp;
+
+		while (found = this.innerFindNext (args.concat (operators))){
+			temp = operators.indexOf (found.value);
+			if (operators.indexOf (found.value) !== -1){
+				console.assert (others [found.value], 'Pair for ' + found.value + ' not found');
+				this.findHere (others [found.value]);
+			} else if (args.indexOf (found.value) !== -1)
+				return found;
+		}
+
+		return null;
+	}

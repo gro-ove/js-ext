@@ -1,78 +1,5 @@
-console.fatal = function (code){
-	console.error.apply (console, Array.prototype.slice.call (arguments, typeof code === 'number' ? 1 : 0));
-	process.exit (typeof code === 'number' ? code : 0);
-};
-
-console.json = function (obj){
-	console.log (JSON.stringify (obj, false, 2));
-};
-
 module App {
 	import Parser, Generator;
-
-	function parseArgs (data, args){
-		var result = { 
-			data: [],
-			put: lambda (info, value){
-				if (info.p == 2){
-					if (!this [info.s])
-						this [info.s] = [];
-					this [info.s].push (value);
-				} else
-					this [info.s] = info.p ? value : true;
-			} 
-		};
-
-		for (var i, s in-array data){
-			function put (fn, info)
-				if (info = args.filter (fn)[0]){
-					result.put (info, data [i + 1]);
-					if (info.p)
-						++ i;
-				} else 
-					console.fatal (1, 'Invalid arguments. Use "--usage" for view help.');
-
-			if (s [0] == '-'){
-				if (s [1] == '-')
-					put (lambda arg.l == s.slice (2));
-				else 
-					for (var k in-array s.slice (1))
-						put (lambda arg.s == k);
-			} else
-				result.data.push (s);
-		}
-
-		if (result.h){
-			console.log ('Available args:')
-			args.forEach (lambda console.log (' -{0} (--{1})'.format (arg.s, arg.l)));
-			process.exit (0);
-		} else
-			return result;
-	}
-
-	var macros = {};
-
-	var Macro = function (){
-		var defaultArgs = [
-			{ name: 'fs', value: require ('fs') }, 
-			{ name: 'path', value: require ('path') }
-		];
-
-		return lambda (macroArgs, macroBody){
-			if (!macroBody){
-				macroBody = macroArgs;
-				macroArgs = null;
-			}
-
-			if (macroArgs === null)
-				macroArgs = [ 'arg' ];
-
-			var temp = macroArgs.map (lambda ({ name: arg })).concat (defaultArgs),
-				fn = new Function (temp.map (lambda arg.name).join (','), macroBody);
-
-			return lambda fn.apply (null, temp.map (lambda (e, i) e.value || arg [i]));
-		}
-	}();
 
 	function loadFile (path){
 		try var file = require ('fs').readFileSync (args.data [0]);
@@ -102,143 +29,14 @@ module App {
 		return result;
 	}
 
-	function convert (jsxCode, fileName)
-		return require ('escodegen').generate (typeof jsxCode === 'string' ? Parser.parse (jsxCode, { fileName: fileName }) : jsxCode);
-
-	function LiteParser (data, index = 0){
-		this.data 		= data;
-		this.index 		= index;
-		this.binded 	= [];
-	}
-
-	LiteParser.EOF = 1;
-
-	LiteParser.prototype.update = function (data, delta){
-		if (typeof data === 'string')
-			this.data = data;
-
-		if (typeof delta === 'number')
-			this.index = delta;
-		else if (typeof data === 'number')
-			this.index = data;
-
-		return this;
-	}
-
-	LiteParser.prototype.on = function (){
-		for (var i = 0; i < arguments.length - 1; i ++)
-			this.binded.push ({ match: arguments [i], react: arguments [arguments.length - 1] });
-		
-		return this;
-	}
-
-	LiteParser.prototype.findSimple = function (){
-		var value = { index: Number.POSITIVE_INFINITY };
-
-		for (var id, arg in-array arguments)
-			if (arg === LiteParser.EOF){
-				if (value.index === Number.POSITIVE_INFINITY)
-					value = {
-						id: 	id,
-						index: 	this.data.length,
-						value: 	arg
-					};
-			} else {
-				var index = this.data.indexOf (arg, this.index),
-					temp;
-
-				if (index !== -1 && index < value.index)
-					value = {
-						id: 	id,
-						index: 	index,
-						value: 	arg
-					};
-			}
-
-		if (value.index === Number.POSITIVE_INFINITY){
-			return null;
-		} else {
-			this.index = value.index + value.value.length;
-			return value;
-		}
-	}
-
-	LiteParser.prototype.findNext = function (){
-		function indexOfExt (str, what, pos, id)
-			if (what === LiteParser.EOF){
-				return {
-					id: 	id,
-					index: 	str.length,
-					value:  what
-				};
-			} else if (what instanceof RegExp){
-				var temp = str.substring (pos).match (what);
-				return {
-					id: 	id,
-					index: 	temp ? temp.index + pos : -1,
-					value: 	temp ? temp [0] : null,
-					raw: 	temp
-				};
-			} else 
-				return {
-					id: 	id,
-					index: 	str.indexOf (what, pos),
-					value: 	what
-				};
-
-		var value = { index: Number.POSITIVE_INFINITY },
-			react;
-
-		for (var i, arg in-array this.binded){
-			var temp = indexOfExt (this.data, arg.match, this.index, i);
-
-			if (temp.index !== -1 && temp.index < value.index){
-				value = temp;
-				react = arg.react;
-			}
-		}
-
-		for (var i, arg in-array arguments){
-			var temp = indexOfExt (this.data, arg, this.index, i);
-
-			if (temp.index !== -1 && temp.index < value.index){
-				value = temp;
-				react = null;
-			}
-		}
-
-		if (value.index === Number.POSITIVE_INFINITY)
-			return null;
-
-		this.index = value.index + value.value.length;
-
-		if (react){
-			return react.call (this, value) 
-				? LiteParser.prototype.findNext.apply (this, arguments)
-				: null;
-		} else
-			return value;
-	}
-
-	LiteParser.prototype.findHere = function (){
-		var args 		= [].slice.call (arguments),
-			operators 	= [ '(', '{', '[' ],
-			others 		= [ ')', '}', ']' ],
-			found, 
-			temp;
-
-		while (found = LiteParser.prototype.findNext.apply (this, args.concat (operators))){
-			temp = operators.indexOf (found.value);
-			if (operators.indexOf (found.value) !== -1){
-				this.findHere (others [temp]);
-			} else if (args.indexOf (found.value) !== -1)
-				return found;
-		}
-
-		return null;
-	}
+	function convert (jsxCode, options)
+		return require ('escodegen').generate (typeof jsxCode === 'string' ? Parser.parse (jsxCode, typeof options === 'string' ? { fileName: options } : options) : jsxCode);
 
 	function macroProcess (data, level = '', topMacros = []){
+		// Optimize and stuff
+		if (data.search (/@[_$a-zA-Z]/) === -1)
+			return data;
+
 		var liteParser = new LiteParser (data)
 				.on ('//', lambda this.findSimple ('\n', '\r', LiteParser.EOF))
 				.on ('/*', lambda this.findSimple ('*/'))
@@ -272,45 +70,74 @@ module App {
 
 			try {
 				var data, 
-					code = macroProcess (value, level, macros);
+					code = macroProcess (value, this.level, macros);
 				eval ('data = ' + convert (code, 'macro arg'));
 				return data;
 			} catch {
 				console.log ('FAILED AT:\n' + (value || '< EMPTY STRING >') + '\nWHAT HAS BEEN TRANSFORMED INTO:\n' + (code || '< EMPTY STRING >'));
-				// TODO
+				// TODO: cool errors handling
 				throw e;
 			}
 		}
 
 		function macroCall (call){
-			console.log ('> MACRO CALL:');
-			console.log (call);
+			var available	= macros.filter (lambda arg.name === call.name && call.level.indexOf (arg.level) === 0),
+				sorted 		= available.sort (lambda (a, b) b.level.length - a.level.length),
+				macro 		= sorted [0],
+				result;
 
-			var macro = macros.filter (lambda arg.name === call.name && call.level.indexOf (arg.level) === 0).sort (lambda (a, b) b.level.length - a.level.length)[0];
-			console.assert (macro, 'Macro ' + call.name + (call.level ? ' (' + call.level + ')' : '') + ' not found');
+			console.assert (macro, 'Macro @' + call.name + (call.level ? ' (' + call.level + ')' : '') + ' not found');
 
-			console.log (macro);
+			result = macro.callee (call.arguments.map (cast.bind (call)));
 
-			return macro.callee (call.arguments.map (cast));
+			if (result === undefined || result === null){
+				result = '';
+			} else if (typeof result === 'object'){
+				switch (result && result.type){
+					case MacroReturnType.Raw:
+						result = result.value;
+						break;
+
+					case MacroReturnType.Object:
+						// TODO: optimized version
+
+					case MacroReturnType.String:
+						console.assert (result.value, 'Empty macro @' + call.name + ' result (use "null" or "undefined" for this)');
+						result = JSON.stringify (result.value);
+						break;
+
+					case MacroReturnType.SourceTree:
+					default:
+						throw new Error ('Not implemented');
+				}
+			} else 
+				result = '' + result;
+
+			return macroProcess (result, call.level, macros);
 		}
 
-		console.log ('MACRO PROCESS FOR:\n', data);
-
 		while (found = liteParser.findNext (
-				/@macro\s+([_$a-zA-Z][_$a-zA-Z0-9]*)\s*(\()?/, 
-				/@([_$a-zA-Z][_$a-zA-Z0-9]*)\s*(\()?/, 
+				/@macro\s+([_$a-zA-Z][_$a-zA-Z0-9]*)/, 
+				/@([_$a-zA-Z][_$a-zA-Z0-9]*)/, 
 				'{', '}')){
-			console.log ('> FOUND: ' + found.value);
 			switch (found.id){
+				// Macro define
 				case 0:
 					var name 		= found.raw [1],
-						position 	= liteParser.index,
+						position,
 						arguments,
+						blockMode,
 						temp,
-						body;
+						body,
+						converted;
 
-					if (found.raw [2]){
-						arguments = [];
+					temp = liteParser.whatNext (/[^\s]/);
+
+					if (temp.value === '('){
+						liteParser.moveTo (temp);
+
+						position 	= liteParser.index;
+						arguments 	= [];
 
 						while (temp = liteParser.findHere (',', ')')){
 							arguments.push (data.substring (position, liteParser.index - 1).trim ());
@@ -319,34 +146,88 @@ module App {
 							if (temp.value === ')')
 								break;
 						}
+
+						temp = liteParser.whatNext (/[^\s]/);
 					} else 
 						arguments = null;
-						
-					body = data.substring (position, liteParser.findHere (';', LiteParser.EOF).index).trim ();
+
+					blockMode = temp && temp.value === '{';
+					position = liteParser.index;
+
+					if (blockMode){
+						liteParser.moveTo (temp);
+						temp = liteParser.findHere ('}');
+					} else 
+						temp = liteParser.findHere (';', LiteParser.EOF);
+
+					console.assert (temp, 'End of macro\'s body not found');
+					body 		= data.substring (position, liteParser.index).trim ();
+					converted 	= convert (body, { fileName: 'macro', insertReturn: true });
+
+					temp = liteParser.whatNext (/[^\s]/);
+					if (temp && temp.value === ';')
+						liteParser.moveTo (temp);
 
 					macros.push ({ 
 						name: 		name, 
-						debug: 		body,
-						callee: 	new Macro (arguments, 'return ' + convert (body, 'macro')),  // TODO
+						debug: 		converted,
+						callee: 	new Macro (arguments, converted),
 						level: 		level 
 					});
 
-					partReplace (found.index, liteParser.index);
+					partReplace (found.index, liteParser.index, '/* There was definition of @' + name + ' */');
 
 					break;
+
+				// Macro call
 				case 1:
 					var name 		= found.raw [1],
 						arguments 	= [],
-						position 	= liteParser.index,
+						position,
+						argument,
+						quotesCount,
 						temp;
 
-					if (found.raw [2]){
-						while (temp = liteParser.findHere (',', ')')){
-							arguments.push (data.substring (position, liteParser.index - 1).trim ());
+					temp = liteParser.whatNext (/[^\s]/);
+					if (temp && (temp.value === '{' || temp.value === '(')){
+						liteParser.moveTo (temp);
+
+						if (temp.value === '{'){
+							quotesCount = 1;
+
+							while (data [liteParser.index] === '{'){
+								liteParser.index ++;
+								quotesCount ++;
+							}
+
 							position = liteParser.index;
 
-							if (temp.value === ')')
-								break;
+							if (quotesCount > 1){
+								temp = liteParser.findSimple (new Array (quotesCount + 1).join ('}'));
+								console.assert (temp, 'End of argument not found');
+							} else {
+								temp = liteParser.findHere ([ '{' ], '}');
+								console.assert (temp, 'End of argument not found');
+							}
+
+							argument = data.substring (position, liteParser.index - 1);
+							arguments.push (JSON.stringify (argument));
+						} else {
+							position = liteParser.index;
+
+							while (temp = liteParser.findHere (',', ')')){
+								argument = data.substring (position, liteParser.index - 1).trim ();
+								console.assert (argument.length || arguments.length === 0 && temp.value === ')', 'Missing argument');
+
+								arguments.push (argument);
+
+								if (temp.value === ')')
+									break;
+								else
+									position = liteParser.index;
+							}
+
+							console.assert (temp, 'Invalid arguments list');
 						}
 					}
 
@@ -367,17 +248,15 @@ module App {
 			}
 		}
 
-		if (calls.length === 0){
-			console.log ('> CALLS NOT FOUND.')
+		if (calls.length === 0)
 			return data;
-		}
 
 		liteParser.update (0);
 
-		console.log ('> MACROS:')
-		console.log (macros);
-		console.log ('> CALLS:');
-		console.log (calls);
+		// console.log ('> MACROS:')
+		// console.log (macros);
+		// console.log ('> CALLS:');
+		// console.log (calls);
 
 		while (found = liteParser.findNext (/@call\.(\d+)/)){
 			var call = calls [+found.raw [1]];
@@ -386,136 +265,12 @@ module App {
 			partReplace (found.index, liteParser.index, macroCall (call));
 		}
 
-		console.log ('> RESULT:\n' + data);
-
 		return data;
 	}
 
 	function preparseFile (data){
 		var processed = macroProcess (data);
-		console.log ('PREPARSED:\n' + processed);
-	}
-
-	function preparseFile2 (data){
-		var params = getParams (data),
-			cutted;
-
-		/*if (params.jsx && params.jsx.macro)
-			params.jsx.macro.forEach (lambda {
-				console.assert (cutted = arg.match (/^([^\s]+)\s+([\s\S]+)$/), 'Macros parsing error');
-				macros [cutted [1]] = new Macro (cutted [2]);
-			});*/
-
-		var liteParser = new LiteParser (data),
-			found,
-			temp;
-
-		function commentsAndStringsSkip (found, liteParser){
-			switch (found.value){
-				case '//':
-					liteParser.findNext ('\n', '\r'/* TODO: , '\u2028', '\u2029'*/);
-					return true;
-				case '/*':
-					liteParser.findNext ('*/');
-					return true;
-				case '\'':
-				case '"':
-				case '`':
-					while (temp = liteParser.findNext ('\\' + found.value, found.value))
-						if (temp.value === found.value)
-							return true;
-			}
-		}
-
-		function bracketsSkip (liteParser, open, close){
-			var temp = tempLiteParser.findNext (open, close);
-			if (temp && temp.value === open)
-				bracketsSkip (liteParser);
-		}
-
-		function cast (value){
-			if (value.match (/^((\d+|\d*\.\d+)(e[+-]?\d+)?|0x[\da-f]+)$/i))
-			 	return +value;
-
-			var data = Parser.parse (value, { fileName: 'macro arg' }); // TODO
-
-			if (data.body [0].type === Syntax.BlockStatement){
-				return {
-					ast: data.body,
-					raw: value.slice (1, -1).trim ()
-				};
-			} else {
-				try {
-					eval ('data = ' + convert (data));
-					return data;
-				} catch {
-					// TODO
-					throw e;
-				}
-			}
-		}
-
-		while (found = liteParser.findNext ('//', '/*', '@', '\'', '"', '`')){
-			if (commentsAndStringsSkip (found, liteParser))
-				continue;
-
-			if (found.value === '@'){
-				var matched = data.substr (found.index + 1).match (/([_$a-z][_$a-z0-9]*)(\s*\()?/i);
-
-				if (matched && macros [matched [1]]){
-					var begin 		= found.index + 1 + matched [1].length,
-						arguments 	= [];
-
-					if (matched [2]){
-						var last 			= begin + matched [2].length,
-							tempLiteParser 	= new LiteParser (data, last),
-							tempFound;
-
-						tempLoop: while (tempFound = tempLiteParser.findNext ('//', '/*', '\'', '"', '`', '(', ')', ',', '{')){
-							if (commentsAndStringsSkip (tempFound, tempLiteParser))
-								continue;
-
-							switch (tempFound.value){
-								case ',':
-									arguments.push (cast (data.substring (last, tempFound.index).trim ()));
-									last = tempFound.index + 1;
-									break;
-								case ')':
-									arguments.push (cast (data.substring (last, tempFound.index).trim ()));
-									begin = tempFound.index + 1;
-									break tempLoop;
-								case '(':
-									bracketsSkip (tempLiteParser, '(', ')');
-									break;
-								case '{':
-									bracketsSkip (tempLiteParser, '{', '}');
-									break;
-								case '[':
-									bracketsSkip (tempLiteParser, '[', ']');
-									break;
-							}
-						}
-					}
-
-					var result = macros [matched [1]](arguments);
-					if (result && result.type === Syntax.Program)
-						result = convert (data);
-
-					data = data.substr (0, found.index) + result + data.substr (begin);
-					liteParser.update (data, -1);
-				}
-			}
-		}
-
-		/*data = data.replace (/@([a-z]+)/ig, function (s, n){
-			console.log (n, macroses [n]);
-			if (macroses [n])
-				return macroses [n]();
-			else
-				return s;
-		});*/
-
-		console.log (data);
+		console.log ('> PREPARSED:\n' + processed);
 	}
 
 	function simpleTransform (fileName){
