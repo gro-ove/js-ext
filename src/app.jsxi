@@ -38,7 +38,7 @@ module App {
 			return data;
 
 		var liteParser = new LiteParser (data)
-				.on ('//', lambda this.findSimple ('\n', '\r', LiteParser.EOF))
+				.on ('//', lambda this.findSimple ('\n', '\r', LiteParser.EOF)) // FIXME: EOF
 				.on ('/*', lambda this.findSimple ('*/'))
 				.on ('\'', '"', '`', lambda {
 					while (temp = liteParser.findSimple ('\\' + arg.value, arg.value))
@@ -114,7 +114,7 @@ module App {
 						throw new Error ('Not implemented');
 				}
 
-			return macroProcess (result, call.level, macros);
+			return macroProcess (result, macro.level, macros);
 		}
 
 		while (found = liteParser.findNext (

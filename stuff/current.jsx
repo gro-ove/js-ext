@@ -17,7 +17,8 @@ var helloWorld = @crazyMacro {{
 	}};
 
 {
-	console.log (@const (), @argsTest ([ @const ]));
+	console.log (@const (), @argsTest ([ @const, @areasTest ]));
+	//console.log (@macroWhichUsingAnotherMacro);
 	@crazyMacro {{ RAW: @ } c } o } n } s } t } # } /* } #IS IT EQUALS TO TWENTY FIVE?# } */ } }}
 
 	@macro const 25;
@@ -41,8 +42,12 @@ var helloWorld = @crazyMacro {{
 
 @macro const 20;
 
+@macro areasTest '@const';
+
 @macro crazyMacro (arg)
 	{
 		type: 	arg.indexOf ('STRING:') === -1 ? MacroReturnType.Raw : MacroReturnType.String,
 		value: 	arg.match (/[^:]+$/)[0].split ('}').map (lambda (arg) arg.trim ()).join ('').replace (/#/g, ' ')
 	};
+
+//@macro macroWhichUsingAnotherMacro () @argsTest ({ a: 18, b: @const })
