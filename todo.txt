@@ -15,28 +15,32 @@ TODO:
 		V Source code as macros arguments
 			V Crazy source code support
 		V Macros in macros result
+		- One macro can call another
+		- Macros order and stuff
+		- Macros asynchronous (?)
 		- Macros à la functions syntax
 			V One-line
 			V Blocks
-			- Default arguments values
-		- Anonynous macros
-		- One macro can call another
-		- Macros definion in macros
-		- Macros order and stuff
-		- Class macros
+			L Default arguments values
+		L Class macros
+		L Macros definion in macros (?)
+		L Anonynous macros (?)
 	- One-line functions with result
 	- Functions without arguments
 	- Fix lambdas
 	- Syntax like "function name (){ ... }()" support
+	- UglifyJS
 	- Multi files
-		- With new innovative caching 
-	- Imports and stuff
-	- New Generator
-
-LATER:
-	- Multifile classes
-	- Array initializer operator
-	- New loop: for-in-only (?)
-	- Inner classes (?)
-	- Warnings
-	- IE8 compilation mode
+		L With new innovative caching
+	L Update README
+	L Build for NPM
+	L Enums (?)
+	L New Generator
+	L Interfaces
+	L Override instruction
+	L Multifile classes
+	L Array initializer operator
+	L New loop: for-in-only (?)
+	L Inner classes
+	L Warnings
+	L IE8 compilation mode

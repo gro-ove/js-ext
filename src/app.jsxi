@@ -87,12 +87,15 @@ module App {
 				result;
 
 			console.assert (macro, 'Macro @' + call.name + (call.level ? ' (' + call.level + ')' : '') + ' not found');
-
 			result = macro.callee (call.arguments.map (cast.bind (call)));
 
 			if (result === undefined || result === null){
 				result = '';
-			} else if (typeof result === 'object'){
+			} else if (typeof result !== 'object'){
+				result = '' + result;
+			} else if (result instanceof String){
+				result = JSON.stringify ('' + result);
+			} else 
 				switch (result && result.type){
 					case MacroReturnType.Raw:
 						result = result.value;
@@ -110,8 +113,6 @@ module App {
 					default:
 						throw new Error ('Not implemented');
 				}
-			} else 
-				result = '' + result;
 
 			return macroProcess (result, call.level, macros);
 		}
