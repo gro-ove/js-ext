@@ -18,6 +18,7 @@ TODO:
 		- One macro can call another
 		- Macros order and stuff
 		- Macros asynchronous (?)
+		- Parsing with awesome parser (?)
 		- Macros à la functions syntax
 			V One-line
 			V Blocks
