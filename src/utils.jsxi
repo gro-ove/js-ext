@@ -6,3 +6,6 @@ console.fatal = function (code){
 console.json = function (obj){
 	console.log (JSON.stringify (obj, false, 2));
 };
+
+function convert (jsxCode, options)
+	return require ('escodegen').generate (typeof jsxCode === 'string' ? jsxParse (jsxCode, typeof options === 'string' ? { fileName: options } : options) : jsxCode);

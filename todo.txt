@@ -1,15 +1,17 @@
 TODO:
-	V Arguments to exclusions list
-	V Classes extends
-	V Initialization order
-	V Static classes
-	V Private and protected variables
-	V Static variables
-	V Initialization statement
-	V Super requested in constuctors
+	V Classes
+		V Arguments to exclusions list
+		V Classes extends
+		V Initialization order
+		V Static classes
+		V Private and protected variables
+		V Static variables
+		V Initialization statement
+		V Super requested in constuctors
+		- Check for parent class static field change
 	V NotImplemented operator
 	V Strings format
-	- Macros
+	V Macros
 		V Macros as macros arguments
 		V Macros arguments
 		V Source code as macros arguments
@@ -26,22 +28,21 @@ TODO:
 		L Class macros
 		L Macros definion in macros (?)
 		L Anonynous macros (?)
+	V Update README
 	- One-line functions with result
 	- Functions without arguments
 	- Fix lambdas
-	- Check for parent class static field change
 	- Syntax like "function name (){ ... }()" support
 	- UglifyJS
 	- Multi files
 		L With new innovative caching
-	L Update README
+	- Array initializer operator
 	L Build for NPM
 	L Enums (?)
 	L New Generator
 	L Interfaces
 	L Override instruction
 	L Multifile classes
-	L Array initializer operator
 	L New loop: for-in-only (?)
 	L Inner classes
 	L Warnings
