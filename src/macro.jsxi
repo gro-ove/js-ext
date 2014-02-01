@@ -1,38 +1,95 @@
-	var MacroReturnType = { 
+	var Macro = function (name, level, macroArgs, macroBody){
+		if (!macroBody){
+			macroBody = macroArgs;
+			macroArgs = null;
+		}
+		
+		this.name 		= name;
+		this.level 		= level;
+		this.arguments 	= macroArgs === null ? [ 'arg' ] : macroArgs; 
+		this.rawBody 	= macroBody;
+	};
+
+	Macro.ReturnType = { 
 		Object: 		'MacroReturnTypeObject',
 		String: 		'MacroReturnTypeString',
 		Raw: 			'MacroReturnTypeRaw',
 		SourceTree: 	'MacroReturnTypeSourceTree',
 	};
 
-	var Macro = function (){
-		var defaultArgs = [
-			{ 
-				name: 		'fs', 
-				value: 		require ('fs') 
-			}, 
-			{ 
-				name: 		'path', 
-				value: 		require ('path')
-			},
-			{ 
-				name: 		'MacroReturnType', 
-				value: 		MacroReturnType
+	Macro.Defaults = {
+		fs: 			require ('fs'),
+		path: 			require ('path'),
+		ReturnType: 	Macro.ReturnType
+	};
+
+
+	function macroCalls (macroBody){
+		var used = [],
+			lastIdentifier,
+			liteParser,
+			name,
+			found,
+			temp;
+
+		if (macroBody.search (/@[_$a-zA-Z]/) !== -1){
+			lastIdentifier 	= 0;
+			liteParser 		= new LiteParser (macroBody)
+				.on ('//', lambda this.findSimple ('\n', '\r', LiteParser.EOF)) // FIXME: EOF
+				.on ('/*', lambda this.findSimple ('*/'))
+				.on ('\'', '"', '`', lambda {
+					while (temp = liteParser.findSimple ('\\' + arg.value, arg.value))
+						if (temp.value === arg.value)
+							return true;
+					return false;
+				});
+
+			while (found = liteParser.findNext (/@([_$a-zA-Z][_$a-zA-Z0-9]*)/)){
+				while (macroBody.indexOf (name = '_' + (lastIdentifier ++).toString (32)) !== -1);
+				used.push ({ name: name, macro: found.raw [1] });
+
+				temp = liteParser.whatNext (/[^\s]/);
+				if (!temp || temp.value !== '(')
+					name = name + ' ()';
+
+				liteParser.update (macroBody = macroBody.substr (0, found.index) + name + macroBody.substr (liteParser.index), liteParser.index + name.length - found.value.length);
 			}
-		];
-
-		return lambda (macroArgs, macroBody){
-			if (!macroBody){
-				macroBody = macroArgs;
-				macroArgs = null;
-			}
-
-			if (macroArgs === null)
-				macroArgs = [ 'arg' ];
-
-			var temp = macroArgs.map (lambda ({ name: arg })).concat (defaultArgs),
-				fn = new Function (temp.map (lambda arg.name).join (','), macroBody);
-
-			return lambda fn.apply (null, temp.map (lambda (e, i) e.value || arg [i]));
 		}
-	}();
+
+		return {
+			used: 	used,
+			body: 	macroBody
+		};
+	}
+
+	Macro.prototype.initialize = function (macros){
+		var phase 		= macroCalls (this.rawBody),
+			converted 	= convert (phase.body, { fileName: 'macro', insertReturn: true }),
+			variables 	= [],
+			temp;
+
+		for (var key in Macro.Defaults)
+			variables.push (key + ' = this.defaults.' + key);
+
+		this.object 	= { defaults: Macro.Defaults, macros: {} };
+
+		for (var entry in-array phase.used){
+			variables.push (entry.name + ' = this.macros.' + entry.macro);
+			temp = getNearestMacro (macros, entry.macro, this.level);
+
+			if (!temp)
+				throwError ({}, 'Macro @%0 not found', entry.macro);
+
+			this.object.macros [entry.macro] = lambda temp.call (arguments);
+		}
+
+		this.debug 		= (variables.length ? 'var ' + variables.join (', ') + ';\n' : '') + converted;
+		this.callee 	= new Function (this.arguments.join (','), this.debug);
+
+		console.log (this.debug);
+	}
+
+	Macro.prototype.call = function (args){
+		console.assert (this.callee, 'Callee not found');
+		return this.callee.apply (this.object, args);
+	}

@@ -17,7 +17,7 @@ TODO:
 		V Source code as macros arguments
 			V Crazy source code support
 		V Macros in macros result
-		- One macro can call another
+		V One macro can call another
 		- Macros order and stuff
 		- Macros asynchronous (?)
 		- Parsing with awesome parser (?)

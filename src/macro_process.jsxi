@@ -1,5 +1,12 @@
+	function getNearestMacro (macros, name, level){
+		var available	= macros.filter (lambda arg.name === name && level.indexOf (arg.level) === 0),
+			sorted 		= available.sort (lambda (a, b) b.level.length - a.level.length),
+			macro 		= sorted [0];
+
+		return macro;
+	}
+
 	function macroProcess (data, level = '', topMacros = []){
-		// Optimize and stuff
 		if (data.search (/@[_$a-zA-Z]/) === -1)
 			return data;
 
@@ -46,15 +53,13 @@
 		}
 
 		function macroCall (call){
-			var available	= macros.filter (lambda arg.name === call.name && call.level.indexOf (arg.level) === 0),
-				sorted 		= available.sort (lambda (a, b) b.level.length - a.level.length),
-				macro 		= sorted [0],
+			var macro = getNearestMacro (macros, call.name, call.level),
 				result;
 
 			if (!macro)
 				throwError (liteParser.getPosition (), 'Macro @' + call.name + (call.level ? ' (' + call.level + ')' : '') + ' not found');
 
-			result = macro.callee (call.arguments.map (cast.bind (call)));
+			result = macro.call (call.arguments.map (cast.bind (call)));
 
 			if (result === undefined || result === null){
 				result = '';
@@ -64,21 +69,21 @@
 				result = JSON.stringify ('' + result);
 			} else 
 				switch (result && result.type){
-					case MacroReturnType.Raw:
+					case Macro.ReturnType.Raw:
 						result = result.value;
 						break;
 
-					case MacroReturnType.Object:
+					case Macro.ReturnType.Object:
 						// TODO: optimized version
 
-					case MacroReturnType.String:
+					case Macro.ReturnType.String:
 						if (!result.value)
 							throwError (liteParser.getPosition (), 'Empty macro @' + call.name + ' result (use "null" or "undefined" for this)');
 
 						result = JSON.stringify (result.value);
 						break;
 
-					case MacroReturnType.SourceTree:
+					case Macro.ReturnType.SourceTree:
 					default:
 						throw new Error ('Not implemented');
 				}
@@ -89,12 +94,14 @@
 		while (found = liteParser.findNext (
 				/@macro\s+([_$a-zA-Z][_$a-zA-Z0-9]*)/, 
 				/@([_$a-zA-Z][_$a-zA-Z0-9]*)/, 
-				'{', '}')){
+				'{', 
+				'}')){
 			switch (found.id){
 				// Macro define
 				case 0:
 					var name = found.raw [1],
 						position,
+						argument,
 						arguments,
 						blockMode,
 						temp,
@@ -110,7 +117,13 @@
 						arguments 	= [];
 
 						while (temp = liteParser.findHere (',', ')')){
-							arguments.push (data.substring (position, liteParser.index - 1).trim ());
+							argument = data.substring (position, liteParser.index - 1).trim ();
+
+							if (argument.length)
+								arguments.push (argument);
+							else if (arguments.length || temp.value === ',')
+								throwError (liteParser.getPosition (), 'Missing argument');
+
 							position = liteParser.index;
 
 							if (temp.value === ')')
@@ -133,20 +146,13 @@
 					if (!temp)
 						throwError (liteParser.getPosition (), 'End of macro\'s body not found');
 
-					body 		= data.substring (position, liteParser.index).trim ();
-					converted 	= convert (body, { fileName: 'macro', insertReturn: true });
+					body = data.substring (position, liteParser.index).trim ();
 
 					temp = liteParser.whatNext (/[^\s]/);
 					if (temp && temp.value === ';')
 						liteParser.moveTo (temp);
 
-					macros.push ({ 
-						name: 		name, 
-						debug: 		converted,
-						callee: 	new Macro (arguments, converted),
-						level: 		level 
-					});
-
+					macros.push (new Macro (name, level, arguments, body));
 					partReplace (found.index, liteParser.index, '/* There was definition of @' + name + ' */');
 
 					break;
@@ -226,12 +232,10 @@
 		if (calls.length === 0)
 			return data;
 
-		liteParser.update (0);
+		for (var macro in-array macros)
+			macro.initialize (macros);
 
-		// console.log ('> MACROS:')
-		// console.log (macros);
-		// console.log ('> CALLS:');
-		// console.log (calls);
+		liteParser.update (0);
 
 		while (found = liteParser.findNext (/@call\.(\d+)/)){
 			var call = calls [+found.raw [1]];

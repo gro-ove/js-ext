@@ -17,7 +17,7 @@ var constTest 			= @const,
 	arg.split (',').map (lambda (arg) arg.trim ()).forEach (lambda (arg) result [arg] = arg);
 
 	return {
-		type: 	MacroReturnType.Object,
+		type: 	ReturnType.Object,
 		value: 	result
 	};
 }
@@ -30,7 +30,7 @@ var carOrDog = @enumMacro {
 
 @macro crazyMacro (arg)
 	{
-		type: 	arg.indexOf ('STRING:') === -1 ? MacroReturnType.Raw : MacroReturnType.String,
+		type: 	arg.indexOf ('STRING:') === -1 ? ReturnType.Raw : ReturnType.String,
 		value: 	arg.match (/[^:]+$/)[0].split ('}').map (lambda (arg) arg.trim ()).join ('').replace (/#/g, ' ')
 	};
 
@@ -41,10 +41,11 @@ var helloWorld = @crazyMacro {{
 
 {
 	console.log (@const (), @argsTest ([ @const, @areasTest ]));
-	//console.log (@macroWhichUsingAnotherMacro);
+	console.log (@macroWhichUsingAnotherMacro);
 	@crazyMacro {{ RAW: @ } c } o } n } s } t } # } /* } #IS IT EQUALS TO TWENTY FIVE?# } */ } }}
 
+	@macro macroWhichUsingAnotherMacro (){
+		return @argsTest ({ a: 18, b: @const, c: @argsTest ([ 'test' ]) });
+	}
 	@macro const 25;
 }
-
-//@macro macroWhichUsingAnotherMacro () @argsTest ({ a: 18, b: @const })

@@ -16,12 +16,12 @@
 		}
 	}
 
-	LiteParser.prototype.update = function (data, delta){
+	LiteParser.prototype.update = function (data, index){
 		if (typeof data === 'string')
 			this.data = data;
 
-		if (typeof delta === 'number')
-			this.index = delta;
+		if (typeof index === 'number')
+			this.index = index;
 		else if (typeof data === 'number')
 			this.index = data;
 

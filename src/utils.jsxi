@@ -8,4 +8,10 @@ console.json = function (obj){
 };
 
 function convert (jsxCode, options)
-	return require ('escodegen').generate (typeof jsxCode === 'string' ? jsxParse (jsxCode, typeof options === 'string' ? { fileName: options } : options) : jsxCode);
+	try {
+		return require ('escodegen').generate (typeof jsxCode === 'string' ? jsxParse (jsxCode, typeof options === 'string' ? { fileName: options } : options) : jsxCode);
+	} catch {
+		console.log ('ERROR AT PARSING:\n' + jsxCode);
+		throw e
+	}
+
