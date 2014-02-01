@@ -2,7 +2,7 @@
 
 ### What this is
 
-This is a another preprocessor for JavaScript. Based on awesome JavaScript parser Esprima and using UglifyJS to compress result.
+This is a another preprocessor for JavaScript. Based on [Esprima](https://github.com/ariya/esprima) (awesome parser) and using [UglifyJS2](https://github.com/mishoo/UglifyJS2) to compress result.
 
 ### Project status
 
@@ -31,7 +31,7 @@ New version is coming soon, with new features.
 	var text = `bla-bla-bla
 				bla-bla-bla`;
 	
-#### 4. Different way to write:
+#### 4. Different way to write
 
 	try
 		throw new Error ();
@@ -55,7 +55,8 @@ New version is coming soon, with new features.
 	for (var i, value in-array [ 'a', 'b', 'c' ])
 		console.log (i, value);
 
-#### 6. Macros [NEW]
+#### 6. Macros
+###### NEW
 
 	@macro const 20;
 
@@ -70,7 +71,8 @@ New version is coming soon, with new features.
 
 	console.log (@loadFromFile ('../release-notes.txt'));
 				
-#### 7. Classes [NEW]
+#### 7. Classes 
+###### NEW
 
 	class Test use Main {
 		static public var something = Main.value + 'value';
@@ -112,7 +114,8 @@ New version is coming soon, with new features.
 		// true
 	}
 		
-#### 8. Build-in string formatting [NEW]
+#### 8. Build-in string formatting 
+###### NEW
 	
 	console.log ('Something: %0, "%1", (%2), \'%3\'.' (firstValue, secondValue, thirdValue, forthValue));
 
