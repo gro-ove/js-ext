@@ -2,7 +2,7 @@
 
 ### What this is
 
-This is a another preprocessor for JavaScript. Based on [Esprima](https://github.com/ariya/esprima) (awesome parser) and using [UglifyJS2](https://github.com/mishoo/UglifyJS2) to compress result.
+This is a another preprocessor for JavaScript. Based on [Esprima](https://github.com/ariya/esprima) and using [UglifyJS2](https://github.com/mishoo/UglifyJS2) to compress result.
 
 ### Project status
 
@@ -119,12 +119,20 @@ New version is coming soon, with new features.
 	
 	console.log ('Something: %0, "%1", (%2), \'%3\'.' (firstValue, secondValue, thirdValue, forthValue));
 
-#### 9. Cool operator from Perl [NEW]
+#### 9. Cool operator from Perl 
+###### NEW
 	
 	if (featureNotImplemented)
 		...
+
+#### 10. Arrays initialization:
+###### NEW
+	
+	var zeroToTen 	= [ 0 .. 10 ],
+		aToZ 		= [ 'a' .. 'z' ],
+		oneToVar 	= [ 1 .. value ];
 		
-#### 10. Full backward compatibility (with default JavaScript):
+#### 11. Full backward compatibility (with default JavaScript):
 
 	Of course, if you are not going to use such keywords as "lambda", "class", "use" or something else.
 
