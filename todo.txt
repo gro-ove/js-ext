@@ -29,6 +29,7 @@ TODO:
 	- One-line functions with result
 	- Functions without arguments
 	- Fix lambdas
+	- Check for parent class static field change
 	- Syntax like "function name (){ ... }()" support
 	- UglifyJS
 	- Multi files
