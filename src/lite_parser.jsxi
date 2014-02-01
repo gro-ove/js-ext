@@ -6,6 +6,16 @@
 
 	LiteParser.EOF = 1;
 
+	LiteParser.prototype.getPosition = function (data, delta){
+		var lines = this.data.substr (0, this.index).split ('\n');
+
+		return {
+			index: 			this.index,
+			lineNumber: 	lines.length,
+			lineStart: 		lines.slice (0, -1).join ('\n').length
+		}
+	}
+
 	LiteParser.prototype.update = function (data, delta){
 		if (typeof data === 'string')
 			this.data = data;
@@ -65,8 +75,7 @@
 	}
 
 	LiteParser.prototype.innerFindNext = function (args, fixedMode = false){
-		if (!args || !typeof args.length === 'number' || args.length && args [0] === undefined)
-			throw new Error ('Invalid argument type');
+		console.assert (args && typeof args.length === 'number', 'Invalid argument type');
 
 		function indexOfExt (str, what, pos, id)
 			if (what === LiteParser.EOF){
@@ -90,7 +99,7 @@
 					value: 	what
 				};
 			} else
-				throw new Error ('Invalid argument type');
+				console.assert (true, 'Invalid argument type');
 
 		var value 		= { index: Number.POSITIVE_INFINITY },
 			oldIndex 	= this.index,

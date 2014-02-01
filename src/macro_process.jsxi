@@ -51,7 +51,8 @@
 				macro 		= sorted [0],
 				result;
 
-			console.assert (macro, 'Macro @' + call.name + (call.level ? ' (' + call.level + ')' : '') + ' not found');
+			if (!macro)
+				throwError (liteParser.getPosition (), 'Macro @' + call.name + (call.level ? ' (' + call.level + ')' : '') + ' not found');
 
 			result = macro.callee (call.arguments.map (cast.bind (call)));
 
@@ -71,7 +72,9 @@
 						// TODO: optimized version
 
 					case MacroReturnType.String:
-						console.assert (result.value, 'Empty macro @' + call.name + ' result (use "null" or "undefined" for this)');
+						if (!result.value)
+							throwError (liteParser.getPosition (), 'Empty macro @' + call.name + ' result (use "null" or "undefined" for this)');
+
 						result = JSON.stringify (result.value);
 						break;
 
@@ -127,7 +130,9 @@
 					} else 
 						temp = liteParser.findHere (';', LiteParser.EOF);
 
-					console.assert (temp, 'End of macro\'s body not found');
+					if (!temp)
+						throwError (liteParser.getPosition (), 'End of macro\'s body not found');
+
 					body 		= data.substring (position, liteParser.index).trim ();
 					converted 	= convert (body, { fileName: 'macro', insertReturn: true });
 
@@ -174,7 +179,9 @@
 							else 
 								temp = liteParser.findHere ([ '{' ], '}');
 
-							console.assert (temp, 'End of argument not found');
+							if (!temp)
+								throwError (liteParser.getPosition (), 'End of argument not found');
+
 							argument = data.substring (position, liteParser.index - 1);
 							arguments.push (JSON.stringify (argument));
 						} else {
@@ -186,7 +193,7 @@
 								if (argument.length)
 									arguments.push (argument);
 								else if (arguments.length || temp.value === ',')
-									throw new Error ('Missing argument');
+									throwError (liteParser.getPosition (), 'Missing argument');
 
 								if (temp.value === ')')
 									break;
@@ -194,7 +201,8 @@
 									position = liteParser.index;
 							}
 
-							console.assert (temp, 'Invalid arguments list');
+							if (!temp)
+								throwError (liteParser.getPosition (), 'Invalid arguments list');
 						}
 					}
 
