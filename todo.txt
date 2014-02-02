@@ -18,8 +18,8 @@ TODO:
 			V Crazy source code support
 		V Macros in macros result
 		V One macro can call another
-		- Macros order and stuff
-		- Macros asynchronous (?)
+		V Macros asynchronous
+		- Macros order and stuff (?)
 		- Parsing with awesome parser (?)
 		- Macros à la functions syntax
 			V One-line

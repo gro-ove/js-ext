@@ -8,6 +8,7 @@
 		this.level 		= level;
 		this.arguments 	= macroArgs === null ? [ 'arg' ] : macroArgs; 
 		this.rawBody 	= macroBody;
+		this.asyncMode 	= this.arguments [this.arguments.length - 1] === 'callback';
 	};
 
 	Macro.ReturnType = { 
@@ -85,11 +86,20 @@
 
 		this.debug 		= (variables.length ? 'var ' + variables.join (', ') + ';\n' : '') + converted;
 		this.callee 	= new Function (this.arguments.join (','), this.debug);
-
-		console.log (this.debug);
 	}
 
 	Macro.prototype.call = function (args){
 		console.assert (this.callee, 'Callee not found');
-		return this.callee.apply (this.object, args);
+
+		try
+			return this.callee.apply (this.object, args);
+		catch
+			throw new MacroError (this.name, args, e);
 	}
+
+	var MacroError = function (name, args, parent){
+		this.name 		= 'MacroError';
+		this.message 	= 'Error at @' + name + ' (' + args.map (lambda JSON.stringify (arg)).join (', ') + ')\n' + parent.stack;
+	};
+
+	MacroError.prototype = Error.prototype;

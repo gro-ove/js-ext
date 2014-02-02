@@ -8,8 +8,9 @@ module App {
 	}
 
 	function preparseFile (data){
-		var processed = macroProcess (data);
-		console.log ('> PREPARSED:\n' + processed);
+		var processed = macroProcess (data, lambda {
+			console.log ('> PREPARSED:\n' + arg);
+		});
 	}
 
 	function simpleTransform (fileName){

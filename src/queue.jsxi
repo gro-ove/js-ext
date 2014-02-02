@@ -1,0 +1,57 @@
+	var Queue = function (){
+		this.total 		= 0;
+		this.finished 	= 0;
+		this.results 	= [];
+	}
+
+	Queue.prototype.finish = function (id, args, data){
+		if (id !== undefined){
+			console.assert (!this.results [id], 'Already returned');
+
+			this.finished ++;
+			this.results [id] = {
+				result: 	args instanceof Array ? args : [].slice.call (args),
+				data: 		data
+			};
+		}
+
+		if (this.finished === this.total && this.callback){
+			console.assert (!this.done, 'Already finished');
+
+			this.callback (this.results);
+			this.done = true;
+		}
+	}
+
+	Queue.prototype.add = function (data, fn){
+		var args, result, id;
+
+		if (typeof data === 'function'){
+			args 	= [].slice.call (arguments, 1);
+			fn 		= data;
+			data 	= undefined;
+		} else 
+			args 	= [].slice.call (arguments, 2);
+
+		console.assert (typeof fn === 'function', 'Invalid argument');
+
+		id = this.total ++;
+		args.push ((lambda this.finish (id, arguments, data)).bind (this));
+
+		result = fn.apply (null, args);
+
+		if (result !== undefined)
+			this.finish (id, [ result ], data);
+
+		return this;
+	}
+
+	Queue.prototype.run = function (callback){
+		console.assert (!this.callback, 'Already runned');
+		console.assert (typeof callback === 'function', 'Invalid argument');
+
+		this.callback = callback;
+		this.finish ();
+
+		return this;
+	}
