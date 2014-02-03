@@ -15,6 +15,7 @@
 		Object: 		'MacroReturnTypeObject',
 		String: 		'MacroReturnTypeString',
 		Raw: 			'MacroReturnTypeRaw',
+		RawWithMacros: 	'MacroRawWithMacros',
 		SourceTree: 	'MacroReturnTypeSourceTree',
 	};
 
@@ -67,25 +68,27 @@
 		var phase 		= macroCalls (this.rawBody),
 			converted 	= convert (phase.body, { fileName: 'macro', insertReturn: true }),
 			variables 	= [],
-			temp;
+			that 		= this;
 
 		for (var key in Macro.Defaults)
 			variables.push (key + ' = this.defaults.' + key);
 
 		this.object 	= { defaults: Macro.Defaults, macros: {} };
 
-		for (var entry in-array phase.used){
+		phase.used.forEach (lambda (entry, temp){
 			variables.push (entry.name + ' = this.macros.' + entry.macro);
 			temp = getNearestMacro (macros, entry.macro, this.level);
 
 			if (!temp)
 				throwError ({}, 'Macro @%0 not found', entry.macro);
 
-			this.object.macros [entry.macro] = lambda temp.call (arguments);
-		}
+			this.object.macros [entry.macro] = lambda console.log ('=== CALL ' + temp.name + ' FROM ' + that.name + ' ===\n' + temp.debug + '\n') || temp.call (arguments);
+		}.bind (this));
 
 		this.debug 		= (variables.length ? 'var ' + variables.join (', ') + ';\n' : '') + converted;
 		this.callee 	= new Function (this.arguments.join (','), this.debug);
+
+		console.log ('=== MACRO ' + this.name + ' ===\n' + this.debug + '\n');
 	}
 
 	Macro.prototype.call = function (args){

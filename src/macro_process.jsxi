@@ -6,6 +6,17 @@
 		return macro;
 	}
 
+	function getNearestMacrosCalls (macros, level){
+		var result 		= {},
+			available	= macros.filter (lambda level.indexOf (arg.level) === 0),
+			sorted 		= available.sort (lambda (a, b) b.level.length - a.level.length);
+
+		sorted.forEach (lambda if (!result [arg.name])
+				result [arg.name] = lambda arg.call (arguments));
+
+		return result;
+	}
+
 	function macroProcess (data, level, topMacros, callback){
 		function partReplace (from, to, by = ''){
 			console.assert (from <= to, 'Invalid args');
@@ -79,7 +90,9 @@
 					processResult (macro.call (args));
 			}
 
-			function processResult (result){			
+			function processResult (result){	
+				var doMacros = true;
+
 				if (result === undefined || result === null){
 					result = '';
 				} else if (typeof result !== 'object'){
@@ -89,6 +102,11 @@
 				} else 
 					switch (result && result.type){
 						case Macro.ReturnType.Raw:
+							doMacros = false;
+							result = result.value;
+							break;
+
+						case Macro.ReturnType.RawWithMacros:
 							result = result.value;
 							break;
 
@@ -104,10 +122,14 @@
 
 						case Macro.ReturnType.SourceTree:
 						default:
-							throw new Error ('Not implemented');
+							console.log (macro.debug);
+							throw new Error ('Not implemented (' + macro.name + ')');
 					}
 
-				macroProcess (result, call.level, macros, callback);
+				if (doMacros)
+					macroProcess (result, call.level, macros, callback);
+				else
+					callback (result);
 			}
 
 			var macro = getNearestMacro (macros, call.name, call.level);

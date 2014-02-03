@@ -2,6 +2,7 @@
 @macro argsTest JSON.stringify (arg);
 @macro multiArgsTest (a, b, c) JSON.stringify ([ a, b, c ]);
 @macro areasTest '@const';
+@macro areasOtherTest @const;
 
 var constTest           = @const,
     numberArgTest       = @argsTest (0),
@@ -32,7 +33,7 @@ var carOrDog = @enumMacro {
 
 @macro crazyMacro (arg)
     {
-        type:   arg.indexOf ('STRING:') === -1 ? ReturnType.Raw : ReturnType.String,
+        type:   arg.indexOf ('STRING:') === -1 ? ReturnType.RawWithMacros : ReturnType.String,
         value:  arg.match (/[^:]+$/)[0].split ('}').map (lambda (arg) arg.trim ()).join ('').replace (/#/g, ' ')
     };
 
@@ -42,12 +43,16 @@ var helloWorld = @crazyMacro {{
     }};
 
 {
-    console.log (@const (), @argsTest ([ @const, @areasTest ]));
-    console.log (@macroWhichUsingAnotherMacro);
+    console.log (@const (), @argsTest ([ @time, @const, @areasTest, @areasOtherTest ]));
+    console.log (@macroWhichUsingAnotherMacros, @timeout);
     @crazyMacro {{ RAW: @ } c } o } n } s } t } # } /* } #IS IT PSEUDOCONST?# } */ } }}
 
-    @macro macroWhichUsingAnotherMacro (){
-        return @argsTest ({ a: 18, b: @const, c: @argsTest ([ 'test' ]) });
+    @macro macroWhichUsingAnotherMacros (callback){
+        @const (lambda (arg){
+            callback (@argsTest ({ a: 18, b: arg, c: @argsTest ([ 'test' ]) }));
+        });
     }
-    @macro const (callback) setTimeout (lambda callback (+new Date % 10000), 200); // NOT A CONST AT ALL
+    @macro time +new Date % 10000 / 100 | 0;
+    @macro const (callback) setTimeout (lambda callback (@time), 500); // NOT A CONST AT ALL
+    @macro timeout (callback) setTimeout (lambda @const (callback), 500);
 }
