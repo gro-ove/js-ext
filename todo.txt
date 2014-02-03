@@ -9,6 +9,8 @@ TODO:
 		V Initialization statement
 		V Super requested in constuctors
 		F Check for parent class static field change
+		- Anonymous classes
+		- Initialization with constructor: for example, "var a = new A (){ objectField = value }"
 	V NotImplemented operator
 	V Strings format
 	V Macros
@@ -30,12 +32,12 @@ TODO:
 		? Macros definion in macros
 	V Update README
 	F Fix lambdas
+	- Multi files
+		L With new innovative caching
 	- One-line functions with result
 	- Functions without arguments
 	- Syntax like "function name (){ ... }()" support
 	- UglifyJS
-	- Multi files
-		L With new innovative caching
 	- Array initializer operator
 	L Build for NPM
 	L Enums
@@ -47,6 +49,9 @@ TODO:
 	L Inner classes
 	L Warnings
 	L IE8 compilation mode
+	? Instuctions to parser or something in comments (developer will generate them with macros)
+	? Override parser functions by comments (and again, with macros)
+	? Override application functions (in result, I can add Warnings support as set of macros)
 
 Letters:
 	- 	Something to do
