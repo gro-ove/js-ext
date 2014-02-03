@@ -8,7 +8,7 @@ TODO:
 		V Static variables
 		V Initialization statement
 		V Super requested in constuctors
-		- Check for parent class static field change
+		F Check for parent class static field change
 	V NotImplemented operator
 	V Strings format
 	V Macros
@@ -19,31 +19,38 @@ TODO:
 		V Macros in macros result
 		V One macro can call another
 		V Macros asynchronous
-		- Macros order and stuff (?)
-		- Parsing with awesome parser (?)
-		- Macros à la functions syntax
+		V Macros à la functions syntax
 			V One-line
 			V Blocks
 			L Default arguments values
 		L Class macros
-		L Macros definion in macros (?)
-		L Anonynous macros (?)
+		L Anonynous macros
+		? Macros order and stuff
+		? Parsing with awesome parser
+		? Macros definion in macros
 	V Update README
+	F Fix lambdas
 	- One-line functions with result
 	- Functions without arguments
-	- Fix lambdas
 	- Syntax like "function name (){ ... }()" support
 	- UglifyJS
 	- Multi files
 		L With new innovative caching
 	- Array initializer operator
 	L Build for NPM
-	L Enums (?)
-	L New Generator
+	L Enums
+	L New Generator with line number comments support
 	L Interfaces
 	L Override instruction
 	L Multifile classes
-	L New loop: for-in-only (?)
+	L New loop: for-in-only
 	L Inner classes
 	L Warnings
 	L IE8 compilation mode
+
+Letters:
+	- 	Something to do
+	L 	Later
+	? 	Not sure about it
+	V 	Done
+	F 	Fixme
