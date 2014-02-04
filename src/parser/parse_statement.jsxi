@@ -29,7 +29,7 @@
 						lex ();
 
 						return expressionStatement (callExpression (
-							memberExpression ('console', 'warn'), [ literal ('Not implemented at ' + lineNumber + ' line of ' + fileName) ]));
+							memberExpression ('console', 'warn'), [ literal ('Not implemented at ' + lineNumber + ' line of ' + options.filename) ]));
 					}
 			}
 

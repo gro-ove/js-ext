@@ -9,7 +9,7 @@ console.json = function (obj){
 
 function convert (jsxCode, options)
 	try {
-		return require ('escodegen').generate (typeof jsxCode === 'string' ? jsxParse (jsxCode, typeof options === 'string' ? { fileName: options } : options) : jsxCode);
+		return require ('escodegen').generate (typeof jsxCode === 'string' ? jsxParse (jsxCode, typeof options === 'string' ? { filename: options } : options) : jsxCode);
 	} catch {
 		console.log ('ERROR AT PARSING:\n' + jsxCode);
 		throw e

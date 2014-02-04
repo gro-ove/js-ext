@@ -16,8 +16,7 @@ function jsxParse (code, args) {
 	length          = source.length;
 	buffer          = null;
 	state 			= { allowIn: true, inClass: false, parsingComplete: false, preventSequence: false };
-	options		    = args || { fileName: '[ not a file ]', insertReturn: false, initializationAllowed: false };
-	fileName 		= options && options.fileName;
+	options		    = args || { filename: '[ not a file ]', insertReturn: false, initializationAllowed: false };
 
 	return parseProgram ();
 }
