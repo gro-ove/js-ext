@@ -1,9 +1,21 @@
-	function loadFile (path){
-		try var file = require ('fs').readFileSync (args.data [0]);
-		if (!file)
-			console.fatal (2, 'Reading error: ' + file);
+	var fs = require ('fs'), 
+		path = require ('path');
 
-		preparseFile (file.toString ());
+	function loadFile (file){
+		file.filename = path.basename (file.path);
+
+		fs.readFile (file.path, lambda (error, data){
+			if (error)
+				console.fatal (error);
+
+			file.content = String (data);
+			processParams (file);
+		});
+	}
+
+	function processParams (file){
+		file.params = getParams (file.content);
+		console.json (file.params);
 	}
 
 	function preparseFile (data){
@@ -11,21 +23,6 @@
 			console.log ('> PREPARSED:\n' + arg);
 		});
 	}
-
-	// function simpleTransform (fileName){
-	// 	try var file = require ('fs').readFileSync (fileName);
-
-	// 	if (!file)
-	// 		console.fatal (2, 'Reading error');
-
-	// 	var parsed = Parser.parse (file, { information: true, fileName: require ('path').basename (args.data [0]) });
-
-	// 	var str = Generator.work (parsed, require ('path').basename (args.data [0]));
-	// 	try 
-	// 		console.log (require ('escodegen').generate (parsed));
-	// 	catch
-	// 		console.json (parsed);
-	// }
 
 	(function (){
 		// First and second args - "node" and script name
@@ -36,6 +33,5 @@
 				{   s: 'h',		l: 'usage'					}
 			]);
 
-		loadFile (args.data [0]);
-		// simpleTransform (args.data [0]);
+		loadFile ({ path: args.data [0] });
 	})();
