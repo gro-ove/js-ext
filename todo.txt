@@ -25,11 +25,11 @@ TODO:
 			V One-line
 			V Blocks
 			L Default arguments values
-		L Class macros
 		L Anonynous macros
 		? Macros order and stuff
 		? Parsing with awesome parser
 		? Macros definion in macros
+		X Class macros
 	V Update README
 	F Fix lambdas
 	- Multi files
@@ -39,6 +39,7 @@ TODO:
 	- Syntax like "function name (){ ... }()" support
 	- UglifyJS
 	- Array initializer operator
+	L Syntax highlight and stuff support for Sumlime Text
 	L Build for NPM
 	L Enums
 	L New Generator with line number comments support
@@ -59,3 +60,4 @@ Letters:
 	? 	Not sure about it
 	V 	Done
 	F 	Fixme
+	X 	Not needed (but, maybe, one day...)

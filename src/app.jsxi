@@ -1,4 +1,3 @@
-module App {
 	function loadFile (path){
 		try var file = require ('fs').readFileSync (args.data [0]);
 		if (!file)
@@ -13,22 +12,22 @@ module App {
 		});
 	}
 
-	function simpleTransform (fileName){
-		try var file = require ('fs').readFileSync (fileName);
+	// function simpleTransform (fileName){
+	// 	try var file = require ('fs').readFileSync (fileName);
 
-		if (!file)
-			console.fatal (2, 'Reading error');
+	// 	if (!file)
+	// 		console.fatal (2, 'Reading error');
 
-		var parsed = Parser.parse (file, { information: true, fileName: require ('path').basename (args.data [0]) });
+	// 	var parsed = Parser.parse (file, { information: true, fileName: require ('path').basename (args.data [0]) });
 
-		var str = Generator.work (parsed, require ('path').basename (args.data [0]));
-		try 
-			console.log (require ('escodegen').generate (parsed));
-		catch
-			console.json (parsed);
-	}
+	// 	var str = Generator.work (parsed, require ('path').basename (args.data [0]));
+	// 	try 
+	// 		console.log (require ('escodegen').generate (parsed));
+	// 	catch
+	// 		console.json (parsed);
+	// }
 
-	function init (){
+	(function (){
 		// First and second args - "node" and script name
 		args = parseArgs (process.argv.slice (2), [
 				// s - short, l - long, p - parameter (1 - one, 2 - multiple)
@@ -39,5 +38,4 @@ module App {
 
 		loadFile (args.data [0]);
 		// simpleTransform (args.data [0]);
-	}
-}
+	})();
