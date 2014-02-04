@@ -32,13 +32,14 @@ TODO:
 		X Class macros
 	V Update README
 	F Fix lambdas
-	- Multi files
+	- Including
 		L With new innovative caching
 	- One-line functions with result
 	- Functions without arguments
 	- Syntax like "function name (){ ... }()" support
 	- UglifyJS
 	- Array initializer operator
+	- Errors handling
 	L Syntax highlight and stuff support for Sumlime Text
 	L Build for NPM
 	L Enums
