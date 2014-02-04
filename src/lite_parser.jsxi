@@ -44,11 +44,10 @@
 					value = {
 						id: 	id,
 						index: 	this.data.length,
-						value: 	arg
+						value: 	''
 					};
 			} else {
-				var index = this.data.indexOf (arg, this.index),
-					temp;
+				var index = this.data.indexOf (arg, this.index);
 
 				if (index !== -1 && index < value.index)
 					value = {

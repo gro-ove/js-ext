@@ -17,6 +17,198 @@
 		return result;
 	}
 
+	function macroDefinitionProcess (data, level = ''){
+		// TODO: Don't allow "macro" name
+
+		function partReplace (from, to, by = ''){
+			console.assert (from <= to, 'Invalid args');
+
+			var delta = by.length - (to - from);
+
+			if (typeof by !== 'string')
+				by = '' + by;
+
+			if (liteParser.index >= to)
+				liteParser.index += delta;
+			else if (liteParser.index > from)
+				liteParser.update (from);
+
+			liteParser.update (data = data.substr (0, from) + by + data.substr (to));
+
+			return delta;
+		}
+
+		function parseMacroDefine (){
+			var name = found.raw [1],
+				position,
+				argument,
+				arguments,
+				blockMode,
+				temp,
+				body,
+				converted;
+
+			temp = liteParser.whatNext (/[^\s]/);
+
+			if (temp.value === '('){
+				liteParser.moveTo (temp);
+
+				position 	= liteParser.index;
+				arguments 	= [];
+
+				while (temp = liteParser.findHere (',', ')')){
+					argument = data.substring (position, liteParser.index - 1).trim ();
+
+					if (argument.length)
+						arguments.push (argument);
+					else if (arguments.length || temp.value === ',')
+						throwError (liteParser.getPosition (), 'Missing argument');
+
+					position = liteParser.index;
+
+					if (temp.value === ')')
+						break;
+				}
+
+				temp = liteParser.whatNext (/[^\s]/);
+			} else 
+				arguments = null;
+
+			blockMode = temp && temp.value === '{';
+			position = liteParser.index;
+
+			if (blockMode){
+				liteParser.moveTo (temp);
+				temp = liteParser.findHere ('}');
+			} else 
+				temp = liteParser.findHere (';', LiteParser.EOF);
+
+			if (!temp)
+				throwError (liteParser.getPosition (), 'End of macro\'s body not found');
+
+			body = data.substring (position, liteParser.index).trim ();
+
+			temp = liteParser.whatNext (/[^\s]/);
+			if (temp && temp.value === ';')
+				liteParser.moveTo (temp);
+
+			macros.push (new Macro (name, level, arguments, body));
+			partReplace (found.index, liteParser.index, '/* There was definition of @' + name + ' */');
+		}
+
+		function parseMacroCall (){
+			var name 		= found.raw [1],
+				arguments 	= [],
+				position,
+				argument,
+				quotesCount,
+				temp;
+
+			temp = liteParser.whatNext (/[^\s]/);
+			if (temp && (temp.value === '{' || temp.value === '(')){
+				liteParser.moveTo (temp);
+
+				if (temp.value === '{'){
+					quotesCount = 1;
+
+					while (data [liteParser.index] === '{'){
+						liteParser.index ++;
+						quotesCount ++;
+					}
+
+					position = liteParser.index;
+
+					if (quotesCount > 1)
+						temp = liteParser.findSimple (new Array (quotesCount + 1).join ('}'));
+					else 
+						temp = liteParser.findHere ([ '{' ], '}');
+
+					if (!temp)
+						throwError (liteParser.getPosition (), 'End of argument not found');
+
+					argument = data.substring (position, liteParser.index - 1);
+					arguments.push (JSON.stringify (argument));
+				} else {
+					position = liteParser.index;
+
+					while (temp = liteParser.findHere (',', ')')){
+						argument = data.substring (position, liteParser.index - 1).trim ();
+
+						if (argument.length)
+							arguments.push (argument);
+						else if (arguments.length || temp.value === ',')
+							throwError (liteParser.getPosition (), 'Missing argument');
+
+						if (temp.value === ')')
+							break;
+						else
+							position = liteParser.index;
+					}
+
+					if (!temp)
+						throwError (liteParser.getPosition (), 'Invalid arguments list');
+				}
+			}
+
+			var pos = calls.push ({ 
+				name: 		name, 
+				arguments: 	arguments, 
+				level: 		level 
+			}) - 1;
+
+			partReplace (found.index, liteParser.index, '@call.' + pos);
+		}
+
+		function levelDown ()
+			level += '.' + found.index;
+
+		function levelUp ()
+			level = level.replace (/\.\d+$/, '');
+
+		var macros 		= [],
+			calls 		= [];
+
+		if (data.search (/@[_$a-zA-Z]/) !== -1){
+			var liteParser 	= new LiteParser (data)
+					.on ('//', lambda this.findSimple ('\n', '\r', LiteParser.EOF)) // FIXME: EOF
+					.on ('/*', lambda this.findSimple ('*/'))
+					.on ('\'', '"', '`', lambda {
+						for (var temp; temp = liteParser.findSimple ('\\' + arg.value, arg.value); )
+							if (temp.value === arg.value)
+								return true;
+						return false;
+					}),
+				found;
+
+			while (found = liteParser.findNext (
+					/@macro\s+([_$a-zA-Z][_$a-zA-Z0-9]*)/, 
+					/@([_$a-zA-Z][_$a-zA-Z0-9]*)/, 
+					'{', 
+					'}')){
+				switch (found.id){
+					case 0:
+						parseMacroDefine ();
+						break;
+					case 1:
+						parseMacroCall ();
+						break;
+					case 2:
+						levelDown ();
+						break;
+					case 3:
+						levelUp ();
+						break;
+				}
+			}
+		}
+
+		return {
+			data: 		data,
+			macros: 	macros,
+			calls: 		calls
+		}
+	}
+
 	function macroProcess (data, level, topMacros, callback){
 		function partReplace (from, to, by = ''){
 			console.assert (from <= to, 'Invalid args');
@@ -197,75 +389,6 @@
 			macros.push (new Macro (name, level, arguments, body));
 			partReplace (found.index, liteParser.index, '/* There was definition of @' + name + ' */');
 		}
-
-		function parseMacroCall (){
-			var name 		= found.raw [1],
-				arguments 	= [],
-				position,
-				argument,
-				quotesCount,
-				temp;
-
-			temp = liteParser.whatNext (/[^\s]/);
-			if (temp && (temp.value === '{' || temp.value === '(')){
-				liteParser.moveTo (temp);
-
-				if (temp.value === '{'){
-					quotesCount = 1;
-
-					while (data [liteParser.index] === '{'){
-						liteParser.index ++;
-						quotesCount ++;
-					}
-
-					position = liteParser.index;
-
-					if (quotesCount > 1)
-						temp = liteParser.findSimple (new Array (quotesCount + 1).join ('}'));
-					else 
-						temp = liteParser.findHere ([ '{' ], '}');
-
-					if (!temp)
-						throwError (liteParser.getPosition (), 'End of argument not found');
-
-					argument = data.substring (position, liteParser.index - 1);
-					arguments.push (JSON.stringify (argument));
-				} else {
-					position = liteParser.index;
-
-					while (temp = liteParser.findHere (',', ')')){
-						argument = data.substring (position, liteParser.index - 1).trim ();
-
-						if (argument.length)
-							arguments.push (argument);
-						else if (arguments.length || temp.value === ',')
-							throwError (liteParser.getPosition (), 'Missing argument');
-
-						if (temp.value === ')')
-							break;
-						else
-							position = liteParser.index;
-					}
-
-					if (!temp)
-						throwError (liteParser.getPosition (), 'Invalid arguments list');
-				}
-			}
-
-			var pos = calls.push ({ 
-				name: 		name, 
-				arguments: 	arguments, 
-				level: 		level 
-			}) - 1;
-
-			partReplace (found.index, liteParser.index, '@call.' + pos);
-		}
-
-		function levelDown ()
-			level += '.' + found.index;
-
-		function levelUp ()
-			level = level.replace (/\.\d+$/, '');
 
 		if (typeof level === 'function'){
 			callback 	= level;
