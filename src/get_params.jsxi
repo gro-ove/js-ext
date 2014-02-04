@@ -1,19 +1,20 @@
 	function getParams (data){
 		var all = data.match (/(?:^|[\r\n])[ \t]*\/\/[ \t]*==([a-zA-Z]+)==[\s\S]+?[\r\n][ \t]*\/\/[ \t]*==\/\1==/g),
-			result = {};
+			result = { jsx: {} };
 
-		all.forEach (lambda {
-			var temp = {};
+		if (all)
+			all.forEach (lambda {
+				var temp = {};
 
-			arg.replace (/[\r\n][ \t]*\/\/[ \t]*@[ \t]*([^\s]+)(?:[ \t]+([^\n\r]+))?/g, lambda (s, k, v){
-				k = k.trim ();
-				if (!temp [k])
-					temp [k] = [];
-				temp [k].push (v ? v.trim () : true);
+				arg.replace (/[\r\n][ \t]*\/\/[ \t]*@[ \t]*([^\s]+)(?:[ \t]+([^\n\r]+))?/g, lambda (s, k, v){
+					k = k.trim ();
+					if (!temp [k])
+						temp [k] = [];
+					temp [k].push (v ? v.trim () : true);
+				});
+
+				result [arg.match (/==([a-zA-Z]+)==/)[1].toLowerCase ()] = temp;
 			});
-
-			result [arg.match (/==([a-zA-Z]+)==/)[1].toLowerCase ()] = temp;
-		});
 
 		return result;
 	}

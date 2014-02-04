@@ -1,21 +1,90 @@
-	var fs = require ('fs'), 
-		path = require ('path');
+	var fs 				= require ('fs'), 
+		path 			= require ('path');
+
+	var files 			= {},
+		lookingAt 		= [];
+
+	function initializeLookingAt ()
+		lookingAt.push ({ root: path.resolve (__dirname, 'library') });
+
+	function startWork (arg){
+		var fullpath 	= path.resolve (arg),
+			filename    = path.basename (fullpath),
+			root 		= path.dirname (fullpath);
+
+		loadFile ({ 
+			root: 		root,
+			fullpath: 	fullpath, 
+			filename: 	filename
+		});
+	}
+
+	function findFile (parent, child){
+		function findInFolder (root, current = root, child){
+			console.assert (current.indexOf (root) === 0, 'Invalid state');
+
+			while (current.indexOf (root) === 0){
+				var temp = path.resolve (current, child + '.jsxi');
+
+				if (fs.existsSync (temp))
+					return temp;
+				else
+					current = path.dirname (current);
+			}
+		}
+
+		for (var entry in-array [ { root: parent.root, dir: parent.dir } ].concat (lookingAt)){
+			var temp = findInFolder (entry.root, entry.dir, child);
+
+			if (temp)
+				return {
+					root: 		entry.root,
+					fullpath: 	temp,
+					filename: 	path.basename (temp),
+					dir: 		path.dirname (temp)
+				};
+		}
+	}
 
 	function loadFile (file){
-		file.filename = path.basename (file.path);
+		if (files [file.fullpath])
+			return;
 
-		fs.readFile (file.path, lambda (error, data){
+		fs.readFile (file.fullpath, lambda (error, data){
 			if (error)
 				console.fatal (error);
 
 			file.content = String (data);
 			processParams (file);
 		});
+
+		files [file.fullpath] = file;
 	}
 
 	function processParams (file){
 		file.params = getParams (file.content);
-		console.json (file.params);
+
+		if (file.params.jsx.import)
+			for (var other in-array file.params.jsx.import){
+				var found = findFile (file, other);
+				if (!found)
+					console.fatal ('Importing file "' + other + '" not found');
+
+				loadFile (found);
+			}
+
+		collectMacros (file);
+	}
+
+	function collectMacros (file){
+		var result 				= macroDefinitionProcess (file.content);
+
+		file.collectedContent 	= result.data;
+		file.macros 			= result.macros;
+		file.calls 				= result.calls;
+
+		console.log ('> PROCESSED: ' + file.filename);
+		//console.json (file);
 	}
 
 	function preparseFile (data){
@@ -24,8 +93,7 @@
 		});
 	}
 
-	(function (){
-		// First and second args - "node" and script name
+	(lambda {
 		args = parseArgs (process.argv.slice (2), [
 				// s - short, l - long, p - parameter (1 - one, 2 - multiple)
 				{ 	s: 'i', 	l: 'include', 	p: 2		},
@@ -33,5 +101,6 @@
 				{   s: 'h',		l: 'usage'					}
 			]);
 
-		loadFile ({ path: args.data [0] });
+		initializeLookingAt (args);
+		startWork (args.data [0]);
 	})();
