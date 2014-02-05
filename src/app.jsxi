@@ -1,23 +1,31 @@
 	var fs 				= require ('fs'), 
 		path 			= require ('path');
 
-	var files 			= {},
-		lookingAt 		= [];
+	var lookingAt 		= [],
+		files 			= {},
+		lastFileId 		= 0,
+		waitFor 		= 0;
+
+	var macroStorage = new MacroStorage ();
+
+	function File (root, fullpath){
+		if (fullpath === undefined){
+			this.fullpath 	= path.resolve (root);
+			this.root 		= path.dirname (this.fullpath);
+		} else {
+			this.fullpath 	= fullpath;
+			this.root 		= root;
+		}
+
+		waitFor ++;
+
+		this.id 		= lastFileId ++;
+		this.dir 		= path.dirname (this.fullpath);
+		this.filename 	= path.basename (this.fullpath);
+	}
 
 	function initializeLookingAt ()
 		lookingAt.push ({ root: path.resolve (__dirname, 'library') });
-
-	function startWork (arg){
-		var fullpath 	= path.resolve (arg),
-			filename    = path.basename (fullpath),
-			root 		= path.dirname (fullpath);
-
-		loadFile ({ 
-			root: 		root,
-			fullpath: 	fullpath, 
-			filename: 	filename
-		});
-	}
 
 	function findFile (parent, child){
 		function findInFolder (root, current = root, child){
@@ -37,12 +45,7 @@
 			var temp = findInFolder (entry.root, entry.dir, child);
 
 			if (temp)
-				return {
-					root: 		entry.root,
-					fullpath: 	temp,
-					filename: 	path.basename (temp),
-					dir: 		path.dirname (temp)
-				};
+				return new File (entry.root, temp);
 		}
 	}
 
@@ -77,14 +80,26 @@
 	}
 
 	function collectMacros (file){
-		var result 				= macroDefinitionProcess (file.content);
+		var result 				= parseMacrosAndCalls (file.content, '', file.id);
 
 		file.collectedContent 	= result.data;
-		file.macros 			= result.macros;
 		file.calls 				= result.calls;
 
 		console.log ('> PROCESSED: ' + file.filename);
-		//console.json (file);
+
+		if (-- waitFor === 0){
+			for (var fullpath, file in files)
+				processMacros (file);
+		}
+	}
+
+	function processMacros (file){
+		console.log ('> PROCESS MACROS...');
+
+		for (var call in-array file.calls)
+			if (call.state !== MacroCall.STATE_FINISHED){
+				console.log (call.name);
+			}
 	}
 
 	function preparseFile (data){
@@ -102,5 +117,5 @@
 			]);
 
 		initializeLookingAt (args);
-		startWork (args.data [0]);
+		loadFile (new File (args.data [0]));
 	})();

@@ -1,6 +1,8 @@
-// ==Jsx==
-// @import other
-// ==/Jsx==
+@macro param (key, value){
+	params.add (key, value);
+}
+
+@param ('import', 'other');
 
 @macro time +new Date;
-var t = @time;
+var current_t = @time;

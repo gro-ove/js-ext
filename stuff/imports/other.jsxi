@@ -1,3 +1,1 @@
-// ==Jsx==
-// @import inner/temp
-// ==/Jsx==
+var other_t = @time;

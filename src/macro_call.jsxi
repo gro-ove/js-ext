@@ -1,0 +1,165 @@
+	function MacroCall (name, level, arguments){
+		this.name 		= name;
+		this.level 		= level;
+		this.arguments 	= arguments;
+		this.state 		= MacroCall.INITIAL_STATE;
+		this.macro 		= undefined;
+		this.result 	= undefined;
+	}
+
+	// Just created
+	MacroCall.STATE_INITIAL 	= 0;
+
+	// Found macro
+	MacroCall.STATE_CONNECTED 	= 1;
+
+	// Arguments ready
+	MacroCall.STATE_READY 		= 2;
+
+	// Macro function called
+	MacroCall.STATE_CALLED 		= 3;
+
+	// Work finished
+	MacroCall.STATE_FINISHED 	= 4;
+
+	// Waiting state
+	MacroCall.STATE_WAITING 	= 5;
+
+	MacroCall.prototype.findMacro = function (callback){
+		console.assert (this.state == MacroCall.STATE_INITIAL, 'Wrong state (' + this.state + ')');
+		this.state = MacroCall.STATE_WAITING;
+
+		macroStorage.get (this.name, this.level, lambda {
+			if (arg == null)
+				throw new MacroNotFoundError (this.name);
+
+			this.state 		= MacroCall.STATE_CONNECTED;
+			this.macro 		= arg;
+
+			callback ();
+		});
+	}
+
+	MacroCall.prototype.prepareArguments = function (callback){
+		console.assert (this.state == MacroCall.STATE_CONNECTED, 'Wrong state (' + this.state + ')');
+		this.state = MacroCall.STATE_WAITING;
+
+		function cast (value, level = '', callback){
+			if (value.match (/^((\d+|\d*\.\d+)(e[+-]?\d+)?|0x[\da-f]+)$/i))
+				return +value;
+
+			// TODO: Do something with it
+			macroProcess (value, level, macros, lambda {
+				var data;
+
+				try {
+					eval ('data = ' + convert (arg, 'macro arg'));
+					callback (data);
+				} catch {
+					// TODO: cool errors handling
+					console.log ('FAILED AT:\n' + (value || '< EMPTY STRING >') + '\nWHAT HAS BEEN TRANSFORMED INTO:\n' + (arg || '< EMPTY STRING >'));
+					throw e;
+				}
+			});
+		}
+
+		var queue = new Queue (Queue.PARALLEL_MODE);
+
+		for (var arg in-array this.arguments)
+			queue.add (cast, arg, this.level);
+
+		queue.run (lambda {
+			this.state 		= MacroCall.STATE_READY;
+			this.arguments 	= arg.map (lambda arg.result [0]);
+
+			callback ();
+		});
+	}
+
+	MacroCall.prototype.realMacroCall = function (callback){
+		console.assert (this.state == MacroCall.STATE_READY, 'Wrong state (' + this.state + ')');
+		this.state = MacroCall.STATE_WAITING;
+
+		function resultHandler (answer){
+			if (this.result === undefined)
+				throw new Error ('Callback already called');
+
+			if (answer === undefined)
+				throw new Error ('Wrong argument');
+
+			this.state 		= MacroCall.STATE_CALLED;
+			this.result 	= answer;
+
+			callback ();
+		}
+
+		if (macro.asyncMode)
+			macro.call (this.arguments.concat ([ resultHandler ]));
+		else 
+			resultHandler (macro.call (this.arguments));
+	}
+
+	MacroCall.prototype.processResult = function (callback){	
+		console.assert (this.state == MacroCall.STATE_CALLED, 'Wrong state (' + this.state + ')');
+		this.state = MacroCall.STATE_WAITING;
+
+		var doMacros = true, 
+			result = this.result;
+
+		if (result === null){
+			result = '';
+		} else if (typeof result !== 'object'){
+			result = '' + result;
+		} else if (result instanceof String){
+			result = JSON.stringify ('' + result);
+		} else 
+			switch (result && result.type){
+				case Macro.ReturnType.Raw:
+					doMacros = false;
+					result = result.value;
+					break;
+
+				case Macro.ReturnType.RawWithMacros:
+					result = result.value;
+					break;
+
+				case Macro.ReturnType.Object:
+					// TODO: optimized version
+
+				case Macro.ReturnType.String:
+					if (!result.value)
+						throw new Error ('Empty macro @' + this.call.name + ' result (use "null" or "undefined" for this)');
+
+					result = JSON.stringify (result.value);
+					break;
+
+				case Macro.ReturnType.SourceTree:
+				default:
+					throw new Error ('Not implemented (' + this.macro.name + ')');
+			}
+
+		function resultHandler (result){
+			this.state 		= MacroCall.STATE_FINISHED;
+			this.result 	= result;
+
+			callback ();
+		}
+
+		if (doMacros)
+			macroProcess (result, this.call.level, macros, resultHandler);
+		else
+			resultHandler (result);
+	}
+
+	MacroCall.prototype.call = function (){
+		new Queue (this, Queue.MODE_SEQUENT)
+			.add (this.findMacro)
+			.add (this.prepareArguments)
+			.add (this.realMacroCall)
+			.add (this.processResult)
+			.run (lambda {
+				console.assert (this.state == MacroCall.STATE_FINISHED, 'Wrong state (' + this.state + ')');
+
+				
+			});
+	}

@@ -1,14 +1,20 @@
-	var Macro = function (name, level, macroArgs, macroBody){
-		if (!macroBody){
-			macroBody = macroArgs;
-			macroArgs = null;
+	function Macro (name, level, macroArgs, macroBody){
+		this.name 			= name;
+
+		if (typeof level === 'function'){
+			this.level 		= '';
+			this.rawFn 		= level;
+		} else {
+			if (!macroBody){
+				macroBody = macroArgs;
+				macroArgs = null;
+			}
+			
+			this.level 		= level;
+			this.arguments 	= macroArgs === null ? [ 'arg' ] : macroArgs; 
+			this.rawBody 	= macroBody;
+			this.asyncMode 	= this.arguments [this.arguments.length - 1] === 'callback';
 		}
-		
-		this.name 		= name;
-		this.level 		= level;
-		this.arguments 	= macroArgs === null ? [ 'arg' ] : macroArgs; 
-		this.rawBody 	= macroBody;
-		this.asyncMode 	= this.arguments [this.arguments.length - 1] === 'callback';
 	};
 
 	Macro.ReturnType = { 
@@ -24,7 +30,6 @@
 		path: 			require ('path'),
 		ReturnType: 	Macro.ReturnType
 	};
-
 
 	function macroCalls (macroBody){
 		var used = [],
@@ -65,6 +70,9 @@
 	}
 
 	Macro.prototype.initialize = function (macros){
+		if (this.rawFn)
+			return;
+
 		var phase 		= macroCalls (this.rawBody),
 			converted 	= convert (phase.body, { fileName: 'macro', insertReturn: true }),
 			variables 	= [],
@@ -80,9 +88,10 @@
 			temp = getNearestMacro (macros, entry.macro, this.level);
 
 			if (!temp)
-				throwError ({}, 'Macro @%0 not found', entry.macro);
+				throw new MacroNotFoundError (entry.macro);
+				// throwError ({}, 'Macro @%0 not found', entry.macro);
 
-			this.object.macros [entry.macro] = lambda console.log ('=== CALL ' + temp.name + ' FROM ' + that.name + ' ===\n' + temp.debug + '\n') || temp.call (arguments);
+			this.object.macros [entry.macro] = temp.call (arguments);
 		}.bind (this));
 
 		this.debug 		= (variables.length ? 'var ' + variables.join (', ') + ';\n' : '') + converted;
@@ -92,17 +101,26 @@
 	}
 
 	Macro.prototype.call = function (args){
-		console.assert (this.callee, 'Callee not found');
+		console.assert (this.callee || this.rawFn, 'Callee not found');
 
 		try
-			return this.callee.apply (this.object, args);
+			return this.rawFn 
+				? this.rawFn.apply (null, args) 
+				: this.callee.apply (this.object, args);
 		catch
 			throw new MacroError (this.name, args, e);
 	}
 
-	var MacroError = function (name, args, parent){
+	function MacroError (name, args, parent){
 		this.name 		= 'MacroError';
 		this.message 	= 'Error at @' + name + ' (' + args.map (lambda JSON.stringify (arg)).join (', ') + ')\n' + parent.stack;
 	};
 
 	MacroError.prototype = Error.prototype;
+
+	function MacroNotFoundError (name, args, parent){
+		this.name 		= 'MacroNotFoundError';
+		this.macroName 	= name;
+	};
+
+	MacroNotFoundError.prototype = Error.prototype;

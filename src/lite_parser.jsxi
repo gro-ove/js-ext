@@ -6,6 +6,30 @@
 
 	LiteParser.EOF = 1;
 
+	LiteParser.prototype.__defineGetter__ ('current', lambda this.data [this.index]);
+
+	LiteParser.prototype.replace = function (from, to, by = ''){
+		console.assert (from <= to, 'Invalid args');
+
+		if (typeof by !== 'string')
+			by = '' + by;
+
+		var delta = by.length - (to - from);
+
+		if (this.index >= to)
+			this.index += delta;
+		else if (this.index > from)
+			this.update (from);
+
+		this.update (this.data = this.data.substr (0, from) + by + this.data.substr (to));
+
+		return delta;
+	}
+
+	LiteParser.prototype.substring = function (from, to){
+		return this.data.substring (from, to);
+	}
+
 	LiteParser.prototype.getPosition = function (data, delta){
 		var lines = this.data.substr (0, this.index).split ('\n');
 

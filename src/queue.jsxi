@@ -1,8 +1,18 @@
-	var Queue = function (){
-		this.total 		= 0;
-		this.finished 	= 0;
-		this.results 	= [];
+	function Queue (object = null, mode = Queue.SEQUENT_MODE){
+		if (typeof object === 'number'){
+			mode 			= object;
+			object 			= null;
+		}
+
+		this.total 			= 0;
+		this.finished 		= 0;
+		this.results 		= [];
+		this.mode 			= mode;
+		this.object 		= object;
 	}
+
+	Queue.MODE_SEQUENT		= 0;
+	Queue.MODE_PARALLEL 	= 1;
 
 	Queue.prototype.finish = function (id, args, data){
 		if (id !== undefined){
@@ -38,7 +48,7 @@
 		id = this.total ++;
 		args.push ((lambda this.finish (id, arguments, data)).bind (this));
 
-		result = fn.apply (null, args);
+		result = fn.apply (this.object, args);
 
 		if (result !== undefined)
 			this.finish (id, [ result ], data);
