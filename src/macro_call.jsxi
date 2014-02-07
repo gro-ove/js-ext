@@ -151,9 +151,9 @@
 			callback ();
 		}.bind (this);
 
-		// if (doMacros)
-		// 	macroProcess (result, this.call.level, macros, resultHandler);
-		// else
+		if (doMacros)
+		 	macrosProcess (result, this.level, resultHandler);
+		else
 			resultHandler (result);
 	}
 

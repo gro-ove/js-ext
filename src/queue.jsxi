@@ -34,10 +34,17 @@
 		}
 
 		if (this.finished === this.total && this.callback){
+			if (this.done)
+				console.log (this.previous);
 			console.assert (!this.done, 'Already finished');
 
 			this.callback.call (this.object, this.results);
 			this.done = true;
+
+			try 
+				throw new Error ();
+			catch 
+				this.previous = e.stack;
 		}
 	}
 
