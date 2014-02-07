@@ -67,7 +67,7 @@
 			});
 		}
 
-		var queue = new Queue (this, Queue.MODE_PARALLEL);
+		var queue = new Queue (this, Queue.MODE_PARALLEL).description ('macro call arguments prepare');
 
 		for (var arg in-array this.arguments)
 			queue.add (cast, arg);
@@ -159,6 +159,7 @@
 
 	MacroCall.prototype.process = function (callback){
 		new Queue (this, Queue.MODE_SEQUENT)
+			.description ('macro call process')
 			.add (this.findMacro)
 			.add (this.prepareArguments)
 			.add (this.realMacroCall)

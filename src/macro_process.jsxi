@@ -175,7 +175,7 @@
 		console.assert (typeof callback === 'function', 'Wrong arguments');
 
 		var temp 	= macrosParse (data, level, file),
-			queue 	= new Queue (Queue.MODE_PARALLEL);
+			queue 	= new Queue (Queue.MODE_PARALLEL).description ('macros process');
 
 		for (var call in-array temp.calls)
 			queue.add (call, call.process.bind (call));
@@ -186,4 +186,3 @@
 			callback (temp.data);
 		});
 	}
-	

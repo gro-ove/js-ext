@@ -12,14 +12,20 @@
 		this.mode 			= mode;
 		this.object 		= object;
 		this.delayed 		= [];
+		this._description 	= '[ unnamed ]';
 	}
 
 	Queue.MODE_SEQUENT		= 'MODE_SEQUENT';
 	Queue.MODE_PARALLEL 	= 'MODE_PARALLEL';
 
-	Queue.prototype.finish = function (id, args, data){
+	Queue.prototype.description = function (description){
+		this._description = description;
+		return this;
+	}
+
+	Queue.prototype.complete = function (id, args, data){
 		if (id !== undefined){
-			console.assert (!this.results [id], 'Already returned');
+			console.assert (!this.results [id], 'Already returned (at ' + this._description + ')');
 
 			this.finished ++;
 			this.results [id] = {
@@ -28,39 +34,41 @@
 			};
 		}
 
-		if (this.mode === Queue.MODE_SEQUENT && this.finished < this.total && this.finished == this.results.length){
-			console.assert (typeof this.delayed [this.finished] === 'function', 'Delayed call missing');
-			this.delayed [this.finished]();
-		}
-
 		if (this.finished === this.total && this.callback){
-			if (this.done)
-				console.log (this.previous);
-			console.assert (!this.done, 'Already finished');
+			console.assert (!this.done, 'Already finished (at ' + this._description + ')');
 
 			this.callback.call (this.object, this.results);
 			this.done = true;
+		}
 
-			try 
-				throw new Error ();
-			catch 
-				this.previous = e.stack;
+		if (this.mode === Queue.MODE_SEQUENT && this.finished < this.total && this.finished == this.results.length){
+			console.assert (typeof this.delayed [this.finished] === 'function', 'Delayed call missing');
+			this.delayed [this.finished]();
 		}
 	}
 
 	Queue.prototype.makeCall = function (fn, args, data){
 		var id 		= this.total ++,
-			that 	= this;
+			done 	= false;
 
-		args.push (lambda that.finish (id, arguments, data));
+		args.push (lambda {
+			console.assert (!done, 'Already returned (at ' + this._description + ')');
+			done = true;
+
+			this.complete (id, arguments, data);
+		}.bind (this));
 
 		return lambda {
-			that.results [id] = undefined;
-			var result = fn.apply (that.object, args);
+			this.results [id] = undefined;
+			var result = fn.apply (this.object, args);
 
-			if (result !== undefined)
-				that.finish (id, [ result ], data);
-		};
+			if (result !== undefined){
+				console.assert (!done, 'Already returned in callback (at ' + this._description + ')');
+				done = true;
+
+				this.complete (id, [ result ], data);
+			}
+		}.bind (this);
 	}
 
 	Queue.prototype.add = function (data, fn){
@@ -73,7 +81,7 @@
 		} else 
 			args 	= [].slice.call (arguments, 2);
 
-		console.assert (typeof fn === 'function', 'Invalid argument');
+		console.assert (typeof fn === 'function', 'Invalid argument (at ' + this._description + ')');
 
 		var call = this.makeCall (fn, args, data);
 
@@ -87,11 +95,11 @@
 	}
 
 	Queue.prototype.run = function (callback){
-		console.assert (!this.callback, 'Already runned');
-		console.assert (typeof callback === 'function', 'Invalid argument');
+		console.assert (!this.callback, 'Already runned (at ' + this._description + ')');
+		console.assert (typeof callback === 'function', 'Invalid argument (at ' + this._description + ')');
 
 		this.callback = callback;
-		this.finish ();
+		this.complete ();
 
 		return this;
 	}
