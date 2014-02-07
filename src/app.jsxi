@@ -1,97 +1,7 @@
 	var fs 				= require ('fs'), 
 		path 			= require ('path');
 
-	var lookingAt 		= [],
-		files 			= {},
-		lastFileId 		= 0,
-		waitFor 		= 0;
-
 	var macroStorage = new MacroStorage ();
-
-	function File (root, fullpath){
-		if (fullpath === undefined){
-			this.fullpath 	= path.resolve (root);
-			this.root 		= path.dirname (this.fullpath);
-		} else {
-			this.fullpath 	= fullpath;
-			this.root 		= root;
-		}
-
-		waitFor ++;
-
-		this.id 		= lastFileId ++;
-		this.dir 		= path.dirname (this.fullpath);
-		this.filename 	= path.basename (this.fullpath);
-	}
-
-	function initializeLookingAt ()
-		lookingAt.push ({ root: path.resolve (__dirname, 'library') });
-
-	function findFile (parent, child){
-		function findInFolder (root, current = root, child){
-			console.assert (current.indexOf (root) === 0, 'Invalid state');
-
-			while (current.indexOf (root) === 0){
-				var temp = path.resolve (current, child + '.jsxi');
-
-				if (fs.existsSync (temp))
-					return temp;
-				else
-					current = path.dirname (current);
-			}
-		}
-
-		for (var entry in-array [ { root: parent.root, dir: parent.dir } ].concat (lookingAt)){
-			var temp = findInFolder (entry.root, entry.dir, child);
-
-			if (temp)
-				return new File (entry.root, temp);
-		}
-	}
-
-	function loadFile (file){
-		if (files [file.fullpath])
-			return;
-
-		fs.readFile (file.fullpath, lambda (error, data){
-			if (error)
-				console.fatal (error);
-
-			file.content = String (data);
-			processParams (file);
-		});
-
-		files [file.fullpath] = file;
-	}
-
-	function processParams (file){
-		file.params = getParams (file.content);
-
-		if (file.params.jsx.import)
-			for (var other in-array file.params.jsx.import){
-				var found = findFile (file, other);
-				if (!found)
-					console.fatal ('Importing file "' + other + '" not found');
-
-				loadFile (found);
-			}
-
-		collectMacros (file);
-	}
-
-	function collectMacros (file){
-		var result 				= parseMacrosAndCalls (file.content, '', file.id);
-
-		file.collectedContent 	= result.data;
-		file.calls 				= result.calls;
-
-		console.log ('> PROCESSED: ' + file.filename);
-
-		if (-- waitFor === 0){
-			for (var fullpath, file in files)
-				processMacros (file);
-		}
-	}
 
 	function processMacros (file){
 		console.log ('> PROCESS MACROS...');
@@ -108,14 +18,12 @@
 		});
 	}
 
-	(lambda {
+	process.nextTick (lambda {
 		args = parseArgs (process.argv.slice (2), [
 				// s - short, l - long, p - parameter (1 - one, 2 - multiple)
 				{ 	s: 'i', 	l: 'include', 	p: 2		},
 				{ 	s: 'o', 	l: 'output',  	p: 1		},
 				{   s: 'h',		l: 'usage'					}
 			]);
-
-		initializeLookingAt (args);
-		loadFile (new File (args.data [0]));
-	})();
+		new File (args.data [0]).process ();
+	});

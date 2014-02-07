@@ -17,6 +17,8 @@
 		}
 	};
 
+	addLog (Macro, '-', lambda '@' + this.name);
+
 	Macro.ReturnType = { 
 		Object: 		'MacroReturnTypeObject',
 		String: 		'MacroReturnTypeString',
@@ -31,47 +33,49 @@
 		ReturnType: 	Macro.ReturnType
 	};
 
-	function macroCalls (macroBody){
-		var used = [],
-			lastIdentifier,
-			liteParser,
-			name,
-			found,
-			temp;
+	Macro.prototype.initialize = function (callback){
+		function macroCalls (macroBody){
+			var used = [],
+				lastIdentifier,
+				liteParser,
+				name,
+				found,
+				temp;
 
-		if (macroBody.search (/@[_$a-zA-Z]/) !== -1){
-			lastIdentifier 	= 0;
-			liteParser 		= new LiteParser (macroBody)
-				.on ('//', lambda this.findSimple ('\n', '\r', LiteParser.EOF)) // FIXME: EOF
-				.on ('/*', lambda this.findSimple ('*/'))
-				.on ('\'', '"', '`', lambda {
-					while (temp = liteParser.findSimple ('\\' + arg.value, arg.value))
-						if (temp.value === arg.value)
-							return true;
-					return false;
-				});
+			// if (macroBody.search (/@[_$a-zA-Z]/) !== -1){
+			// 	lastIdentifier 	= 0;
+			// 	liteParser 		= new LiteParser (macroBody)
+			// 		.on ('//', lambda this.findSimple ('\n', '\r', LiteParser.EOF)) // FIXME: EOF
+			// 		.on ('/*', lambda this.findSimple ('*/'))
+			// 		.on ('\'', '"', '`', lambda {
+			// 			while (temp = liteParser.findSimple ('\\' + arg.value, arg.value))
+			// 				if (temp.value === arg.value)
+			// 					return true;
+			// 			return false;
+			// 		});
 
-			while (found = liteParser.findNext (/@([_$a-zA-Z][_$a-zA-Z0-9]*)/)){
-				while (macroBody.indexOf (name = '_' + (lastIdentifier ++).toString (32)) !== -1);
-				used.push ({ name: name, macro: found.raw [1] });
+			// 	while (found = liteParser.findNext (/@([_$a-zA-Z][_$a-zA-Z0-9]*)/)){
+			// 		while (macroBody.indexOf (name = '_' + (lastIdentifier ++).toString (32)) !== -1);
+			// 		used.push ({ name: name, macro: found.raw [1] });
 
-				temp = liteParser.whatNext (/[^\s]/);
-				if (!temp || temp.value !== '(')
-					name = name + ' ()';
+			// 		temp = liteParser.whatNext (/[^\s]/);
+			// 		if (!temp || temp.value !== '(')
+			// 			name = name + ' ()';
 
-				liteParser.update (macroBody = macroBody.substr (0, found.index) + name + macroBody.substr (liteParser.index), liteParser.index + name.length - found.value.length);
-			}
+			// 		liteParser.update (macroBody = macroBody.substr (0, found.index) + name + macroBody.substr (liteParser.index), liteParser.index + name.length - found.value.length);
+			// 	}
+			// }
+
+			return {
+				used: 	used,
+				body: 	macroBody
+			};
 		}
 
-		return {
-			used: 	used,
-			body: 	macroBody
-		};
-	}
-
-	Macro.prototype.initialize = function (macros){
-		if (this.rawFn)
+		if (this.callee || this.rawFn){
+			callback ();
 			return;
+		}
 
 		var phase 		= macroCalls (this.rawBody),
 			converted 	= convert (phase.body, { fileName: 'macro', insertReturn: true }),
@@ -89,7 +93,6 @@
 
 			if (!temp)
 				throw new MacroNotFoundError (entry.macro);
-				// throwError ({}, 'Macro @%0 not found', entry.macro);
 
 			this.object.macros [entry.macro] = temp.call (arguments);
 		}.bind (this));
@@ -97,11 +100,13 @@
 		this.debug 		= (variables.length ? 'var ' + variables.join (', ') + ';\n' : '') + converted;
 		this.callee 	= new Function (this.arguments.join (','), this.debug);
 
-		console.log ('=== MACRO ' + this.name + ' ===\n' + this.debug + '\n');
+		this.log ('initialized');
+
+		callback ();
 	}
 
 	Macro.prototype.call = function (args){
-		console.assert (this.callee || this.rawFn, 'Callee not found');
+		console.assert (this.callee || this.rawFn, 'Macro is not initialized');
 
 		try
 			return this.rawFn 
@@ -117,10 +122,3 @@
 	};
 
 	MacroError.prototype = Error.prototype;
-
-	function MacroNotFoundError (name, args, parent){
-		this.name 		= 'MacroNotFoundError';
-		this.macroName 	= name;
-	};
-
-	MacroNotFoundError.prototype = Error.prototype;

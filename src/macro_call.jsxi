@@ -1,11 +1,14 @@
-	function MacroCall (name, level, arguments){
-		this.name 		= name;
-		this.level 		= level;
-		this.arguments 	= arguments;
-		this.state 		= MacroCall.INITIAL_STATE;
-		this.macro 		= undefined;
-		this.result 	= undefined;
+	function MacroCall (name, level, arguments, replacement){
+		this.name 			= name;
+		this.level 			= level;
+		this.arguments 		= arguments;
+		this.state 			= MacroCall.STATE_INITIAL;
+		this.replacement 	= replacement;
+		this.macro 			= undefined;
+		this.result 		= undefined;
 	}
+
+	addLog (MacroCall, '-', lambda 'call (@' + this.name + ')');
 
 	// Just created
 	MacroCall.STATE_INITIAL 	= 0;
@@ -33,23 +36,24 @@
 			if (arg == null)
 				throw new MacroNotFoundError (this.name);
 
+			this.log ('macro found');
+
 			this.state 		= MacroCall.STATE_CONNECTED;
 			this.macro 		= arg;
 
 			callback ();
-		});
+		}.bind (this));
 	}
 
 	MacroCall.prototype.prepareArguments = function (callback){
 		console.assert (this.state == MacroCall.STATE_CONNECTED, 'Wrong state (' + this.state + ')');
 		this.state = MacroCall.STATE_WAITING;
 
-		function cast (value, level = '', callback){
+		function cast (value, callback){
 			if (value.match (/^((\d+|\d*\.\d+)(e[+-]?\d+)?|0x[\da-f]+)$/i))
 				return +value;
 
-			// TODO: Do something with it
-			macroProcess (value, level, macros, lambda {
+			macrosProcess (value, this.level, lambda {
 				var data;
 
 				try {
@@ -63,12 +67,14 @@
 			});
 		}
 
-		var queue = new Queue (Queue.PARALLEL_MODE);
+		var queue = new Queue (this, Queue.MODE_PARALLEL);
 
 		for (var arg in-array this.arguments)
-			queue.add (cast, arg, this.level);
+			queue.add (cast, arg);
 
 		queue.run (lambda {
+			this.log ('arguments ready');
+
 			this.state 		= MacroCall.STATE_READY;
 			this.arguments 	= arg.map (lambda arg.result [0]);
 
@@ -80,23 +86,23 @@
 		console.assert (this.state == MacroCall.STATE_READY, 'Wrong state (' + this.state + ')');
 		this.state = MacroCall.STATE_WAITING;
 
-		function resultHandler (answer){
-			if (this.result === undefined)
+		var resultHandler = function (answer){
+			if (this.result !== undefined)
 				throw new Error ('Callback already called');
 
 			if (answer === undefined)
-				throw new Error ('Wrong argument');
+				throw new Error ('Wrong macro result');
 
 			this.state 		= MacroCall.STATE_CALLED;
 			this.result 	= answer;
 
 			callback ();
-		}
+		}.bind (this);
 
-		if (macro.asyncMode)
-			macro.call (this.arguments.concat ([ resultHandler ]));
+		if (this.macro.asyncMode)
+			this.macro.call (this.arguments.concat ([ resultHandler ]));
 		else 
-			resultHandler (macro.call (this.arguments));
+			resultHandler (this.macro.call (this.arguments));
 	}
 
 	MacroCall.prototype.processResult = function (callback){	
@@ -138,20 +144,20 @@
 					throw new Error ('Not implemented (' + this.macro.name + ')');
 			}
 
-		function resultHandler (result){
+		var resultHandler = function (result){
 			this.state 		= MacroCall.STATE_FINISHED;
 			this.result 	= result;
 
 			callback ();
-		}
+		}.bind (this);
 
-		if (doMacros)
-			macroProcess (result, this.call.level, macros, resultHandler);
-		else
+		// if (doMacros)
+		// 	macroProcess (result, this.call.level, macros, resultHandler);
+		// else
 			resultHandler (result);
 	}
 
-	MacroCall.prototype.call = function (){
+	MacroCall.prototype.process = function (callback){
 		new Queue (this, Queue.MODE_SEQUENT)
 			.add (this.findMacro)
 			.add (this.prepareArguments)
@@ -159,7 +165,14 @@
 			.add (this.processResult)
 			.run (lambda {
 				console.assert (this.state == MacroCall.STATE_FINISHED, 'Wrong state (' + this.state + ')');
-
-				
+				callback (this.result);
 			});
 	}
+
+	function MacroNotFoundError (name, args, parent){
+		this.name 		= 'MacroNotFoundError';
+		this.macroName 	= name;
+		this.message 	= 'Macro @' + name + ' not found';
+	};
+
+	MacroNotFoundError.prototype = Error.prototype;

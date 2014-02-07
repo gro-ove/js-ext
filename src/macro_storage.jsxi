@@ -1,27 +1,37 @@
 	function MacroStorage (){
-		this.macros = {};
+		this.macros 	= {};
+		this.requests 	= [];
 	}
 
+	addLog (MacroStorage, '-', 'storage');
+
 	MacroStorage.prototype.add = function (macro){
+		this.log ('@' + macro.name + (macro.level ? ' (at ' + macro.level + ')' : '') + ' added');
+
 		if (!this.macros [macro.name])
 			this.macros [macro.name] = [ macro ];
 		else 
 			this.macros [macro.name].push (macro);
 	}
 
-	MacroStorage.prototype.get = function (name, level){
+	MacroStorage.prototype.get = function (name, level, callback){
 		var result 	= undefined,
 			max  	= -1,
 			temp;
+
+		this.log ('requested @' + name + (level ? ' (at ' + level + ')' : '') + '');
+
 		if (this.macros [name])
 			for (var macro in-array this.macros [name])
 				if (macro.level.length >= max && 
-					macro.level.length < level.length && 
+					macro.level.length <= level.length && 
 					level.substring (0, macro.level.length) === macro.level){
 
 					result 	= macro;
 					max 	= macro.level.length;
 				}
 
-		return result;
+		result.initialize (lambda {
+			callback (result);
+		});
 	}

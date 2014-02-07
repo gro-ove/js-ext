@@ -1,18 +1,21 @@
-	function Queue (object = null, mode = Queue.SEQUENT_MODE){
-		if (typeof object === 'number'){
+	function Queue (object = null, mode = Queue.MODE_SEQUENT){
+		if (typeof object === 'string'){
 			mode 			= object;
 			object 			= null;
 		}
+
+		console.assert (mode, 'Wrong mode');
 
 		this.total 			= 0;
 		this.finished 		= 0;
 		this.results 		= [];
 		this.mode 			= mode;
 		this.object 		= object;
+		this.delayed 		= [];
 	}
 
-	Queue.MODE_SEQUENT		= 0;
-	Queue.MODE_PARALLEL 	= 1;
+	Queue.MODE_SEQUENT		= 'MODE_SEQUENT';
+	Queue.MODE_PARALLEL 	= 'MODE_PARALLEL';
 
 	Queue.prototype.finish = function (id, args, data){
 		if (id !== undefined){
@@ -25,16 +28,36 @@
 			};
 		}
 
+		if (this.mode === Queue.MODE_SEQUENT && this.finished < this.total && this.finished == this.results.length){
+			console.assert (typeof this.delayed [this.finished] === 'function', 'Delayed call missing');
+			this.delayed [this.finished]();
+		}
+
 		if (this.finished === this.total && this.callback){
 			console.assert (!this.done, 'Already finished');
 
-			this.callback (this.results);
+			this.callback.call (this.object, this.results);
 			this.done = true;
 		}
 	}
 
+	Queue.prototype.makeCall = function (fn, args, data){
+		var id 		= this.total ++,
+			that 	= this;
+
+		args.push (lambda that.finish (id, arguments, data));
+
+		return lambda {
+			that.results [id] = undefined;
+			var result = fn.apply (that.object, args);
+
+			if (result !== undefined)
+				that.finish (id, [ result ], data);
+		};
+	}
+
 	Queue.prototype.add = function (data, fn){
-		var args, result, id;
+		var args;
 
 		if (typeof data === 'function'){
 			args 	= [].slice.call (arguments, 1);
@@ -45,13 +68,13 @@
 
 		console.assert (typeof fn === 'function', 'Invalid argument');
 
-		id = this.total ++;
-		args.push ((lambda this.finish (id, arguments, data)).bind (this));
+		var call = this.makeCall (fn, args, data);
 
-		result = fn.apply (this.object, args);
-
-		if (result !== undefined)
-			this.finish (id, [ result ], data);
+		if (this.mode === Queue.MODE_PARALLEL || this.mode === Queue.MODE_SEQUENT && this.finished == this.results.length){
+			call ();
+		} else {
+			this.delayed [this.total - 1] = call;
+		}
 
 		return this;
 	}

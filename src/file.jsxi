@@ -1,0 +1,70 @@
+	var files 		= {},
+		lastFileId 	= 0,
+		lookingAt 	= [
+			{ root: path.resolve (__dirname, 'library') }
+		];
+
+	function File (root, fullpath){
+		console.assert (!files [fullpath], 'File already processed');
+
+		if (fullpath === undefined){
+			this.fullpath 	= path.resolve (root);
+			this.root 		= path.dirname (this.fullpath);
+		} else {
+			this.fullpath 	= fullpath;
+			this.root 		= root;
+		}
+
+		this.id 			= lastFileId ++;
+		this.dir 			= path.dirname (this.fullpath);
+		this.filename 		= path.basename (this.fullpath);
+
+		files [fullpath] 	= this;
+	}
+
+	addLog (File, '>', lambda this.filename);
+
+	File.prototype.find = function (child){
+		function findInFolder (root, current = root, child){
+			console.assert (current.indexOf (root) === 0, 'Invalid state');
+
+			while (current.indexOf (root) === 0){
+				var temp = path.resolve (current, child + '.jsxi');
+
+				if (fs.existsSync (temp))
+					return temp;
+				else
+					current = path.dirname (current);
+			}
+		}
+
+		for (var entry in-array [ { root: this.root, dir: this.dir } ].concat (lookingAt)){
+			var temp = findInFolder (entry.root, entry.dir, child);
+
+			if (temp)
+				return new File (entry.root, temp);
+		}
+	}
+
+	File.prototype.load = function (callback)
+		fs.readFile (this.fullpath, lambda (error, data){
+			if (error)
+				console.fatal (error);
+
+			this.content = String (data);
+			this.log ('loaded', this.content.length ? '(' + this.content.length + ' bytes)' : '(empty)');
+
+			callback ();
+		}.bind (this));
+
+	File.prototype.macros = function (){
+		macrosProcess (this.content, this.id, lambda {
+			this.log ('macro calls processed:\n' + arg);
+		}.bind (this));
+	}
+
+	File.prototype.process = function (callback){
+		this.load (lambda {
+			this.macros ();
+		}.bind (this));
+	}

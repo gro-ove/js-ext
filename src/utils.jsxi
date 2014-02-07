@@ -15,3 +15,18 @@ function convert (jsxCode, options)
 		throw e
 	}
 
+function addLog (p, key, fn){
+	var size = 25;
+
+	p.prototype.log = lambda {
+		var f = [ key + ' ' + (typeof fn === 'function' ? fn.call (this) : fn) + ':' ];
+		if (f [0].length > size)
+			f [0] = f [0].substr (0, size - 4) + '...:';
+		while (f [0].length < size)
+			f [0] += ' ';
+		f.push.apply (f, arguments);
+
+		console.log.apply (console, f);
+	};
+}
+
