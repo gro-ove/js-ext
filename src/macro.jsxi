@@ -42,29 +42,29 @@
 				found,
 				temp;
 
-			// if (macroBody.search (/@[_$a-zA-Z]/) !== -1){
-			// 	lastIdentifier 	= 0;
-			// 	liteParser 		= new LiteParser (macroBody)
-			// 		.on ('//', lambda this.findSimple ('\n', '\r', LiteParser.EOF)) // FIXME: EOF
-			// 		.on ('/*', lambda this.findSimple ('*/'))
-			// 		.on ('\'', '"', '`', lambda {
-			// 			while (temp = liteParser.findSimple ('\\' + arg.value, arg.value))
-			// 				if (temp.value === arg.value)
-			// 					return true;
-			// 			return false;
-			// 		});
+			if (macroBody.search (/@[_$a-zA-Z]/) !== -1){
+				lastIdentifier 	= 0;
+				liteParser 		= new LiteParser (macroBody)
+					.on ('//', lambda this.findSimple ('\n', '\r', LiteParser.EOF))
+					.on ('/*', lambda this.findSimple ('*/'))
+					.on ('\'', '"', '`', lambda {
+						while (temp = liteParser.findSimple ('\\' + arg.value, arg.value))
+							if (temp.value === arg.value)
+								return true;
+						return false;
+					});
 
-			// 	while (found = liteParser.findNext (/@([_$a-zA-Z][_$a-zA-Z0-9]*)/)){
-			// 		while (macroBody.indexOf (name = '_' + (lastIdentifier ++).toString (32)) !== -1);
-			// 		used.push ({ name: name, macro: found.raw [1] });
+				while (found = liteParser.findNext (/@([_$a-zA-Z][_$a-zA-Z0-9]*)/)){
+					while (macroBody.indexOf (name = '_' + (lastIdentifier ++).toString (32)) !== -1);
+					used.push ({ name: name, macro: found.raw [1] });
 
-			// 		temp = liteParser.whatNext (/[^\s]/);
-			// 		if (!temp || temp.value !== '(')
-			// 			name = name + ' ()';
+					temp = liteParser.whatNext (/[^\s]/);
+					if (!temp || temp.value !== '(')
+						name = name + ' ()';
 
-			// 		liteParser.update (macroBody = macroBody.substr (0, found.index) + name + macroBody.substr (liteParser.index), liteParser.index + name.length - found.value.length);
-			// 	}
-			// }
+					liteParser.update (macroBody = macroBody.substr (0, found.index) + name + macroBody.substr (liteParser.index), liteParser.index + name.length - found.value.length);
+				}
+			}
 
 			return {
 				used: 	used,
@@ -80,29 +80,29 @@
 		var phase 		= macroCalls (this.rawBody),
 			converted 	= convert (phase.body, { fileName: 'macro', insertReturn: true }),
 			variables 	= [],
-			that 		= this;
+			queue 		= new Queue (macroStorage, Queue.MODE_PARALLEL).description ('macros inside other macro');
 
 		for (var key in Macro.Defaults)
 			variables.push (key + ' = this.defaults.' + key);
 
-		this.object 	= { defaults: Macro.Defaults, macros: {} };
-
-		phase.used.forEach (lambda (entry, temp){
+		for (var entry in-array phase.used){
+			queue.add (macroStorage.get, entry.macro, this.level);
 			variables.push (entry.name + ' = this.macros.' + entry.macro);
-			temp = getNearestMacro (macros, entry.macro, this.level);
+		}
 
-			if (!temp)
-				throw new MacroNotFoundError (entry.macro);
-
-			this.object.macros [entry.macro] = temp.call (arguments);
-		}.bind (this));
-
+		this.object 	= { defaults: Macro.Defaults, macros: {} };
 		this.debug 		= (variables.length ? 'var ' + variables.join (', ') + ';\n' : '') + converted;
 		this.callee 	= new Function (this.arguments.join (','), this.debug);
 
-		this.log ('initialized');
+		queue.run (lambda {
+			arg.map (lambda arg.result [0]).forEach (lambda (other){
+				this.log ('found @' + other.name + ' for using inside');
+				this.object.macros [other.name] = lambda other.call (arguments);
+			}.bind (this));
 
-		callback ();
+			this.log ('initialized');
+			callback ();
+		}.bind (this));
 	}
 
 	Macro.prototype.call = function (args){

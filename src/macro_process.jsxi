@@ -127,7 +127,7 @@
 
 		var calls 		= [],
 			liteParser 	= new LiteParser (source)
-				.on ('//', lambda this.findSimple ('\n', '\r', LiteParser.EOF)) // FIXME: EOF
+				.on ('//', lambda this.findSimple ('\n', '\r', LiteParser.EOF)) 
 				.on ('/*', lambda this.findSimple ('*/'))
 				.on ('\'', '"', '`', lambda {
 					for (var temp; temp = liteParser.findSimple ('\\' + arg.value, arg.value); )
