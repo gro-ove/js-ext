@@ -1,24 +1,3 @@
-	var fileStorage = new FileStorage ();
-
-	function FileStorage (){
-		this.files = [];
-	}
-
-	FileStorage.prototype.exists = function (arg){
-		var fullpath = arg instanceof File ? arg.fullpath : arg;
-		return !!this.files.filter (lambda arg.fullpath === fullpath)[0];
-	}
-
-	FileStorage.prototype.add = function (file){
-		console.assert (!this.exists (file), 'File already added');
-		this.files.push (file);
-	}
-
-	var files 		= [],
-		lookingAt 	= [
-			{ root: path.resolve (__dirname, 'library') }
-		];
-
 	function File (root, fullpath){
 		console.assert (!fileStorage.exists (fullpath), 'File already processed');
 
@@ -37,6 +16,10 @@
 	}
 
 	addLog (File, '>', lambda this.filename);
+
+	var lookingAt 	= [
+		{ root: path.resolve (__dirname, 'library') }
+	];
 
 	File.prototype.find = function (child){
 		function findInFolder (root, current = root, child){

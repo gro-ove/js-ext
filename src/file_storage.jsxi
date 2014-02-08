@@ -1,0 +1,15 @@
+	var fileStorage = new FileStorage ();
+
+	function FileStorage (){
+		this.files = [];
+	}
+
+	FileStorage.prototype.exists = function (arg){
+		var fullpath = arg instanceof File ? arg.fullpath : arg;
+		return !!this.files.filter (lambda arg.fullpath === fullpath)[0];
+	}
+
+	FileStorage.prototype.add = function (file){
+		console.assert (!this.exists (file), 'File already added');
+		this.files.push (file);
+	}
