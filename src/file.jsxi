@@ -1,10 +1,26 @@
-	var files 		= {},
+	var fileStorage = new FileStorage ();
+
+	function FileStorage (){
+		this.files = [];
+	}
+
+	FileStorage.prototype.exists = function (arg){
+		var fullpath = arg instanceof File ? arg.fullpath : arg;
+		return !!this.files.filter (lambda arg.fullpath === fullpath)[0];
+	}
+
+	FileStorage.prototype.add = function (file){
+		console.assert (!this.exists (file), 'File already added');
+		this.files.push (file);
+	}
+
+	var files 		= [],
 		lookingAt 	= [
 			{ root: path.resolve (__dirname, 'library') }
 		];
 
 	function File (root, fullpath){
-		console.assert (!files [fullpath], 'File already processed');
+		console.assert (!fileStorage.exists (fullpath), 'File already processed');
 
 		if (fullpath === undefined){
 			this.fullpath 	= path.resolve (root);
@@ -17,7 +33,7 @@
 		this.dir 			= path.dirname (this.fullpath);
 		this.filename 		= path.basename (this.fullpath);
 
-		files [fullpath] 	= this;
+		fileStorage.add (this);
 	}
 
 	addLog (File, '>', lambda this.filename);

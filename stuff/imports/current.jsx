@@ -18,5 +18,5 @@ var current_o = @arg (1);
 
 var current_to = @arg (@time);
 
-@macro file { type: ReturnType.String, value: context.fullpath };
+@macro file { type: ReturnType.String, value: context.file.fullpath };
 console.log (@file);

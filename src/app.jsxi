@@ -1,23 +1,6 @@
 	var fs 				= require ('fs'), 
 		path 			= require ('path');
 
-	var macroStorage = new MacroStorage ();
-
-	function processMacros (file){
-		console.log ('> PROCESS MACROS...');
-
-		for (var call in-array file.calls)
-			if (call.state !== MacroCall.STATE_FINISHED){
-				console.log (call.name);
-			}
-	}
-
-	function preparseFile (data){
-		var processed = macroProcess (data, lambda {
-			console.log ('> PREPARSED:\n' + arg);
-		});
-	}
-
 	process.nextTick (lambda {
 		args = parseArgs (process.argv.slice (2), [
 				// s - short, l - long, p - parameter (1 - one, 2 - multiple)

@@ -135,14 +135,14 @@
 
 				case Macro.ReturnType.String:
 					if (!result.value)
-						throw new Error ('Empty macro @' + this.call.name + ' result (use "null" or "undefined" for this)');
+						throw new Error ('Empty macro @' + this.name + ' result (use "null" or "undefined" for this)');
 
 					result = JSON.stringify (result.value);
 					break;
 
 				case Macro.ReturnType.SourceTree:
 				default:
-					throw new Error ('Not implemented (' + this.macro.name + ')');
+					throw new Error ('Not implemented (' + this.name + ')');
 			}
 
 		var resultHandler = function (result){

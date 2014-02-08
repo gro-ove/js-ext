@@ -6,6 +6,11 @@
 				switch (key){
 					case 'import':
 						console.log ('import', value, 'to', that.context.filename);
+						var other = that.context.file.find (value);
+						if (other)
+							other.process ();
+						else
+							throw new MacroError (that.name, 'Importing file "' + value + '" not found');
 						break;
 					default:
 						throw new MacroError (that.name, 'Wrong param key ("' + key + '")');

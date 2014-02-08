@@ -1,3 +1,5 @@
+	var macroStorage = new MacroStorage ();
+
 	function MacroStorage (){
 		this.macros 	= {};
 		this.requests 	= [];
