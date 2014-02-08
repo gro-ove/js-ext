@@ -1,5 +1,4 @@
 	var files 		= {},
-		lastFileId 	= 0,
 		lookingAt 	= [
 			{ root: path.resolve (__dirname, 'library') }
 		];
@@ -15,7 +14,6 @@
 			this.root 		= root;
 		}
 
-		this.id 			= lastFileId ++;
 		this.dir 			= path.dirname (this.fullpath);
 		this.filename 		= path.basename (this.fullpath);
 
@@ -58,7 +56,7 @@
 		}.bind (this));
 
 	File.prototype.macros = function (){
-		macrosProcess (this.content, this.id, lambda {
+		macrosProcess (this.content, new Context (this), lambda {
 			this.log ('macro calls processed:\n' + arg);
 		}.bind (this));
 	}

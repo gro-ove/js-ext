@@ -1,7 +1,8 @@
-	function MacroCall (name, level, arguments, replacement){
+	function MacroCall (name, arguments, level, context, replacement){
 		this.name 			= name;
-		this.level 			= level;
 		this.arguments 		= arguments;
+		this.level 			= level;
+		this.context 		= context;
 		this.state 			= MacroCall.STATE_INITIAL;
 		this.replacement 	= replacement;
 		this.macro 			= undefined;
@@ -53,7 +54,7 @@
 			if (value.match (/^((\d+|\d*\.\d+)(e[+-]?\d+)?|0x[\da-f]+)$/i))
 				return +value;
 
-			macrosProcess (value, this.level, lambda {
+			macrosProcess (value, this.level, this.context, lambda {
 				var data;
 
 				try {
@@ -91,7 +92,7 @@
 				throw new Error ('Callback already called');
 
 			if (answer === undefined)
-				throw new Error ('Wrong macro result');
+				answer = '';
 
 			this.state 		= MacroCall.STATE_CALLED;
 			this.result 	= answer;
@@ -100,9 +101,9 @@
 		}.bind (this);
 
 		if (this.macro.asyncMode)
-			this.macro.call (this.arguments.concat ([ resultHandler ]));
+			this.macro.call (this.context, this.arguments.concat ([ resultHandler ]));
 		else 
-			resultHandler (this.macro.call (this.arguments));
+			resultHandler (this.macro.call (this.context, this.arguments));
 	}
 
 	MacroCall.prototype.processResult = function (callback){	
@@ -152,7 +153,7 @@
 		}.bind (this);
 
 		if (doMacros)
-		 	macrosProcess (result, this.level, resultHandler);
+		 	macrosProcess (result, this.level, this.context, resultHandler);
 		else
 			resultHandler (result);
 	}

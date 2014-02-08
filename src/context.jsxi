@@ -1,0 +1,13 @@
+	function Context (file){
+		console.assert (file instanceof File, 'File required');
+
+		this.id 		= Context.ids.indexOf [file.fullpath];
+		if (this.id === -1)
+			this.id 	= Context.ids.push (file.fullpath) - 1;
+
+		this.fullpath 	= file.fullpath;
+		this.filename 	= file.filename;
+		this.root 		= file.root;
+	}
+
+	Context.ids = [];

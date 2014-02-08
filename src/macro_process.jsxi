@@ -1,5 +1,7 @@
-	function macrosParse (source, level, lineNumberPrefix){
+	function macrosParse (source, level, context){
 		// TODO: Don't allow "macro" name
+
+		console.assert (context instanceof Context, 'Context required');
 
 		function parseMacroDefine (){
 			var name = found.raw [1],
@@ -56,7 +58,7 @@
 				liteParser.moveTo (temp);
 
 			liteParser.replace (found.index, liteParser.index, '/* There was definition of @' + name + ' */');
-			macroStorage.add (new Macro (name, level, arguments, body));
+			macroStorage.add (new Macro (name, level, context, arguments, body));
 		}
 
 		function parseMacroCall (){
@@ -115,12 +117,12 @@
 
 			var replacement = '@call.' + calls.length;
 			
-			calls.push (new MacroCall (name, level, arguments, replacement));
+			calls.push (new MacroCall (name, arguments, level, context, replacement));
 			liteParser.replace (found.index, liteParser.index, replacement);
 		}
 
 		function levelDown ()
-			level += '.' + lineNumberPrefix + '_' + found.index;
+			level += '.' + context.id + '_' + found.index;
 
 		function levelUp ()
 			level = level.replace (/\.[\d_]+$/, '');
@@ -164,17 +166,17 @@
 		}
 	}
 
-	function macrosProcess (data, level, callback){
-		var file 	= 's';
-
-		if (typeof level === 'number'){
-			file 	= level;
-			level 	= '';
+	function macrosProcess (data, level, context, callback){
+		if (level instanceof Context){
+			callback 	= context;
+			context 	= level;
+			level 		= '';
 		}
 
-		console.assert (typeof callback === 'function', 'Wrong arguments');
+		console.assert (context instanceof Context, 'Context required');
+		console.assert (typeof callback === 'function', 'Function required');
 
-		var temp 	= macrosParse (data, level, file),
+		var temp 	= macrosParse (data, level, context),
 			queue 	= new Queue (Queue.MODE_PARALLEL).description ('macros process');
 
 		for (var call in-array temp.calls)

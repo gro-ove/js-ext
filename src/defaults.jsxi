@@ -1,0 +1,15 @@
+	function paramsManager (){
+		var that = this;
+
+		return { 
+			add: lambda (key, value){ 
+				switch (key){
+					case 'import':
+						console.log ('import', value, 'to', that.context.filename);
+						break;
+					default:
+						throw new MacroError (that.name, 'Wrong param key ("' + key + '")');
+				}
+			} 
+		}
+	}

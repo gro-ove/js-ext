@@ -1,20 +1,16 @@
-	function Macro (name, level, macroArgs, macroBody){
-		this.name 			= name;
+	function Macro (name, level, context, macroArgs, macroBody){
+		this.name 		= name;
 
-		if (typeof level === 'function'){
-			this.level 		= '';
-			this.rawFn 		= level;
-		} else {
-			if (!macroBody){
-				macroBody = macroArgs;
-				macroArgs = null;
-			}
-			
-			this.level 		= level;
-			this.arguments 	= macroArgs === null ? [ 'arg' ] : macroArgs; 
-			this.rawBody 	= macroBody;
-			this.asyncMode 	= this.arguments [this.arguments.length - 1] === 'callback';
+		if (!macroBody){
+			macroBody 	= macroArgs;
+			macroArgs 	= null;
 		}
+		
+		this.level 		= level;
+		this.arguments 	= macroArgs === null ? [ 'arg' ] : macroArgs; 
+		this.context 	= context;
+		this.rawBody 	= macroBody;
+		this.asyncMode 	= this.arguments [this.arguments.length - 1] === 'callback';
 	};
 
 	addLog (Macro, '-', lambda '@' + this.name);
@@ -28,10 +24,29 @@
 	};
 
 	Macro.Defaults = {
-		fs: 			require ('fs'),
-		path: 			require ('path'),
+		fs: 			fs,
+		path: 			path,
+		params: 		paramsManager,
 		ReturnType: 	Macro.ReturnType
 	};
+
+	Macro.prototype.defaults = function (context){
+		var result 	= {},
+			obj 	= {
+				name: 			this.name,
+				context: 		context,
+				macroContext: 	this.context
+			};
+
+		for (var key, value in Macro.Defaults){
+			if (typeof value === 'function')
+				result [key] = value.call (obj);
+			else
+				result [key] = value;
+		}
+
+		return result;
+	}
 
 	Macro.prototype.initialize = function (callback){
 		function macroCalls (macroBody){
@@ -72,32 +87,35 @@
 			};
 		}
 
-		if (this.callee || this.rawFn){
+		if (this.callee){
 			callback ();
 			return;
 		}
 
 		var phase 		= macroCalls (this.rawBody),
-			converted 	= convert (phase.body, { fileName: 'macro', insertReturn: true }),
+			converted 	= convert (phase.body, { filename: 'macro', insertReturn: true }),
 			variables 	= [],
 			queue 		= new Queue (macroStorage, Queue.MODE_PARALLEL).description ('macros inside other macro');
+
+		variables.push ('context = this.context');
+		variables.push ('macroContext = this.macroContext');
 
 		for (var key in Macro.Defaults)
 			variables.push (key + ' = this.defaults.' + key);
 
 		for (var entry in-array phase.used){
 			queue.add (macroStorage.get, entry.macro, this.level);
-			variables.push (entry.name + ' = this.macros.' + entry.macro);
+			variables.push (entry.name + ' = function (){ return this.macros.' + entry.macro + '.call (this.context, arguments) }.bind (this)');
 		}
 
-		this.object 	= { defaults: Macro.Defaults, macros: {} };
+		this.macros 	= {};
 		this.debug 		= (variables.length ? 'var ' + variables.join (', ') + ';\n' : '') + converted;
 		this.callee 	= new Function (this.arguments.join (','), this.debug);
 
 		queue.run (lambda {
 			arg.map (lambda arg.result [0]).forEach (lambda (other){
 				this.log ('found @' + other.name + ' for using inside');
-				this.object.macros [other.name] = lambda other.call (arguments);
+				this.macros [other.name] = other;
 			}.bind (this));
 
 			this.log ('initialized');
@@ -105,20 +123,36 @@
 		}.bind (this));
 	}
 
-	Macro.prototype.call = function (args){
-		console.assert (this.callee || this.rawFn, 'Macro is not initialized');
+	Macro.prototype.call = function (context, args){
+		console.assert (this.callee, 'Macro is not initialized');
+		console.assert (args && typeof args.length === 'number', 'Wrong argument');
+		console.assert (context instanceof Context, 'Context required');
+
+		var object = { 
+			defaults: 		this.defaults (context), 
+			macros: 		this.macros,
+			macroContext: 	this.context,
+			context: 		context
+		};
 
 		try
-			return this.rawFn 
-				? this.rawFn.apply (null, args) 
-				: this.callee.apply (this.object, args);
+			return this.callee.apply (object, args);
 		catch
-			throw new MacroError (this.name, args, e);
+			if (e.name === 'MacroError')
+				throw e;
+			else
+				throw new MacroError (this.name, args, e);
 	}
 
-	function MacroError (name, args, parent){
+	function MacroError (name, args, parent, message){
+		if (typeof args === 'string'){
+			message 	= args;
+			args 		= undefined;
+			parent 		= undefined;
+		}
+
 		this.name 		= 'MacroError';
-		this.message 	= 'Error at @' + name + ' (' + args.map (lambda JSON.stringify (arg)).join (', ') + ')\n' + parent.stack;
+		this.message 	= 'Error at @' + name + (args ? ' (' + Array.prototype.map (args, lambda JSON.stringify (arg)).join (', ') + ')' : '') + (parent ? '\n' + parent.stack : message ? ': ' + message : '');
 	};
 
 	MacroError.prototype = Error.prototype;
