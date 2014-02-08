@@ -14,14 +14,24 @@
 			this.macros [macro.name] = [ macro ];
 		else 
 			this.macros [macro.name].push (macro);
+
+		for (var pos, request in-array this.requests)
+			if (request [0] === macro.name && this.get (request))
+				this.requests.splice (pos --, 1);
 	}
 
 	MacroStorage.prototype.get = function (name, level, callback){
-		var result 	= undefined,
-			max  	= -1,
+		var result 			= undefined,
+			max  			= -1,
+			requestMode 	= typeof name !== 'string',
 			temp;
 
-		this.log ('requested @' + name + (level ? ' (at ' + level + ')' : '') + '');
+		if (requestMode){
+			callback 	= name [2];
+			level 		= name [1];
+			name 		= name [0];
+		} else
+			this.log ('requested @' + name + (level ? ' (at ' + level + ')' : '') + '');
 
 		if (this.macros [name])
 			for (var macro in-array this.macros [name])
@@ -33,7 +43,11 @@
 					max 	= macro.level.length;
 				}
 
-		result.initialize (lambda {
-			callback (result);
-		});
+		if (result !== undefined){
+			result.initialize (lambda callback (result));
+
+			if (requestMode)
+				return true;
+		} else if (!requestMode)
+			this.requests.push (arguments);
 	}
