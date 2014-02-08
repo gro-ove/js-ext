@@ -1,1 +1,3 @@
 var other_t = @time;
+
+@macro macroInOtherFile '"Hello from Other File!"';
