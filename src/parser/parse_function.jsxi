@@ -82,7 +82,7 @@
 
 		token 	= lookahead ();
 		id 		= parseVariableIdentifier ();
-		params 	= parseFunctionArguments (defaults);
+		params 	= match ('(') ? parseFunctionArguments (defaults) : [ identifier ('arg') ];
 		body 	= parseFunctionSourceElements ();
 
 		if (defaults.length)
@@ -101,7 +101,7 @@
 			id 		= parseVariableIdentifier ();
 		}
 
-		params 	= parseFunctionArguments (defaults);
+		params 	= match ('(') ? parseFunctionArguments (defaults) : [ identifier ('arg') ];
 		body 	= parseFunctionSourceElements (defaults);
 
 		if (defaults.length)

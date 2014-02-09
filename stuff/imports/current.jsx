@@ -24,3 +24,7 @@ class A {
 function oneLineWithResult (arg)
 	if (arg)
 		arg + 20;
+
+function oneLineWithoutArgumentsWithResult 
+	if (arg)
+		arg + 20;

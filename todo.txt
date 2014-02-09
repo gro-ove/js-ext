@@ -37,7 +37,7 @@ TODO:
 		L With new innovative caching
 	V Fix lambdas
 	V One-line functions with result
-	- Functions without arguments
+	V Functions without arguments
 	- Syntax like "function name (){ ... }()" support
 	- UglifyJS
 	- Array initializer operator
