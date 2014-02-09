@@ -37,7 +37,7 @@
 		for (var file in-array File.find ('default/*') || [])
 			file.process ();
 
-		this.mainFile = new File (args.data [0]);
+		this.mainFile = new File (this.path);
 		this.mainFile.process ();
 
 		this.waitForFinish (lambda {
