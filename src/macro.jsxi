@@ -152,7 +152,7 @@
 		}
 
 		this.name 		= 'MacroError';
-		this.message 	= 'Error at @' + name + (args ? ' (' + Array.prototype.map (args, lambda JSON.stringify (arg)).join (', ') + ')' : '') + (parent ? '\n' + parent.stack : message ? ': ' + message : '');
+		this.message 	= 'Error at @' + name + (args ? ' (' + Array.prototype.map.call (args, lambda JSON.stringify (arg)).join (', ') + ')' : '') + (parent ? '\n' + parent.stack : message ? ': ' + message : '');
 	};
 
 	MacroError.prototype = Error.prototype;
