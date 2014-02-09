@@ -75,7 +75,7 @@
 		}.bind (this));
 	}
 
-	Worker.prototype.format = function (callback){
+	Worker.prototype.generate = function (callback){
 		console.assert (this.state == Worker.STATE_CLASSES, 'Wrong state (' + this.state + ')');
 		this.state = Worker.STATE_WAITING;
 
@@ -92,7 +92,7 @@
 			.add (this.start)
 			.add (this.collect)
 			.add (this.classes)
-			.add (this.format)
+			.add (this.generate)
 			.run (lambda {
 				console.assert (this.state == Worker.STATE_FINISHED, 'Wrong state (' + this.state + ')');
 				if (callback !== undefined)
