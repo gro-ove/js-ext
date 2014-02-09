@@ -9,7 +9,7 @@
 			this.root 			= root;
 		}
 
-		this.dir 				= path.dirname (this.fullpath);
+		this.dirname 			= path.dirname (this.fullpath);
 		this.filename 			= path.basename (this.fullpath);
 		this.state 				= File.STATE_INITIAL;
 		this.imports 			= [];
@@ -65,8 +65,8 @@
 			}
 		}
 
-		for (var entry in-array this instanceof File ? [ { root: this.root, dir: this.dir } ].concat (lookingAt) : lookingAt){
-			var temp = findInFolder (entry.root, entry.dir, child);
+		for (var entry in-array this instanceof File ? [ { root: this.root, dirname: this.dirname } ].concat (lookingAt) : lookingAt){
+			var temp = findInFolder (entry.root, entry.dirname, child);
 
 			if (temp)
 				return temp.map (lambda fileStorage.get (arg) || new File (entry.root, arg));
