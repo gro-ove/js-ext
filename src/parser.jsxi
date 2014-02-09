@@ -6,10 +6,8 @@
 // Taken from https://github.com/ariya/esprima
 // Author: Ariya Hidayat
 
-function jsxParse (code, args) {
-	var program;
-
-	source          = '' + code;
+function jsxParse (code, args, callback){
+	source          = String (code);
 	index           = 0;
 	lineNumber      = source.length ? 1 : 0;
 	lineStart       = 0;
@@ -18,5 +16,9 @@ function jsxParse (code, args) {
 	state 			= { allowIn: true, inClass: false, parsingComplete: false, preventSequence: false };
 	options		    = args || { filename: '[ not a file ]', insertReturn: false, initializationAllowed: false };
 
-	return parseProgram ();
+	var result = parseProgram ();
+	if (typeof callback === 'function')
+		callback (result);
+	else
+		return result;
 }

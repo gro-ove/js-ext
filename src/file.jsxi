@@ -20,7 +20,8 @@
 	File.STATE_MACRO_WAITING	= -2;
 	File.STATE_INITIAL 			= 0;
 	File.STATE_LOADED 			= 1;
-	File.STATE_FINISHED			= 2;
+	File.STATE_MACROS 			= 2;
+	File.STATE_FINISHED			= 3;
 
 	addLog (File, '>', lambda this.filename);
 
@@ -94,8 +95,25 @@
 		macrosProcess (this.content, new Context (this), lambda {
 			this.log ('macro calls processed');
 
-			this.state 		= File.STATE_FINISHED;
+			this.state 		= File.STATE_MACROS;
 			this.content 	= String (arg);
+
+			callback ();
+		}.bind (this));
+	}
+
+	File.prototype.parsing = function (callback){
+		console.assert (this.state == File.STATE_MACROS, 'Wrong state (' + this.state + ')');
+		this.state = File.STATE_WAITING;
+
+		jsxParse (this.content, {
+			filename: 				this.filename,
+			initializationAllowed: 	true
+		}, lambda {
+			this.log ('parsing processed');
+
+			this.state 		= File.STATE_FINISHED;
+			this.parsed 	= arg;
 
 			callback ();
 		}.bind (this));
@@ -106,6 +124,7 @@
 			.description ('file process')
 			.add (this.load)
 			.add (this.macros)
+			.add (this.parsing)
 			.run (lambda {
 				console.assert (this.state == File.STATE_FINISHED, 'Wrong state (' + this.state + ')');
 				if (callback !== undefined)

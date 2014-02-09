@@ -1,2 +1,2 @@
 @import ('temp')
-JUST A FILE
+console.log ('JUST A FILE');

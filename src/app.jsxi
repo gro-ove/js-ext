@@ -27,6 +27,6 @@
 		new File (args.data [0]).process ();
 
 		waitForFinish (lambda {
-			console.log ('File processing finished');
+			console.log ('Files processing finished');
 		});
 	});
