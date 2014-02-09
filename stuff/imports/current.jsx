@@ -14,3 +14,11 @@ var current_to = @arg (@time);
 console.log (@file);
 
 var diffucultTest = @macroInOtherFile;
+
+class A {
+	private var variable = 10;
+
+	public function test (){
+		return variable;
+	}
+}

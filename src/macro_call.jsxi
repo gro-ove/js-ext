@@ -19,7 +19,7 @@
 	MacroCall.waitingForCallback 	= 0;
 	MacroCall.waitingForMacro 		= 0;
 
-	addLog (MacroCall, '-', lambda 'call (@' + this.name + ')');
+	addLog (MacroCall, 2, lambda 'call (@' + this.name + ')');
 
 	MacroCall.prototype.findMacro = function (callback){
 		console.assert (this.state == MacroCall.STATE_INITIAL, 'Wrong state (' + this.state + ')');

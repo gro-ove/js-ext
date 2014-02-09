@@ -13,7 +13,7 @@ function jsxParse (code, args, callback){
 	lineStart       = 0;
 	length          = source.length;
 	buffer          = null;
-	state 			= { allowIn: true, inClass: false, parsingComplete: false, preventSequence: false };
+	state 			= { allowIn: true, inClass: false, parsingComplete: false, preventSequence: false, classes: [] };
 	options		    = args || { filename: '[ not a file ]', insertReturn: false, initializationAllowed: false };
 
 	var result = parseProgram ();

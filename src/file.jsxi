@@ -23,7 +23,7 @@
 	File.STATE_MACROS 			= 2;
 	File.STATE_FINISHED			= 3;
 
-	addLog (File, '>', lambda this.filename);
+	addLog (File, 1, lambda this.filename);
 
 	var lookingAt 	= [
 		{ root: path.resolve (__dirname, 'library') }

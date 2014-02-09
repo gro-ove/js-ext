@@ -13,7 +13,7 @@
 		this.asyncMode 	= this.arguments [this.arguments.length - 1] === 'callback';
 	};
 
-	addLog (Macro, '-', lambda '@' + this.name);
+	addLog (Macro, 3, lambda '@' + this.name);
 
 	Macro.ReturnType = { 
 		Object: 		'MacroReturnTypeObject',

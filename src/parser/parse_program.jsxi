@@ -36,8 +36,6 @@
 			initializations = [],
 			temp;
 
-		initClasses ();
-
 		while (index < length) {
 			temp = parseProgramElement ();
 			if (temp === null)
@@ -59,5 +57,5 @@
 			} else 
 				return true);
 
-		return program (sourceElements, classes, initializations);	
+		return program (sourceElements, state.classes, initializations);	
 	}

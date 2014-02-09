@@ -16,17 +16,28 @@ function convert (jsxCode, options)
 	}
 
 function addLog (p, key, fn){
-	var size = 25;
+	if (!p || !p.prototype){
+		fn 		= key;
+		key 	= p;
+		p 		= null;
+	}
 
-	p.prototype.log = lambda {
-		var f = [ key + ' ' + (typeof fn === 'function' ? fn.call (this) : fn) + ':' ];
-		if (f [0].length > size)
-			f [0] = f [0].substr (0, size - 4) + '...:';
-		while (f [0].length < size)
-			f [0] += ' ';
-		f.push.apply (f, arguments);
+	if (typeof key === 'number')
+		key = new Array (key + 1).join ('  ');
+	else
+		key = key + 1;
 
-		console.log.apply (console, f);
-	};
+	var size = 32,
+		r = lambda {
+			var f = [ key + (typeof fn === 'function' ? fn.call (this) : fn) + ':' ];
+			if (f [0].length > size)
+				f [0] = f [0].substr (0, size - 4) + '...:';
+			f [0] += new Array (1 + size - f [0].length).join (' ');
+			f.push.apply (f, arguments);
+
+			console.log.apply (console, f);
+		};
+
+	return p ? (p.prototype.log = r) : r;
 }
 

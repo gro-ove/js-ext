@@ -5,7 +5,7 @@
 		this.requests 	= [];
 	}
 
-	addLog (MacroStorage, '-', 'storage');
+	addLog (MacroStorage, 2, 'storage');
 
 	MacroStorage.prototype.add = function (macro){
 		this.log ('@' + macro.name + (macro.level ? ' (at ' + macro.level + ')' : '') + ' added');

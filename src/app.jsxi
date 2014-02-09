@@ -1,19 +1,6 @@
 	var fs 				= require ('fs'), 
 		path 			= require ('path');
 
-	function waitForFinish (callback){
-		var interval = setInterval (lambda {
-			if (fileStorage.everythingFinished ()){
-				clearInterval (interval);
-				callback ();
-			} else if (fileStorage.has (lambda arg.state !== File.STATE_FINISHED && arg.state !== File.STATE_MACRO_WAITING) 
-				&& MacroCall.waitingForCallback === 0 
-				&& MacroCall.waitingForMacro > 0){
-				console.fatal ('Macro initialization error');
-			}
-		}, 100);
-	}
-
 	process.nextTick (lambda {
 		args = parseArgs (process.argv.slice (2), [
 				// s - short, l - long, p - parameter (1 - one, 2 - multiple)
@@ -22,11 +9,5 @@
 				{   s: 'h',		l: 'usage'					}
 			]);
 
-		for (var file in-array File.find ('default/*') || [])
-			file.process ();
-		new File (args.data [0]).process ();
-
-		waitForFinish (lambda {
-			console.log ('Files processing finished');
-		});
+		new Worker (args.data [0]).process ();
 	});
