@@ -9,8 +9,10 @@ TODO:
 		V Initialization statement
 		V Super requested in constuctors
 		F Check for parent class static field change
+		- Interfaces
 		- Anonymous classes
 		- Initialization with constructor: for example, "var a = new A (){ objectField = value }"
+		? Kind of multiple inheritance 
 	V NotImplemented operator
 	V Strings format
 	V Macros
@@ -33,7 +35,7 @@ TODO:
 	V Update README
 	V Including
 		L With new innovative caching
-	F Fix lambdas
+	V Fix lambdas
 	- One-line functions with result
 	- Functions without arguments
 	- Syntax like "function name (){ ... }()" support

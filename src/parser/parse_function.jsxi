@@ -167,7 +167,7 @@
 
 		expectKeyword ('lambda');
 
-		params = match ('(') ? parseFunctionArguments (defaults) : [];
+		params = match ('(') ? parseFunctionArguments (defaults) : [ identifier ('arg') ];
 		body = parseLambdaSourceElements ();
 
 		if (defaults.length)

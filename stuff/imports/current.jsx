@@ -17,6 +17,6 @@ class A {
 	private var variable = 10;
 
 	public function test (){
-		return variable;
+		return lambda arg + variable;
 	}
 }
