@@ -1,6 +1,4 @@
-{
-    @import ('other')
-}
+@import ('other')
 
 @macro time new Date ().getMinutes ();
 var current_t = @time;
