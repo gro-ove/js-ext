@@ -7,7 +7,11 @@
 					case 'import':
 						var other = that.context.file.find (value);
 						if (other)
-							other.forEach (lambda arg.process ());
+							other.forEach (lambda {
+								that.context.file.imports.push (arg);
+								if (arg.state === File.STATE_INITIAL)
+									arg.process ();
+							});
 						else
 							throw new MacroError (that.name, 'Importing file "' + value + '" not found');
 						break;

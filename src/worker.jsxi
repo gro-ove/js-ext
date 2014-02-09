@@ -37,7 +37,9 @@
 		new File (args.data [0]).process ();
 
 		this.waitForFinish (lambda {
-			this.log ('files processed');
+			fileStorage.sort ();
+
+			this.log ('files processed and sorted');
 			this.state = Worker.STATE_STARTED;
 			callback ();
 		}.bind (this));

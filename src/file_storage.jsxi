@@ -4,9 +4,17 @@
 		this.files = [];
 	}
 
-	FileStorage.prototype.exists = function (arg){
+	FileStorage.prototype.sort = function (){
+		this.files.sort (lambda (a, b) a.weight () > b.weight ());
+	}
+
+	FileStorage.prototype.get = function (arg){
 		var fullpath = arg instanceof File ? arg.fullpath : arg;
-		return !!this.files.filter (lambda arg.fullpath === fullpath)[0];
+		return this.files.filter (lambda arg.fullpath === fullpath)[0];
+	}
+
+	FileStorage.prototype.exists = function (arg){
+		return !!this.get (arg);
 	}
 
 	FileStorage.prototype.add = function (file){

@@ -12,6 +12,8 @@
 		this.dir 				= path.dirname (this.fullpath);
 		this.filename 			= path.basename (this.fullpath);
 		this.state 				= File.STATE_INITIAL;
+		this.imports 			= [];
+		this.weightCalculating 	= false;
 
 		fileStorage.add (this);
 	}
@@ -67,8 +69,19 @@
 			var temp = findInFolder (entry.root, entry.dir, child);
 
 			if (temp)
-				return temp.filter (lambda !fileStorage.exists (arg)).map (lambda new File (entry.root, arg));
+				return temp.map (lambda fileStorage.get (arg) || new File (entry.root, arg));
 		}
+	}
+
+	File.prototype.weight = function (){
+		if (this.weightCalculating)
+			return 0;
+
+		this.weightCalculating = true;
+		var result = this.imports.reduce (lambda (a, b) a + b.weight (), 1);
+		this.weightCalculating = false;
+
+		return result;
 	}
 
 	File.prototype.load = function (callback){
