@@ -48,7 +48,7 @@
 		this.state = Worker.STATE_WAITING;
 
 		for (var file in-array fileStorage.files){
-			Array.prototype.push.apply (this.data.statements, file.parsed.elements);
+			Array.prototype.push.apply (this.data.statements, file.parsed.body);
 			Array.prototype.push.apply (this.data.classes, file.parsed.classes);
 			Array.prototype.push.apply (this.data.initializations, file.parsed.initializations);
 		}
