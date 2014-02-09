@@ -36,7 +36,7 @@ TODO:
 	V Including
 		L With new innovative caching
 	V Fix lambdas
-	- One-line functions with result
+	V One-line functions with result
 	- Functions without arguments
 	- Syntax like "function name (){ ... }()" support
 	- UglifyJS

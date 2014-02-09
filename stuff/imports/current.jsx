@@ -20,3 +20,7 @@ class A {
 		return lambda arg + variable;
 	}
 }
+
+function oneLineWithResult (arg)
+	if (arg)
+		arg + 20;

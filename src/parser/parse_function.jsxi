@@ -70,7 +70,7 @@
 
 			expect ('}');
 		} else 
-			sourceElements.push (parseSourceElement ());
+			sourceElements.push (setReturnStatement (parseSourceElement ()));
 
 		return blockStatement (sourceElements);
 	}
