@@ -39,8 +39,8 @@ TODO:
 	V One-line functions with result
 	V Functions without arguments
 	V Syntax like "function name (){ ... }()" support
+	V Saving result and stuff
 	- Arguments support
-	- Saving result and stuff
 	- UglifyJS
 	- Array initializer operator
 	- Errors handling
