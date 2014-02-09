@@ -1,3 +1,2 @@
-// ==Jsx==
-// @import temp
-// ==/Jsx==
+@import ('temp')
+JUST A FILE

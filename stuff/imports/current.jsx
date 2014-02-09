@@ -1,12 +1,4 @@
 {
-    @macro param (key, value){
-        params.add (key, value);
-    }
-
-    @macro import (file){
-        @param ('import', file);
-    }
-
     @import ('other')
 }
 

@@ -31,9 +31,9 @@ TODO:
 		? Macros definion in macros
 		X Class macros
 	V Update README
-	F Fix lambdas
-	- Including
+	V Including
 		L With new innovative caching
+	F Fix lambdas
 	- One-line functions with result
 	- Functions without arguments
 	- Syntax like "function name (){ ... }()" support

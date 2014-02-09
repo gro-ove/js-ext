@@ -1,3 +1,5 @@
 var other_t = @time;
 
 @macro macroInOtherFile '"Hello from Other File!"';
+
+@import ('inner/just_a_file');

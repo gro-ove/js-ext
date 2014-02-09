@@ -2,18 +2,25 @@
 		console.assert (!fileStorage.exists (fullpath), 'File already processed');
 
 		if (fullpath === undefined){
-			this.fullpath 	= path.resolve (root);
-			this.root 		= path.dirname (this.fullpath);
+			this.fullpath 		= path.resolve (root);
+			this.root 			= path.dirname (this.fullpath);
 		} else {
-			this.fullpath 	= fullpath;
-			this.root 		= root;
+			this.fullpath 		= fullpath;
+			this.root 			= root;
 		}
 
-		this.dir 			= path.dirname (this.fullpath);
-		this.filename 		= path.basename (this.fullpath);
+		this.dir 				= path.dirname (this.fullpath);
+		this.filename 			= path.basename (this.fullpath);
+		this.state 				= File.STATE_INITIAL;
 
 		fileStorage.add (this);
 	}
+
+	File.STATE_WAITING			= -1;
+	File.STATE_MACRO_WAITING	= -2;
+	File.STATE_INITIAL 			= 0;
+	File.STATE_LOADED 			= 1;
+	File.STATE_FINISHED			= 2;
 
 	addLog (File, '>', lambda this.filename);
 
@@ -21,47 +28,87 @@
 		{ root: path.resolve (__dirname, 'library') }
 	];
 
+	File.find = function (child){
+		return File.prototype.find (child);
+	}
+
 	File.prototype.find = function (child){
+		function getByMask (temp){
+			// TODO: Get by mask like folder/sub_folder_*/file (?)
+
+			var dirname 	= path.dirname (temp),
+				regExp 		= new RegExp ('^' + path.basename (temp).replace (/\*/g, '.*').replace (/\?/g, '.') + '$', 'i'),
+				files 		= fs.readdirSync (dirname),
+				filtered 	= files.filter (RegExp.prototype.test.bind (regExp)).map (lambda path.resolve (dirname, arg));
+
+			return filtered;
+		}
+
 		function findInFolder (root, current = root, child){
 			console.assert (current.indexOf (root) === 0, 'Invalid state');
 
 			while (current.indexOf (root) === 0){
-				var temp = path.resolve (current, child + '.jsxi');
+				var temp = path.resolve (current, child + '.jsxi'),
+					match = temp.search (/[\*\?]/);
 
-				if (fs.existsSync (temp))
-					return temp;
-				else
-					current = path.dirname (current);
+				if (match !== -1){
+					var filtered = getByMask (temp);
+					if (filtered.length)
+						return filtered;
+				} else if (fs.existsSync (temp))
+					return [ temp ];
+
+				current = path.dirname (current);
 			}
 		}
 
-		for (var entry in-array [ { root: this.root, dir: this.dir } ].concat (lookingAt)){
+		for (var entry in-array this instanceof File ? [ { root: this.root, dir: this.dir } ].concat (lookingAt) : lookingAt){
 			var temp = findInFolder (entry.root, entry.dir, child);
 
 			if (temp)
-				return new File (entry.root, temp);
+				return temp.map (lambda new File (entry.root, arg));
 		}
 	}
 
-	File.prototype.load = function (callback)
+	File.prototype.load = function (callback){
+		console.assert (this.state == File.STATE_INITIAL, 'Wrong state (' + this.state + ')');
+		this.state = File.STATE_MACRO_WAITING;
+
 		fs.readFile (this.fullpath, lambda (error, data){
 			if (error)
 				console.fatal (error);
 
-			this.content = String (data);
+			this.state 		= File.STATE_LOADED;
+			this.content 	= String (data);
+
 			this.log ('loaded', this.content.length ? '(' + this.content.length + ' bytes)' : '(empty)');
 
 			callback ();
 		}.bind (this));
+	}
 
-	File.prototype.macros = function (){
+	File.prototype.macros = function (callback){
+		console.assert (this.state == File.STATE_LOADED, 'Wrong state (' + this.state + ')');
+		this.state = File.STATE_WAITING;
+
 		macrosProcess (this.content, new Context (this), lambda {
-			this.log ('macro calls processed:\n' + arg);
+			this.log ('macro calls processed');
+
+			this.state 		= File.STATE_FINISHED;
+			this.content 	= String (arg);
+
+			callback ();
 		}.bind (this));
 	}
 
 	File.prototype.process = function (callback){
-		this.load (lambda {
-			this.macros ();
-		}.bind (this));
+		new Queue (this, Queue.MODE_SEQUENT)
+			.description ('file process')
+			.add (this.load)
+			.add (this.macros)
+			.run (lambda {
+				console.assert (this.state == File.STATE_FINISHED, 'Wrong state (' + this.state + ')');
+				if (callback !== undefined)
+					callback (this);
+			});
 	}

@@ -5,10 +5,9 @@
 			add: lambda (key, value){ 
 				switch (key){
 					case 'import':
-						console.log ('import', value, 'to', that.context.filename);
 						var other = that.context.file.find (value);
 						if (other)
-							other.process ();
+							other.forEach (lambda arg.process ());
 						else
 							throw new MacroError (that.name, 'Importing file "' + value + '" not found');
 						break;

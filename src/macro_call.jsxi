@@ -1,37 +1,31 @@
 	function MacroCall (name, arguments, level, context, replacement){
-		this.name 			= name;
-		this.arguments 		= arguments;
-		this.level 			= level;
-		this.context 		= context;
-		this.state 			= MacroCall.STATE_INITIAL;
-		this.replacement 	= replacement;
-		this.macro 			= undefined;
-		this.result 		= undefined;
+		this.name 				= name;
+		this.arguments 			= arguments;
+		this.level 				= level;
+		this.context 			= context;
+		this.state 				= MacroCall.STATE_INITIAL;
+		this.replacement 		= replacement;
+		this.macro 				= undefined;
+		this.result 			= undefined;
 	}
 
-	addLog (MacroCall, '-', lambda 'call (@' + this.name + ')');
-
-	// Just created
+	MacroCall.STATE_WAITING 	= -1;
 	MacroCall.STATE_INITIAL 	= 0;
-
-	// Found macro
 	MacroCall.STATE_CONNECTED 	= 1;
-
-	// Arguments ready
 	MacroCall.STATE_READY 		= 2;
-
-	// Macro function called
 	MacroCall.STATE_CALLED 		= 3;
-
-	// Work finished
 	MacroCall.STATE_FINISHED 	= 4;
 
-	// Waiting state
-	MacroCall.STATE_WAITING 	= 5;
+	MacroCall.waitingForCallback 	= 0;
+	MacroCall.waitingForMacro 		= 0;
+
+	addLog (MacroCall, '-', lambda 'call (@' + this.name + ')');
 
 	MacroCall.prototype.findMacro = function (callback){
 		console.assert (this.state == MacroCall.STATE_INITIAL, 'Wrong state (' + this.state + ')');
 		this.state = MacroCall.STATE_WAITING;
+
+		MacroCall.waitingForMacro ++;
 
 		macroStorage.get (this.name, this.level, lambda {
 			if (arg == null)
@@ -42,6 +36,7 @@
 			this.state 		= MacroCall.STATE_CONNECTED;
 			this.macro 		= arg;
 
+			MacroCall.waitingForMacro --;
 			callback ();
 		}.bind (this));
 	}
@@ -87,6 +82,8 @@
 		console.assert (this.state == MacroCall.STATE_READY, 'Wrong state (' + this.state + ')');
 		this.state = MacroCall.STATE_WAITING;
 
+		MacroCall.waitingForCallback ++;
+
 		var resultHandler = function (answer){
 			if (this.result !== undefined)
 				throw new Error ('Callback already called');
@@ -97,6 +94,7 @@
 			this.state 		= MacroCall.STATE_CALLED;
 			this.result 	= answer;
 
+			MacroCall.waitingForCallback --;
 			callback ();
 		}.bind (this);
 
@@ -167,7 +165,8 @@
 			.add (this.processResult)
 			.run (lambda {
 				console.assert (this.state == MacroCall.STATE_FINISHED, 'Wrong state (' + this.state + ')');
-				callback (this.result);
+				if (callback !== undefined)
+					callback (this.result);
 			});
 	}
 

@@ -1,3 +1,2 @@
-// ==Jsx==
-// @import just_a_file
-// ==/Jsx==
+@import ('just_a_file')
+TEMP

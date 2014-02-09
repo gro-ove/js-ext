@@ -13,3 +13,14 @@
 		console.assert (!this.exists (file), 'File already added');
 		this.files.push (file);
 	}
+
+	FileStorage.prototype.has = function (fn){
+		for (var file in-array this.files)
+			if (fn (file.state))
+				return true;
+		return false;
+	}
+
+	FileStorage.prototype.everythingFinished = function (){
+		return !this.has (lambda arg !== File.STATE_FINISHED);
+	}
