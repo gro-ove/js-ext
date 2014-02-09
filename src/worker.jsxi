@@ -1,13 +1,15 @@
 	function Worker (mainFile){
 		this.mainFile 			= mainFile;
 		this.state 				= Worker.STATE_INITIAL;
+		this.data 				= { statements: [], classes: [], initializations: [] };
 	}
 
 	Worker.STATE_WAITING		= -1;
 	Worker.STATE_INITIAL 		= 0;
 	Worker.STATE_STARTED 		= 1;
-	Worker.STATE_CLASSES 		= 2;
-	Worker.STATE_FINISHED 		= 3;
+	Worker.STATE_COLLECTED 		= 2;
+	Worker.STATE_CLASSES 		= 3;
+	Worker.STATE_FINISHED 		= 4;
 
 	addLog (Worker, 0, 'app');
 
@@ -22,15 +24,6 @@
 				console.fatal ('Macro initialization error');
 			}
 		}, 100);
-	}
-
-	Worker.prototype.collectClassesFromFiles = function (){
-		var result = [];
-
-		for (var file in-array fileStorage.files)
-			result = result.concat (file.parsed.classes);
-
-		return result;
 	}
 
 	Worker.prototype.start = function (callback){
@@ -50,31 +43,54 @@
 		}.bind (this));
 	}
 
-	Worker.prototype.classes = function (callback){
+	Worker.prototype.collect = function (callback){
 		console.assert (this.state == Worker.STATE_STARTED, 'Wrong state (' + this.state + ')');
 		this.state = Worker.STATE_WAITING;
 
-		var classes = this.collectClassesFromFiles ();
-		doClasses (classes, lambda {
+		for (var file in-array fileStorage.files){
+			Array.prototype.push.apply (this.data.statements, file.parsed.elements);
+			Array.prototype.push.apply (this.data.classes, file.parsed.classes);
+			Array.prototype.push.apply (this.data.initializations, file.parsed.initializations);
+		}
+
+		this.log ('parsed stuff collected');
+		this.state = Worker.STATE_COLLECTED;
+
+		callback ();
+	}
+
+	Worker.prototype.classes = function (callback){
+		console.assert (this.state == Worker.STATE_COLLECTED, 'Wrong state (' + this.state + ')');
+		this.state = Worker.STATE_WAITING;
+
+		doClasses (this.data.classes, lambda {
 			this.log ('classes processed');
-			this.state = Worker.STATE_CLASSES;
+
+			this.state 				= Worker.STATE_CLASSES;
+			this.data.classes 	 	= arg;
+
 			callback ();
 		}.bind (this));
 	}
 
-	Worker.prototype.formatting = function (callback){
+	Worker.prototype.format = function (callback){
 		console.assert (this.state == Worker.STATE_CLASSES, 'Wrong state (' + this.state + ')');
 		this.state = Worker.STATE_WAITING;
 
-		console.log ('Bla-bla-bla');
+		var elements 	= this.data.statements.concat (this.data.classes).concat (this.data.initializations),
+			ast 		= program (elements),
+			result 		= convert (ast);
+
+		console.log (result);
 	}
 
 	Worker.prototype.process = function (callback){
 		new Queue (this, Queue.MODE_SEQUENT)
 			.description ('worker')
 			.add (this.start)
+			.add (this.collect)
 			.add (this.classes)
-			.add (this.formatting)
+			.add (this.format)
 			.run (lambda {
 				console.assert (this.state == Worker.STATE_FINISHED, 'Wrong state (' + this.state + ')');
 				if (callback !== undefined)
