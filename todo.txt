@@ -38,7 +38,9 @@ TODO:
 	V Fix lambdas
 	V One-line functions with result
 	V Functions without arguments
-	- Syntax like "function name (){ ... }()" support
+	V Syntax like "function name (){ ... }()" support
+	- Arguments support
+	- Saving result and stuff
 	- UglifyJS
 	- Array initializer operator
 	- Errors handling

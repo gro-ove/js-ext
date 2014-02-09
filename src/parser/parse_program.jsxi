@@ -9,7 +9,7 @@
 				case 'class':
 					return parseClassDeclaration ();
 				case 'function':
-					return parseFunctionDeclaration ();
+					return parseFunctionDeclarationOrExpression ();
 				default:
 					return parseStatement ();
 			}

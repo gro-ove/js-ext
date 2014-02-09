@@ -46,7 +46,7 @@
 				case 'for':
 					return parseForStatement ();
 				case 'function':
-					return parseFunctionDeclaration ();
+					return parseFunctionDeclarationOrExpression ();
 				case 'if':
 					return parseIfStatement ();
 				case 'return':

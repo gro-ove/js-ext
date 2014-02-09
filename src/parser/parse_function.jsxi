@@ -75,6 +75,20 @@
 		return blockStatement (sourceElements);
 	}
 
+	function parseFunctionDeclarationOrExpression (){
+		var result = parseFunctionExpression ();
+
+		if (match ('(')){
+			result = callExpression (result, parseArguments ());
+		} else if (result.id !== null)
+			result.type = Syntax.FunctionDeclaration;
+
+		if (result.type !== Syntax.FunctionDeclaration)
+			result = expressionStatement (result);
+
+		return result;
+	}
+
 	function parseFunctionDeclaration (){
 		var token, id, params, defaults = [], body;
 

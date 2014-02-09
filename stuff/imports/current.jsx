@@ -28,3 +28,7 @@ function oneLineWithResult (arg)
 function oneLineWithoutArgumentsWithResult 
 	if (arg)
 		arg + 20;
+
+function callRightHere (){
+	new A
+}(current_o)
