@@ -1,16 +1,17 @@
 	function Macro (name, level, context, macroArgs, macroBody){
-		this.name 		= name;
+		this.name 			= name;
 
 		if (!macroBody){
-			macroBody 	= macroArgs;
-			macroArgs 	= null;
+			macroBody 		= macroArgs;
+			macroArgs 		= null;
 		}
 		
-		this.level 		= level;
-		this.arguments 	= macroArgs === null ? [ 'arg' ] : macroArgs; 
-		this.context 	= context;
-		this.rawBody 	= macroBody;
-		this.asyncMode 	= this.arguments [this.arguments.length - 1] === 'callback';
+		this.level 			= level;
+		this.arguments 		= macroArgs === null ? [ 'arg' ] : macroArgs; 
+		this.context 		= context;
+		this.rawBody 		= macroBody;
+		this.asyncMode 		= this.arguments [this.arguments.length - 1] === 'callback';
+		this.localStorage 	= {};
 	};
 
 	addLog (Macro, 3, lambda '@' + this.name);
@@ -29,6 +30,8 @@
 		params: 		paramsManager,
 		ReturnType: 	Macro.ReturnType
 	};
+
+	Macro.globalStorage = {};
 
 	Macro.prototype.defaults = function (context){
 		var result 	= {},
@@ -99,6 +102,8 @@
 
 		variables.push ('context = this.context');
 		variables.push ('macroContext = this.macroContext');
+		variables.push ('global = this.global');
+		variables.push ('local = this.local');
 
 		for (var key in Macro.Defaults)
 			variables.push (key + ' = this.defaults.' + key);
@@ -132,7 +137,9 @@
 			defaults: 		this.defaults (context), 
 			macros: 		this.macros,
 			macroContext: 	this.context,
-			context: 		context
+			context: 		context,
+			global: 		Macro.globalStorage,
+			local: 			this.localStorage
 		};
 
 		try
