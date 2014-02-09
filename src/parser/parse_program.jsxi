@@ -31,18 +31,20 @@
 			return parseStatement ();
 	}
 
-	function parseProgramElements (){
-		var sourceElement, sourceElements = [], token, directive, temp;
+	function parseProgram (){
+		var sourceElements = [],
+			initializations = [],
+			temp;
 
 		initClasses ();
 
 		while (index < length) {
-			sourceElement = parseProgramElement ();
-			if (sourceElement === null)
+			temp = parseProgramElement ();
+			if (temp === null)
 				continue;
-			if (typeof sourceElement === 'undefined') 
+			if (typeof temp === 'undefined') 
 				break;
-			sourceElements.push (sourceElement);
+			sourceElements.push (temp);
 		}
 
 		state.parsingComplete = true;
@@ -50,19 +52,12 @@
 		if (options.insertReturn && sourceElements.length === 1)
 			setReturnStatement (sourceElements [0]);
 
-		temp = doClasses ();
 		sourceElements = sourceElements.filter (lambda 
 			if (arg.after){
-				temp.push (arg);
+				initializations.push (arg);
 				return false;
 			} else 
 				return true);
 
-		if (temp.length)
-			Array.prototype.push.apply (sourceElements, temp);
-
-		return sourceElements;
+		return program (sourceElements, classes, initializations);	
 	}
-
-	function parseProgram ()
-		return program (parseProgramElements ());

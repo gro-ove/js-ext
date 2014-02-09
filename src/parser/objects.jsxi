@@ -293,8 +293,10 @@
 			kind: 				'var'
 		})
 
-	function program (elements)
+	function program (elements, classes, initializations)
 		return {
 			type: 				Syntax.Program,
-			body: 				elements
+			body: 				elements,
+			classes: 			classes,
+			initializations: 	initializations
 		}
