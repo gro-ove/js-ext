@@ -10,6 +10,8 @@ TODO:
 		V Super requested in constuctors
 		F Check for parent class static field change
 		- Interfaces
+		- Abstract classes
+		- Short syntax
 		- Anonymous classes
 		- Initialization with constructor: for example, "var a = new A (){ objectField = value }"
 		? Kind of multiple inheritance 
