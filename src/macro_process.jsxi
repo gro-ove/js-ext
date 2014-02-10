@@ -184,7 +184,7 @@
 
 		queue.run (lambda {
 			for (var entry in-array arg)
-				temp.data = temp.data.replace (entry.data.replacement, entry.result [0]);
+				temp.data = temp.data.split (entry.data.replacement).join (entry.result [0]);
 			callback (temp.data);
 		});
 	}
