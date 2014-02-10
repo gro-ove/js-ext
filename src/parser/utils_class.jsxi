@@ -39,7 +39,8 @@ function doClasses (rawClasses, callback){
 					objectVariables.push (arg);
 					objectFields [arg.id.name] = { 
 						publicMode: 	entry.publicMode, 
-						name: 			entry.publicMode === 'public' ? arg.id.name : newIdentifier () 
+						name: 			entry.publicMode === 'public' ? arg.id.name : newIdentifier (),
+						type: 			'variable'
 					};
 
 					temp = expressionStatement (assignmentExpression (
@@ -72,7 +73,8 @@ function doClasses (rawClasses, callback){
 					objectFunctions.push (entry);
 					objectFields [entry.id.name] = { 
 						publicMode: 	entry.publicMode, 
-						name: 			entry.publicMode == 'public' ? entry.id.name : newIdentifier () 
+						name: 			entry.publicMode == 'public' ? entry.id.name : newIdentifier (),
+						type: 			'function'
 					};
 
 					entry.id.name = objectFields [entry.id.name].name;
@@ -154,10 +156,10 @@ function doClasses (rawClasses, callback){
 				}
 			}
 
-		function update (obj, name, second)
+		function update (obj, name, second, parent)
 			if (obj instanceof Array){
 				for (var i = 0; i < obj.length; i ++)
-					obj [i] = update (obj [i], name, true) || obj [i];
+					obj [i] = update (obj [i], name, true, obj) || obj [i];
 			} else if (obj && obj.type){
 				var oldExclusions = undefined, oldStaticMode, temp;
 
@@ -171,7 +173,7 @@ function doClasses (rawClasses, callback){
 					if (!second)
 						createThat 	= false;
 
-					update (obj.body.body, second ? null : name, true);
+					update (obj.body.body, second ? null : name, true, obj);
 
 					if (createThat && !second){
 						temp = [ variableDeclarator (thatVariable, thisExpression ()) ];
@@ -184,7 +186,7 @@ function doClasses (rawClasses, callback){
 					exclusions 		= oldExclusions;
 					staticMode 		= oldStaticMode;
 				} else if (obj.type === Syntax.Property){
-					obj.value = update (obj.value, name, true) || obj.value;
+					obj.value = update (obj.value, name, true, obj) || obj.value;
 				} else if (obj.type === Syntax.Identifier){
 					if (!exclusions [obj.name]){
 						if (entry.objectFields [obj.name]){
@@ -197,7 +199,10 @@ function doClasses (rawClasses, callback){
 							if (!name)
 								createThat = true;
 
-							return memberExpression (name ? thisExpression () : thatVariable, entry.objectFields [obj.name].name);
+							temp = memberExpression (name ? thisExpression () : thatVariable, entry.objectFields [obj.name].name);
+							if (entry.objectFields [obj.name].type === 'function' && parent.type !== Syntax.CallExpression)
+								temp = callExpression (memberExpression (temp, 'bind'), [ name ? thisExpression () : thatVariable ]);
+							return temp;
 						} else if (entry.staticFields [obj.name] && entry.staticFields [obj.name].publicMode !== 'private'){
 							if (entry.staticFields [obj.name].publicMode === 'locked')
 								throwError (obj, Messages.PrivateAccessError, obj.name);
@@ -209,9 +214,9 @@ function doClasses (rawClasses, callback){
 							entry.probablyUseOther = (entry.probablyUseOther || 0) + 1;
 					}
 				} else if (obj.type === Syntax.MemberExpression){
-					obj.object = update (obj.object, name, true) || obj.object;
+					obj.object = update (obj.object, name, true, obj) || obj.object;
 					if (obj.computed)
-						obj.property = update (obj.property, name, true) || obj.property;
+						obj.property = update (obj.property, name, true, obj) || obj.property;
 				} else {
 					if (obj.type === Syntax.CallExpression && obj ['super']){
 						if (name === null && obj.callee === null)
@@ -239,7 +244,7 @@ function doClasses (rawClasses, callback){
 
 					for (var n in obj)
 						if (n !== 'type')
-							obj [n] = update (obj [n], name, true) || obj [n];
+							obj [n] = update (obj [n], name, true, obj) || obj [n];
 				}
 			}
 

@@ -19,6 +19,11 @@ class A {
 	public function test (){
 		return lambda arg + variable;
 	}
+
+	public function check (){
+		test ();
+		return test;
+	}
 }
 
 function oneLineWithResult (arg)
