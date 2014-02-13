@@ -30,6 +30,7 @@ TODO:
 			V One-line
 			V Blocks
 			L Default arguments values
+		F Fix strange numbers
 		L Anonynous macros
 		? Macros order and stuff
 		? Parsing with awesome parser
