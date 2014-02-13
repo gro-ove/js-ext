@@ -9,6 +9,7 @@ TODO:
 		V Initialization statement
 		V Super requested in constuctors
 		F Check for parent class static field change
+		F Check for order of super constructor call and methods initialization
 		- Interfaces
 		- Abstract classes
 		- Short syntax
@@ -42,6 +43,11 @@ TODO:
 	V Functions without arguments
 	V Syntax like "function name (){ ... }()" support
 	V Saving result and stuff
+	F Fix default arguments to constuctor
+	F Fix this.privateField access
+	F Fix overrided protected functions
+	F Import with dot in name
+	F Import folders
 	- Arguments support
 	- UglifyJS
 	- Array initializer operator

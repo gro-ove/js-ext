@@ -104,6 +104,7 @@
 		variables.push ('macroContext = this.macroContext');
 		variables.push ('global = this.global');
 		variables.push ('local = this.local');
+		variables.push ('require = this.require');
 
 		for (var key in Macro.Defaults)
 			variables.push (key + ' = this.defaults.' + key);
@@ -133,14 +134,16 @@
 		console.assert (args && typeof args.length === 'number', 'Wrong argument');
 		console.assert (context instanceof Context, 'Context required');
 
-		var object = { 
-			defaults: 		this.defaults (context), 
-			macros: 		this.macros,
-			macroContext: 	this.context,
-			context: 		context,
-			global: 		Macro.globalStorage,
-			local: 			this.localStorage
-		};
+		var dirname = this.context.file.dirname,
+			object = { 
+				defaults: 		this.defaults (context), 
+				macros: 		this.macros,
+				macroContext: 	this.context,
+				context: 		context,
+				global: 		Macro.globalStorage,
+				local: 			this.localStorage,
+				require: 		lambda require (path.resolve (dirname, 'node_modules', arg))
+			};
 
 		try
 			return this.callee.apply (object, args);

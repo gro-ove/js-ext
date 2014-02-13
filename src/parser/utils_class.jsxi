@@ -21,6 +21,10 @@ function doClasses (rawClasses, callback){
 		if (getByName (name.name))
 			throwError (name, Messages.ClassAlreadyDefined, name.name);
 
+		function getName (publicMode, id){
+			return publicMode !== 'protected' ? id.name : publicMode === 'protected' ? '_' + id.name : newIdentifier () 
+		}
+
 		for (var entry in-array variables)
 			if (entry.staticMode){
 				entry.declarations.forEach (lambda {
@@ -30,7 +34,7 @@ function doClasses (rawClasses, callback){
 					staticFields [arg.id.name] = { 
 						className: 		name,
 						publicMode: 	entry.publicMode, 
-						name: 			entry.publicMode !== 'protected' ? arg.id.name : newIdentifier () 
+						name: 			getName (entry.publicMode, arg.id) 
 					};
 				});
 			} else 
@@ -39,7 +43,7 @@ function doClasses (rawClasses, callback){
 					objectVariables.push (arg);
 					objectFields [arg.id.name] = { 
 						publicMode: 	entry.publicMode, 
-						name: 			entry.publicMode === 'public' ? arg.id.name : newIdentifier (),
+						name: 			getName (entry.publicMode, arg.id),
 						type: 			'variable'
 					};
 
@@ -61,7 +65,7 @@ function doClasses (rawClasses, callback){
 					staticFields [entry.id.name] = { 
 						className: 		name,
 						publicMode: 	entry.publicMode, 
-						name: 			entry.publicMode !== 'protected' ? entry.id.name : newIdentifier () 
+						name: 			getName (entry.publicMode, entry.id) 
 					};
 
 					entry.id.name = staticFields [entry.id.name].name;
@@ -73,7 +77,7 @@ function doClasses (rawClasses, callback){
 					objectFunctions.push (entry);
 					objectFields [entry.id.name] = { 
 						publicMode: 	entry.publicMode, 
-						name: 			entry.publicMode == 'public' ? entry.id.name : newIdentifier (),
+						name: 			getName (entry.publicMode, entry.id),
 						type: 			'function'
 					};
 
