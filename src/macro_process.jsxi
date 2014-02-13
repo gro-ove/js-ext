@@ -115,7 +115,7 @@
 				}
 			}
 
-			var replacement = '@call.' + calls.length;
+			var replacement = '@__call(' + calls.length + ')';
 			
 			calls.push (new MacroCall (name, arguments, level, context, replacement));
 			liteParser.replace (found.index, liteParser.index, replacement);
