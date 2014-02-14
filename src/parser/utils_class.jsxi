@@ -365,8 +365,10 @@ function doClasses (rawClasses, callback){
 
 			if (entry.parent)
 				check (entry.parent, entry.name);
+
 			for (var use in-array entry.uses)
-				check (use, entry.name);
+				if (!entry.parent || use.name !== entry.parent.name)
+					check (use, entry.name);
 		}
 
 		for (var entry in-array classes){
@@ -467,7 +469,7 @@ function doClasses (rawClasses, callback){
 		for (var entry in-array classes)
 			getWeight (entry);
 
-		classes.sort (lambda (a, b) a.weight > b.weight);
+		classes.sort (lambda (a, b) a.weight - b.weight);
 	}
 
 	var classes 					= [], 
