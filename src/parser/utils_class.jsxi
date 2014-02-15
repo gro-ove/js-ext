@@ -22,7 +22,7 @@ function doClasses (rawClasses, callback){
 			throwError (name, Messages.ClassAlreadyDefined, name.name);
 
 		function getName (publicMode, id){
-			return publicMode !== 'protected' ? id.name : publicMode === 'protected' ? '_' + id.name : newIdentifier () 
+			return id.name; // publicMode !== 'protected' ? id.name : publicMode === 'protected' ? '_' + id.name : newIdentifier () 
 		}
 
 		for (var entry in-array variables)

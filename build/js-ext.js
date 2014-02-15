@@ -3242,10 +3242,10 @@ var objectVariables = [], staticVariables = [], objectFunctions = [], staticFunc
 if (getByName (name.name))
 throwError (name, Messages.ClassAlreadyDefined, name.name);
 function getName (publicMode,id){
-return publicMode !== "protected" ? id.name : publicMode === "protected" ? "_" + id.name : newIdentifier ();
+return id.name;
 }
-for (var _8rcd828_85 = 0; _8rcd828_85 < variables.length; _8rcd828_85 ++){
-var entry = variables[_8rcd828_85];
+for (var _8u5fpn9_45 = 0; _8u5fpn9_45 < variables.length; _8u5fpn9_45 ++){
+var entry = variables[_8u5fpn9_45];
 if (entry.staticMode)
 {
 entry.declarations.forEach (function (arg){
@@ -3265,8 +3265,8 @@ temp.autocreated = true;
 objectVariablesInitialization.push (temp);
 });
 }
-for (var _t8218d_86 = 0; _t8218d_86 < functions.length; _t8218d_86 ++){
-var entry = functions[_t8218d_86];
+for (var _5qmopsk_46 = 0; _5qmopsk_46 < functions.length; _5qmopsk_46 ++){
+var entry = functions[_5qmopsk_46];
 if (entry.staticMode)
 {
 if (entry.id.name === "@")
@@ -3454,8 +3454,8 @@ if (entry.objectConstructor)
 update (entry.objectConstructor, "@");
 entry.objectConstructor.body.body = entry.objectConstructor.body.body.filter (function (arg,i,array){
 if (arg.autocreated && arg.type === Syntax.ExpressionStatement && arg.expression.right.name === "undefined")
-for (var _70mn49i_87 = 0; _70mn49i_87 < array.length; _70mn49i_87 ++){
-var e = array[_70mn49i_87];
+for (var _3duprvf_47 = 0; _3duprvf_47 < array.length; _3duprvf_47 ++){
+var e = array[_3duprvf_47];
 if (e !== arg && e.type === Syntax.ExpressionStatement && e.expression.type === Syntax.AssignmentExpression && e.expression.left.type === Syntax.MemberExpression && e.expression.left.object.type === Syntax.ThisExpression && e.expression.left.property.name === arg.expression.left.property.name)
 return false;
 }
@@ -3499,8 +3499,8 @@ temp = newIdentifier ();
 variables.push (variableDeclarator (temp, functionExpression ()));
 resultFunction.push (expressionStatement (assignmentExpression (memberExpression (temp, "prototype"), memberExpression (entry.parent.name, "prototype"))), expressionStatement (assignmentExpression (memberExpression (variable, "prototype"), newExpression (temp))), expressionStatement (assignmentExpression (memberExpression (memberExpression (variable, "prototype"), "constructor"), variable)), expressionStatement (assignmentExpression (temp, "undefined")));
 }
-{ var _3hsmpu7_88 = entry.objectFunctions; for (var _6c8ensd_89 = 0; _6c8ensd_89 < _3hsmpu7_88.length; _6c8ensd_89 ++){
-var f = _3hsmpu7_88[_6c8ensd_89];
+{ var _4b7q7bk_48 = entry.objectFunctions; for (var _86nig6m_49 = 0; _86nig6m_49 < _4b7q7bk_48.length; _86nig6m_49 ++){
+var f = _4b7q7bk_48[_86nig6m_49];
 resultFunction.push (expressionStatement (assignmentExpression (memberExpression (memberExpression (variable, "prototype"), f.id.name), functionExpression (null, f.params, f.body))));
 }}
 }
@@ -3509,8 +3509,8 @@ if (entry.mode === "static")
 {
 variables.push (variableDeclarator (variable, objectExpression ()));
 }
-{ var _31sctbo_90 = entry.staticVariables; for (var _8kdbmpl_91 = 0; _8kdbmpl_91 < _31sctbo_90.length; _8kdbmpl_91 ++){
-var v = _31sctbo_90[_8kdbmpl_91];
+{ var _4ke26o9_50 = entry.staticVariables; for (var _66okec0_51 = 0; _66okec0_51 < _4ke26o9_50.length; _66okec0_51 ++){
+var v = _4ke26o9_50[_66okec0_51];
 if (v.publicMode !== "private")
 {
 var temp = expressionStatement (assignmentExpression (memberExpression (variable, entry.staticFields [v.id.name].name), v.init || "undefined"));
@@ -3523,8 +3523,8 @@ else
 variables.push (v);
 }
 }}
-{ var _7i9e2b4_92 = entry.staticFunctions; for (var _715cabj_93 = 0; _715cabj_93 < _7i9e2b4_92.length; _715cabj_93 ++){
-var f = _7i9e2b4_92[_715cabj_93];
+{ var _51cptvc_52 = entry.staticFunctions; for (var _6oehjbu_53 = 0; _6oehjbu_53 < _51cptvc_52.length; _6oehjbu_53 ++){
+var f = _51cptvc_52[_6oehjbu_53];
 if (f.publicMode !== "private")
 resultFunction.push (expressionStatement (assignmentExpression (memberExpression (variable, f.id.name), functionExpression (null, f.params, f.body))));
 else
@@ -3546,14 +3546,14 @@ throwError (identifier, Messages.CyclicDependencyDetected, identifier.name);
 current [identifier.name] = true;
 if (entry.parent)
 check (entry.parent, entry.name);
-{ var _86se3kn_94 = entry.uses; for (var _5upj3uf_95 = 0; _5upj3uf_95 < _86se3kn_94.length; _5upj3uf_95 ++){
-var use = _86se3kn_94[_5upj3uf_95];
+{ var _2h4k5bp_54 = entry.uses; for (var _5fa5v11_55 = 0; _5fa5v11_55 < _2h4k5bp_54.length; _5fa5v11_55 ++){
+var use = _2h4k5bp_54[_5fa5v11_55];
 if (! entry.parent || use.name !== entry.parent.name)
 check (use, entry.name);
 }}
 }
-for (var _217rgos_96 = 0; _217rgos_96 < classes.length; _217rgos_96 ++){
-var entry = classes[_217rgos_96];
+for (var _7cbmjup_56 = 0; _7cbmjup_56 < classes.length; _7cbmjup_56 ++){
+var entry = classes[_7cbmjup_56];
 current = {};
 check (entry.name);
 }
@@ -3576,13 +3576,13 @@ throwError (entry.parent, Messages.ParentClassNotFound, entry.parent.name);
 else
 {
 connectClass (entry.parent.name, entry.name);
-{ var _2c1qnoi_97 = parent.objectFields; for (var n in _2c1qnoi_97){
-var v = _2c1qnoi_97[n];
+{ var _m80n93_57 = parent.objectFields; for (var n in _m80n93_57){
+var v = _m80n93_57[n];
 if (! entry.objectFields [n])
 entry.objectFields [n] = {"publicMode":v.publicMode === "private" ? "locked" : v.publicMode,"name":v.name};
 }}
-{ var _kulq30_98 = parent.staticFields; for (var n in _kulq30_98){
-var v = _kulq30_98[n];
+{ var _85to19e_58 = parent.staticFields; for (var n in _85to19e_58){
+var v = _85to19e_58[n];
 if (! entry.staticFields [n])
 entry.staticFields [n] = {"publicMode":v.publicMode === "private" ? "locked" : v.publicMode,"name":v.name,"className":v.className};
 }}
@@ -3611,22 +3611,22 @@ throwError (entry.objectConstructor, Messages.SuperConstructorCallNeeded);
 }
 }
 }
-{ var _95kott5_99 = entry.uses; for (var _4g2fp0r_100 = 0; _4g2fp0r_100 < _95kott5_99.length; _4g2fp0r_100 ++){
-var use = _95kott5_99[_4g2fp0r_100];
+{ var _vnnk0t_59 = entry.uses; for (var _6s341od_60 = 0; _6s341od_60 < _vnnk0t_59.length; _6s341od_60 ++){
+var use = _vnnk0t_59[_6s341od_60];
 if (! getByName (use.name))
 throwError (use, Messages.UsingClassNotFound, use.name);
 }}
 entry.connected = true;
 }
 function connectClasses (){
-for (var _87th6vj_101 = 0; _87th6vj_101 < classes.length; _87th6vj_101 ++){
-var entry = classes[_87th6vj_101];
+for (var _7phtaft_61 = 0; _7phtaft_61 < classes.length; _7phtaft_61 ++){
+var entry = classes[_7phtaft_61];
 connectClass (entry);
 }
 }
 function processClasses (){
-for (var _7vgeqkk_102 = 0; _7vgeqkk_102 < classes.length; _7vgeqkk_102 ++){
-var entry = classes[_7vgeqkk_102];
+for (var _7klmj3n_62 = 0; _7klmj3n_62 < classes.length; _7klmj3n_62 ++){
+var entry = classes[_7klmj3n_62];
 processClass (entry);
 }
 }
@@ -3639,14 +3639,14 @@ return entry.weight;
 entry.weight = entry.probablyUseOther ? 1 + Math.min (entry.probablyUseOther, probablyUseOtherMaxValue) / (probablyUseOtherMaxValue + 1) : 1;
 if (entry.parent)
 entry.weight += getWeight (entry.parent.name);
-{ var _769bkul_103 = entry.uses; for (var _hlg22c_104 = 0; _hlg22c_104 < _769bkul_103.length; _hlg22c_104 ++){
-var use = _769bkul_103[_hlg22c_104];
+{ var _2b6hget_63 = entry.uses; for (var _6vcbhnj_64 = 0; _6vcbhnj_64 < _2b6hget_63.length; _6vcbhnj_64 ++){
+var use = _2b6hget_63[_6vcbhnj_64];
 entry.weight += getWeight (use.name);
 }}
 return entry.weight;
 }
-for (var _4c52b2a_105 = 0; _4c52b2a_105 < classes.length; _4c52b2a_105 ++){
-var entry = classes[_4c52b2a_105];
+for (var _7i6tsm_65 = 0; _7i6tsm_65 < classes.length; _7i6tsm_65 ++){
+var entry = classes[_7i6tsm_65];
 getWeight (entry);
 }
 classes.sort (function (a,b){
@@ -3654,8 +3654,8 @@ return a.weight - b.weight;
 });
 }
 var classes = [], classesByNames = {}, probablyUseOtherMaxValue = 100, thatVariable = newIdentifier ();
-for (var _38ilokg_106 = 0; _38ilokg_106 < rawClasses.length; _38ilokg_106 ++){
-var entry = rawClasses[_38ilokg_106];
+for (var _1qdehul_66 = 0; _1qdehul_66 < rawClasses.length; _1qdehul_66 ++){
+var entry = rawClasses[_1qdehul_66];
 addClass (entry.id, entry.parent, entry.uses, entry.variables, entry.functions);
 }
 if (classes.length !== 0)

@@ -31,6 +31,7 @@ TODO:
 			V Blocks
 			L Default arguments values
 		V Fix strange numbers
+		F LiteParser: RegExp support
 		L Anonynous macros
 		? Macros order and stuff
 		? Parsing with awesome parser

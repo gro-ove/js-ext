@@ -1,8 +1,8 @@
 var A = function () {
         var _1 = function () {
-            this._fn();
+            this.fn();
         };
-        _1.prototype._fn = function () {
+        _1.prototype.fn = function () {
             console.log('A');
         };
         return _1;
@@ -15,9 +15,9 @@ var A = function () {
         _2.prototype = new _3();
         _2.prototype.constructor = _2;
         _3 = undefined;
-        _2.prototype._fn = function () {
+        _2.prototype.fn = function () {
             console.log('B');
-            A.prototype._fn.call(this);
+            A.prototype.fn.call(this);
         };
         return _2;
     }();
