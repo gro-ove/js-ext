@@ -3244,8 +3244,8 @@ throwError (name, Messages.ClassAlreadyDefined, name.name);
 function getName (publicMode,id){
 return id.name;
 }
-for (var _8u5fpn9_45 = 0; _8u5fpn9_45 < variables.length; _8u5fpn9_45 ++){
-var entry = variables[_8u5fpn9_45];
+for (var _6o2crse_42 = 0; _6o2crse_42 < variables.length; _6o2crse_42 ++){
+var entry = variables[_6o2crse_42];
 if (entry.staticMode)
 {
 entry.declarations.forEach (function (arg){
@@ -3265,8 +3265,8 @@ temp.autocreated = true;
 objectVariablesInitialization.push (temp);
 });
 }
-for (var _5qmopsk_46 = 0; _5qmopsk_46 < functions.length; _5qmopsk_46 ++){
-var entry = functions[_5qmopsk_46];
+for (var _6lqs6rl_43 = 0; _6lqs6rl_43 < functions.length; _6lqs6rl_43 ++){
+var entry = functions[_6lqs6rl_43];
 if (entry.staticMode)
 {
 if (entry.id.name === "@")
@@ -3318,7 +3318,7 @@ classes.push (classesByNames [name.name] = {"name":name,"parent":parent,"childs"
 function processClass (entry){
 if (typeof entry === "string")
 assert (entry = getByName (entry), "Class " + entry + " not found");
-var variable = newIdentifier (), exclusions = {}, staticMode, createThat, mode, body, functions, variables, temp, extendsStatements, publicStaticFunctions, resultFunction;
+var variable = entry.name.name, exclusions = {}, staticMode, createThat, mode, body, functions, variables, temp, extendsStatements, publicStaticFunctions, resultFunction;
 assert (! entry.element, "Already processed");
 function updateExclusions (obj,second){
 if (obj instanceof Array)
@@ -3454,8 +3454,8 @@ if (entry.objectConstructor)
 update (entry.objectConstructor, "@");
 entry.objectConstructor.body.body = entry.objectConstructor.body.body.filter (function (arg,i,array){
 if (arg.autocreated && arg.type === Syntax.ExpressionStatement && arg.expression.right.name === "undefined")
-for (var _3duprvf_47 = 0; _3duprvf_47 < array.length; _3duprvf_47 ++){
-var e = array[_3duprvf_47];
+for (var _19eoe3s_44 = 0; _19eoe3s_44 < array.length; _19eoe3s_44 ++){
+var e = array[_19eoe3s_44];
 if (e !== arg && e.type === Syntax.ExpressionStatement && e.expression.type === Syntax.AssignmentExpression && e.expression.left.type === Syntax.MemberExpression && e.expression.left.object.type === Syntax.ThisExpression && e.expression.left.property.name === arg.expression.left.property.name)
 return false;
 }
@@ -3499,8 +3499,8 @@ temp = newIdentifier ();
 variables.push (variableDeclarator (temp, functionExpression ()));
 resultFunction.push (expressionStatement (assignmentExpression (memberExpression (temp, "prototype"), memberExpression (entry.parent.name, "prototype"))), expressionStatement (assignmentExpression (memberExpression (variable, "prototype"), newExpression (temp))), expressionStatement (assignmentExpression (memberExpression (memberExpression (variable, "prototype"), "constructor"), variable)), expressionStatement (assignmentExpression (temp, "undefined")));
 }
-{ var _4b7q7bk_48 = entry.objectFunctions; for (var _86nig6m_49 = 0; _86nig6m_49 < _4b7q7bk_48.length; _86nig6m_49 ++){
-var f = _4b7q7bk_48[_86nig6m_49];
+{ var _8tjb15r_45 = entry.objectFunctions; for (var _14shpfe_46 = 0; _14shpfe_46 < _8tjb15r_45.length; _14shpfe_46 ++){
+var f = _8tjb15r_45[_14shpfe_46];
 resultFunction.push (expressionStatement (assignmentExpression (memberExpression (memberExpression (variable, "prototype"), f.id.name), functionExpression (null, f.params, f.body))));
 }}
 }
@@ -3509,8 +3509,8 @@ if (entry.mode === "static")
 {
 variables.push (variableDeclarator (variable, objectExpression ()));
 }
-{ var _4ke26o9_50 = entry.staticVariables; for (var _66okec0_51 = 0; _66okec0_51 < _4ke26o9_50.length; _66okec0_51 ++){
-var v = _4ke26o9_50[_66okec0_51];
+{ var _8q6ho0t_47 = entry.staticVariables; for (var _4ht7lhj_48 = 0; _4ht7lhj_48 < _8q6ho0t_47.length; _4ht7lhj_48 ++){
+var v = _8q6ho0t_47[_4ht7lhj_48];
 if (v.publicMode !== "private")
 {
 var temp = expressionStatement (assignmentExpression (memberExpression (variable, entry.staticFields [v.id.name].name), v.init || "undefined"));
@@ -3523,8 +3523,8 @@ else
 variables.push (v);
 }
 }}
-{ var _51cptvc_52 = entry.staticFunctions; for (var _6oehjbu_53 = 0; _6oehjbu_53 < _51cptvc_52.length; _6oehjbu_53 ++){
-var f = _51cptvc_52[_6oehjbu_53];
+{ var _5fl6lr5_49 = entry.staticFunctions; for (var _1tu49io_50 = 0; _1tu49io_50 < _5fl6lr5_49.length; _1tu49io_50 ++){
+var f = _5fl6lr5_49[_1tu49io_50];
 if (f.publicMode !== "private")
 resultFunction.push (expressionStatement (assignmentExpression (memberExpression (variable, f.id.name), functionExpression (null, f.params, f.body))));
 else
@@ -3546,14 +3546,14 @@ throwError (identifier, Messages.CyclicDependencyDetected, identifier.name);
 current [identifier.name] = true;
 if (entry.parent)
 check (entry.parent, entry.name);
-{ var _2h4k5bp_54 = entry.uses; for (var _5fa5v11_55 = 0; _5fa5v11_55 < _2h4k5bp_54.length; _5fa5v11_55 ++){
-var use = _2h4k5bp_54[_5fa5v11_55];
+{ var _2cleijj_51 = entry.uses; for (var _6j402ka_52 = 0; _6j402ka_52 < _2cleijj_51.length; _6j402ka_52 ++){
+var use = _2cleijj_51[_6j402ka_52];
 if (! entry.parent || use.name !== entry.parent.name)
 check (use, entry.name);
 }}
 }
-for (var _7cbmjup_56 = 0; _7cbmjup_56 < classes.length; _7cbmjup_56 ++){
-var entry = classes[_7cbmjup_56];
+for (var _8c1f2vi_53 = 0; _8c1f2vi_53 < classes.length; _8c1f2vi_53 ++){
+var entry = classes[_8c1f2vi_53];
 current = {};
 check (entry.name);
 }
@@ -3576,13 +3576,13 @@ throwError (entry.parent, Messages.ParentClassNotFound, entry.parent.name);
 else
 {
 connectClass (entry.parent.name, entry.name);
-{ var _m80n93_57 = parent.objectFields; for (var n in _m80n93_57){
-var v = _m80n93_57[n];
+{ var _5k25eih_54 = parent.objectFields; for (var n in _5k25eih_54){
+var v = _5k25eih_54[n];
 if (! entry.objectFields [n])
 entry.objectFields [n] = {"publicMode":v.publicMode === "private" ? "locked" : v.publicMode,"name":v.name};
 }}
-{ var _85to19e_58 = parent.staticFields; for (var n in _85to19e_58){
-var v = _85to19e_58[n];
+{ var _1re3geo_55 = parent.staticFields; for (var n in _1re3geo_55){
+var v = _1re3geo_55[n];
 if (! entry.staticFields [n])
 entry.staticFields [n] = {"publicMode":v.publicMode === "private" ? "locked" : v.publicMode,"name":v.name,"className":v.className};
 }}
@@ -3611,22 +3611,22 @@ throwError (entry.objectConstructor, Messages.SuperConstructorCallNeeded);
 }
 }
 }
-{ var _vnnk0t_59 = entry.uses; for (var _6s341od_60 = 0; _6s341od_60 < _vnnk0t_59.length; _6s341od_60 ++){
-var use = _vnnk0t_59[_6s341od_60];
+{ var _4arm7al_56 = entry.uses; for (var _5pekf0c_57 = 0; _5pekf0c_57 < _4arm7al_56.length; _5pekf0c_57 ++){
+var use = _4arm7al_56[_5pekf0c_57];
 if (! getByName (use.name))
 throwError (use, Messages.UsingClassNotFound, use.name);
 }}
 entry.connected = true;
 }
 function connectClasses (){
-for (var _7phtaft_61 = 0; _7phtaft_61 < classes.length; _7phtaft_61 ++){
-var entry = classes[_7phtaft_61];
+for (var _6m06m85_58 = 0; _6m06m85_58 < classes.length; _6m06m85_58 ++){
+var entry = classes[_6m06m85_58];
 connectClass (entry);
 }
 }
 function processClasses (){
-for (var _7klmj3n_62 = 0; _7klmj3n_62 < classes.length; _7klmj3n_62 ++){
-var entry = classes[_7klmj3n_62];
+for (var _14uk4c9_59 = 0; _14uk4c9_59 < classes.length; _14uk4c9_59 ++){
+var entry = classes[_14uk4c9_59];
 processClass (entry);
 }
 }
@@ -3639,14 +3639,14 @@ return entry.weight;
 entry.weight = entry.probablyUseOther ? 1 + Math.min (entry.probablyUseOther, probablyUseOtherMaxValue) / (probablyUseOtherMaxValue + 1) : 1;
 if (entry.parent)
 entry.weight += getWeight (entry.parent.name);
-{ var _2b6hget_63 = entry.uses; for (var _6vcbhnj_64 = 0; _6vcbhnj_64 < _2b6hget_63.length; _6vcbhnj_64 ++){
-var use = _2b6hget_63[_6vcbhnj_64];
+{ var _79fuqsc_60 = entry.uses; for (var _8ne6fcp_61 = 0; _8ne6fcp_61 < _79fuqsc_60.length; _8ne6fcp_61 ++){
+var use = _79fuqsc_60[_8ne6fcp_61];
 entry.weight += getWeight (use.name);
 }}
 return entry.weight;
 }
-for (var _7i6tsm_65 = 0; _7i6tsm_65 < classes.length; _7i6tsm_65 ++){
-var entry = classes[_7i6tsm_65];
+for (var _5tmjkg9_62 = 0; _5tmjkg9_62 < classes.length; _5tmjkg9_62 ++){
+var entry = classes[_5tmjkg9_62];
 getWeight (entry);
 }
 classes.sort (function (a,b){
@@ -3654,8 +3654,8 @@ return a.weight - b.weight;
 });
 }
 var classes = [], classesByNames = {}, probablyUseOtherMaxValue = 100, thatVariable = newIdentifier ();
-for (var _1qdehul_66 = 0; _1qdehul_66 < rawClasses.length; _1qdehul_66 ++){
-var entry = rawClasses[_1qdehul_66];
+for (var _7mvt2q7_63 = 0; _7mvt2q7_63 < rawClasses.length; _7mvt2q7_63 ++){
+var entry = rawClasses[_7mvt2q7_63];
 addClass (entry.id, entry.parent, entry.uses, entry.variables, entry.functions);
 }
 if (classes.length !== 0)

@@ -126,7 +126,7 @@ function doClasses (rawClasses, callback){
 		if (typeof entry === 'string')
 			assert (entry = getByName (entry), 'Class ' + entry + ' not found');
 
-		var variable = newIdentifier (), 
+		var variable = entry.name.name, 
 			exclusions = {}, 
 			staticMode, 
 			createThat, 

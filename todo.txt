@@ -10,6 +10,8 @@ TODO:
 		V Super requested in constuctors
 		F Check for parent class static field change
 		F Check for order of super constructor call and methods initialization
+		F Names fix
+		F Static private and object locked conflict
 		- Interfaces
 		- Abstract classes
 		- Short syntax

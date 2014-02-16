@@ -1,25 +1,25 @@
 var A = function () {
-        var _1 = function () {
+        var A = function () {
             this.fn();
         };
-        _1.prototype.fn = function () {
+        A.prototype.fn = function () {
             console.log('A');
         };
-        return _1;
+        return A;
     }(), B = function () {
-        var _2 = function () {
+        var B = function () {
                 A.call(this);
-            }, _3 = function () {
+            }, _1 = function () {
             };
-        _3.prototype = A.prototype;
-        _2.prototype = new _3();
-        _2.prototype.constructor = _2;
-        _3 = undefined;
-        _2.prototype.fn = function () {
+        _1.prototype = A.prototype;
+        B.prototype = new _1();
+        B.prototype.constructor = B;
+        _1 = undefined;
+        B.prototype.fn = function () {
             console.log('B');
             A.prototype.fn.call(this);
         };
-        return _2;
+        return B;
     }();
 (function () {
     new B();
