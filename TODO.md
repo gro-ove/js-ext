@@ -35,7 +35,7 @@
 		V Fix strange numbers
 		V Add types to arguments
 		V Add types to macro's result
-		F LiteParser: RegExp support
+		V LiteParser: RegExp support
 		- Macros definion in macros
 		L Anonynous macros
 		? Macros order and stuff

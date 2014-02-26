@@ -1035,6 +1035,12 @@ var calls = [], liteParser = new LiteParser(source).on ("//", function (arg){
 return this.findSimple ("\n", "\r", LiteParser.EOF);
 }).on ("/*", function (arg){
 return this.findSimple ("*/");
+}).on ("/", function (arg){
+for (var temp; 
+temp = liteParser.findSimple ("\\\\", "\\/", "/"); )
+if (temp.value === "/")
+return true;
+return false;
 }).on ("'", "\"", "`", function (arg){
 for (var temp; 
 temp = liteParser.findSimple ("\\" + arg.value, arg.value); )
@@ -1071,13 +1077,13 @@ level = "";
 console.assert (context instanceof Context, "Context required");
 console.assert (typeof callback === "function", "Function required");
 var temp = macrosParse (data, level, context), queue = new Queue(Queue.MODE_PARALLEL).description ("macros process");
-{ var _4e49crs_88 = temp.calls; for (var _73cpchl_89 = 0; _73cpchl_89 < _4e49crs_88.length; _73cpchl_89 ++){
-var call = _4e49crs_88[_73cpchl_89];
+{ var _8f1gv5t_28 = temp.calls; for (var _774tp36_29 = 0; _774tp36_29 < _8f1gv5t_28.length; _774tp36_29 ++){
+var call = _8f1gv5t_28[_774tp36_29];
 queue.add (call, call.process.bind (call));
 }}
 queue.run (function (arg){
-for (var _8c7aji9_90 = 0; _8c7aji9_90 < arg.length; _8c7aji9_90 ++){
-var entry = arg[_8c7aji9_90];
+for (var _7qmeeui_30 = 0; _7qmeeui_30 < arg.length; _7qmeeui_30 ++){
+var entry = arg[_7qmeeui_30];
 temp.data = temp.data.split (entry.data.replacement).join (entry.result [0]);
 }
 callback (temp.data);
