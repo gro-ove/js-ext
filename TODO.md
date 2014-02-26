@@ -1,4 +1,4 @@
-TODO:
+# TODO
 	V Classes
 		V Arguments to exclusions list
 		V Classes extends
@@ -72,7 +72,7 @@ TODO:
 	? Override parser functions by comments (and again, with macros)
 	? Override application functions (in result, I can add Warnings support as set of macros)
 
-Letters:
+# Letters
 	- 	Something to do
 	L 	Later
 	? 	Not sure about it
