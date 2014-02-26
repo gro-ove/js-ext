@@ -15,7 +15,7 @@
 			if (!isLeftHandSide (expr))
 				throwError ({}, Messages.InvalidLHSInAssignment);
 
-			return unaryExpression (expr, token.value);
+			return unaryExpression (expr, token.value, true);
 		}
 
 		if (match ('+') || match ('-') || match ('~') || match ('!')){

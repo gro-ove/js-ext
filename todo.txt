@@ -34,11 +34,12 @@ TODO:
 			L Default arguments values
 		V Fix strange numbers
 		F LiteParser: RegExp support
+		- Add types to arguments
+		- Add types to macro's result
+		- Macros definion in macros
 		L Anonynous macros
 		? Macros order and stuff
 		? Parsing with awesome parser
-		? Macros definion in macros
-		X Class macros
 	V Update README
 	V Including
 		L With new innovative caching

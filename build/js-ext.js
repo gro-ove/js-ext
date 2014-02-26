@@ -156,6 +156,9 @@ arg.process ();
 else
 throw new MacroError(that.name, "Importing file \"" + value + "\" not found");
 break;
+case "build-to":
+Worker.params.buildTo = path.resolve (that.context.file.dirname, value);
+break;
 default:throw new MacroError(that.name, "Wrong param key (\"" + key + "\")");
 }
 }};
@@ -218,8 +221,8 @@ return [temp];
 current = path.dirname (current);
 }
 }
-{ var _7sou5tj_7 = this instanceof File ? [{"root":this.root,"dirname":this.dirname}].concat (lookingAt) : lookingAt; for (var _1u3gmun_8 = 0; _1u3gmun_8 < _7sou5tj_7.length; _1u3gmun_8 ++){
-var entry = _7sou5tj_7[_1u3gmun_8];
+{ var _4ka60cm_40 = this instanceof File ? [{"root":this.root,"dirname":this.dirname}].concat (lookingAt) : lookingAt; for (var _4ingd97_41 = 0; _4ingd97_41 < _4ka60cm_40.length; _4ingd97_41 ++){
+var entry = _4ka60cm_40[_4ingd97_41];
 var temp = findInFolder (entry.root, entry.dirname, child);
 if (temp)
 return temp.map (function (arg){
@@ -2570,7 +2573,7 @@ token = lex ();
 expr = parseUnaryExpression ();
 if (! isLeftHandSide (expr))
 throwError ({}, Messages.InvalidLHSInAssignment);
-return unaryExpression (expr, token.value);
+return unaryExpression (expr, token.value, true);
 }
 if (match ("+") || match ("-") || match ("~") || match ("!"))
 {
@@ -3244,8 +3247,8 @@ throwError (name, Messages.ClassAlreadyDefined, name.name);
 function getName (publicMode,id){
 return id.name;
 }
-for (var _6o2crse_42 = 0; _6o2crse_42 < variables.length; _6o2crse_42 ++){
-var entry = variables[_6o2crse_42];
+for (var _oqmvgo_36 = 0; _oqmvgo_36 < variables.length; _oqmvgo_36 ++){
+var entry = variables[_oqmvgo_36];
 if (entry.staticMode)
 {
 entry.declarations.forEach (function (arg){
@@ -3265,8 +3268,8 @@ temp.autocreated = true;
 objectVariablesInitialization.push (temp);
 });
 }
-for (var _6lqs6rl_43 = 0; _6lqs6rl_43 < functions.length; _6lqs6rl_43 ++){
-var entry = functions[_6lqs6rl_43];
+for (var _6p71te6_37 = 0; _6p71te6_37 < functions.length; _6p71te6_37 ++){
+var entry = functions[_6p71te6_37];
 if (entry.staticMode)
 {
 if (entry.id.name === "@")
@@ -3454,8 +3457,8 @@ if (entry.objectConstructor)
 update (entry.objectConstructor, "@");
 entry.objectConstructor.body.body = entry.objectConstructor.body.body.filter (function (arg,i,array){
 if (arg.autocreated && arg.type === Syntax.ExpressionStatement && arg.expression.right.name === "undefined")
-for (var _19eoe3s_44 = 0; _19eoe3s_44 < array.length; _19eoe3s_44 ++){
-var e = array[_19eoe3s_44];
+for (var _15knc11_38 = 0; _15knc11_38 < array.length; _15knc11_38 ++){
+var e = array[_15knc11_38];
 if (e !== arg && e.type === Syntax.ExpressionStatement && e.expression.type === Syntax.AssignmentExpression && e.expression.left.type === Syntax.MemberExpression && e.expression.left.object.type === Syntax.ThisExpression && e.expression.left.property.name === arg.expression.left.property.name)
 return false;
 }
@@ -3499,8 +3502,8 @@ temp = newIdentifier ();
 variables.push (variableDeclarator (temp, functionExpression ()));
 resultFunction.push (expressionStatement (assignmentExpression (memberExpression (temp, "prototype"), memberExpression (entry.parent.name, "prototype"))), expressionStatement (assignmentExpression (memberExpression (variable, "prototype"), newExpression (temp))), expressionStatement (assignmentExpression (memberExpression (memberExpression (variable, "prototype"), "constructor"), variable)), expressionStatement (assignmentExpression (temp, "undefined")));
 }
-{ var _8tjb15r_45 = entry.objectFunctions; for (var _14shpfe_46 = 0; _14shpfe_46 < _8tjb15r_45.length; _14shpfe_46 ++){
-var f = _8tjb15r_45[_14shpfe_46];
+{ var _88sn7ss_39 = entry.objectFunctions; for (var _76rd51b_40 = 0; _76rd51b_40 < _88sn7ss_39.length; _76rd51b_40 ++){
+var f = _88sn7ss_39[_76rd51b_40];
 resultFunction.push (expressionStatement (assignmentExpression (memberExpression (memberExpression (variable, "prototype"), f.id.name), functionExpression (null, f.params, f.body))));
 }}
 }
@@ -3509,8 +3512,8 @@ if (entry.mode === "static")
 {
 variables.push (variableDeclarator (variable, objectExpression ()));
 }
-{ var _8q6ho0t_47 = entry.staticVariables; for (var _4ht7lhj_48 = 0; _4ht7lhj_48 < _8q6ho0t_47.length; _4ht7lhj_48 ++){
-var v = _8q6ho0t_47[_4ht7lhj_48];
+{ var _9789kar_41 = entry.staticVariables; for (var _2tgaiba_42 = 0; _2tgaiba_42 < _9789kar_41.length; _2tgaiba_42 ++){
+var v = _9789kar_41[_2tgaiba_42];
 if (v.publicMode !== "private")
 {
 var temp = expressionStatement (assignmentExpression (memberExpression (variable, entry.staticFields [v.id.name].name), v.init || "undefined"));
@@ -3523,8 +3526,8 @@ else
 variables.push (v);
 }
 }}
-{ var _5fl6lr5_49 = entry.staticFunctions; for (var _1tu49io_50 = 0; _1tu49io_50 < _5fl6lr5_49.length; _1tu49io_50 ++){
-var f = _5fl6lr5_49[_1tu49io_50];
+{ var _4mi83ne_43 = entry.staticFunctions; for (var _4pfcool_44 = 0; _4pfcool_44 < _4mi83ne_43.length; _4pfcool_44 ++){
+var f = _4mi83ne_43[_4pfcool_44];
 if (f.publicMode !== "private")
 resultFunction.push (expressionStatement (assignmentExpression (memberExpression (variable, f.id.name), functionExpression (null, f.params, f.body))));
 else
@@ -3546,14 +3549,15 @@ throwError (identifier, Messages.CyclicDependencyDetected, identifier.name);
 current [identifier.name] = true;
 if (entry.parent)
 check (entry.parent, entry.name);
-{ var _2cleijj_51 = entry.uses; for (var _6j402ka_52 = 0; _6j402ka_52 < _2cleijj_51.length; _6j402ka_52 ++){
-var use = _2cleijj_51[_6j402ka_52];
+{ var _9138327_45 = entry.uses; for (var _23ae55n_46 = 0; _23ae55n_46 < _9138327_45.length; _23ae55n_46 ++){
+var use = _9138327_45[_23ae55n_46];
 if (! entry.parent || use.name !== entry.parent.name)
 check (use, entry.name);
 }}
+delete current [identifier.name];
 }
-for (var _8c1f2vi_53 = 0; _8c1f2vi_53 < classes.length; _8c1f2vi_53 ++){
-var entry = classes[_8c1f2vi_53];
+for (var _5727449_47 = 0; _5727449_47 < classes.length; _5727449_47 ++){
+var entry = classes[_5727449_47];
 current = {};
 check (entry.name);
 }
@@ -3576,13 +3580,13 @@ throwError (entry.parent, Messages.ParentClassNotFound, entry.parent.name);
 else
 {
 connectClass (entry.parent.name, entry.name);
-{ var _5k25eih_54 = parent.objectFields; for (var n in _5k25eih_54){
-var v = _5k25eih_54[n];
+{ var _23k120m_48 = parent.objectFields; for (var n in _23k120m_48){
+var v = _23k120m_48[n];
 if (! entry.objectFields [n])
 entry.objectFields [n] = {"publicMode":v.publicMode === "private" ? "locked" : v.publicMode,"name":v.name};
 }}
-{ var _1re3geo_55 = parent.staticFields; for (var n in _1re3geo_55){
-var v = _1re3geo_55[n];
+{ var _34au8av_49 = parent.staticFields; for (var n in _34au8av_49){
+var v = _34au8av_49[n];
 if (! entry.staticFields [n])
 entry.staticFields [n] = {"publicMode":v.publicMode === "private" ? "locked" : v.publicMode,"name":v.name,"className":v.className};
 }}
@@ -3611,22 +3615,22 @@ throwError (entry.objectConstructor, Messages.SuperConstructorCallNeeded);
 }
 }
 }
-{ var _4arm7al_56 = entry.uses; for (var _5pekf0c_57 = 0; _5pekf0c_57 < _4arm7al_56.length; _5pekf0c_57 ++){
-var use = _4arm7al_56[_5pekf0c_57];
+{ var _97jnsm3_50 = entry.uses; for (var _650khv5_51 = 0; _650khv5_51 < _97jnsm3_50.length; _650khv5_51 ++){
+var use = _97jnsm3_50[_650khv5_51];
 if (! getByName (use.name))
 throwError (use, Messages.UsingClassNotFound, use.name);
 }}
 entry.connected = true;
 }
 function connectClasses (){
-for (var _6m06m85_58 = 0; _6m06m85_58 < classes.length; _6m06m85_58 ++){
-var entry = classes[_6m06m85_58];
+for (var _953fcg2_52 = 0; _953fcg2_52 < classes.length; _953fcg2_52 ++){
+var entry = classes[_953fcg2_52];
 connectClass (entry);
 }
 }
 function processClasses (){
-for (var _14uk4c9_59 = 0; _14uk4c9_59 < classes.length; _14uk4c9_59 ++){
-var entry = classes[_14uk4c9_59];
+for (var _69qq7o6_53 = 0; _69qq7o6_53 < classes.length; _69qq7o6_53 ++){
+var entry = classes[_69qq7o6_53];
 processClass (entry);
 }
 }
@@ -3639,14 +3643,14 @@ return entry.weight;
 entry.weight = entry.probablyUseOther ? 1 + Math.min (entry.probablyUseOther, probablyUseOtherMaxValue) / (probablyUseOtherMaxValue + 1) : 1;
 if (entry.parent)
 entry.weight += getWeight (entry.parent.name);
-{ var _79fuqsc_60 = entry.uses; for (var _8ne6fcp_61 = 0; _8ne6fcp_61 < _79fuqsc_60.length; _8ne6fcp_61 ++){
-var use = _79fuqsc_60[_8ne6fcp_61];
+{ var _drn6gt_54 = entry.uses; for (var _7410boa_55 = 0; _7410boa_55 < _drn6gt_54.length; _7410boa_55 ++){
+var use = _drn6gt_54[_7410boa_55];
 entry.weight += getWeight (use.name);
 }}
 return entry.weight;
 }
-for (var _5tmjkg9_62 = 0; _5tmjkg9_62 < classes.length; _5tmjkg9_62 ++){
-var entry = classes[_5tmjkg9_62];
+for (var _8euuvjp_56 = 0; _8euuvjp_56 < classes.length; _8euuvjp_56 ++){
+var entry = classes[_8euuvjp_56];
 getWeight (entry);
 }
 classes.sort (function (a,b){
@@ -3654,8 +3658,8 @@ return a.weight - b.weight;
 });
 }
 var classes = [], classesByNames = {}, probablyUseOtherMaxValue = 100, thatVariable = newIdentifier ();
-for (var _7mvt2q7_63 = 0; _7mvt2q7_63 < rawClasses.length; _7mvt2q7_63 ++){
-var entry = rawClasses[_7mvt2q7_63];
+for (var _4gmqkpv_57 = 0; _4gmqkpv_57 < rawClasses.length; _4gmqkpv_57 ++){
+var entry = rawClasses[_4gmqkpv_57];
 addClass (entry.id, entry.parent, entry.uses, entry.variables, entry.functions);
 }
 if (classes.length !== 0)
@@ -3815,7 +3819,6 @@ if (f [0].length > size)
 f [0] = f [0].substr (0, size - 4) + "...:";
 f [0] += new Array(1 + size - f [0].length).join (" ");
 f.push.apply (f, arguments);
-console.log.apply (console, f);
 };
 return p ? (p.prototype.log = r) : r;
 }
@@ -3833,6 +3836,7 @@ Worker.STATE_CLASSES = 3;
 Worker.STATE_GENERATED = 4;
 Worker.STATE_FINISHED = 5;
 addLog (Worker, 0, "app");
+Worker.params = {};
 Worker.prototype.waitForFinish = function (callback){
 var interval = setInterval (function (arg){
 if (fileStorage.everythingFinished ())
@@ -3853,8 +3857,8 @@ Worker.prototype.start = function (callback){
 console.assert (this.state == Worker.STATE_INITIAL, "Wrong state (" + this.state + ")");
 this.state = Worker.STATE_WAITING;
 this.log ("started");
-{ var _4hfgn6o_14 = File.find ("default/*") || []; for (var _7elijnb_15 = 0; _7elijnb_15 < _4hfgn6o_14.length; _7elijnb_15 ++){
-var file = _4hfgn6o_14[_7elijnb_15];
+{ var _6rqkbd4_74 = File.find ("default/*") || []; for (var _73q28hu_75 = 0; _73q28hu_75 < _6rqkbd4_74.length; _73q28hu_75 ++){
+var file = _6rqkbd4_74[_73q28hu_75];
 file.process ();
 }}
 this.mainFile = new File(this.path);
@@ -3869,8 +3873,8 @@ callback ();
 Worker.prototype.collect = function (callback){
 console.assert (this.state == Worker.STATE_STARTED, "Wrong state (" + this.state + ")");
 this.state = Worker.STATE_WAITING;
-{ var _726ej13_16 = fileStorage.files; for (var _527ehnc_17 = 0; _527ehnc_17 < _726ej13_16.length; _527ehnc_17 ++){
-var file = _726ej13_16[_527ehnc_17];
+{ var _42ve57a_76 = fileStorage.files; for (var _611j0eb_77 = 0; _611j0eb_77 < _42ve57a_76.length; _611j0eb_77 ++){
+var file = _42ve57a_76[_611j0eb_77];
 Array.prototype.push.apply (this.data.statements, file.parsed.body);
 Array.prototype.push.apply (this.data.classes, file.parsed.classes);
 Array.prototype.push.apply (this.data.initializations, file.parsed.initializations);
@@ -3901,7 +3905,7 @@ callback ();
 Worker.prototype.save = function (callback){
 console.assert (this.state == Worker.STATE_GENERATED, "Wrong state (" + this.state + ")");
 this.state = Worker.STATE_WAITING;
-var saveTo = this.mainFile.fullpath.replace (/(\.[^\/\\\.]+)?$/, function (arg){
+var saveTo = Worker.params.buildTo || this.mainFile.fullpath.replace (/(\.[^\/\\\.]+)?$/, function (arg){
 return arg === ".js" ? arg : "";
 }) + ".js";
 fs.writeFile (saveTo, this.result, function (arg){

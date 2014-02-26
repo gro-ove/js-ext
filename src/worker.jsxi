@@ -15,6 +15,8 @@
 
 	addLog (Worker, 0, 'app');
 
+	Worker.params = {};
+
 	Worker.prototype.waitForFinish = function (callback){
 		var interval = setInterval (lambda {
 			if (fileStorage.everythingFinished ()){
@@ -98,7 +100,7 @@
 		console.assert (this.state == Worker.STATE_GENERATED, 'Wrong state (' + this.state + ')');
 		this.state = Worker.STATE_WAITING;
 
-		var saveTo = this.mainFile.fullpath.replace (/(\.[^\/\\\.]+)?$/, lambda arg === '.js' ? arg : '') + '.js';
+		var saveTo = Worker.params.buildTo || this.mainFile.fullpath.replace (/(\.[^\/\\\.]+)?$/, lambda arg === '.js' ? arg : '') + '.js';
 		fs.writeFile (saveTo, this.result, lambda {
 			this.log ('saved');
 			this.state = Worker.STATE_FINISHED;

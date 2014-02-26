@@ -5,3 +5,7 @@
 @macro import (file){
     @param ('import', file);
 }
+
+@macro buildTo (to){
+    @param ('build-to', to);
+}

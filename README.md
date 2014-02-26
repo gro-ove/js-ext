@@ -64,8 +64,8 @@ New version is coming soon, with new features.
 
 	@macro loadFromFile (file){
 		return {
-			type: 	MacroReturnType.String,
-			value: 	fs.readFileSync (file)
+			type: 	ReturnType.String,
+			value: 	fs.readFileSync (path.resolve (context.file.dirname, file))
 		}
 	}
 

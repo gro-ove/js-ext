@@ -369,6 +369,8 @@ function doClasses (rawClasses, callback){
 			for (var use in-array entry.uses)
 				if (!entry.parent || use.name !== entry.parent.name)
 					check (use, entry.name);
+
+			delete current [identifier.name];
 		}
 
 		for (var entry in-array classes){

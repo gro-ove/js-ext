@@ -15,6 +15,9 @@
 						else
 							throw new MacroError (that.name, 'Importing file "' + value + '" not found');
 						break;
+					case 'build-to':
+						Worker.params.buildTo = path.resolve (that.context.file.dirname, value);
+						break;
 					default:
 						throw new MacroError (that.name, 'Wrong param key ("' + key + '")');
 				}
