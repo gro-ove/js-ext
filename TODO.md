@@ -17,6 +17,20 @@
 		- Short syntax
 		- Anonymous classes
 		- Initialization with constructor: for example, "var a = new A (){ objectField = value }"
+		- This support
+		- Special access like ['field' + name] support
+		- Renaming private and protected variables
+		? Binded functions fixed 
+			/*
+			 * 	...
+			 * 	
+			 * 	private function example (){
+			 *		$ ('body')
+			 * 			.on ('click', bodyClick)
+			 * 			.off ('click', bodyClick);
+			 * 	}
+			 * 	
+			 */
 		? Kind of multiple inheritance 
 	V NotImplemented operator
 	V Strings format
