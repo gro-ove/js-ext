@@ -3288,10 +3288,18 @@ var objectVariables = [], staticVariables = [], objectFunctions = [], staticFunc
 if (getByName (name.name))
 throwError (name, Messages.ClassAlreadyDefined, name.name);
 function getName (publicMode,id){
+switch (publicMode){
+case "public":
 return id.name;
+case "protected":
+return "_" + id.name;
+case "private":
+return "_" + name.name + "_" + id.name;
+default:console.assert (false, "Unsupported publicMode (" + publicMode + ")");
 }
-for (var _oqmvgo_36 = 0; _oqmvgo_36 < variables.length; _oqmvgo_36 ++){
-var entry = variables[_oqmvgo_36];
+}
+for (var _2q1hud4_27 = 0; _2q1hud4_27 < variables.length; _2q1hud4_27 ++){
+var entry = variables[_2q1hud4_27];
 if (entry.staticMode)
 {
 entry.declarations.forEach (function (arg){
@@ -3311,8 +3319,8 @@ temp.autocreated = true;
 objectVariablesInitialization.push (temp);
 });
 }
-for (var _6p71te6_37 = 0; _6p71te6_37 < functions.length; _6p71te6_37 ++){
-var entry = functions[_6p71te6_37];
+for (var _6ookhiv_28 = 0; _6ookhiv_28 < functions.length; _6ookhiv_28 ++){
+var entry = functions[_6ookhiv_28];
 if (entry.staticMode)
 {
 if (entry.id.name === "@")
@@ -3500,8 +3508,8 @@ if (entry.objectConstructor)
 update (entry.objectConstructor, "@");
 entry.objectConstructor.body.body = entry.objectConstructor.body.body.filter (function (arg,i,array){
 if (arg.autocreated && arg.type === Syntax.ExpressionStatement && arg.expression.right.name === "undefined")
-for (var _15knc11_38 = 0; _15knc11_38 < array.length; _15knc11_38 ++){
-var e = array[_15knc11_38];
+for (var _8lra2b7_29 = 0; _8lra2b7_29 < array.length; _8lra2b7_29 ++){
+var e = array[_8lra2b7_29];
 if (e !== arg && e.type === Syntax.ExpressionStatement && e.expression.type === Syntax.AssignmentExpression && e.expression.left.type === Syntax.MemberExpression && e.expression.left.object.type === Syntax.ThisExpression && e.expression.left.property.name === arg.expression.left.property.name)
 return false;
 }
@@ -3545,8 +3553,8 @@ temp = newIdentifier ();
 variables.push (variableDeclarator (temp, functionExpression ()));
 resultFunction.push (expressionStatement (assignmentExpression (memberExpression (temp, "prototype"), memberExpression (entry.parent.name, "prototype"))), expressionStatement (assignmentExpression (memberExpression (variable, "prototype"), newExpression (temp))), expressionStatement (assignmentExpression (memberExpression (memberExpression (variable, "prototype"), "constructor"), variable)), expressionStatement (assignmentExpression (temp, "undefined")));
 }
-{ var _88sn7ss_39 = entry.objectFunctions; for (var _76rd51b_40 = 0; _76rd51b_40 < _88sn7ss_39.length; _76rd51b_40 ++){
-var f = _88sn7ss_39[_76rd51b_40];
+{ var _9mk60i_30 = entry.objectFunctions; for (var _5aom37d_31 = 0; _5aom37d_31 < _9mk60i_30.length; _5aom37d_31 ++){
+var f = _9mk60i_30[_5aom37d_31];
 resultFunction.push (expressionStatement (assignmentExpression (memberExpression (memberExpression (variable, "prototype"), f.id.name), functionExpression (null, f.params, f.body))));
 }}
 }
@@ -3555,8 +3563,8 @@ if (entry.mode === "static")
 {
 variables.push (variableDeclarator (variable, objectExpression ()));
 }
-{ var _9789kar_41 = entry.staticVariables; for (var _2tgaiba_42 = 0; _2tgaiba_42 < _9789kar_41.length; _2tgaiba_42 ++){
-var v = _9789kar_41[_2tgaiba_42];
+{ var _6ejmvrs_32 = entry.staticVariables; for (var _4v0msq3_33 = 0; _4v0msq3_33 < _6ejmvrs_32.length; _4v0msq3_33 ++){
+var v = _6ejmvrs_32[_4v0msq3_33];
 if (v.publicMode !== "private")
 {
 var temp = expressionStatement (assignmentExpression (memberExpression (variable, entry.staticFields [v.id.name].name), v.init || "undefined"));
@@ -3569,8 +3577,8 @@ else
 variables.push (v);
 }
 }}
-{ var _4mi83ne_43 = entry.staticFunctions; for (var _4pfcool_44 = 0; _4pfcool_44 < _4mi83ne_43.length; _4pfcool_44 ++){
-var f = _4mi83ne_43[_4pfcool_44];
+{ var _2clokq0_34 = entry.staticFunctions; for (var _3hhs9ad_35 = 0; _3hhs9ad_35 < _2clokq0_34.length; _3hhs9ad_35 ++){
+var f = _2clokq0_34[_3hhs9ad_35];
 if (f.publicMode !== "private")
 resultFunction.push (expressionStatement (assignmentExpression (memberExpression (variable, f.id.name), functionExpression (null, f.params, f.body))));
 else
@@ -3592,15 +3600,15 @@ throwError (identifier, Messages.CyclicDependencyDetected, identifier.name);
 current [identifier.name] = true;
 if (entry.parent)
 check (entry.parent, entry.name);
-{ var _9138327_45 = entry.uses; for (var _23ae55n_46 = 0; _23ae55n_46 < _9138327_45.length; _23ae55n_46 ++){
-var use = _9138327_45[_23ae55n_46];
+{ var _3uundgr_36 = entry.uses; for (var _4lrv2b4_37 = 0; _4lrv2b4_37 < _3uundgr_36.length; _4lrv2b4_37 ++){
+var use = _3uundgr_36[_4lrv2b4_37];
 if (! entry.parent || use.name !== entry.parent.name)
 check (use, entry.name);
 }}
 delete current [identifier.name];
 }
-for (var _5727449_47 = 0; _5727449_47 < classes.length; _5727449_47 ++){
-var entry = classes[_5727449_47];
+for (var _883okfp_38 = 0; _883okfp_38 < classes.length; _883okfp_38 ++){
+var entry = classes[_883okfp_38];
 current = {};
 check (entry.name);
 }
@@ -3623,13 +3631,13 @@ throwError (entry.parent, Messages.ParentClassNotFound, entry.parent.name);
 else
 {
 connectClass (entry.parent.name, entry.name);
-{ var _23k120m_48 = parent.objectFields; for (var n in _23k120m_48){
-var v = _23k120m_48[n];
+{ var _4m428r2_39 = parent.objectFields; for (var n in _4m428r2_39){
+var v = _4m428r2_39[n];
 if (! entry.objectFields [n])
 entry.objectFields [n] = {"publicMode":v.publicMode === "private" ? "locked" : v.publicMode,"name":v.name};
 }}
-{ var _34au8av_49 = parent.staticFields; for (var n in _34au8av_49){
-var v = _34au8av_49[n];
+{ var _447aavn_40 = parent.staticFields; for (var n in _447aavn_40){
+var v = _447aavn_40[n];
 if (! entry.staticFields [n])
 entry.staticFields [n] = {"publicMode":v.publicMode === "private" ? "locked" : v.publicMode,"name":v.name,"className":v.className};
 }}
@@ -3658,22 +3666,22 @@ throwError (entry.objectConstructor, Messages.SuperConstructorCallNeeded);
 }
 }
 }
-{ var _97jnsm3_50 = entry.uses; for (var _650khv5_51 = 0; _650khv5_51 < _97jnsm3_50.length; _650khv5_51 ++){
-var use = _97jnsm3_50[_650khv5_51];
+{ var _36uld88_41 = entry.uses; for (var _6ab4ep3_42 = 0; _6ab4ep3_42 < _36uld88_41.length; _6ab4ep3_42 ++){
+var use = _36uld88_41[_6ab4ep3_42];
 if (! getByName (use.name))
 throwError (use, Messages.UsingClassNotFound, use.name);
 }}
 entry.connected = true;
 }
 function connectClasses (){
-for (var _953fcg2_52 = 0; _953fcg2_52 < classes.length; _953fcg2_52 ++){
-var entry = classes[_953fcg2_52];
+for (var _t7o97_43 = 0; _t7o97_43 < classes.length; _t7o97_43 ++){
+var entry = classes[_t7o97_43];
 connectClass (entry);
 }
 }
 function processClasses (){
-for (var _69qq7o6_53 = 0; _69qq7o6_53 < classes.length; _69qq7o6_53 ++){
-var entry = classes[_69qq7o6_53];
+for (var _5kfb3u5_44 = 0; _5kfb3u5_44 < classes.length; _5kfb3u5_44 ++){
+var entry = classes[_5kfb3u5_44];
 processClass (entry);
 }
 }
@@ -3686,14 +3694,14 @@ return entry.weight;
 entry.weight = entry.probablyUseOther ? 1 + Math.min (entry.probablyUseOther, probablyUseOtherMaxValue) / (probablyUseOtherMaxValue + 1) : 1;
 if (entry.parent)
 entry.weight += getWeight (entry.parent.name);
-{ var _drn6gt_54 = entry.uses; for (var _7410boa_55 = 0; _7410boa_55 < _drn6gt_54.length; _7410boa_55 ++){
-var use = _drn6gt_54[_7410boa_55];
+{ var _6f5roj8_45 = entry.uses; for (var _7pnvr9s_46 = 0; _7pnvr9s_46 < _6f5roj8_45.length; _7pnvr9s_46 ++){
+var use = _6f5roj8_45[_7pnvr9s_46];
 entry.weight += getWeight (use.name);
 }}
 return entry.weight;
 }
-for (var _8euuvjp_56 = 0; _8euuvjp_56 < classes.length; _8euuvjp_56 ++){
-var entry = classes[_8euuvjp_56];
+for (var _520nb8q_47 = 0; _520nb8q_47 < classes.length; _520nb8q_47 ++){
+var entry = classes[_520nb8q_47];
 getWeight (entry);
 }
 classes.sort (function (a,b){
@@ -3701,8 +3709,8 @@ return a.weight - b.weight;
 });
 }
 var classes = [], classesByNames = {}, probablyUseOtherMaxValue = 100, thatVariable = newIdentifier ();
-for (var _4gmqkpv_57 = 0; _4gmqkpv_57 < rawClasses.length; _4gmqkpv_57 ++){
-var entry = rawClasses[_4gmqkpv_57];
+for (var _1m6v9f5_48 = 0; _1m6v9f5_48 < rawClasses.length; _1m6v9f5_48 ++){
+var entry = rawClasses[_1m6v9f5_48];
 addClass (entry.id, entry.parent, entry.uses, entry.variables, entry.functions);
 }
 if (classes.length !== 0)

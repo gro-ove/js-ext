@@ -8,4 +8,4 @@ cmd /C node "%~dp0\build\js-ext.old.js" "%~dp0\src\js-ext.jsx" -e -o "%~dp0\buil
 :: node build\js-ext.temp.js stuff\test-for-in-array-loops.jsx -l 16934 || exit /b
 :: node build\js-ext.temp.js stuff\test-try.jsx -l 13411 || exit /b
 :: node build\js-ext.temp.js stuff\test-commafree.jsx -l 9476 || exit /b
-node "%~dp0\build\js-ext.js" "%~dp0\stuff\imports\current.jsx"
+node "%~dp0\build\js-ext.js" "%~dp0\stuff\imports\current.jsx" && node "%~dp0\stuff\imports\current.js" && echo [Success]

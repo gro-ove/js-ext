@@ -8,18 +8,19 @@
 		V Static variables
 		V Initialization statement
 		V Super requested in constuctors
-		F Check for parent class static field change
+		V Check for parent class static field change
 		F Check for order of super constructor call and methods initialization
 		F Names fix
 		F Static private and object locked conflict
+		F This support
+		F Special access like ['field' + name] support
+		F Renaming private and protected variables
 		- Interfaces
+			- Interfaces generator
 		- Abstract classes
 		- Short syntax
 		- Anonymous classes
 		- Initialization with constructor: for example, "var a = new A (){ objectField = value }"
-		- This support
-		- Special access like ['field' + name] support
-		- Renaming private and protected variables
 		? Binded functions fixed 
 			/*
 			 * 	...

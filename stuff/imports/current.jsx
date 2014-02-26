@@ -1,8 +1,19 @@
-var test = [
-	/^https?:\/\/(?:www\.|m\.)?yo\/*utu(?:be\.com\/(?:watch\?.*?v=|v\/|embed\/)|\.be\/)([^&#?]+).*?(?:t(?:ime)?=(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s?)?)?$/
-];
+class A {
+	protected static var a = 18;
 
-@macro TEST_STRING:boolean (arg:raw) { k: "\"Test: %0\" (" + arg + ")" };
+	(){
+		console.log ('[A] ' + a);
+	}
+}
 
-@TEST_STRING { string }
-@TEST_STRING ( @TEST_STRING ('woohoo!') )
+class B extends A {
+	(){
+		a = 1024;
+		console.log ('[B] ' + a);
+		super ();
+	}
+}
+
+{
+	new B ();
+}

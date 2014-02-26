@@ -22,7 +22,16 @@ function doClasses (rawClasses, callback){
 			throwError (name, Messages.ClassAlreadyDefined, name.name);
 
 		function getName (publicMode, id){
-			return id.name; // publicMode !== 'protected' ? id.name : publicMode === 'protected' ? '_' + id.name : newIdentifier () 
+			switch (publicMode){
+				case 'public':
+					return id.name;
+				case 'protected':
+					return '_' + id.name;
+				case 'private':
+					return '_' + name.name + '_' + id.name;
+				default:
+					console.assert (false, 'Unsupported publicMode (' + publicMode + ')');
+			}
 		}
 
 		for (var entry in-array variables)
