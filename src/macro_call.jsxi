@@ -45,11 +45,8 @@
 		console.assert (this.state == MacroCall.STATE_CONNECTED, 'Wrong state (' + this.state + ')');
 		this.state = MacroCall.STATE_WAITING;
 
-		function cast (value, callback){
-			if (value.match (/^((\d+|\d*\.\d+)(e[+-]?\d+)?|0x[\da-f]+)$/i))
-				return +value;
-
-			macrosProcess (value, this.level, this.context, lambda {
+		function cast (argument, value, callback){
+			function nextStep (){
 				var data;
 
 				try {
@@ -60,13 +57,27 @@
 					console.log ('FAILED AT:\n' + (value || '< EMPTY STRING >') + '\nWHAT HAS BEEN TRANSFORMED INTO:\n' + (arg || '< EMPTY STRING >'));
 					throw e;
 				}
-			});
+			}
+
+			if (argument.type !== null){
+				switch (argument.type){
+					case 'raw-nm':
+						callback (value);
+						break;
+					case 'raw':
+						macrosProcess (value, this.level, this.context, callback);
+						break;
+					default:
+						throw new Error ('Invalid argument type (' + this.name + ', ' + argument.type + ')');
+				}
+			} else
+				macrosProcess (value, this.level, this.context, nextStep);
 		}
 
 		var queue = new Queue (this, Queue.MODE_PARALLEL).description ('macro call arguments prepare');
 
-		for (var arg in-array this.arguments)
-			queue.add (cast, arg);
+		for (var i, arg in-array this.arguments)
+			queue.add (cast, this.macro.arguments [i], arg);
 
 		queue.run (lambda {
 			this.log ('arguments ready');
@@ -106,42 +117,53 @@
 
 	MacroCall.prototype.processResult = function (callback){	
 		console.assert (this.state == MacroCall.STATE_CALLED, 'Wrong state (' + this.state + ')');
-		this.state = MacroCall.STATE_WAITING;
+		this.state 		= MacroCall.STATE_WAITING;
 
-		var doMacros = true, 
-			result = this.result;
+		var doMacros 	= false, 
+			result 		= this.result,
+			type 		= this.macro.type;
 
-		if (result === null){
-			result = '';
-		} else if (typeof result !== 'object'){
-			result = '' + result;
-		} else if (result instanceof String){
-			result = JSON.stringify ('' + result);
-		} else 
-			switch (result && result.type){
-				case Macro.ReturnType.Raw:
-					doMacros = false;
-					result = result.value;
+		if (type === null && result && typeof result.type === 'string'){
+			type 		= result.type;
+			result 		= result.value;
+		}
+
+		if (type !== null){
+			switch (type){
+				case 'void':
+					result = '';
 					break;
-
-				case Macro.ReturnType.RawWithMacros:
-					result = result.value;
+				case 'raw':
+					doMacros = true;
+					result = String (result);
 					break;
-
-				case Macro.ReturnType.Object:
-					// TODO: optimized version
-
-				case Macro.ReturnType.String:
-					if (!result.value)
-						throw new Error ('Empty macro @' + this.name + ' result (use "null" or "undefined" for this)');
-
-					result = JSON.stringify (result.value);
+				case 'raw-nm':
+					result = String (result);
 					break;
-
-				case Macro.ReturnType.SourceTree:
+				case 'boolean':
+					result = result ? 'true' : 'false';
+					break;
+				case 'number':
+					result = +result;
+					break;
+				case 'object':
+					if (typeof result !== 'object')
+						throw new Error ('Type mismatch (waiting for object, but get ' + typeof result + ')');
+					doMacros = true;
+					result = JSON.stringify (result);
+					break;
+				case 'string':
+					doMacros = true;
+					result = JSON.stringify (String (result));
+					break;
 				default:
-					throw new Error ('Not implemented (' + this.name + ')');
+					throw new Error ('Invalid macro type (' + this.name + ', ' + this.macro.type + ')');
 			}
+		} else if (result !== undefined){
+			doMacros = true;
+			result = JSON.stringify (result);
+		} else 
+			result = '';
 
 		var resultHandler = function (result){
 			this.state 		= MacroCall.STATE_FINISHED;

@@ -221,8 +221,8 @@ return [temp];
 current = path.dirname (current);
 }
 }
-{ var _4ka60cm_40 = this instanceof File ? [{"root":this.root,"dirname":this.dirname}].concat (lookingAt) : lookingAt; for (var _4ingd97_41 = 0; _4ingd97_41 < _4ka60cm_40.length; _4ingd97_41 ++){
-var entry = _4ka60cm_40[_4ingd97_41];
+{ var _1j6feuo_11 = this instanceof File ? [{"root":this.root,"dirname":this.dirname}].concat (lookingAt) : lookingAt; for (var _842in3l_12 = 0; _842in3l_12 < _1j6feuo_11.length; _842in3l_12 ++){
+var entry = _1j6feuo_11[_842in3l_12];
 var temp = findInFolder (entry.root, entry.dirname, child);
 if (temp)
 return temp.map (function (arg){
@@ -265,12 +265,20 @@ callback ();
 File.prototype.parsing = function (callback){
 console.assert (this.state == File.STATE_MACROS, "Wrong state (" + this.state + ")");
 this.state = File.STATE_WAITING;
+try{
 jsxParse (this.content, {"filename":this.filename,"initializationAllowed":true}, function (arg){
 this.log ("parsing processed");
 this.state = File.STATE_FINISHED;
 this.parsed = arg;
 callback ();
 }.bind (this));
+}catch (e){
+console.log ("[failed on]", this.content);
+console.error (e.stack);
+setTimeout (function (arg){
+return process.exit ();
+}, 200);
+}
 };
 File.prototype.process = function (callback){
 new Queue(this, Queue.MODE_SEQUENT).description ("file process").add (this.load).add (this.macros).add (this.parsing).run (function (arg){
@@ -626,31 +634,35 @@ return found;
 }
 return null;
 };
-function Macro (name,level,context,macroArgs,macroBody){
+function Macro (name,type,level,context,macroArgs,macroBody){
 this.name = name;
+this.type = type;
 if (! macroBody)
 {
 macroBody = macroArgs;
 macroArgs = null;
 }
 this.level = level;
-this.arguments = macroArgs === null ? ["arg"] : macroArgs;
+this.arguments = (macroArgs === null ? ["arg"] : macroArgs).map (function (arg){
+return arg.match (/^(.+)\:([^\:]+)$/) ? {"name":RegExp.$1,"type":RegExp.$2} : {"name":arg,"type":null};
+});
 this.context = context;
 this.rawBody = macroBody;
-this.asyncMode = this.arguments [this.arguments.length - 1] === "callback";
 this.localStorage = {};
+var last = this.arguments [this.arguments.length - 1];
+this.asyncMode = last.name === "callback" && (last.type === "function" || last.type === null);
 }
 ;
 addLog (Macro, 3, function (arg){
 return "@" + this.name;
 });
-Macro.ReturnType = {"Object":"MacroReturnTypeObject","String":"MacroReturnTypeString","Raw":"MacroReturnTypeRaw","RawWithMacros":"MacroRawWithMacros","SourceTree":"MacroReturnTypeSourceTree"};
+Macro.ReturnType = {"Void":"void","Raw":"raw","RawNoMacros":"raw-nm","Boolean":"boolean","Number":"number","String":"string","Object":"object"};
 Macro.Defaults = {"fs":fs,"path":path,"params":paramsManager,"ReturnType":Macro.ReturnType};
 Macro.globalStorage = {};
 Macro.prototype.defaults = function (context){
 var result = {}, obj = {"name":this.name,"context":context,"macroContext":this.context};
-{ var _6oi5les_93 = Macro.Defaults; for (var key in _6oi5les_93){
-var value = _6oi5les_93[key];
+{ var _24c69s7_48 = Macro.Defaults; for (var key in _24c69s7_48){
+var value = _24c69s7_48[key];
 if (typeof value === "function")
 result [key] = value.call (obj);
 else
@@ -700,14 +712,16 @@ variables.push ("local = this.local");
 variables.push ("require = this.require");
 for (var key in Macro.Defaults)
 variables.push (key + " = this.defaults." + key);
-{ var _67vfupf_94 = phase.used; for (var _2djb1ro_95 = 0; _2djb1ro_95 < _67vfupf_94.length; _2djb1ro_95 ++){
-var entry = _67vfupf_94[_2djb1ro_95];
+{ var _76kk91n_49 = phase.used; for (var _8fif3c8_50 = 0; _8fif3c8_50 < _76kk91n_49.length; _8fif3c8_50 ++){
+var entry = _76kk91n_49[_8fif3c8_50];
 queue.add (macroStorage.get, entry.macro, this.level);
 variables.push (entry.name + " = function (){ return this.macros." + entry.macro + ".call (this.context, arguments) }.bind (this)");
 }}
 this.macros = {};
 this.debug = (variables.length ? "var " + variables.join (", ") + ";\n" : "") + converted;
-this.callee = new Function(this.arguments.join (","), this.debug);
+this.callee = new Function(this.arguments.map (function (arg){
+return arg.name;
+}).join (","), this.debug);
 queue.run (function (arg){
 arg.map (function (arg){
 return arg.result [0];
@@ -787,10 +801,8 @@ callback ();
 MacroCall.prototype.prepareArguments = function (callback){
 console.assert (this.state == MacroCall.STATE_CONNECTED, "Wrong state (" + this.state + ")");
 this.state = MacroCall.STATE_WAITING;
-function cast (value,callback){
-if (value.match (/^((\d+|\d*\.\d+)(e[+-]?\d+)?|0x[\da-f]+)$/i))
-return + value;
-macrosProcess (value, this.level, this.context, function (arg){
+function cast (argument,value,callback){
+function nextStep (){
 var data;
 try{
 eval ("data = " + convert (arg, "macro arg"));
@@ -799,12 +811,26 @@ callback (data);
 console.log ("FAILED AT:\n" + (value || "< EMPTY STRING >") + "\nWHAT HAS BEEN TRANSFORMED INTO:\n" + (arg || "< EMPTY STRING >"));
 throw e;
 }
-});
+}
+if (argument.type !== null)
+{
+switch (argument.type){
+case "raw-nm":
+callback (value);
+break;
+case "raw":
+macrosProcess (value, this.level, this.context, callback);
+break;
+default:throw new Error("Invalid argument type (" + this.name + ", " + argument.type + ")");
+}
+}
+else
+macrosProcess (value, this.level, this.context, nextStep);
 }
 var queue = new Queue(this, Queue.MODE_PARALLEL).description ("macro call arguments prepare");
-{ var _1sl6bhf_9 = this.arguments; for (var _2m8t0j7_10 = 0; _2m8t0j7_10 < _1sl6bhf_9.length; _2m8t0j7_10 ++){
-var arg = _1sl6bhf_9[_2m8t0j7_10];
-queue.add (cast, arg);
+{ var _2pf3o6b_8 = this.arguments; for (var i = 0; i < _2pf3o6b_8.length; i ++){
+var arg = _2pf3o6b_8[i];
+queue.add (cast, this.macro.arguments [i], arg);
 }}
 queue.run (function (arg){
 this.log ("arguments ready");
@@ -837,41 +863,52 @@ resultHandler (this.macro.call (this.context, this.arguments));
 MacroCall.prototype.processResult = function (callback){
 console.assert (this.state == MacroCall.STATE_CALLED, "Wrong state (" + this.state + ")");
 this.state = MacroCall.STATE_WAITING;
-var doMacros = true, result = this.result;
-if (result === null)
+var doMacros = false, result = this.result, type = this.macro.type;
+if (type === null && result && typeof result.type === "string")
 {
+type = result.type;
+result = result.value;
+}
+if (type !== null)
+{
+switch (type){
+case "void":
 result = "";
-}
-else
+break;
+case "raw":
+doMacros = true;
+result = String (result);
+break;
+case "raw-nm":
+result = String (result);
+break;
+case "boolean":
+result = result ? "true" : "false";
+break;
+case "number":
+result = + result;
+break;
+case "object":
 if (typeof result !== "object")
-{
-result = "" + result;
+throw new Error("Type mismatch (waiting for object, but get " + typeof result + ")");
+doMacros = true;
+result = JSON.stringify (result);
+break;
+case "string":
+doMacros = true;
+result = JSON.stringify (String (result));
+break;
+default:throw new Error("Invalid macro type (" + this.name + ", " + this.macro.type + ")");
+}
 }
 else
-if (result instanceof String)
+if (result !== undefined)
 {
-result = JSON.stringify ("" + result);
+doMacros = true;
+result = JSON.stringify (result);
 }
 else
-switch (result && result.type){
-case Macro.ReturnType.Raw:
-doMacros = false;
-result = result.value;
-break;
-case Macro.ReturnType.RawWithMacros:
-result = result.value;
-break;
-case Macro.ReturnType.Object:
-
-case Macro.ReturnType.String:
-if (! result.value)
-throw new Error("Empty macro @" + this.name + " result (use \"null\" or \"undefined\" for this)");
-result = JSON.stringify (result.value);
-break;
-case Macro.ReturnType.SourceTree:
-
-default:throw new Error("Not implemented (" + this.name + ")");
-}
+result = "";
 var resultHandler = function (result){
 this.state = MacroCall.STATE_FINISHED;
 this.result = result;
@@ -899,7 +936,7 @@ MacroNotFoundError.prototype = Error.prototype;
 function macrosParse (source,level,context){
 console.assert (context instanceof Context, "Context required");
 function parseMacroDefine (){
-var name = found.raw [1], position, argument, arguments, blockMode, temp, body, converted;
+var name = found.raw [1], type = found.raw [2] || null, position, argument, arguments, blockMode, temp, body, converted;
 temp = liteParser.whatNext (/[^\s]/);
 if (temp.value === "(")
 {
@@ -938,7 +975,7 @@ temp = liteParser.whatNext (/[^\s]/);
 if (temp && temp.value === ";")
 liteParser.moveTo (temp);
 liteParser.replace (found.index, liteParser.index, "/* There was definition of @" + name + " */");
-macroStorage.add (new Macro(name, level, context, arguments, body));
+macroStorage.add (new Macro(name, type, level, context, arguments, body));
 }
 function parseMacroCall (){
 var name = found.raw [1], arguments = [], position, argument, quotesCount, temp;
@@ -962,7 +999,7 @@ temp = liteParser.findHere (["{"], "}");
 if (! temp)
 throwError (liteParser.getPosition (), "End of argument not found");
 argument = liteParser.substring (position, liteParser.index - 1);
-arguments.push (JSON.stringify (argument));
+arguments.push (argument);
 }
 else
 {
@@ -1005,7 +1042,7 @@ if (temp.value === arg.value)
 return true;
 return false;
 }), found;
-while (found = liteParser.findNext (/@macro\s+([_$a-zA-Z][_$a-zA-Z0-9]*)/, /@([_$a-zA-Z][_$a-zA-Z0-9]*)/, "{", "}"))
+while (found = liteParser.findNext (/@macro\s+([_$a-zA-Z][_$a-zA-Z0-9]*)(?:\:([a-z\-]+))?/, /@([_$a-zA-Z][_$a-zA-Z0-9]*)/, "{", "}"))
 {
 switch (found.id){
 case 0:
@@ -1034,13 +1071,13 @@ level = "";
 console.assert (context instanceof Context, "Context required");
 console.assert (typeof callback === "function", "Function required");
 var temp = macrosParse (data, level, context), queue = new Queue(Queue.MODE_PARALLEL).description ("macros process");
-{ var _60hojus_37 = temp.calls; for (var _7ui66fc_38 = 0; _7ui66fc_38 < _60hojus_37.length; _7ui66fc_38 ++){
-var call = _60hojus_37[_7ui66fc_38];
+{ var _4e49crs_88 = temp.calls; for (var _73cpchl_89 = 0; _73cpchl_89 < _4e49crs_88.length; _73cpchl_89 ++){
+var call = _4e49crs_88[_73cpchl_89];
 queue.add (call, call.process.bind (call));
 }}
 queue.run (function (arg){
-for (var _78hvohh_39 = 0; _78hvohh_39 < arg.length; _78hvohh_39 ++){
-var entry = arg[_78hvohh_39];
+for (var _8c7aji9_90 = 0; _8c7aji9_90 < arg.length; _8c7aji9_90 ++){
+var entry = arg[_8c7aji9_90];
 temp.data = temp.data.split (entry.data.replacement).join (entry.result [0]);
 }
 callback (temp.data);

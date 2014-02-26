@@ -33,9 +33,9 @@
 			V Blocks
 			L Default arguments values
 		V Fix strange numbers
+		V Add types to arguments
+		V Add types to macro's result
 		F LiteParser: RegExp support
-		- Add types to arguments
-		- Add types to macro's result
 		- Macros definion in macros
 		L Anonynous macros
 		? Macros order and stuff

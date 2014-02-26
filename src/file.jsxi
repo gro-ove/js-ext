@@ -119,17 +119,23 @@
 		console.assert (this.state == File.STATE_MACROS, 'Wrong state (' + this.state + ')');
 		this.state = File.STATE_WAITING;
 
-		jsxParse (this.content, {
-			filename: 				this.filename,
-			initializationAllowed: 	true
-		}, lambda {
-			this.log ('parsing processed');
+		try {
+			jsxParse (this.content, {
+				filename: 				this.filename,
+				initializationAllowed: 	true
+			}, lambda {
+				this.log ('parsing processed');
 
-			this.state 		= File.STATE_FINISHED;
-			this.parsed 	= arg;
+				this.state 		= File.STATE_FINISHED;
+				this.parsed 	= arg;
 
-			callback ();
-		}.bind (this));
+				callback ();
+			}.bind (this));
+		} catch (e){
+			console.log ('[failed on]', this.content);
+			console.error (e.stack);
+			setTimeout (lambda process.exit (), 200);
+		}
 	}
 
 	File.prototype.process = function (callback){

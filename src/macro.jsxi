@@ -1,5 +1,6 @@
-	function Macro (name, level, context, macroArgs, macroBody){
+	function Macro (name, type, level, context, macroArgs, macroBody){
 		this.name 			= name;
+		this.type 			= type;
 
 		if (!macroBody){
 			macroBody 		= macroArgs;
@@ -7,21 +8,26 @@
 		}
 		
 		this.level 			= level;
-		this.arguments 		= macroArgs === null ? [ 'arg' ] : macroArgs; 
+		this.arguments 		= (macroArgs === null ? [ 'arg' ] : macroArgs)
+								.map (lambda arg.match (/^(.+)\:([^\:]+)$/) ? { name: RegExp.$1, type: RegExp.$2 } : { name: arg, type: null }); 
 		this.context 		= context;
 		this.rawBody 		= macroBody;
-		this.asyncMode 		= this.arguments [this.arguments.length - 1] === 'callback';
 		this.localStorage 	= {};
+
+		var last 			= this.arguments [this.arguments.length - 1];
+		this.asyncMode 		= last.name === 'callback' && (last.type === 'function' || last.type === null);
 	};
 
 	addLog (Macro, 3, lambda '@' + this.name);
 
 	Macro.ReturnType = { 
-		Object: 		'MacroReturnTypeObject',
-		String: 		'MacroReturnTypeString',
-		Raw: 			'MacroReturnTypeRaw',
-		RawWithMacros: 	'MacroRawWithMacros',
-		SourceTree: 	'MacroReturnTypeSourceTree',
+		Void: 			'void',
+		Raw: 			'raw',
+		RawNoMacros: 	'raw-nm',
+		Boolean: 		'boolean',
+		Number: 		'number',
+		String: 		'string',
+		Object: 		'object',
 	};
 
 	Macro.Defaults = {
@@ -116,7 +122,7 @@
 
 		this.macros 	= {};
 		this.debug 		= (variables.length ? 'var ' + variables.join (', ') + ';\n' : '') + converted;
-		this.callee 	= new Function (this.arguments.join (','), this.debug);
+		this.callee 	= new Function (this.arguments.map (lambda arg.name).join (','), this.debug);
 
 		queue.run (lambda {
 			arg.map (lambda arg.result [0]).forEach (lambda (other){

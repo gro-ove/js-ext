@@ -1,1 +1,2 @@
-'Test: ' + string;
+true;
+true;

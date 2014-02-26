@@ -5,6 +5,7 @@
 
 		function parseMacroDefine (){
 			var name = found.raw [1],
+				type = found.raw [2] || null,
 				position,
 				argument,
 				arguments,
@@ -58,7 +59,7 @@
 				liteParser.moveTo (temp);
 
 			liteParser.replace (found.index, liteParser.index, '/* There was definition of @' + name + ' */');
-			macroStorage.add (new Macro (name, level, context, arguments, body));
+			macroStorage.add (new Macro (name, type, level, context, arguments, body));
 		}
 
 		function parseMacroCall (){
@@ -92,7 +93,7 @@
 						throwError (liteParser.getPosition (), 'End of argument not found');
 
 					argument = liteParser.substring (position, liteParser.index - 1);
-					arguments.push (JSON.stringify (argument));
+					arguments.push (argument);
 				} else {
 					position = liteParser.index;
 
@@ -140,7 +141,7 @@
 			found;
 
 		while (found = liteParser.findNext (
-				/@macro\s+([_$a-zA-Z][_$a-zA-Z0-9]*)/, 
+				/@macro\s+([_$a-zA-Z][_$a-zA-Z0-9]*)(?:\:([a-z\-]+))?/, 
 				/@([_$a-zA-Z][_$a-zA-Z0-9]*)/, 
 				'{', 
 				'}')){
