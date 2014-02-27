@@ -1,3 +1,3 @@
-@macro param:void (key, value) params.add (key, value);
-@macro import:void (file) @param ('import', file);
-@macro buildTo:void (to) @param ('build-to', to);
+// @macro param:void (key, value) params.add (key, value);
+// @macro import:void (file) @param ('import', file);
+// @macro buildTo:void (to) @param ('build-to', to);

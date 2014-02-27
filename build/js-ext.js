@@ -3771,10 +3771,11 @@ else
 throwError (liteParser.getPosition (), "Name required");
 }
 liteParser.replace (found.index, liteParser.index, "/* There was definition of @" + name + " */");
-macroStorage.add (new Macro(name, level, context, arguments, body));
+var macro = new Macro(name, level, context, arguments, body);
+macroStorage.add (macro);
 if (insertCall)
 {
-liteParser.replace (liteParser.index, liteParser.index, "@" + name);
+liteParser.replace (liteParser.index, liteParser.index, "@" + macro.name);
 liteParser.index = found.index;
 }
 }
@@ -3880,13 +3881,13 @@ level = "";
 console.assert (context instanceof Context, "Context required");
 console.assert (typeof callback === "function", "Function required");
 var temp = macrosParse (data, level, context), queue = new Queue(Queue.MODE_PARALLEL).description ("macros process");
-{ var _1jrs6ce_95 = temp.calls; for (var _74iatg0_96 = 0; _74iatg0_96 < _1jrs6ce_95.length; _74iatg0_96 ++){
-var call = _1jrs6ce_95[_74iatg0_96];
+{ var _ckmcjd_11 = temp.calls; for (var _34lu40a_12 = 0; _34lu40a_12 < _ckmcjd_11.length; _34lu40a_12 ++){
+var call = _ckmcjd_11[_34lu40a_12];
 queue.add (call, call.process.bind (call));
 }}
 queue.run (function (arg){
-for (var _2enio0s_97 = 0; _2enio0s_97 < arg.length; _2enio0s_97 ++){
-var entry = arg[_2enio0s_97];
+for (var _230roqq_13 = 0; _230roqq_13 < arg.length; _230roqq_13 ++){
+var entry = arg[_230roqq_13];
 temp.data = temp.data.split (entry.data.replacement).join (entry.result [0]);
 }
 callback (temp.data);

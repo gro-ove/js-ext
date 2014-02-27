@@ -2,65 +2,15 @@
     "type": "Program",
     "body": [
         {
-            "type": "FunctionDeclaration",
-            "id": {
-                "type": "Identifier",
-                "name": "test",
-                "lineNumber": 1,
-                "lineStart": 0,
-                "filename": "current.jsx",
-                "index": 13
+            "type": "ExpressionStatement",
+            "expression": {
+                "type": "Literal",
+                "value": "18"
             },
-            "params": [
-                {
-                    "type": "Identifier",
-                    "name": "arg",
-                    "lineNumber": 1,
-                    "lineStart": 0,
-                    "filename": "current.jsx",
-                    "index": 13
-                }
-            ],
-            "defaults": [],
-            "body": {
-                "type": "BlockStatement",
-                "body": [
-                    {
-                        "type": "LabeledStatement",
-                        "label": {
-                            "type": "Identifier",
-                            "name": "arg",
-                            "lineNumber": 2,
-                            "lineStart": 16,
-                            "filename": "current.jsx",
-                            "index": 20
-                        },
-                        "body": {
-                            "type": "ExpressionStatement",
-                            "expression": {
-                                "type": "Literal",
-                                "value": 18
-                            },
-                            "lineNumber": 3,
-                            "lineStart": 25,
-                            "filename": "current.jsx",
-                            "index": 25
-                        },
-                        "lineNumber": 3,
-                        "lineStart": 25,
-                        "filename": "current.jsx",
-                        "index": 25
-                    }
-                ],
-                "lineNumber": 3,
-                "lineStart": 25,
-                "filename": "current.jsx",
-                "index": 26
-            },
-            "rest": null,
-            "generator": false,
-            "expression": false,
-            "number": "[object Object]0"
+            "lineNumber": 67,
+            "lineStart": 1153,
+            "filename": "current.jsx",
+            "index": 1153
         }
     ]
 }

@@ -15,6 +15,8 @@
 				insertCall = false,
 				from;
 
+			// throw new Error (JSON.stringify (found, false, 4));
+
 			if (name === 'macro')
 				throwError (liteParser.getPosition (), 'This word is reserved');
 
@@ -82,10 +84,12 @@
 			}
 
 			liteParser.replace (found.index, liteParser.index, '/* There was definition of @' + name + ' */');
-			macroStorage.add (new Macro (name, level, context, arguments, body));
+
+			var macro = new Macro (name, level, context, arguments, body);
+			macroStorage.add (macro);
 
 			if (insertCall){
-				liteParser.replace (liteParser.index, liteParser.index, '@' + name);
+				liteParser.replace (liteParser.index, liteParser.index, '@' + macro.name);
 				liteParser.index = found.index;
 			}
 		}
