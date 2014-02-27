@@ -255,6 +255,8 @@
 			type: 				Syntax.DebuggerStatement
 		})
 
+	var tempId = 0;
+
 	function functionExpression (name, params = [], body)
 		return {
 			type: 				Syntax.FunctionExpression,
@@ -264,7 +266,8 @@
 			body: 				blockStatement (body),
 			rest: 				null,
 			generator: 			false,
-			expression: 		false
+			expression: 		false,
+			number: 			name + tempId ++
 		};
 
 	function functionDeclaration (name, params = [], body)
@@ -276,7 +279,8 @@
 			body: 				blockStatement (body),
 			rest: 				null,
 			generator: 			false,
-			expression: 		false
+			expression: 		false,
+			number: 			name + tempId ++
 		});
 
 	function variableDeclarator (name, value)

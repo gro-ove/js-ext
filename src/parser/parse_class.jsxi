@@ -159,11 +159,11 @@
 		expect ('}');
 
 		state.classes.push ({
-			id: 		id,
-			parent: 	parent || null,
-			uses: 		usedClasses,
-			variables: 	variableDeclarations,
-			functions: 	functionDeclarations
+			id: 			id,
+			parent: 		parent || null,
+			uses: 			usedClasses,
+			variables: 		variableDeclarations,
+			functions: 		functionDeclarations
 		});
 		
 		state.inClass = oldInClass;

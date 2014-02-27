@@ -1,19 +1,21 @@
-class A {
-	protected static var a = 18;
+var p;
 
-	(){
-		console.log ('[A] ' + a);
-	}
+function fn (c){
+	if (!p)
+		p = c;
+	else
+		console.log ('[Check]', p === c ? 'success' : 'fail')
 }
 
-class B extends A {
-	(){
-		a = 1024;
-		console.log ('[B] ' + a);
-		super ();
+class A {
+	private function hardcore (){}
+
+	(value){
+		fn (hardcore);
+		fn (hardcore);
 	}
 }
 
 {
-	new B ();
+	new A ('v-v-value!');
 }

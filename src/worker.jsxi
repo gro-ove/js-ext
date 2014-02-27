@@ -86,8 +86,11 @@
 		this.state = Worker.STATE_WAITING;
 
 		var elements 	= this.data.statements.concat (this.data.classes).concat (this.data.initializations),
-			ast 		= program (elements),
-			result 		= convert (ast);
+			ast 		= program (elements);
+
+		fs.writeFileSync ('dump.json', JSON.stringify (ast, null, 4));
+
+		var result 		= convert (ast);
 
 		this.log ('js generated');
 		this.state 		= Worker.STATE_GENERATED;

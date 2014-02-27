@@ -9,8 +9,8 @@
 		V Initialization statement
 		V Super requested in constuctors
 		V Check for parent class static field change
+		V Names fix
 		F Check for order of super constructor call and methods initialization
-		F Names fix
 		F Static private and object locked conflict
 		F This support
 		F Special access like ['field' + name] support

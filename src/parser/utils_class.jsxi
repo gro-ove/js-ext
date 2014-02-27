@@ -1,10 +1,10 @@
+// Обрабатываем все классы
 function doClasses (rawClasses, callback){
-	function getPosByName (name)
-		return classes.indexOf (classesByNames [name]);
-
-	function getByName (name)
+	// Получить класс по имени
+	function byName (name)
 		return classesByNames [name];
 
+	// Записать класс в список
 	function addClass (name, parent, uses, variables, functions){
 		var objectVariables = [], 
 			staticVariables = [], 
@@ -18,10 +18,13 @@ function doClasses (rawClasses, callback){
 			staticVariablesInitialization = [],
 			temp;
 
-		if (getByName (name.name))
+		if (byName (name.name))
 			throwError (name, Messages.ClassAlreadyDefined, name.name);
 
 		function getName (publicMode, id){
+			if (id.name === '@')
+				return null;
+
 			switch (publicMode){
 				case 'public':
 					return id.name;
@@ -41,18 +44,21 @@ function doClasses (rawClasses, callback){
 					staticVariables.push (arg);
 
 					staticFields [arg.id.name] = { 
-						className: 		name,
+						name: 			getName (entry.publicMode, arg.id),
 						publicMode: 	entry.publicMode, 
-						name: 			getName (entry.publicMode, arg.id) 
+						className: 		name,
+						type: 			'variable'
 					};
 				});
 			} else 
 				entry.declarations.forEach (lambda {
 					arg.publicMode = entry.publicMode;
 					objectVariables.push (arg);
+
 					objectFields [arg.id.name] = { 
-						publicMode: 	entry.publicMode, 
 						name: 			getName (entry.publicMode, arg.id),
+						publicMode: 	entry.publicMode, 
+						className: 		null,
 						type: 			'variable'
 					};
 
@@ -72,9 +78,10 @@ function doClasses (rawClasses, callback){
 				} else {
 					staticFunctions.push (entry);
 					staticFields [entry.id.name] = { 
-						className: 		name,
+						name: 			getName (entry.publicMode, entry.id),
 						publicMode: 	entry.publicMode, 
-						name: 			getName (entry.publicMode, entry.id) 
+						className: 		name,
+						type: 			'function'
 					};
 
 					entry.id.name = staticFields [entry.id.name].name;
@@ -85,8 +92,9 @@ function doClasses (rawClasses, callback){
 				} else {
 					objectFunctions.push (entry);
 					objectFields [entry.id.name] = { 
-						publicMode: 	entry.publicMode, 
 						name: 			getName (entry.publicMode, entry.id),
+						publicMode: 	entry.publicMode, 
+						className: 		null,
 						type: 			'function'
 					};
 
@@ -96,7 +104,7 @@ function doClasses (rawClasses, callback){
 
 		if (objectVariablesInitialization.length){
 			if (!objectConstructor){
-				objectConstructor = functionExpression ();
+				objectConstructor = functionDeclaration ('@');
 				objectConstructor.autocreated = true;
 			}
 
@@ -105,7 +113,7 @@ function doClasses (rawClasses, callback){
 
 		if (staticVariablesInitialization.length){
 			if (!staticInitialization)
-				staticInitialization = functionExpression ();
+				staticInitialization = functionDeclaration ('@');
 			staticInitialization.body.body = staticVariablesInitialization.concat (staticInitialization.body.body);
 		}
 
@@ -127,18 +135,296 @@ function doClasses (rawClasses, callback){
 			objectConstructor: 				objectConstructor,
 			staticInitialization: 			staticInitialization,
 			objectFields: 					objectFields,
-			staticFields: 					staticFields
+			staticFields: 					staticFields,
+			probablyUseOther: 				0
 		})
 	}
 
+	function processClassFunction (classEntry, functionEntry){
+		console.log ('=================== BEGIN ===================');
+
+		// Тут будут лежать имена локальных переменных — им не нужно будет подставлять «this»
+		var exclusions = {};
+
+		// Ссылка на ноду AST текущей обрабатываемой функции
+		var currentFunction;
+
+		// Если какому-то из кусков AST понадобится ссылка на this, он поменяет эту переменную
+		var usingThat = false;
+
+		// Заменяем содержимое одного объекта содержимым другого
+		function set (to, from){
+			for (var n in to)
+				delete to [n];
+			for (var n in from)
+				to [n] = from [n];
+		}
+
+		// Получаем «this» или «that» в зависимости от того, какая функция сейчас обрабатывается
+		function getThis (){
+			// Определяем, дочерняя ли эта функция по отношению к основной обрабатываемой
+			var childFunction = currentFunction !== functionEntry;
+
+			// Если дочерняя, просим обеспечить ссылку на «this».
+			if (childFunction)
+				usingThat = true;
+
+			return childFunction ? identifier (thatVariable) : thisExpression ();
+		}
+
+		// Ищет в переданном куске AST имена переменных, функций и прочей мути
+		function lookForExclusions (obj, target)
+			if (typeof obj === 'object' && obj !== null){
+				if (obj instanceof Array){
+					// Массивы пробегаем в ускоренном темпе
+					for (var child in-array obj)
+						lookForExclusions (child, target);
+
+				} else if ('type' in obj){
+					if (obj.type === Syntax.VariableDeclarator || obj.type === Syntax.FunctionDeclaration){
+						// Переменные и функции записываем
+						target [obj.id.name] = true;
+
+					} else if (obj.type !== Syntax.FunctionExpression){
+						// А по содержимое функций не трогаем
+						for (var key, value in obj)
+							lookForExclusions (value, target);
+					}
+				}
+			}
+
+		// Обработка функции
+		function processFunction (obj, parent){
+			console.assert (typeof obj === 'object' && (obj.type === Syntax.FunctionExpression || obj.type === Syntax.FunctionDeclaration), 'Wrong argument');
+
+			// Сохраняем текущие значения, а после переустанавливаем на свои
+			var oldExclusions = clone (exclusions),
+				oldCurrentFunction = currentFunction;
+
+			exclusions = {};
+			currentFunction = obj;
+
+			// Заносим в исключения аргументы функции
+			obj.params.forEach (lambda exclusions [arg.name] = true);
+
+			// И ищем внутри переменные
+			lookForExclusions (obj.body.body, exclusions);
+
+			// Обновляем содержимое
+			process (obj.body.body);
+
+			// Если кто-то попросил ссылку на «this», а мы — главная функция, обеспечим ссылку.
+			if (usingThat && functionEntry === obj){
+				var temp = [ 
+					variableDeclarator (thatVariable, thisExpression ()) 
+				];
+
+				if (0 in obj.body && obj.body.body [0].type === Syntax.VariableDeclaration)
+					// Если первым идёт список переменных, кидаем в начало списка
+					obj.body.body [0].declarations = temp.concat (obj.body.body [0].declarations);
+				else
+					// Иначе — в начало функции
+					obj.body.body = [ variableDeclaration (temp) ].concat (obj.body.body);
+			}
+
+			// Возвращаем старые значения
+			exclusions = oldExclusions;
+			currentFunction = oldCurrentFunction;
+		}
+
+		function processProperty (obj, parent){
+			process (obj.value, parent);
+		}
+
+		function processIdentifier (obj, parent){
+			// Несколько адовая функция
+
+			function replaceObject (){
+				// Из статичных свойств обращаться к свойствам объекта как-то неправильно (functionEntry -
+				// нода AST основной обрабатываемой функции, на неё и смотрим)
+				if (functionEntry.staticMode)
+					throwError (obj, Messages.ObjectAccessError, obj.name);
+
+				// Не даём обращаться и к скрытым полям
+				if (classEntry.objectFields [obj.name].publicMode === 'locked')
+					throwError (obj, Messages.PrivateAccessError, obj.name);
+
+				// Получаем ссылку на «this» (или «that»)
+				var that = getThis ();
+
+				// Собираем результат
+				var temp = classEntry.objectFields [obj.name],
+					result = memberExpression (that, temp.name);
+
+				// Если обращались к функции и при этом она не вызывается, имеет смысл привязать её к объекту
+				if (temp.type === 'function' && parent.type !== Syntax.CallExpression)
+					result = callExpression (memberExpression (result, 'bind'), [ that ]);
+
+				return result;
+			}
+
+			function replaceStatic (){
+				// Да, тут всё куда проще
+
+				// Бьём по рукам за попытку обратиться к скрытому
+				if (classEntry.staticFields [obj.name].publicMode === 'locked')
+					throwError (obj, Messages.PrivateAccessError, obj.name);
+
+				// Имя класса, в котором определено то нечто, к чему мы обращаемся
+				var className = classEntry.staticFields [obj.name].className;
+
+				// Используем «className.name», потому что иначе две ноды AST будут представлены одним и тем же
+				// объектом, что может выйти боком (а при передаче именно строки будет создана новая нода)
+				return memberExpression (className.name, classEntry.staticFields [obj.name].name);
+			}
+
+			// Проверяем, нет ли в исключениях такого же идентификатора
+			if (!(obj.name in exclusions)){
+				var result = null;
+
+				if (obj.name in classEntry.objectFields){
+					// Обрабатываем метод или поле объекта
+					result = replaceObject ();
+
+				} else if (obj.name in classEntry.staticFields && classEntry.staticFields [obj.name].publicMode !== 'private'){
+					// Обрабатываем статический метод или поле (приватные статические методы или поля ставятся 
+					// иначе, и замена для них не нужна)
+					result = replaceStatic ();
+
+				} else if (classesByNames [obj.name])
+					// Если внезапно нашли имя другого класса, отмечаем, что, вероятно, обрабатываемый класс 
+					// использует этот другой класс и имело бы смысл по возможности поместить обрабатываемый 
+					// класс ниже
+					classEntry.probablyUseOther ++;
+
+				// Меняем объект, если что-то нашлось
+				if (result)
+					set (obj, result);
+			}
+		}
+
+		function processMemberExpression (obj, parent){
+			if (obj.object.type === Syntax.ThisExpression && obj.computed === false && obj.property.type === Syntax.Identifier && obj.property.name in classEntry.objectFields){
+				// TODO
+				obj.property.name = classEntry.objectFields [obj.property.name].name;
+			} 
+
+			// Всё довольно просто — обрабатываем объект ...
+			process (obj.object, obj);
+
+			// ... и, если обращение выполняется через квадратные скобки, заодно и их содержимое
+			if (obj.computed)
+				process (obj.property, obj);
+		}
+
+		function processThisExpression (obj, parent){
+			// Как обычно, получаем ссылку и лепим её на место
+			set (obj, getThis ());
+		}
+
+		function processSuperExpression (obj, parent){
+			// TODO: static
+
+			// Либо «super» используется в корне одной из функций объекта, или у него есть
+			// имя вызываемого супер-метода
+			if (currentFunction !== functionEntry && obj.callee === null)
+				throwError (obj, Messages.WtfMan);
+
+			// Ищем название нужного класса, идя по дереву классов
+			var current = classEntry;
+
+			// В поле «super» хранится, на сколько нужно подняться
+			for (var i = 0; i < obj ['super']; i ++){
+				current = byName (current.parent.name);
+
+				// Если вдруг родителей не хватает, вываливаемся
+				if (!current)
+					throwError (obj, Messages.SuperMethodsAreNotAvailable);
+			}
+
+			// Имя вызываемого метода
+			var callee = obj.callee ? obj.callee.name : functionEntry.name;
+
+			// У кого вызывать метод
+			var target;
+
+			if (callee){
+				// Если имя где-то, но есть, вызываем метод из прототипа
+				target = memberExpression (memberExpression (current.name, 'prototype'), callee);
+			} else {
+				// Иначе вызываем конструктор
+				target = current.name;
+			}
+
+			// Вызываемая функция
+			obj.callee = memberExpression (target, 'call');
+
+			// Получаем ссылку на «this»
+			var that = getThis ();
+
+			// Не забываем добавить «this» в аргументы
+			obj.arguments = [ that ].concat (obj.arguments);
+		}
+
+		function process (obj, parent)
+			if (typeof obj === 'object' && obj !== null){
+				// Как-нибудь обойдёмся и без строк, чисел, null'ов и прочей мути
+
+				if (obj instanceof Array){
+					// Массивы пробегаем в ускоренном темпе
+					for (var child in-array obj)
+						process (child, obj);
+
+				} else if ('type' in obj){
+					// Ну, тут всё вполне очевидно
+
+					switch (obj.type){
+						case Syntax.FunctionDeclaration:
+						case Syntax.FunctionExpression:
+							processFunction (obj, parent);
+							break;
+
+						case Syntax.Property:
+							processProperty (obj, parent);
+							break;
+
+						case Syntax.Identifier:
+							processIdentifier (obj, parent);
+							break;
+
+						case Syntax.MemberExpression:
+							processMemberExpression (obj, parent);
+							break;
+
+						case Syntax.ThisExpression:
+							processThisExpression (obj, parent);
+							break;
+
+						case Syntax.CallExpression:
+							if ('super' in obj)
+								processSuperExpression (obj, parent);
+							// Не стоит переживать на счёт break'а — он пропущен специально (после нужно 
+							// будет проверить аргументы и всё такое)
+
+						default:
+							for (var key, value in obj){
+								// console.log (key, value);
+								process (value, obj);
+							}
+					}
+				}
+			}
+
+		process (functionEntry);
+	}
+
 	function processClass (entry){
-		if (typeof entry === 'string')
-			assert (entry = getByName (entry), 'Class ' + entry + ' not found');
+		if (typeof entry === 'string'){
+			entry = byName (entry);
+			assert (entry, 'Class ' + entry + ' not found');
+		}
 
 		var variable = entry.name.name, 
-			exclusions = {}, 
-			staticMode, 
-			createThat, 
 			mode,
 			body, 
 			functions, 
@@ -148,121 +434,10 @@ function doClasses (rawClasses, callback){
 			publicStaticFunctions,
 			resultFunction;
 
-		assert (!entry.element, 'Already processed');
-
-		function updateExclusions (obj, second)
-			if (obj instanceof Array){
-				for (var i = 0; i < obj.length; i ++)
-					updateExclusions (obj [i], true);
-			} else if (obj && obj.type){
-				if (obj.type === 'FunctionDeclaration' || obj.type === 'FunctionExpression'){
-					if (!second){
-						exclusions = clone (exclusions);
-						updateExclusions (obj.body, true);
-						obj.params.forEach (lambda exclusions [arg.name] = true);
-					}
-				} else if (obj.type === 'VariableDeclarator'){
-					exclusions [obj.id.name] = true;
-				} else {
-					for (var n in obj)
-						updateExclusions (obj [n], true);
-				}
-			}
-
-		function update (obj, name, second, parent)
-			if (obj instanceof Array){
-				for (var i = 0; i < obj.length; i ++)
-					obj [i] = update (obj [i], name, true, obj) || obj [i];
-			} else if (obj && obj.type){
-				var oldExclusions = undefined, oldStaticMode, temp;
-
-				if (obj.type === Syntax.FunctionDeclaration || obj.type === Syntax.FunctionExpression){
-					oldExclusions 	= exclusions;
-					oldStaticMode 	= staticMode;
-
-					updateExclusions (obj);
-					staticMode 		= obj.staticMode;
-
-					if (!second)
-						createThat 	= false;
-
-					update (obj.body.body, second ? null : name, true, obj);
-
-					if (createThat && !second){
-						temp = [ variableDeclarator (thatVariable, thisExpression ()) ];
-						if (obj.body.body [0] && obj.body.body [0].type === Syntax.VariableDeclaration)
-							obj.body.body [0].declarations = temp.concat (obj.body.body [0].declarations);
-						else
-							obj.body.body = [ variableDeclaration (temp) ].concat (obj.body.body);
-					}
-
-					exclusions 		= oldExclusions;
-					staticMode 		= oldStaticMode;
-				} else if (obj.type === Syntax.Property){
-					obj.value = update (obj.value, name, true, obj) || obj.value;
-				} else if (obj.type === Syntax.Identifier){
-					if (!exclusions [obj.name]){
-						if (entry.objectFields [obj.name]){
-							if (staticMode)
-								throwError (obj, Messages.ObjectAccessError, obj.name);
-
-							if (entry.objectFields [obj.name].publicMode === 'locked')
-								throwError (obj, Messages.PrivateAccessError, obj.name);
-
-							if (!name)
-								createThat = true;
-
-							temp = memberExpression (name ? thisExpression () : thatVariable, entry.objectFields [obj.name].name);
-							if (entry.objectFields [obj.name].type === 'function' && parent.type !== Syntax.CallExpression)
-								temp = callExpression (memberExpression (temp, 'bind'), [ name ? thisExpression () : thatVariable ]);
-							return temp;
-						} else if (entry.staticFields [obj.name] && entry.staticFields [obj.name].publicMode !== 'private'){
-							if (entry.staticFields [obj.name].publicMode === 'locked')
-								throwError (obj, Messages.PrivateAccessError, obj.name);
-
-							return memberExpression (entry.staticFields [obj.name].className === entry.name 
-								? variable 
-								: entry.staticFields [obj.name].className.name, entry.staticFields [obj.name].name);
-						} else if (classesByNames [obj.name])
-							entry.probablyUseOther = (entry.probablyUseOther || 0) + 1;
-					}
-				} else if (obj.type === Syntax.MemberExpression){
-					obj.object = update (obj.object, name, true, obj) || obj.object;
-					if (obj.computed)
-						obj.property = update (obj.property, name, true, obj) || obj.property;
-				} else {
-					if (obj.type === Syntax.CallExpression && obj ['super']){
-						if (name === null && obj.callee === null)
-							throwError (obj, Messages.WtfMan);
-
-						var parent = entry,
-							callee = obj.callee ? obj.callee.name : name;
-
-						for (var i = 0; i < obj ['super']; i ++){
-							parent = getByName (parent.parent.name);
-							if (!parent)
-								throwError (obj, Messages.SuperMethodsAreNotAvailable);
-						}
-
-						obj.callee = memberExpression (
-							callee === '@' 
-								? parent.name
-								: memberExpression (
-									memberExpression (parent.name, 'prototype'),
-									callee),
-							'call');
-
-						obj.arguments = [ thisExpression () ].concat (obj.arguments);
-					}
-
-					for (var n in obj)
-						if (n !== 'type')
-							obj [n] = update (obj [n], name, true, obj) || obj [n];
-				}
-			}
+		console.assert (!entry.element, 'Already processed');
 
 		if (entry.objectConstructor){
-			update (entry.objectConstructor, '@');
+			processClassFunction (entry, entry.objectConstructor);
 			entry.objectConstructor.body.body = entry.objectConstructor.body.body.filter (lambda (arg, i, array){
 				if (arg.autocreated && arg.type === Syntax.ExpressionStatement && arg.expression.right.name === 'undefined')
 					for (var e in-array array){
@@ -275,10 +450,10 @@ function doClasses (rawClasses, callback){
 			});
 		}
 
-		entry.objectFunctions.forEach (lambda update (arg, arg.id.name));
+		entry.objectFunctions.forEach (processClassFunction.bind (null, entry));
 		if (entry.staticInitialization)
-			update (entry.staticInitialization, '@');
-		entry.staticFunctions.forEach (lambda update (arg, arg.id.name));
+			processClassFunction (entry, entry.staticInitialization);
+		entry.staticFunctions.forEach (processClassFunction.bind (null, entry));
 
 		entry.mode = 'default';
 		if (!entry.childs.length &&
@@ -364,8 +539,8 @@ function doClasses (rawClasses, callback){
 		var current;
 
 		function check (identifier){
-			var entry = getByName (identifier.name);
-			assert (entry, 'Class not found: ' + identifier.name);
+			var entry = byName (identifier.name);
+			console.assert (entry, 'Class not found: ' + identifier.name);
 
 			if (current [identifier.name])
 				throwError (identifier, Messages.CyclicDependencyDetected, identifier.name);
@@ -391,8 +566,10 @@ function doClasses (rawClasses, callback){
 	function connectClass (entry, from){
 		var parent;
 
-		if (typeof entry === 'string')
-			assert (entry = getByName (entry), 'Class ' + entry + ' not found');
+		if (typeof entry === 'string'){
+			entry = byName (entry);
+			console.assert (entry, 'Class ' + entry + ' not found');
+		}
 
 		if (from !== undefined)
 			entry.childs.push (from);
@@ -401,7 +578,7 @@ function doClasses (rawClasses, callback){
 			return;
 
 		if (entry.parent !== null){
-			parent = getByName (entry.parent.name);
+			parent = byName (entry.parent.name);
 
 			if (!parent){
 				throwError (entry.parent, Messages.ParentClassNotFound, entry.parent.name);
@@ -442,7 +619,7 @@ function doClasses (rawClasses, callback){
 		}
 
 		for (var use in-array entry.uses){
-			if (!getByName (use.name))
+			if (!byName (use.name))
 				throwError (use, Messages.UsingClassNotFound, use.name);
 		}
 
@@ -461,8 +638,10 @@ function doClasses (rawClasses, callback){
 
 	function sortClasses (){
 		function getWeight (entry){
-			if (typeof entry === 'string')
-				assert (entry = getByName (entry), 'Class not found: ' + entry);
+			if (typeof entry === 'string'){
+				entry = byName (entry);
+				console.assert (entry, 'Class not found: ' + entry);
+			}
 
 			if (entry.weight)
 				return entry.weight;
@@ -486,7 +665,7 @@ function doClasses (rawClasses, callback){
 	var classes 					= [], 
 		classesByNames 				= {}, 
 		probablyUseOtherMaxValue 	= 100, 
-		thatVariable 				= newIdentifier (); // TODO: Identifier fix
+		thatVariable 				= newIdentifier ('_that'); // TODO: Identifier fix
 
 	for (var entry in-array rawClasses)
 		addClass (entry.id, entry.parent, entry.uses, entry.variables, entry.functions);
