@@ -52,26 +52,20 @@
 				try {
 					eval ('data = ' + convert (arg, 'macro arg'));
 					callback (data);
-				} catch {
-					// TODO: cool errors handling
-					console.log ('FAILED AT:\n' + (value || '< EMPTY STRING >') + '\nWHAT HAS BEEN TRANSFORMED INTO:\n' + (arg || '< EMPTY STRING >'));
-					throw e;
-				}
+				} catch 
+					console.fatal (2, 'Error at argument preparing:\n' + (value || '< empty string >') + ' ⇒ ' + (arg || '< empty string >') + '\n\n' + e.stack);
 			}
 
-			if (argument.type !== null){
-				switch (argument.type){
-					case 'raw-nm':
-						callback (value);
-						break;
-					case 'raw':
-						macrosProcess (value, this.level, this.context, callback);
-						break;
-					default:
-						throw new Error ('Invalid argument type (' + this.name + ', ' + argument.type + ')');
-				}
-			} else
-				macrosProcess (value, this.level, this.context, nextStep);
+			switch (argument.type){
+				case 'raw-nm':
+					callback (value);
+					return;
+				case 'raw':
+					macrosProcess (value, this.level, this.context, callback);
+					return;
+			}
+			
+			macrosProcess (value, this.level, this.context, nextStep);
 		}
 
 		var queue = new Queue (this, Queue.MODE_PARALLEL).description ('macro call arguments prepare');
@@ -109,9 +103,18 @@
 			callback ();
 		}.bind (this);
 
-		if (this.macro.asyncMode)
-			this.macro.call (this.context, this.arguments.concat ([ resultHandler ]));
-		else 
+		if (this.macro.asyncMode){
+			var temp = this.arguments,
+				delta = this.macro.arguments.length - (temp.length + 1);
+
+			if (delta < 0)
+				temp = temp.slice (0, delta);
+			else if (delta > 0)
+				temp = temp.concat (new Array (delta));
+
+			temp.push (resultHandler);
+			this.macro.call (this.context, temp);
+		} else 
 			resultHandler (this.macro.call (this.context, this.arguments));
 	}
 
@@ -161,7 +164,7 @@
 			}
 		} else if (result !== undefined){
 			doMacros = true;
-			result = JSON.stringify (result);
+			result = String (result);
 		} else 
 			result = '';
 

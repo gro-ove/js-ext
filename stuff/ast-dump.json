@@ -7,10 +7,32 @@
                 "type": "Literal",
                 "value": "[object global]"
             },
-            "lineNumber": 67,
-            "lineStart": 1117,
+            "lineNumber": 4,
+            "lineStart": 58,
             "filename": "current.jsx",
-            "index": 1117
+            "index": 58
+        },
+        {
+            "type": "ExpressionStatement",
+            "expression": {
+                "type": "Literal",
+                "value": ""
+            },
+            "lineNumber": 5,
+            "lineStart": 61,
+            "filename": "current.jsx",
+            "index": 61
+        },
+        {
+            "type": "ExpressionStatement",
+            "expression": {
+                "type": "Literal",
+                "value": ""
+            },
+            "lineNumber": 69,
+            "lineStart": 1123,
+            "filename": "current.jsx",
+            "index": 1123
         }
     ]
 }

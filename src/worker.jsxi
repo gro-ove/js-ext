@@ -22,10 +22,12 @@
 			if (fileStorage.everythingFinished ()){
 				clearInterval (interval);
 				callback ();
+
 			} else if (fileStorage.has (lambda arg.state !== File.STATE_FINISHED && arg.state !== File.STATE_MACRO_WAITING) 
 				&& MacroCall.waitingForCallback === 0 
 				&& MacroCall.waitingForMacro > 0){
-				console.fatal ('Macro initialization error');
+
+				console.fatal (1, 'Macro initialization failed: ' + macroStorage.requests.map (lambda '@' + arg [0]).join (', '));
 			}
 		}, 100);
 	}
@@ -88,7 +90,7 @@
 		var elements 	= this.data.statements.concat (this.data.classes).concat (this.data.initializations),
 			ast 		= program (elements);
 
-		fs.writeFileSync (path.resolve (__dirname, '../stuff/ast-dump.json'), JSON.stringify (ast, null, 4));
+		// fs.writeFileSync (path.resolve (__dirname, '../stuff/ast-dump.json'), JSON.stringify (ast, null, 4));
 
 		var result 		= convert (ast);
 

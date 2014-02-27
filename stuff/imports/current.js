@@ -1,1 +1,1 @@
-'[object global]';
+'51';

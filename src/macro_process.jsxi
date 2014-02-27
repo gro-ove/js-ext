@@ -1,20 +1,25 @@
-	function macrosParse (source, level, context){
-		// TODO: Don't allow "macro" name
+	var anonymousMacroId = +new Date;
 
+	function macrosParse (source, level, context){
 		console.assert (context instanceof Context, 'Context required');
 
 		function parseMacroDefine (){
 			var name = found.raw [1],
-				type = found.raw [2] || null,
 				position,
 				argument,
 				arguments,
 				blockMode,
 				temp,
 				body,
-				converted;
+				converted,
+				insertCall = false,
+				from;
+
+			if (name === 'macro')
+				throwError (liteParser.getPosition (), 'This word is reserved');
 
 			temp = liteParser.whatNext (/[^\s]/);
+			from = liteParser.index;
 
 			if (temp.value === '('){
 				liteParser.moveTo (temp);
@@ -31,6 +36,12 @@
 						throwError (liteParser.getPosition (), 'Missing argument');
 
 					position = liteParser.index;
+
+					if (!/^[a-z$_][a-z$_\d]*(\:[a-z\-]+)?$/i.test (argument)){
+						arguments = null;
+						liteParser.index = from;
+						break;
+					}
 
 					if (temp.value === ')')
 						break;
@@ -49,8 +60,13 @@
 			} else 
 				temp = liteParser.findHere (';', LiteParser.EOF);
 
-			if (!temp)
+			if (!temp || temp.value === LiteParser.EOF){
 				throwError (liteParser.getPosition (), 'End of macro\'s body not found');
+			} else if (temp.value === '}'){
+				temp = liteParser.whatNext (/[^\s]/);
+				if (temp.value === '(')
+					insertCall = true;
+			}
 
 			body = liteParser.substring (position, liteParser.index).trim ();
 
@@ -58,8 +74,20 @@
 			if (temp && temp.value === ';')
 				liteParser.moveTo (temp);
 
+			if (!name){
+				if (insertCall)
+					name = '__anonymous_macro_' + ++ anonymousMacroId;
+				else
+					throwError (liteParser.getPosition (), 'Name required');
+			}
+
 			liteParser.replace (found.index, liteParser.index, '/* There was definition of @' + name + ' */');
-			macroStorage.add (new Macro (name, type, level, context, arguments, body));
+			macroStorage.add (new Macro (name, level, context, arguments, body));
+
+			if (insertCall){
+				liteParser.replace (liteParser.index, liteParser.index, '@' + name);
+				liteParser.index = found.index;
+			}
 		}
 
 		function parseMacroCall (){
@@ -69,6 +97,9 @@
 				argument,
 				quotesCount,
 				temp;
+
+			if (name === 'macro')
+				throwError (liteParser.getPosition (), 'This word is reserved');
 
 			temp = liteParser.whatNext (/[^\s]/);
 			if (temp && (temp.value === '{' || temp.value === '(')){
@@ -147,7 +178,7 @@
 			found;
 
 		while (found = liteParser.findNext (
-				/@macro\s+([_$a-zA-Z][_$a-zA-Z0-9]*)(?:\:([a-z\-]+))?/, 
+				/@macro\s+([_$a-zA-Z][_$a-zA-Z0-9]*(?:\:[a-z\-]+)?)?/, 
 				/@([_$a-zA-Z][_$a-zA-Z0-9]*)/, 
 				'{', 
 				'}')){

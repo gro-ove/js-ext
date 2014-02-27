@@ -10,10 +10,8 @@ console.json = function (obj){
 function convert (jsxCode, options)
 	try {
 		return require ('escodegen').generate (typeof jsxCode === 'string' ? jsxParse (jsxCode, typeof options === 'string' ? { filename: options } : options) : jsxCode);
-	} catch {
-		console.log ('ERROR AT PARSING:\n' + jsxCode);
-		throw e
-	}
+	} catch 
+		console.fatal (4, 'Parsing failed:\n' + jsxCode + '\n\n' + e.stack);
 
 function addLog (p, key, fn){
 	if (!p || !p.prototype){

@@ -2913,8 +2913,8 @@ return [temp];
 current = path.dirname (current);
 }
 }
-{ var _1j6feuo_11 = this instanceof File ? [{"root":this.root,"dirname":this.dirname}].concat (lookingAt) : lookingAt; for (var _842in3l_12 = 0; _842in3l_12 < _1j6feuo_11.length; _842in3l_12 ++){
-var entry = _1j6feuo_11[_842in3l_12];
+{ var _28dkmn1_6 = this instanceof File ? [{"root":this.root,"dirname":this.dirname}].concat (lookingAt) : lookingAt; for (var _4gs02tb_7 = 0; _4gs02tb_7 < _28dkmn1_6.length; _4gs02tb_7 ++){
+var entry = _28dkmn1_6[_4gs02tb_7];
 var temp = findInFolder (entry.root, entry.dirname, child);
 if (temp)
 return temp.map (function (arg){
@@ -2965,11 +2965,7 @@ this.parsed = arg;
 callback ();
 }.bind (this));
 }catch (e){
-console.log ("[failed on]", this.content);
-console.error (e.stack);
-setTimeout (function (arg){
-return process.exit ();
-}, 200);
+console.fatal (3, "Parsing failed:\n" + this.content + "\n\n" + e.stack);
 }
 };
 File.prototype.process = function (callback){
@@ -3326,9 +3322,10 @@ return found;
 }
 return null;
 };
-function Macro (name,type,level,context,macroArgs,macroBody){
-this.name = name;
-this.type = type;
+function Macro (name,level,context,macroArgs,macroBody){
+var splitted = name.split (":");
+this.name = splitted [0];
+this.type = splitted [1] || null;
 if (! macroBody)
 {
 macroBody = macroArgs;
@@ -3358,8 +3355,8 @@ Macro.Defaults = {"fs":fs,"path":path,"params":paramsManager,"ReturnType":Macro.
 Macro.globalStorage = {};
 Macro.prototype.defaults = function (context){
 var result = {}, obj = {"name":this.name,"context":context,"macroContext":this.context};
-{ var _61tkd71_12 = Macro.Defaults; for (var key in _61tkd71_12){
-var value = _61tkd71_12[key];
+{ var _74chns3_65 = Macro.Defaults; for (var key in _74chns3_65){
+var value = _74chns3_65[key];
 if (typeof value === "function")
 result [key] = value.call (obj);
 else
@@ -3407,10 +3404,11 @@ variables.push ("macroContext = this.macroContext");
 variables.push ("global = this.global");
 variables.push ("local = this.local");
 variables.push ("require = this.require");
+variables.push ("macro = this.macro.bind (this)");
 for (var key in Macro.Defaults)
 variables.push (key + " = this.defaults." + key);
-{ var _434ljun_13 = phase.used; for (var _3fn96m1_14 = 0; _3fn96m1_14 < _434ljun_13.length; _3fn96m1_14 ++){
-var entry = _434ljun_13[_3fn96m1_14];
+{ var _5q08vio_66 = phase.used; for (var _1hnufle_67 = 0; _1hnufle_67 < _5q08vio_66.length; _1hnufle_67 ++){
+var entry = _5q08vio_66[_1hnufle_67];
 queue.add (macroStorage.get, entry.macro, this.level);
 variables.push (entry.name + " = function (){ return this.macros." + entry.macro + ".call (this.context, arguments) }.bind (this)");
 }}
@@ -3434,11 +3432,25 @@ Macro.prototype.call = function (context,args){
 console.assert (this.callee, "Macro is not initialized");
 console.assert (args && typeof args.length === "number", "Wrong argument");
 console.assert (context instanceof Context, "Context required");
-var dirname = this.context.file.dirname, object = {"defaults":this.defaults (context),"macros":this.macros,"macroContext":this.context,"context":context,"global":Macro.globalStorage,"local":this.localStorage,"require":function (arg){
-return require (path.resolve (dirname, "node_modules", arg));
+var that = this, object = {"defaults":this.defaults (context),"macros":this.macros,"macroContext":this.context,"context":context,"global":Macro.globalStorage,"local":this.localStorage,"require":function (arg){
+return require (path.resolve (context.file.dirname, "node_modules", arg));
+},"macro":function (name,arguments,body){
+return macroStorage.add (new Macro(name, that.level, that.context, typeof arguments === "string" ? arguments.split (",").map (Function.prototype.call.bind (String.prototype.trim)) : arguments, body));
 }};
 try{
-return this.callee.apply (object, args);
+return this.callee.apply (object, args.map (function (value,pos){
+switch (this.arguments [pos].type){
+case "boolean":
+return ! ! value;
+case "string":
+return String (value);
+case "number":
+return + value;
+case "object":
+return typeof value === "object" ? value : null;
+default:return value;
+}
+}.bind (this)));
 }catch (e){
 if (e.name === "MacroError")
 throw e;
@@ -3505,28 +3517,22 @@ try{
 eval ("data = " + convert (arg, "macro arg"));
 callback (data);
 }catch (e){
-console.log ("FAILED AT:\n" + (value || "< EMPTY STRING >") + "\nWHAT HAS BEEN TRANSFORMED INTO:\n" + (arg || "< EMPTY STRING >"));
-throw e;
+console.fatal (2, "Error at argument preparing:\n" + (value || "< empty string >") + " ⇒ " + (arg || "< empty string >") + "\n\n" + e.stack);
 }
 }
-if (argument.type !== null)
-{
 switch (argument.type){
 case "raw-nm":
 callback (value);
-break;
+return;
 case "raw":
 macrosProcess (value, this.level, this.context, callback);
-break;
-default:throw new Error("Invalid argument type (" + this.name + ", " + argument.type + ")");
+return;
 }
-}
-else
 macrosProcess (value, this.level, this.context, nextStep);
 }
 var queue = new Queue(this, Queue.MODE_PARALLEL).description ("macro call arguments prepare");
-{ var _2pf3o6b_8 = this.arguments; for (var i = 0; i < _2pf3o6b_8.length; i ++){
-var arg = _2pf3o6b_8[i];
+{ var _6sn9mjf_25 = this.arguments; for (var i = 0; i < _6sn9mjf_25.length; i ++){
+var arg = _6sn9mjf_25[i];
 queue.add (cast, this.macro.arguments [i], arg);
 }}
 queue.run (function (arg){
@@ -3553,7 +3559,16 @@ MacroCall.waitingForCallback--;
 callback ();
 }.bind (this);
 if (this.macro.asyncMode)
-this.macro.call (this.context, this.arguments.concat ([resultHandler]));
+{
+var temp = this.arguments, delta = this.macro.arguments.length - (temp.length + 1);
+if (delta < 0)
+temp = temp.slice (0, delta);
+else
+if (delta > 0)
+temp = temp.concat (new Array(delta));
+temp.push (resultHandler);
+this.macro.call (this.context, temp);
+}
 else
 resultHandler (this.macro.call (this.context, this.arguments));
 };
@@ -3602,7 +3617,7 @@ else
 if (result !== undefined)
 {
 doMacros = true;
-result = JSON.stringify (result);
+result = String (result);
 }
 else
 result = "";
@@ -3630,11 +3645,15 @@ this.message = "Macro @" + name + " not found";
 }
 ;
 MacroNotFoundError.prototype = Error.prototype;
+var anonymousMacroId = + new Date();
 function macrosParse (source,level,context){
 console.assert (context instanceof Context, "Context required");
 function parseMacroDefine (){
-var name = found.raw [1], type = found.raw [2] || null, position, argument, arguments, blockMode, temp, body, converted;
+var name = found.raw [1], position, argument, arguments, blockMode, temp, body, converted, insertCall = false, from;
+if (name === "macro")
+throwError (liteParser.getPosition (), "This word is reserved");
 temp = liteParser.whatNext (/[^\s]/);
+from = liteParser.index;
 if (temp.value === "(")
 {
 liteParser.moveTo (temp);
@@ -3649,6 +3668,12 @@ else
 if (arguments.length || temp.value === ",")
 throwError (liteParser.getPosition (), "Missing argument");
 position = liteParser.index;
+if (! /^[a-z$_][a-z$_\d]*(\:[a-z\-]+)?$/i.test (argument))
+{
+arguments = null;
+liteParser.index = from;
+break;
+}
 if (temp.value === ")")
 break;
 }
@@ -3665,17 +3690,40 @@ temp = liteParser.findHere ("}");
 }
 else
 temp = liteParser.findHere (";", LiteParser.EOF);
-if (! temp)
+if (! temp || temp.value === LiteParser.EOF)
+{
 throwError (liteParser.getPosition (), "End of macro's body not found");
+}
+else
+if (temp.value === "}")
+{
+temp = liteParser.whatNext (/[^\s]/);
+if (temp.value === "(")
+insertCall = true;
+}
 body = liteParser.substring (position, liteParser.index).trim ();
 temp = liteParser.whatNext (/[^\s]/);
 if (temp && temp.value === ";")
 liteParser.moveTo (temp);
+if (! name)
+{
+if (insertCall)
+name = "__anonymous_macro_" + ++ anonymousMacroId;
+else
+throwError (liteParser.getPosition (), "Name required");
+}
 liteParser.replace (found.index, liteParser.index, "/* There was definition of @" + name + " */");
-macroStorage.add (new Macro(name, type, level, context, arguments, body));
+macroStorage.add (new Macro(name, level, context, arguments, body));
+if (insertCall)
+{
+liteParser.replace (liteParser.index, liteParser.index, "@" + name);
+liteParser.index = found.index;
+}
 }
 function parseMacroCall (){
 var name = found.raw [1], arguments = [], position, argument, quotesCount, temp;
+if (name === "macro")
+throwError (liteParser.getPosition (), "This word is reserved");
 temp = liteParser.whatNext (/[^\s]/);
 if (temp && (temp.value === "{" || temp.value === "("))
 {
@@ -3745,7 +3793,7 @@ if (temp.value === arg.value)
 return true;
 return false;
 }), found;
-while (found = liteParser.findNext (/@macro\s+([_$a-zA-Z][_$a-zA-Z0-9]*)(?:\:([a-z\-]+))?/, /@([_$a-zA-Z][_$a-zA-Z0-9]*)/, "{", "}"))
+while (found = liteParser.findNext (/@macro\s+([_$a-zA-Z][_$a-zA-Z0-9]*(?:\:[a-z\-]+)?)?/, /@([_$a-zA-Z][_$a-zA-Z0-9]*)/, "{", "}"))
 {
 switch (found.id){
 case 0:
@@ -3774,13 +3822,13 @@ level = "";
 console.assert (context instanceof Context, "Context required");
 console.assert (typeof callback === "function", "Function required");
 var temp = macrosParse (data, level, context), queue = new Queue(Queue.MODE_PARALLEL).description ("macros process");
-{ var _8f1gv5t_28 = temp.calls; for (var _774tp36_29 = 0; _774tp36_29 < _8f1gv5t_28.length; _774tp36_29 ++){
-var call = _8f1gv5t_28[_774tp36_29];
+{ var _1jrs6ce_95 = temp.calls; for (var _74iatg0_96 = 0; _74iatg0_96 < _1jrs6ce_95.length; _74iatg0_96 ++){
+var call = _1jrs6ce_95[_74iatg0_96];
 queue.add (call, call.process.bind (call));
 }}
 queue.run (function (arg){
-for (var _7qmeeui_30 = 0; _7qmeeui_30 < arg.length; _7qmeeui_30 ++){
-var entry = arg[_7qmeeui_30];
+for (var _2enio0s_97 = 0; _2enio0s_97 < arg.length; _2enio0s_97 ++){
+var entry = arg[_2enio0s_97];
 temp.data = temp.data.split (entry.data.replacement).join (entry.result [0]);
 }
 callback (temp.data);
@@ -3937,8 +3985,7 @@ function convert (jsxCode,options){
 try{
 return require ("escodegen").generate (typeof jsxCode === "string" ? jsxParse (jsxCode, typeof options === "string" ? {"filename":options} : options) : jsxCode);
 }catch (e){
-console.log ("ERROR AT PARSING:\n" + jsxCode);
-throw e;
+console.fatal (4, "Parsing failed:\n" + jsxCode + "\n\n" + e.stack);
 }
 }
 function addLog (p,key,fn){
@@ -3988,7 +4035,9 @@ if (fileStorage.has (function (arg){
 return arg.state !== File.STATE_FINISHED && arg.state !== File.STATE_MACRO_WAITING;
 }) && MacroCall.waitingForCallback === 0 && MacroCall.waitingForMacro > 0)
 {
-console.fatal ("Macro initialization error");
+console.fatal (1, "Macro initialization failed: " + macroStorage.requests.map (function (arg){
+return "@" + arg [0];
+}).join (", "));
 }
 }, 100);
 };
@@ -3996,8 +4045,8 @@ Worker.prototype.start = function (callback){
 console.assert (this.state == Worker.STATE_INITIAL, "Wrong state (" + this.state + ")");
 this.state = Worker.STATE_WAITING;
 this.log ("started");
-{ var _4b8gsjd_50 = File.find ("default/*") || []; for (var _2ge9ic6_51 = 0; _2ge9ic6_51 < _4b8gsjd_50.length; _2ge9ic6_51 ++){
-var file = _4b8gsjd_50[_2ge9ic6_51];
+{ var _4pvus57_35 = File.find ("default/*") || []; for (var _98b5k0v_36 = 0; _98b5k0v_36 < _4pvus57_35.length; _98b5k0v_36 ++){
+var file = _4pvus57_35[_98b5k0v_36];
 file.process ();
 }}
 this.mainFile = new File(this.path);
@@ -4012,8 +4061,8 @@ callback ();
 Worker.prototype.collect = function (callback){
 console.assert (this.state == Worker.STATE_STARTED, "Wrong state (" + this.state + ")");
 this.state = Worker.STATE_WAITING;
-{ var _jdekok_52 = fileStorage.files; for (var _8stsknb_53 = 0; _8stsknb_53 < _jdekok_52.length; _8stsknb_53 ++){
-var file = _jdekok_52[_8stsknb_53];
+{ var _42kk8hd_37 = fileStorage.files; for (var _837bbv0_38 = 0; _837bbv0_38 < _42kk8hd_37.length; _837bbv0_38 ++){
+var file = _42kk8hd_37[_837bbv0_38];
 Array.prototype.push.apply (this.data.statements, file.parsed.body);
 Array.prototype.push.apply (this.data.classes, file.parsed.classes);
 Array.prototype.push.apply (this.data.initializations, file.parsed.initializations);
@@ -4036,7 +4085,6 @@ Worker.prototype.generate = function (callback){
 console.assert (this.state == Worker.STATE_CLASSES, "Wrong state (" + this.state + ")");
 this.state = Worker.STATE_WAITING;
 var elements = this.data.statements.concat (this.data.classes).concat (this.data.initializations), ast = program (elements);
-fs.writeFileSync (path.resolve (__dirname, "../stuff/ast-dump.json"), JSON.stringify (ast, null, 4));
 var result = convert (ast);
 this.log ("js generated");
 this.state = Worker.STATE_GENERATED;

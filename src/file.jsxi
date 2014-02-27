@@ -131,11 +131,8 @@
 
 				callback ();
 			}.bind (this));
-		} catch (e){
-			console.log ('[failed on]', this.content);
-			console.error (e.stack);
-			setTimeout (lambda process.exit (), 200);
-		}
+		} catch 
+			console.fatal (3, 'Parsing failed:\n' + this.content + '\n\n' + e.stack);
 	}
 
 	File.prototype.process = function (callback){

@@ -1,9 +1,10 @@
-	function Macro (name, type, level, context, macroArgs, macroBody){
-		this.name 				= name;
-		this.type 				= type;
+	function Macro (name, level, context, macroArgs, macroBody){
+		var splitted 			= name.split (':');
+		this.name 				= splitted [0];
+		this.type 				= splitted [1] || null;
 		
 		if (!macroBody){		
-			macroBody 			=	 macroArgs;
+			macroBody 			= macroArgs;
 			macroArgs 			= null;
 		}		
 				
@@ -118,6 +119,7 @@
 		variables.push ('global = this.global');
 		variables.push ('local = this.local');
 		variables.push ('require = this.require');
+		variables.push ('macro = this.macro.bind (this)');
 
 		for (var key in Macro.Defaults)
 			variables.push (key + ' = this.defaults.' + key);
@@ -147,7 +149,7 @@
 		console.assert (args && typeof args.length === 'number', 'Wrong argument');
 		console.assert (context instanceof Context, 'Context required');
 
-		var dirname = this.context.file.dirname,
+		var that = this,
 			object = { 
 				defaults: 		this.defaults (context), 
 				macros: 		this.macros,
@@ -155,11 +157,39 @@
 				context: 		context,
 				global: 		Macro.globalStorage,
 				local: 			this.localStorage,
-				require: 		lambda require (path.resolve (dirname, 'node_modules', arg))
+
+				require: 		lambda require (path.resolve (context.file.dirname, 'node_modules', arg)),
+				macro: 			lambda (name, arguments, body)
+									macroStorage.add (new Macro (
+										name, 
+										that.level, 
+										that.context, 
+										typeof arguments === 'string' 
+											? arguments.split (',').map (Function.prototype.call.bind (String.prototype.trim))
+											: arguments, 
+										body))
 			};
 
 		try
-			return this.callee.apply (object, args);
+			return this.callee.apply (
+				object,
+				args.map (
+					lambda (value, pos){
+						switch (this.arguments [pos].type){
+							case 'boolean':
+								return !!value;
+							case 'string':
+								return String (value);
+							case 'number':
+								return +value;
+							case 'object':
+								return typeof value === 'object' ? value : null;
+							default:
+								return value;
+						}
+					}.bind (this)
+				)
+			)
 		catch
 			if (e.name === 'MacroError')
 				throw e;

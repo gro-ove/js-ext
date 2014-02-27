@@ -52,9 +52,9 @@
 		V add types to arguments
 		V add types to macro's result
 		V liteparser: regexp support
-		F fix 
-		- macros definion in macros
-		L anonynous macros
+		V arguments with callback bug
+		V anonynous macros
+		V macros definion in macros
 		? macros order and stuff
 		? parsing with awesome parser
 	V update readme
@@ -70,6 +70,7 @@
 	F fix overrided protected functions
 	F import with dot in name
 	F import folders
+	F fix shit with functions (one-line, objects and stuff)
 	- arguments support
 	- uglifyjs
 	- array initializer operator
