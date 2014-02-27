@@ -3,16 +3,22 @@
 	function parseProgramElement (){
 		var token = lookahead (), temp, result;
 
-		if (token.type === Token.Keyword)
-			switch (token.value){
-				case 'static':
-				case 'class':
-					return parseClassDeclaration ();
-				case 'function':
-					return parseFunctionDeclarationOrExpression ();
-				default:
+		switch (token.value){
+			case 'public':
+			case 'protected':
+			case 'private':
+			case 'static':
+			case 'abstract':
+			case 'implemented':
+			case 'class':
+			case 'interface':
+				return parseClassDeclaration ();
+			case 'function':
+				return parseFunctionDeclarationOrExpression ();
+			default:
+				if (token.type === Token.Keyword)
 					return parseStatement ();
-			}
+		}
 
 		if (options.initializationAllowed && token.type === Token.Punctuator && (token.value === '(' || token.value === '{')){
 			saved = saveAll ();

@@ -39,3 +39,8 @@ function addLog (p, key, fn){
 	return p ? (p.prototype.log = r) : r;
 }
 
+function isEmpty (obj){
+	for (var n in obj)
+		return false;
+	return true;
+}

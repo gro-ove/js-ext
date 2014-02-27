@@ -1,70 +1,21 @@
-@macro delayed:string (a, fn:callback){
-	setTimeout (lambda fn (a), 100);
+class A extends B implements C, D {
+	use E;
+
+	public function test_1 (){
+
+	}
+
+	static test_2 (){
+
+	}
+
+	test_3 = 18;
+
+	private test_4 = 20;
+
+	var q = 15, m = 18;
 }
 
-@macro name:string {
-	return 18;
-}()
-
-// // interface Object {
-// // 	implemented public function toString ();
-// // }
-
-// var p;
-
-// function fn (c){
-// 	if (!p)
-// 		p = c;
-// 	else
-// 		console.log (p === c ? '[Bind test complete]' : '[Bind test failed]')
-// }
-
-// class A {
-// 	protected var a = 18;
-
-// 	protected static var s = '[protected static var]';
-// 	static var p = '[private static var]';
-
-// 	private function hardcore (){}
-
-// 	(a){
-// 		(lambda {
-// 			setTimeout (lambda {
-// 				console.log ('[A]', a, s, p);
-// 			}, 100);
-// 		})();
-
-// 		this.a = a || this.a;
-
-// 		fn (hardcore);
-// 		fn (hardcore);
-// 	}
-// }
-
-// class B extends A {
-// 	var value, other = 19;
-
-// 	private function hardcore (){
-// 		console.log ('[H]', a, value, this.value);
-// 	}
-
-// 	(value){
-// 		this.value = value;
-
-// 		a = 1024;
-// 		console.log ('[B]', a, this.value, s);
-// 		super ();
-
-// 		(lambda {
-// 			setTimeout (lambda {
-// 				console.log ('[T]', a, value, this.value, other);
-// 			}, 100);
-// 		})();
-
-// 		setTimeout (hardcore, 300);
-// 	}
-// }
-
-// {
-// 	new B ('v-v-value!');
-// }
+interface I {
+	q = 20;
+}

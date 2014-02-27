@@ -1,178 +1,215 @@
-	function parseModuleSourceElements (){
-		var sourceElement,
-			usedClasses = [],
-			variableDeclarations = [],
-			functionDeclarations = [];
+	function parseClassIdentifier ()
+		return mark (parseVariableIdentifier ());
 
-		expect ('{');
+	function parseClassParams (){
+		// Или класс, или интерфейс.
+		// Возможно, реализованный.
+		// Возможно, статический.
+		// Возможно, публичный, приватный или защищённый.
+		// Если класс, то, возможно, абстрактный.
+		// Но в таком случае ни за что не статический.
+		// Let's do it.
 
-		while (index < length){
-			if (match ('}'))
-				break;
-
-			var token = lookahead ();
-
-			if (token.type === Token.Keyword)
-				switch (token.value){
-					case 'function':
-						functionDeclarations.push (parseFunctionDeclaration ());
-						continue;
-					case 'var':
-						variableDeclarations.push (parseStatement ());
-						continue;
-				}
-
-			throwError ({}, 'Module can contain variabled and functions only');
-		}
-
-		expect ('}');
-
-		return {
-			type: 	Syntax.BlockStatement,
-			body: 	variableDeclarations.concat (functionDeclarations)
-		};
-	}
-
-	function parseUseStatement (){
-		var list = [];
-
-		expectKeyword ('use');
+		var token, 
+			result = { 
+				publicMode: 		null, 
+				abstract: 			false,
+				implemented: 		false,
+				static: 			false,
+				interface: 			false
+			};
 
 		do {
-			list.push (parseVariableIdentifier ());
-			if (!match (','))
-				break;
-			lex ();
+			token = lookahead ();
+
+			switch (token.value){
+				case 'public':
+				case 'private':
+				case 'protected':
+					if (result.publicMode !== null)
+						throwUnexpected (token);
+
+					result.publicMode = token.value;
+					lex ();
+					break;
+
+				case 'abstract':
+				case 'static':
+				case 'implemented':
+					if (result [token.value])
+						throwUnexpected (token);
+
+					result [token.value] = true;
+
+					if (result.static && result.abstract)
+						throwUnexpected (token);
+
+					lex ();
+					break;
+
+				case 'interface':
+					if (result.abstract)
+						throwUnexpected (token);
+
+					result.interface = token.value;
+					lex ();
+					return result;
+
+				case 'class':
+					lex ();
+					return result;
+
+				default:
+					throwUnexpected (token);
+			}
 		} while (index < length);
-
-		consumeSemicolon ();
-
-		return list;
 	}
 
-	function parseClassDeclaration (){
-		var id, 
-			parent,
-			token,
-			temp,
-			tempMark,
-			staticMode,
-			staticModeOnly,
-			publicMode,
-			uses = [],
-			members = [],
-			oldInClass;
+	function parseExtendsImplementsAndUses (mode){
+		// Родительский класс  недоступен для интерфейсов и статических классов.
+		// В интерфейсы, как и в «use», умеют все, даже статические классы.
 
-		if (matchKeyword ('static')){
-			lex ();
-			staticModeOnly = true;
+		// Конечно, статический класс может имплементить лишь статические интер-
+		// фейсы (в Java за такое ругают, но тут я главный и мне норм), а реали-
+		// зованные могут использовать лишь другие реализованные,  но эти мелочи 
+		// будут проверяться позже.
+
+		function collect (list = []){
+			do 
+				list.push (parseClassIdentifier ());
+			while (index < length && match (',') && lex ());
+			return list;
 		}
 
-		expectKeyword ('class');
+		// Интерфейс суть лишь особенный класс
+		var token, result = { parent: null, implements: [], uses: [] };
 
-		id = mark (parseVariableIdentifier ());
+		do {
+			token = lookahead ();
 
-		if (matchKeyword ('extends')){
-			lex ();
-			parent = mark (parseVariableIdentifier ());
-		}
+			switch (token.value){
+				case 'extends':
+					if (result.parent || mode.interface || mode.static)
+						throwUnexpected (token);
 
+					result.parent = parseClassIdentifier ();
+					lex ();
+					break;
+
+				case 'implements':
+				case 'uses':
+					collect (result [token.value]);
+					lex ();
+					break;
+
+				default:
+					return result;
+			}
+		} while (index < length);
+	}
+
+	function parseClassMembers (params, dependsOn){
+		function fresh ()
+			return { 
+				publicMode: 		null, 
+				abstract: 			false,
+				static: 			false,
+				interface: 			false
+			}
+
+		var oldInClass = state.inClass,
+			token, 
+			result = {}, 
+			current = fresh ();
+
+		state.inClass = true;
 		expect ('{');
 
-		oldInClass = state.inClass;
-		state.inClass = true;
+		do {
+			token = lookahead ();
 
-		while (index < length){
-			if (match ('}'))
+			if (token.value === '}')
 				break;
 
-			publicMode = undefined;
-			staticMode = staticModeOnly || false;
+			switch (token.value){
+				case 'public':
+				case 'private':
+				case 'protected':
+					if ('publicMode' in params 
+						|| token.value === 'private' && ('descriptionMode' in params || mode === 'interface'))
+						throwUnexpected (token);
 
-			if (matchKeyword ('static')){
-				staticMode = true;
-				lex ();
-			}
+					lex ();
+					params.publicMode = token.value;
+					break;
 
-			if (matchKeyword ('public'))
-				publicMode = 'public';
-			else if (matchKeyword ('protected'))
-				publicMode = 'protected';
-			else if (matchKeyword ('private'))
-				publicMode = 'private';
+				case 'abstract':
+				case 'implemented':
+					if ('descriptionMode' in params 
+						|| params.publicMode === 'private' 
+						|| !(
+							mode === 'abstract' && token.value === 'abstract' || 
+							mode === 'interface' && token.value === 'implemented'))
+						throwUnexpected (token);
 
-			if (publicMode)
-				lex ();
+					lex ();
+					params.descriptionMode = token.value;
+					break;
 
-			if (!staticMode && matchKeyword ('static')){
-				staticMode = true;
-				lex ();
-			}
+				case 'static':
+					if ('staticMode' in params)
+						throwUnexpected (token);
+					lex ();
+					params.staticMode = true;
+					break;
 
-			token = lookahead ();
-			temp = null;
+				case 'var':
+					lex ();
+					temp = parseClassFields (mode, params);
+					temp.forEach (lambda {
+						members [arg.id.name] = $.extend (arg, params);
+					});
+					reset ();
+					break;
 
-			if (token.type === Token.Keyword){
-				switch (token.value){
-					case 'use':
-						if (staticMode && !staticModeOnly || publicMode)
-							throwError ({}, Messages.WtfMan);
-						uses.push.apply (uses, parseUseStatement ());
-						continue;
-					case 'function':
-						if (!staticMode)
-							state.superAvailable = true;
-						temp = parseFunctionDeclaration ();
-						state.superAvailable = false;
+				case 'function':
+					lex ();
+					temp = parseClassMethod (mode, params);
+					members [temp.id.name] = $.extend (temp, params);
+					reset ();
+					break;
+
+				default:
+					if (token.type === Token.Identifier){
+						saved = saveAll ();
+
+						try {
+							temp = parseClassFields (mode, params);
+							temp.forEach (lambda {
+								members [arg.id.name] = $.extend (arg, params);
+							});
+							reset ();
+						} catch {
+							restoreAll (saved);
+							temp = parseClassMethod (mode, params);
+							members [temp.id.name] = $.extend (temp, params);
+							reset ();
+						}
+
 						break;
-					case 'var':
-						temp = parseVariableStatement ();
-						break;
-				}
-			} else if (token.type === Token.Punctuator && token.value === '(' || token.value === '{'){
-				tempMark = mark ();
-				temp = token.value === '(' ? parseFunctionArguments () : [];
+					}
 
-				if (!staticMode)
-					state.superAvailable = true;
-
-				temp = setMark (functionExpression (null, temp, parseFunctionSourceElements ()), tempMark);
-				state.superAvailable = false;
+					throw new Error ('Token: "' + token.value + '", type: ' + token.type);
 			}
-
-			if (!temp){
-				console.log (token, temp);
-				throwError ({}, 'Class can contain variabled and functions only');
-			} else {
-				function add (member){
-					member.staticMode = !!staticMode;
-					member.publicMode = publicMode || 'private';
-					members.push (member);
-				}
-
-				if (temp.type === Syntax.VariableDeclaration)
-					temp.declarations.forEach (add);
-				else 
-					add (temp);
-			}
-		}
+		} while (index < length);
 
 		expect ('}');
 
-		state.classes.push ({
-			classObject: 	true,
-			id: 			id,
-			parent: 		parent || null,
-			uses: 			uses,
-			members: 		members
-		});
-		
 		state.inClass = oldInClass;
-
-		return null;
+		return members;
 	}
 
-	function parseSuperStatement (){
+	function parseSuperExpression (){
 		var level = 1, name, temp, arguments;
 
 		expectKeyword ('super');
@@ -187,7 +224,7 @@
 				level ++;
 				lex ();
 			} else {
-				name = parseVariableIdentifier ();
+				name = parseClassIdentifier ();
 				break;
 			}
 		}
@@ -195,5 +232,158 @@
 		arguments = parseArguments ();
 		consumeSemicolon ();
 
-		return expressionStatement (superExpression (name, arguments, level));
+		return superExpression (name, arguments, level);
+	}
+
+	// function parseClassFields (mode, params){
+	// 	var declarations = parseVariableDeclarationList ();
+	// 	consumeSemicolon ();
+
+	// 	return declarations;
+	// }
+
+	// function parseClassMethod (mode, params){
+	// 	var token, id, params, defaults = [], body;
+
+	// 	state.superAvailable = !params.staticMode;
+
+	// 	token 	= lookahead ();
+	// 	id 		= parseVariableIdentifier ();
+	// 	params 	= match ('(') ? parseFunctionArguments (defaults) : [ identifier ('arg') ];
+	// 	body 	= parseFunctionSourceElements ();
+
+	// 	if (defaults.length)
+	// 		body.body = defaults.concat (body.body);
+
+	// 	state.superAvailable = false;
+
+	// 	return functionDeclaration (id, params, body);
+	// }
+
+	function parseClassDeclaration (){
+		// Получаем параметры класса, задаваемые ключевыми словами вроде «public», «abstract», «static» или «interface»
+		var params = parseClassParams ();
+
+		// А после — имя класса
+		var id = parseClassIdentifier ();
+
+		// Классы, от которых зависит текущий класс (родительские, интерфейсы и используемые)
+		var dependsOn = parseExtendsImplementsAndUses (params);
+
+		// Содержимое класса
+		var members = parseClassMembers (params, dependsOn);
+
+		// oldInClass 					= state.inClass;
+		// state.inClass 				= true;
+
+		// if (mode !== 'interface' && matchKeyword ('extends'))
+		// 	parentClass 			= parseClassParent ();
+
+		// if (matchKeyword ('implements'))
+		// 	implementsInterfaces 	= parseInterfaces ();
+
+		// expect ('{');
+
+		// function reset ()
+		// 	params = mode === 'static' ? { staticMode: true } : {};
+
+		// reset ();
+
+		// main: while (index < length){
+		// 	if (match ('}'))
+		// 		break;
+
+		// 	token = lookahead ();
+
+			
+
+		// 	lex ();
+
+		// 	var token = lookahead (),
+		// 		temp = null;
+
+		// 	if (token.type === Token.Keyword){
+		// 		switch (token.value){
+		// 			case 'use':
+		// 				if (staticMode && !staticModeOnly || publicMode)
+		// 					throwError ({}, Messages.WtfMan);
+		// 				uses.push.apply (uses, parseUseStatement ());
+		// 				continue;
+		// 			case 'function':
+		// 				if (!staticMode)
+		// 					state.superAvailable = true;
+		// 				temp = parseFunctionDeclaration ();
+		// 				state.superAvailable = false;
+		// 				break;
+		// 			case 'var':
+		// 				temp = parseVariableStatement ();
+		// 				break;
+		// 		}
+		// 	} else if (token.type === Token.Punctuator && token.value === '(' || token.value === '{'){
+		// 		var tempMark = mark ();
+		// 		temp = token.value === '(' ? parseFunctionArguments () : [];
+
+		// 		if (!staticMode)
+		// 			state.superAvailable = true;
+
+		// 		temp = setMark (functionExpression (null, temp, parseFunctionSourceElements ()), tempMark);
+		// 		state.superAvailable = false;
+		// 	}
+
+		// 	if (!temp){
+		// 		console.log (token, temp);
+		// 		throwError (token, 'Class can contain variabled and functions only');
+		// 	} else {
+		// 		function add (temp)
+		// 			members.push ($.extend (temp, { staticMode: !!staticMode, publicMode: publicMode || 'private' });
+
+		// 		if (temp.type === Syntax.VariableDeclaration)
+		// 			temp.declarations.forEach (add);
+		// 		else 
+		// 			add (temp);
+		// 	}
+		// }
+
+		// expect ('}');
+
+		var t = [], p = [], n = '';
+		for (var kk, v in members){
+			var s = [];
+
+			if (v.staticMode)
+				s.push ('static');
+
+			if (v.publicMode)
+				s.push (v.publicMode);
+
+			s.push ({ FunctionDeclaration: 'method', VariableDeclarator: 'field' }[v.type] || v.type);
+
+			t.push ('	* ' + v.id.name + ' (' + s.join (' ') + ')');
+		}
+
+		if (parentClass)
+			p.push ('child of ' + parentClass.name);
+
+		if (implementsInterfaces.length)
+			p.push ('implements ' + implementsInterfaces.map (lambda arg.name).join (', '));
+
+		if (usedClasses.length)
+			p.push ('using ' + usedClasses.map (lambda arg.name).join (', '));
+
+		if (p.length)
+			n = ' (' + p.join ('; ') + ')';
+
+		console.log (id.name + n + ':\n' + t.join ('\n'));
+
+		// state.classes.push ({
+		// 	classObject: 	true,
+		// 	id: 			id,
+		// 	parent: 		parent || null,
+		// 	uses: 			uses,
+		// 	members: 		members
+		// });
+
+		state.inClass = oldInClass;
+
+		return null;
 	}

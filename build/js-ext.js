@@ -214,7 +214,7 @@ case 2:
 keyword = (id === "if") || (id === "in") || (id === "do");
 break;
 case 3:
-keyword = (id === "var") || (id === "for") || (id === "new") || (id === "try") || (id === "use");
+keyword = (id === "var") || (id === "for") || (id === "new") || (id === "try") || (id === "uses");
 break;
 case 4:
 keyword = (id === "this") || (id === "else") || (id === "case") || (id === "void") || (id === "with");
@@ -229,13 +229,16 @@ case 7:
 keyword = (id === "default") || (id === "finally") || (id === "private") || (id === "extends");
 break;
 case 8:
-keyword = (id === "function") || (id === "continue") || (id === "debugger");
+keyword = (id === "function") || (id === "continue") || (id === "debugger") || (id === "abstract");
 break;
 case 9:
-keyword = (id === "protected");
+keyword = (id === "protected") || (id === "interface");
 break;
 case 10:
-keyword = (id === "instanceof");
+keyword = (id === "instanceof") || (id === "implements");
+break;
+case 11:
+keyword = (id === "implemented");
 break;
 }
 if (keyword)
@@ -499,140 +502,113 @@ return parseBlock ();
 else
 return blockStatement ([parseSourceElement ()], true);
 }
-function parseModuleSourceElements (){
-var sourceElement, usedClasses = [], variableDeclarations = [], functionDeclarations = [];
-expect ("{");
-while (index < length)
-{
-if (match ("}"))
-break;
-var token = lookahead ();
-if (token.type === Token.Keyword)
-switch (token.value){
-case "function":
-functionDeclarations.push (parseFunctionDeclaration ());
-continue;
-case "var":
-variableDeclarations.push (parseStatement ());
-continue;
+function parseClassIdentifier (){
+return mark (parseVariableIdentifier ());
 }
-throwError ({}, "Module can contain variabled and functions only");
-}
-expect ("}");
-return {"type":Syntax.BlockStatement,"body":variableDeclarations.concat (functionDeclarations)};
-}
-function parseUseStatement (){
-var list = [];
-expectKeyword ("use");
+function parseInterfaceOrClassMode (){
+var token, result = {"publicMode":null,"abstract":false,"implemented":false,"static":false,"interface":false};
 do
 {
-list.push (parseVariableIdentifier ());
+token = lookahead ();
+switch (token.value){
+case "public":
+
+case "private":
+
+case "protected":
+if (result.publicMode !== null)
+throwUnexpected (token);
+result.publicMode = token.value;
+lex ();
+break;
+case "abstract":
+
+case "static":
+
+case "implemented":
+if (result [token.value])
+throwUnexpected (token);
+result [token.value] = true;
+if (result.static && result.abstract)
+throwUnexpected (token);
+lex ();
+break;
+case "interface":
+if (result.abstract)
+throwUnexpected (token);
+result.interface = token.value;
+lex ();
+return result;
+case "class":
+lex ();
+return result;
+default:throwUnexpected (token);
+}
+}
+ while (index < length);
+}
+function parseExtendImplementsAndUse (mode){
+function collect (list){
+if (list === undefined)
+list = [];
+do
+list.push (parseClassIdentifier ());
+ while (index < length && match (",") && lex ());
+return list;
+}
+var token, result = {"parent":null,"implements":[],"uses":[]};
+do
+{
+token = lookahead ();
+switch (token.value){
+case "extends":
+if (result.parent || mode.interface || mode.static)
+throwUnexpected (token);
+result.parent = parseClassIdentifier ();
+lex ();
+break;
+case "implements":
+lex ();
+break;
+case "use":
+lex ();
+break;
+default:throwUnexpected (token);
+}
+}
+ while (index < length);
+}
+function parseClassParent (){
+expectKeyword ("extends");
+return parseClassIdentifier ();
+}
+function parseInterfaces (){
+expectKeyword ("implements");
+var list = [];
+do
+{
+list.push (parseClassIdentifier ());
 if (! match (","))
 break;
 lex ();
 }
  while (index < length);
-consumeSemicolon ();
 return list;
 }
-function parseClassDeclaration (){
-var id, parent, token, temp, tempMark, staticMode, staticModeOnly, publicMode, uses = [], members = [], oldInClass;
-if (matchKeyword ("static"))
+function parseUses (){
+expectKeyword ("use");
+var list = [];
+do
 {
-lex ();
-staticModeOnly = true;
-}
-expectKeyword ("class");
-id = mark (parseVariableIdentifier ());
-if (matchKeyword ("extends"))
-{
-lex ();
-parent = mark (parseVariableIdentifier ());
-}
-expect ("{");
-oldInClass = state.inClass;
-state.inClass = true;
-while (index < length)
-{
-if (match ("}"))
+list.push (parseClassIdentifier ());
+if (! match (","))
 break;
-publicMode = undefined;
-staticMode = staticModeOnly || false;
-if (matchKeyword ("static"))
-{
-staticMode = true;
 lex ();
 }
-if (matchKeyword ("public"))
-publicMode = "public";
-else
-if (matchKeyword ("protected"))
-publicMode = "protected";
-else
-if (matchKeyword ("private"))
-publicMode = "private";
-if (publicMode)
-lex ();
-if (! staticMode && matchKeyword ("static"))
-{
-staticMode = true;
-lex ();
+ while (index < length);
+return list;
 }
-token = lookahead ();
-temp = null;
-if (token.type === Token.Keyword)
-{
-switch (token.value){
-case "use":
-if (staticMode && ! staticModeOnly || publicMode)
-throwError ({}, Messages.WtfMan);
-uses.push.apply (uses, parseUseStatement ());
-continue;
-case "function":
-if (! staticMode)
-state.superAvailable = true;
-temp = parseFunctionDeclaration ();
-state.superAvailable = false;
-break;
-case "var":
-temp = parseVariableStatement ();
-break;
-}
-}
-else
-if (token.type === Token.Punctuator && token.value === "(" || token.value === "{")
-{
-tempMark = mark ();
-temp = token.value === "(" ? parseFunctionArguments () : [];
-if (! staticMode)
-state.superAvailable = true;
-temp = setMark (functionExpression (null, temp, parseFunctionSourceElements ()), tempMark);
-state.superAvailable = false;
-}
-if (! temp)
-{
-console.log (token, temp);
-throwError ({}, "Class can contain variabled and functions only");
-}
-else
-{
-function add (member){
-member.staticMode = ! ! staticMode;
-member.publicMode = publicMode || "private";
-members.push (member);
-}
-if (temp.type === Syntax.VariableDeclaration)
-temp.declarations.forEach (add);
-else
-add (temp);
-}
-}
-expect ("}");
-state.classes.push ({"classObject":true,"id":id,"parent":parent || null,"uses":uses,"members":members});
-state.inClass = oldInClass;
-return null;
-}
-function parseSuperStatement (){
+function parseSuperExpression (){
 var level = 1, name, temp, arguments;
 expectKeyword ("super");
 if (! state.superAvailable)
@@ -647,13 +623,142 @@ lex ();
 }
 else
 {
-name = parseVariableIdentifier ();
+name = parseClassIdentifier ();
 break;
 }
 }
 arguments = parseArguments ();
 consumeSemicolon ();
-return expressionStatement (superExpression (name, arguments, level));
+return superExpression (name, arguments, level);
+}
+function parseClassFields (mode,params){
+var declarations = parseVariableDeclarationList ();
+consumeSemicolon ();
+return declarations;
+}
+function parseClassMethod (mode,params){
+var token, id, params, defaults = [], body;
+state.superAvailable = ! params.staticMode;
+token = lookahead ();
+id = parseVariableIdentifier ();
+params = match ("(") ? parseFunctionArguments (defaults) : [identifier ("arg")];
+body = parseFunctionSourceElements ();
+if (defaults.length)
+body.body = defaults.concat (body.body);
+state.superAvailable = false;
+return functionDeclaration (id, params, body);
+}
+function parseClassDeclaration (){
+var mode = parseInterfaceOrClassMode ();
+var id = parseClassIdentifier ();
+var dependsOn = parseExtendImplementsAndUse (mode);
+members = {} , params = {} , temp , token , oldInClass , saved;
+oldInClass = state.inClass;
+state.inClass = true;
+if (mode !== "interface" && matchKeyword ("extends"))
+parentClass = parseClassParent ();
+if (matchKeyword ("implements"))
+implementsInterfaces = parseInterfaces ();
+expect ("{");
+function reset (){
+params = mode === "static" ? {"staticMode":true} : {};
+}
+reset ();
+main:while (index < length)
+{
+if (match ("}"))
+break;
+token = lookahead ();
+switch (token.value){
+case "use":
+if (! isEmpty (params))
+throwUnexpected (token);
+Array.prototype.push.apply (usedClasses, parseUseStatement ());
+break;
+case "public":
+
+case "private":
+
+case "protected":
+if ("publicMode" in params || token.value === "private" && ("descriptionMode" in params || mode === "interface"))
+throwUnexpected (token);
+lex ();
+params.publicMode = token.value;
+break;
+case "abstract":
+
+case "implemented":
+if ("descriptionMode" in params || params.publicMode === "private" || ! (mode === "abstract" && token.value === "abstract" || mode === "interface" && token.value === "implemented"))
+throwUnexpected (token);
+lex ();
+params.descriptionMode = token.value;
+break;
+case "static":
+if ("staticMode" in params)
+throwUnexpected (token);
+lex ();
+params.staticMode = true;
+break;
+case "var":
+lex ();
+temp = parseClassFields (mode, params);
+temp.forEach (function (arg){
+members [arg.id.name] = $.extend (arg, params);
+});
+reset ();
+break;
+case "function":
+lex ();
+temp = parseClassMethod (mode, params);
+members [temp.id.name] = $.extend (temp, params);
+reset ();
+break;
+default:if (token.type === Token.Identifier)
+{
+saved = saveAll ();
+try{
+temp = parseClassFields (mode, params);
+temp.forEach (function (arg){
+members [arg.id.name] = $.extend (arg, params);
+});
+reset ();
+}catch (e){
+restoreAll (saved);
+temp = parseClassMethod (mode, params);
+members [temp.id.name] = $.extend (temp, params);
+reset ();
+}
+break;
+} throw new Error("Token: \"" + token.value + "\", type: " + token.type);
+}
+}
+expect ("}");
+var t = [], p = [], n = "";
+for (var kk in members){
+var v = members[kk];
+var s = [];
+if (v.staticMode)
+s.push ("static");
+if (v.publicMode)
+s.push (v.publicMode);
+s.push ({"FunctionDeclaration":"method","VariableDeclarator":"field"} [v.type] || v.type);
+t.push ("\t* " + v.id.name + " (" + s.join (" ") + ")");
+}
+if (parentClass)
+p.push ("child of " + parentClass.name);
+if (implementsInterfaces.length)
+p.push ("implements " + implementsInterfaces.map (function (arg){
+return arg.name;
+}).join (", "));
+if (usedClasses.length)
+p.push ("using " + usedClasses.map (function (arg){
+return arg.name;
+}).join (", "));
+if (p.length)
+n = " (" + p.join ("; ") + ")";
+console.log (id.name + n + ":\n" + t.join ("\n"));
+state.inClass = oldInClass;
+return null;
 }
 function parseContinueStatement (){
 var token, label = null;
@@ -1405,15 +1510,27 @@ return throwUnexpected (lex ());
 }
 function parseProgramElement (){
 var token = lookahead (), temp, result;
-if (token.type === Token.Keyword)
 switch (token.value){
+case "public":
+
+case "protected":
+
+case "private":
+
 case "static":
 
+case "abstract":
+
+case "implemented":
+
 case "class":
+
+case "interface":
 return parseClassDeclaration ();
 case "function":
 return parseFunctionDeclarationOrExpression ();
-default:return parseStatement ();
+default:if (token.type === Token.Keyword)
+return parseStatement ();
 }
 if (options.initializationAllowed && token.type === Token.Punctuator && (token.value === "(" || token.value === "{"))
 {
@@ -2257,6 +2374,12 @@ return token.type === Token.Punctuator && token.value === value;
 function matchKeyword (keyword){
 var token = lookahead ();
 return token.type === Token.Keyword && token.value === keyword;
+}
+function matchKeywordAndLex (keyword){
+var token = lookahead (), result = token.type === Token.Keyword && token.value === keyword;
+if (result)
+lex ();
+return result;
 }
 function matchAssign (){
 var token = lookahead (), op = token.value;
@@ -4067,6 +4190,11 @@ f.push.apply (f, arguments);
 };
 return p ? (p.prototype.log = r) : r;
 }
+function isEmpty (obj){
+for (var n in obj)
+return false;
+return true;
+}
 function Worker (path){
 this.path = path;
 this.mainFile = undefined;
@@ -4104,14 +4232,15 @@ Worker.prototype.start = function (callback){
 console.assert (this.state == Worker.STATE_INITIAL, "Wrong state (" + this.state + ")");
 this.state = Worker.STATE_WAITING;
 this.log ("started");
-{ var _741fckj_24 = File.find ("default/*") || []; for (var _4204436_25 = 0; _4204436_25 < _741fckj_24.length; _4204436_25 ++){
-var file = _741fckj_24[_4204436_25];
+{ var _4ngp1t8_72 = File.find ("default/*") || []; for (var _6jr0mda_73 = 0; _6jr0mda_73 < _4ngp1t8_72.length; _6jr0mda_73 ++){
+var file = _4ngp1t8_72[_6jr0mda_73];
 file.process ();
 }}
 this.mainFile = new File(this.path);
 this.mainFile.process ();
 this.waitForFinish (function (arg){
 fileStorage.sort ();
+process.exit ();
 this.log ("files processed and sorted");
 this.state = Worker.STATE_STARTED;
 callback ();
@@ -4120,8 +4249,8 @@ callback ();
 Worker.prototype.collect = function (callback){
 console.assert (this.state == Worker.STATE_STARTED, "Wrong state (" + this.state + ")");
 this.state = Worker.STATE_WAITING;
-{ var _3tovml8_26 = fileStorage.files; for (var _8sdqili_27 = 0; _8sdqili_27 < _3tovml8_26.length; _8sdqili_27 ++){
-var file = _3tovml8_26[_8sdqili_27];
+{ var _5kd2p7v_74 = fileStorage.files; for (var _7t64pjt_75 = 0; _7t64pjt_75 < _5kd2p7v_74.length; _7t64pjt_75 ++){
+var file = _5kd2p7v_74[_7t64pjt_75];
 Array.prototype.push.apply (this.data.statements, file.parsed.body);
 Array.prototype.push.apply (this.data.classes, file.parsed.classes);
 Array.prototype.push.apply (this.data.initializations, file.parsed.initializations);

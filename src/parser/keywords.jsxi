@@ -8,7 +8,7 @@
 				keyword = (id === 'if') || (id === 'in') || (id === 'do');
 				break;
 			case 3:
-				keyword = (id === 'var') || (id === 'for') || (id === 'new') || (id === 'try') || (id === 'use');
+				keyword = (id === 'var') || (id === 'for') || (id === 'new') || (id === 'try') || (id === 'uses');
 				break;
 			case 4:
 				keyword = (id === 'this') || (id === 'else') || (id === 'case') || (id === 'void') || (id === 'with');
@@ -23,13 +23,16 @@
 				keyword = (id === 'default') || (id === 'finally') || (id === 'private') || (id === 'extends');
 				break;
 			case 8:
-				keyword = (id === 'function') || (id === 'continue') || (id === 'debugger');
+				keyword = (id === 'function') || (id === 'continue') || (id === 'debugger') || (id === 'abstract');
 				break;
 			case 9:
-				keyword = (id === 'protected');
+				keyword = (id === 'protected') || (id === 'interface');
 				break;
 			case 10:
-				keyword = (id === 'instanceof');
+				keyword = (id === 'instanceof') || (id === 'implements');
+				break;
+			case 11:
+				keyword = (id === 'implemented');
 				break;
 		}
 
