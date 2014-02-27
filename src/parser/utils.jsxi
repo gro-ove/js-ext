@@ -78,17 +78,25 @@
 
 	function saveAll ()
 		return clone ({
+			source: 		source,
 			index: 			index,
 			lineNumber: 	lineNumber,
 			lineStart: 		lineStart,
-			buffer: 		buffer
+			length: 		length,
+			buffer: 		buffer,
+			state: 		 	state,
+			options: 		options
 		});
 
 	function restoreAll (obj){
-		index 			= obj.index;
-		lineNumber 		= obj.lineNumber;
-		lineStart 		= obj.lineStart;
-		buffer 			= obj.buffer;
+		source  		= obj.source;
+		index  			= obj.index;
+		lineNumber  	= obj.lineNumber;
+		lineStart  		= obj.lineStart;
+		length  		= obj.length;
+		buffer  		= obj.buffer;
+		state  		 	= obj.state;
+		options  		= obj.options;
 	}
 
 	function advance (){

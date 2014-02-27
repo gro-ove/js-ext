@@ -29,30 +29,29 @@
 					if (result.publicMode !== null)
 						throwUnexpected (token);
 
-					result.publicMode = token.value;
 					lex ();
+					result.publicMode = token.value;
 					break;
 
 				case 'abstract':
 				case 'static':
+					if (result.static || result.abstract)
+						throwUnexpected (token);
+
 				case 'implemented':
 					if (result [token.value])
 						throwUnexpected (token);
 
-					result [token.value] = true;
-
-					if (result.static && result.abstract)
-						throwUnexpected (token);
-
 					lex ();
+					result [token.value] = true;
 					break;
 
 				case 'interface':
 					if (result.abstract)
 						throwUnexpected (token);
 
-					result.interface = token.value;
 					lex ();
+					result.interface = token.value;
 					return result;
 
 				case 'class':
@@ -92,14 +91,14 @@
 					if (result.parent || mode.interface || mode.static)
 						throwUnexpected (token);
 
-					result.parent = parseClassIdentifier ();
 					lex ();
+					result.parent = parseClassIdentifier ();
 					break;
 
 				case 'implements':
 				case 'uses':
-					collect (result [token.value]);
 					lex ();
+					collect (result [token.value]);
 					break;
 
 				default:
@@ -109,21 +108,79 @@
 	}
 
 	function parseClassMembers (params, dependsOn){
-		function fresh ()
-			return { 
-				publicMode: 		null, 
-				abstract: 			false,
-				static: 			false,
-				interface: 			false
-			}
-
 		var oldInClass = state.inClass,
 			token, 
 			result = {}, 
-			current = fresh ();
+			current;
+
+		function refresh ()
+			// Первый параметры можно переопределять, но остальные, если они уже
+			// выставлены у всего класса, изменить уже не выйдет.
+			current = { 
+				publicMode: 		null, 
+				abstract: 			params.abstract,
+				static: 			params.static
+			}
+
+		function set (obj)
+			if (result.hasOwnProperty (obj.id.name))
+				throwError (token, 'Name "' + obj.id.name + '" is already used by an ' + (result [obj.id.name].type === Syntax.VariableDeclarator ? 'field' : 'method'));
+			else
+				result [obj.id.name] = $.extend (obj, current, { publicMode: current.publicMode || params.publicMode });
+
+		function field (){
+			if (matchKeyword ('var'))
+				lex ();
+
+			var token = lookahead (),
+				data = parseVariableDeclarationList ();
+
+			consumeSemicolon ();
+
+			for (var entry in-array data){
+				if (params.interface && !current.static)
+					throwError (token, 'Interface couldn\'t have object fields.');
+
+				if (params.implemented && entry.init)
+					throwError (token, 'Implemented couldn\'t have initialized fields.');
+
+				set (entry);
+			}
+
+			refresh ();
+		}
+
+		function method (){
+			if (matchKeyword ('function'))
+				lex ();
+
+			state.superAvailable = !current.static;
+
+			var token 		= lookahead (),
+				id 			= parseVariableIdentifier (),
+				defaults 	= [],
+				args 		= match ('(') ? parseFunctionArguments (defaults) : [ identifier ('arg') ],
+				body 		= null,
+				fn;
+
+			if (params.interface && !current.static || params.implemented){
+				consumeSemicolon ();
+			} else {
+				body = parseFunctionSourceElements ();
+				if (defaults.length)
+					body.body = defaults.concat (body.body);
+			}
+
+			state.superAvailable = false;
+			fn = functionDeclaration (id, args, body);
+			set (fn);
+
+			refresh ();
+		}
 
 		state.inClass = true;
 		expect ('{');
+		refresh ();
 
 		do {
 			token = lookahead ();
@@ -135,48 +192,31 @@
 				case 'public':
 				case 'private':
 				case 'protected':
-					if ('publicMode' in params 
-						|| token.value === 'private' && ('descriptionMode' in params || mode === 'interface'))
+					if (current.publicMode !== null)
 						throwUnexpected (token);
 
 					lex ();
-					params.publicMode = token.value;
+					current.publicMode = token.value;
 					break;
 
 				case 'abstract':
-				case 'implemented':
-					if ('descriptionMode' in params 
-						|| params.publicMode === 'private' 
-						|| !(
-							mode === 'abstract' && token.value === 'abstract' || 
-							mode === 'interface' && token.value === 'implemented'))
+					if (params.interface)
 						throwUnexpected (token);
-
-					lex ();
-					params.descriptionMode = token.value;
-					break;
 
 				case 'static':
-					if ('staticMode' in params)
+					if (current.abstract || current.static)
 						throwUnexpected (token);
+
 					lex ();
-					params.staticMode = true;
+					current [token.value] = true;
 					break;
 
 				case 'var':
-					lex ();
-					temp = parseClassFields (mode, params);
-					temp.forEach (lambda {
-						members [arg.id.name] = $.extend (arg, params);
-					});
-					reset ();
+					field ();
 					break;
 
 				case 'function':
-					lex ();
-					temp = parseClassMethod (mode, params);
-					members [temp.id.name] = $.extend (temp, params);
-					reset ();
+					method ();
 					break;
 
 				default:
@@ -184,29 +224,27 @@
 						saved = saveAll ();
 
 						try {
-							temp = parseClassFields (mode, params);
-							temp.forEach (lambda {
-								members [arg.id.name] = $.extend (arg, params);
-							});
-							reset ();
+							field ();
 						} catch {
-							restoreAll (saved);
-							temp = parseClassMethod (mode, params);
-							members [temp.id.name] = $.extend (temp, params);
-							reset ();
+							if (String (e).indexOf ('Unexpected token') !== -1){
+								restoreAll (saved);
+								method ();
+							} else
+								throw e;
 						}
 
 						break;
 					}
 
-					throw new Error ('Token: "' + token.value + '", type: ' + token.type);
+					throwUnexpected (token);
+					// throw new Error ('Token: "' + token.value + '", type: ' + token.type);
 			}
 		} while (index < length);
 
 		expect ('}');
 
 		state.inClass = oldInClass;
-		return members;
+		return result;
 	}
 
 	function parseSuperExpression (){
@@ -234,31 +272,6 @@
 
 		return superExpression (name, arguments, level);
 	}
-
-	// function parseClassFields (mode, params){
-	// 	var declarations = parseVariableDeclarationList ();
-	// 	consumeSemicolon ();
-
-	// 	return declarations;
-	// }
-
-	// function parseClassMethod (mode, params){
-	// 	var token, id, params, defaults = [], body;
-
-	// 	state.superAvailable = !params.staticMode;
-
-	// 	token 	= lookahead ();
-	// 	id 		= parseVariableIdentifier ();
-	// 	params 	= match ('(') ? parseFunctionArguments (defaults) : [ identifier ('arg') ];
-	// 	body 	= parseFunctionSourceElements ();
-
-	// 	if (defaults.length)
-	// 		body.body = defaults.concat (body.body);
-
-	// 	state.superAvailable = false;
-
-	// 	return functionDeclaration (id, params, body);
-	// }
 
 	function parseClassDeclaration (){
 		// Получаем параметры класса, задаваемые ключевыми словами вроде «public», «abstract», «static» или «interface»
@@ -346,34 +359,34 @@
 
 		// expect ('}');
 
-		var t = [], p = [], n = '';
-		for (var kk, v in members){
-			var s = [];
+		var membersStrings = [], dependsOnStrings = [], beforeString = '';
+		for (var key, member in members){
+			var temp = [];
 
-			if (v.staticMode)
-				s.push ('static');
+			for (var attribute, setted in member)
+				if (setted === true)
+					temp.push (attribute);
 
-			if (v.publicMode)
-				s.push (v.publicMode);
+			if (member.publicMode)
+				temp.push (member.publicMode);
 
-			s.push ({ FunctionDeclaration: 'method', VariableDeclarator: 'field' }[v.type] || v.type);
-
-			t.push ('	* ' + v.id.name + ' (' + s.join (' ') + ')');
+			temp.push ({ FunctionDeclaration: 'method', VariableDeclarator: 'field' }[member.type] || member.type);
+			membersStrings.push ('	* ' + member.id.name + ' (' + temp.join (' ') + ')');
 		}
 
-		if (parentClass)
-			p.push ('child of ' + parentClass.name);
+		if (dependsOn.parent)
+			dependsOnStrings.push ('child of ' + dependsOn.parent.name);
 
-		if (implementsInterfaces.length)
-			p.push ('implements ' + implementsInterfaces.map (lambda arg.name).join (', '));
+		if (dependsOn.implements.length)
+			dependsOnStrings.push ('implements ' + dependsOn.implements.map (lambda arg.name).join (', '));
 
-		if (usedClasses.length)
-			p.push ('using ' + usedClasses.map (lambda arg.name).join (', '));
+		if (dependsOn.uses.length)
+			dependsOnStrings.push ('using ' + dependsOn.uses.map (lambda arg.name).join (', '));
 
-		if (p.length)
-			n = ' (' + p.join ('; ') + ')';
+		if (dependsOnStrings.length)
+			beforeString = ' (' + dependsOnStrings.join ('; ') + ')';
 
-		console.log (id.name + n + ':\n' + t.join ('\n'));
+		console.log (id.name + beforeString + ':\n' + membersStrings.join ('\n'));
 
 		// state.classes.push ({
 		// 	classObject: 	true,
@@ -382,8 +395,6 @@
 		// 	uses: 			uses,
 		// 	members: 		members
 		// });
-
-		state.inClass = oldInClass;
 
 		return null;
 	}
