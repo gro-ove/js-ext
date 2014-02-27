@@ -1,0 +1,69 @@
+var EachMode = {
+	FILTER_MODE: 		'filterMode',
+	MAP_MODE: 			'mapMode',
+	FIRST_HIT_MODE: 	'firstHitMode',
+};
+
+// Проходим по полям и методам класса
+function each (members, filter, callback, mode){
+	if ('classObject' in members)
+		members = members.members;
+
+	var result = mode === EachMode.MAP_MODE || mode === EachMode.FILTER_MODE ? [] : undefined,
+		temp;
+
+	if (typeof filter !== 'function')
+		filter = null;
+
+	if (typeof callback !== 'function'){
+		if (typeof callback === 'string')
+			mode = callback;
+
+		callback = null;
+	}
+
+	for (var key, value in members)
+		if (filter === null || filter (value, key)){
+			temp = callback === null ? value : callback (value, key);
+
+			if (mode === EachMode.FIRST_HIT_MODE)
+				return temp;
+
+			if (mode === EachMode.MAP_MODE)
+				result.push (temp);
+
+			if (mode === EachMode.FILTER_MODE)
+				result.push (value);
+		}
+
+	return result;
+}
+
+// Сокращённые формы записи
+
+function map (members, callback, filter)
+	return each (members, filter, callback, EachMode.MAP_MODE);
+
+function filter (members, filter, callback)
+	return each (members, filter, callback, EachMode.FILTER_MODE);
+
+function byReplacement (members, replacement)
+	return each (
+		members, 
+		lambda arg.id !== null && arg.id.name === replacement, 
+		EachMode.FIRST_HIT_MODE
+	);
+
+function getConstructor (members)
+	return each (
+		members, 
+		lambda arg.id === null && !arg.staticMode, 
+		EachMode.FIRST_HIT_MODE
+	);
+
+function getInitializer (members)
+	return each (
+		members, 
+		lambda arg.id === null && arg.staticMode, 
+		EachMode.FIRST_HIT_MODE
+	);

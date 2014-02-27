@@ -1,0 +1,53 @@
+function connectClass (current, from){
+	if (from !== undefined)
+		current.childs.push (from);
+
+	if (current.connected)
+		return;
+
+	if (current.parent !== null){
+		var parent = byName (current.parent.name);
+
+		if (parent){
+			connectClass (parent, current.name);
+
+			for (var id, member in parent.members)
+				if (!(id in current.members))
+					current.members [id] = $.extend (true, {}, member, {
+						publicMode: member.publicMode === 'private' ? 'locked' : member.publicMode
+					});
+
+			var parentConstructor = getConstructor (parent),
+				currentConstructor = getConstructor (current);
+
+			if (parentConstructor){
+				if (!currentConstructor){
+					addMember (
+						current, 
+						functionExpression (
+							parentConstructor.params, 
+							[ expressionStatement (superExpression (parentConstructor.params)) ]
+						)
+					)
+				} else if (!currentConstructor.body.body.filter (lambda arg.type === Syntax.ExpressionStatement && 'super' in arg.expression).length){ 	// FIXME
+					if (currentConstructor.autocreated || parentConstructor.params.length === 0){
+						if (currentConstructor.autocreated)
+							currentConstructor.params = parentConstructor.params;
+						currentConstructor.body.body = [ expressionStatement (superExpression (null, parentConstructor.params)) ].concat (currentConstructor.body.body);
+					} else {
+						throwError (currentConstructor, Messages.SuperConstructorCallNeeded);
+					}
+				}
+			}
+		} else 
+			throwError (current.parent, Messages.ParentClassNotFound, current.parent.name);
+	}
+
+	for (var use in-array current.uses){
+		var used = byName (use.name);
+		if (!used)
+			throwError (use, Messages.UsingClassNotFound, use.name);
+	}
+
+	current.connected = true;
+}

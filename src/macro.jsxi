@@ -1,21 +1,28 @@
 	function Macro (name, type, level, context, macroArgs, macroBody){
-		this.name 			= name;
-		this.type 			= type;
-
-		if (!macroBody){
-			macroBody 		= macroArgs;
-			macroArgs 		= null;
-		}
+		this.name 				= name;
+		this.type 				= type;
 		
-		this.level 			= level;
-		this.arguments 		= (macroArgs === null ? [ 'arg' ] : macroArgs)
-								.map (lambda arg.match (/^(.+)\:([^\:]+)$/) ? { name: RegExp.$1, type: RegExp.$2 } : { name: arg, type: null }); 
-		this.context 		= context;
-		this.rawBody 		= macroBody;
-		this.localStorage 	= {};
+		if (!macroBody){		
+			macroBody 			=	 macroArgs;
+			macroArgs 			= null;
+		}		
+				
+		this.level 				= level;
+		this.context 			= context;
+		this.rawBody 			= macroBody;
+		this.localStorage 		= {};
 
-		var last 			= this.arguments [this.arguments.length - 1];
-		this.asyncMode 		= last.name === 'callback' && (last.type === 'function' || last.type === null);
+		this.arguments 			= macroArgs === null 
+										? [ { name: 'arg', type: null } ] 
+										: macroArgs.map (lambda arg.match (/^(.+)\:([^\:]+)$/) 
+											? { name: RegExp.$1, type: RegExp.$2 } 
+											: { name: arg, type: null }); 
+
+		if (this.arguments.length > 0){
+			var last 			= this.arguments [this.arguments.length - 1];
+			this.asyncMode 		= last.name === 'callback' && last.type === null || last.type === 'callback';
+		} else 
+			this.asyncMode 		= false;
 	};
 
 	addLog (Macro, 3, lambda '@' + this.name);
@@ -168,7 +175,9 @@
 		}
 
 		this.name 		= 'MacroError';
-		this.message 	= 'Error at @' + name + (args ? ' (' + Array.prototype.map.call (args, lambda JSON.stringify (arg)).join (', ') + ')' : '') + (parent ? '\n' + parent.stack : message ? ': ' + message : '');
+		this.message 	= 'Error at @' + name 
+			+ (args ? ' (' + Array.prototype.map.call (args, lambda JSON.stringify (arg)).join (', ') + ')' : '') 
+			+ (parent ? '\n' + parent.stack : message ? ': ' + message : '');
 	};
 
 	MacroError.prototype = Error.prototype;

@@ -3,7 +3,13 @@
 
 	process.nextTick (lambda {
 		args = parseArgs (process.argv.slice (2), [
-				// s - short, l - long, p - parameter (1 - one, 2 - multiple)
+				// Атрибуты: 
+				// 		s - короткая версия
+				// 		l - длинная версия
+				// 		p - есть ли параметры (1 - не больше одного, 2 - сколько угодно)
+				// TODO: Сделать нормально
+				// TODO: Сделать всё нормально
+				// TODO: Переделать всё. Нормально.
 				{ 	s: 'i', 	l: 'include', 	p: 2		},
 				{ 	s: 'o', 	l: 'output',  	p: 1		},
 				{   s: 'h',		l: 'usage'					}

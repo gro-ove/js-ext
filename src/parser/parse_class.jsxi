@@ -59,9 +59,8 @@
 			staticMode,
 			staticModeOnly,
 			publicMode,
-			usedClasses = [],
-			variableDeclarations = [],
-			functionDeclarations = [],
+			uses = [],
+			members = [],
 			oldInClass;
 
 		if (matchKeyword ('static')){
@@ -118,20 +117,16 @@
 					case 'use':
 						if (staticMode && !staticModeOnly || publicMode)
 							throwError ({}, Messages.WtfMan);
-						temp = true;
-						usedClasses = usedClasses.concat (parseUseStatement ());
+						uses.push.apply (uses, parseUseStatement ());
 						continue;
 					case 'function':
 						if (!staticMode)
 							state.superAvailable = true;
 						temp = parseFunctionDeclaration ();
 						state.superAvailable = false;
-
-						functionDeclarations.push (temp);
 						break;
 					case 'var':
 						temp = parseVariableStatement ();
-						variableDeclarations.push (temp);
 						break;
 				}
 			} else if (token.type === Token.Punctuator && token.value === '(' || token.value === '{'){
@@ -141,29 +136,35 @@
 				if (!staticMode)
 					state.superAvailable = true;
 
-				temp = setMark (functionExpression ('@', temp, parseFunctionSourceElements ()), tempMark);
-
+				temp = setMark (functionExpression (null, temp, parseFunctionSourceElements ()), tempMark);
 				state.superAvailable = false;
-				functionDeclarations.push (temp);
 			}
 
-			if (temp){
-				temp.staticMode = !!staticMode;
-				temp.publicMode = publicMode || 'private';
-			} else {
+			if (!temp){
 				console.log (token, temp);
 				throwError ({}, 'Class can contain variabled and functions only');
+			} else {
+				function add (member){
+					member.staticMode = !!staticMode;
+					member.publicMode = publicMode || 'private';
+					members.push (member);
+				}
+
+				if (temp.type === Syntax.VariableDeclaration)
+					temp.declarations.forEach (add);
+				else 
+					add (temp);
 			}
 		}
 
 		expect ('}');
 
 		state.classes.push ({
+			classObject: 	true,
 			id: 			id,
 			parent: 		parent || null,
-			uses: 			usedClasses,
-			variables: 		variableDeclarations,
-			functions: 		functionDeclarations
+			uses: 			uses,
+			members: 		members
 		});
 		
 		state.inClass = oldInClass;

@@ -1,0 +1,34 @@
+var classes, 
+	classesByNames, 
+	probablyUseOtherMaxValue, 
+	thatVariable;
+
+// Получить класс по имени
+function byName (name)
+	return classesByNames [name];
+
+// Обрабатываем все классы
+function doClasses (rawClasses, callback){
+	classes 					= [];
+	classesByNames 				= {};
+	probablyUseOtherMaxValue 	= 100;
+	thatVariable 				= newIdentifier ('__that');
+
+	for (var rawClass in-array rawClasses)
+		addClass (rawClass);
+
+	if (classes.length > 0){
+		checkForCircular ();
+		
+		for (var classEntry in-array classes)
+			connectClass (classEntry);
+
+		sortClasses ();
+
+		for (var classEntry in-array classes)
+			processClass (classEntry);
+
+		callback ([ variableDeclaration (classes.map (lambda arg.element)) ]);
+	} else
+		callback ([]);
+}

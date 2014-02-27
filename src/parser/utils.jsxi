@@ -43,18 +43,38 @@
 		}
 	})();
 
-	function clone (obj)
-		if (obj instanceof Array){
-			return obj.slice ();
-		} else if (typeof obj === 'object'){
-			var result = {};
+	var $ = { extend: (function (){
+		// Taken from Zepto
 
-			for (var n, v in obj)
-				result [n] = clone (v);
+		function extend (target, source, deep)
+			for (var key, value in source)
+				if (deep && (typeof value === 'object' || value instanceof Array)){
+					if (typeof value === 'object' && typeof target [key] !== 'object')
+						target [key] = {};
+					else if (value instanceof Array && !(target [key] instanceof Array))
+						target [key] = [];
 
-			return result;
-		} else
-			return obj;
+					extend (target [key], value, deep);
+				} else if (value !== undefined) 
+					target [key] = value;
+
+		return function (target){
+			var deep, 
+				args = Array.prototype.slice.call (arguments, 1);
+
+			if (typeof target == 'boolean'){
+				deep = target;
+				target = args.shift ();
+			}
+
+			args.forEach (lambda extend (target, arg, deep));
+			return target;
+		}
+	})() };
+
+	function clone (obj){
+		return $.extend (true, {}, obj);
+	}
 
 	function saveAll ()
 		return clone ({

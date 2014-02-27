@@ -1,0 +1,115 @@
+// Записываем класс в список
+function addClass (rawClass){
+	// Если класс с таким именем уже есть, вываливаемся
+	if (byName (rawClass.id.name))
+		throwError (rawClass.id, Messages.ClassAlreadyDefined, rawClass.id.name);
+
+	// Таблица с полями и методами класса, ключи — оригинальные имена
+	var members = {};
+
+	// Добавляем всё содержимое в таблицу
+	for (var member in-array rawClass.members)
+		addMember (members, member, rawClass);
+
+	// Находим, а если понадобится, то создаём конструктор
+	var constructor = getConstructor (members);
+	if (!constructor){
+		constructor = addMember (members, functionExpression (), rawClass);
+		constructor.autocreated = true;
+	}
+
+	// Аналогично со статическим инициализатором
+	var initializer = getInitializer (members);
+	if (!initializer){
+		initializer = addMember (members, functionExpression (), rawClass, undefined, true);
+		initializer.autocreated = true;
+	}
+
+	// Находим список полей объекта, требующих инициализации
+	var fields = filter (members, lambda !arg.method && !arg.staticMode && arg.init !== null);
+
+	// Собираем присваивания для инициализации
+	var initialization = fields.map (
+		lambda $.extend (
+			expressionStatement (assignmentExpression (memberExpression (thisExpression (), arg.id), arg.init)),
+			{ comment: arg.id.name, autocreated: true }
+		)
+	);
+
+	// Запихиваем присваивания в начало конструктора
+	constructor.body.body = initialization.concat (constructor.body.body);
+
+	// Ну и всё в том же духе
+	classesByNames [rawClass.id.name] = $.extend (
+		rawClass, 
+		{
+			members: 			members,
+			childs: 			[],
+			probablyUseOther: 	0
+		}
+	);
+
+	classes.push (classesByNames [rawClass.id.name]);
+}
+
+// Получаем заменённое имя в зависимости от видимости переменной
+function replacement (member, classEntry){
+	switch (member.publicMode){
+		case 'protected':
+			return '__' + member.id.name;
+
+		case 'private':
+			if (!member.staticMode)
+				return '__' + classEntry.id.name + '_' + member.id.name;
+			// Приватным статическим переменным имя не меняем
+
+		case 'public':
+			return member.id.name;
+
+		default:
+			console.assert (false, 'Unsupported publicMode (' + publicMode + ')');
+	}
+}
+
+// Добавляем метод или поле к классу
+function addMember (members, member, rawClass, publicMode, staticMode){
+	var classEntry;
+
+	// Или первый аргумент — класс, в который идёт добавление, или он должен идти третьим аргументом
+	if ('classObject' in members){
+		classEntry = members;
+		members = members.members;
+
+		staticMode = publicMode;
+		publicMode = rawClass;
+	} else 
+		classEntry = rawClass;
+
+	if (typeof publicMode === 'boolean'){
+		staticMode = publicMode;
+		publicMode = undefined;
+	}
+
+	// Модифицируем объект
+	$.extend (member, { publicMode: publicMode, staticMode: staticMode });
+
+	// Получаем строку с именем метода
+	var key = member.id ? member.id.name : member.staticMode ? '@initializer' : '@constructor';
+
+	// Двух методов или полей с одинаковым именем быть не может
+	if (key in members)
+		throwError (member.id || classEntry.id, Messages.ClassMemberAlreadyDefined, key === null ? '@constructor' : key);
+
+	// Записываем метод в таблицу
+	members [key] = member;
+
+	// Обновляем имя
+	if (member.id !== null)
+		member.id = identifier (replacement (member, classEntry));
+
+	// И добавляем ещё пару атрибутов
+	member.className = member.staticMode ? classEntry.id : null
+	member.method = member.type === Syntax.FunctionDeclaration || member.type === Syntax.FunctionExpression;
+
+	return member;
+}

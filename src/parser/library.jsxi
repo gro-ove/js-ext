@@ -96,11 +96,12 @@
 		CyclicDependencyDetected: 		'Cyclic dependency detected (%0)',
 		PrivateAccessError: 			'Attempt to access to private %0',
 		ObjectAccessError: 				'Attempt to access to object field %0 from static method',
-		SuperMethodsAreNotAvailable: 	'Super methods are not available for this class',
+		SuperMethodIsNotAvailable: 		'Super methods are not available for this class',
 		ClassAlreadyDefined: 			'Class with name %0 already defined',
+		ClassMemberAlreadyDefined: 		'Class member with name %0 already defined',
 		ParentClassNotFound: 			'Parent class %0 not found',
 		UsingClassNotFound: 			'Using class %0 not found',
-		SuperConstructorCallNeeded: 	'Super constructor call is needed',
+		SuperConstructorCallNeeded: 	'Super constructor call is required',
 		WtfMan: 						'WTF, MAN'
 	};
 

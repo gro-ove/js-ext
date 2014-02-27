@@ -1,27 +1,28 @@
 # TODO
 	V Classes
-		V Arguments to exclusions list
-		V Classes extends
-		V Initialization order
-		V Static classes
-		V Private and protected variables
-		V Static variables
-		V Initialization statement
-		V Super requested in constuctors
-		V Check for parent class static field change
-		V Names fix
-		F Check for order of super constructor call and methods initialization
-		F Static private and object locked conflict
-		F This support
-		F Special access like ['field' + name] support
-		F Renaming private and protected variables
-		- Interfaces
-			- Interfaces generator
-		- Abstract classes
-		- Short syntax
-		- Anonymous classes
-		- Initialization with constructor: for example, "var a = new A (){ objectField = value }"
-		? Binded functions fixed 
+		V arguments to exclusions list
+		V classes extends
+		V initialization order
+		V static classes
+		V private and protected variables
+		V static variables
+		V initialization statement
+		V super requested in constuctors
+		V check for parent class static field change
+		V names fix
+		F check for order of super constructor call and methods initialization
+		F static private and object locked conflict
+		F this support
+		F special access like ['field' + name] support
+		F renaming private and protected variables
+		- interfaces
+			- interfaces generator
+		- abstract classes
+		- short syntax
+		- anonymous classes
+		- initialization with constructor: for example, "var a = new A (){ objectField = value; for (var i = 0; i < 10; i ++) something ++ }"
+		- processing default fields initializations
+		? binded functions fixed 
 			/*
 			 * 	...
 			 * 	
@@ -32,65 +33,66 @@
 			 * 	}
 			 * 	
 			 */
-		? Kind of multiple inheritance 
-	V NotImplemented operator
-	V Strings format
-	V Macros
-		V Macros as macros arguments
-		V Macros arguments
-		V Source code as macros arguments
-			V Crazy source code support
-		V Macros in macros result
-		V One macro can call another
-		V Macros asynchronous
-		V Macros à la functions syntax
-			V One-line
-			V Blocks
-			L Default arguments values
-		V Fix strange numbers
-		V Add types to arguments
-		V Add types to macro's result
-		V LiteParser: RegExp support
-		- Macros definion in macros
-		L Anonynous macros
-		? Macros order and stuff
-		? Parsing with awesome parser
-	V Update README
-	V Including
-		L With new innovative caching
-	V Fix lambdas
-	V One-line functions with result
-	V Functions without arguments
-	V Syntax like "function name (){ ... }()" support
-	V Saving result and stuff
-	F Fix default arguments to constuctor
-	F Fix this.privateField access
-	F Fix overrided protected functions
-	F Import with dot in name
-	F Import folders
-	- Arguments support
-	- UglifyJS
-	- Array initializer operator
-	- Errors handling
-	L Syntax highlight and stuff support for Sumlime Text
-	L Build for NPM
-	L Enums
-	L New Generator with line number comments support
-	L Interfaces
-	L Override instruction
-	L Multifile classes
-	L New loop: for-in-only
-	L Inner classes
-	L Warnings
-	L IE8 compilation mode
-	? Instuctions to parser or something in comments (developer will generate them with macros)
-	? Override parser functions by comments (and again, with macros)
-	? Override application functions (in result, I can add Warnings support as set of macros)
+		? kind of multiple inheritance 
+	V notimplemented operator
+	V strings format
+	V macros
+		V macros as macros arguments
+		V macros arguments
+		V source code as macros arguments
+			V crazy source code support
+		V macros in macros result
+		V one macro can call another
+		V macros asynchronous
+		V macros à la functions syntax
+			V one-line
+			V blocks
+			L default arguments values
+		V fix strange numbers
+		V add types to arguments
+		V add types to macro's result
+		V liteparser: regexp support
+		F fix 
+		- macros definion in macros
+		L anonynous macros
+		? macros order and stuff
+		? parsing with awesome parser
+	V update readme
+	V including
+		L with new innovative caching
+	V fix lambdas
+	V one-line functions with result
+	V functions without arguments
+	V syntax like "function name (){ ... }()" support
+	V saving result and stuff
+	V fix this.privatefield access
+	F fix default arguments to constuctor
+	F fix overrided protected functions
+	F import with dot in name
+	F import folders
+	- arguments support
+	- uglifyjs
+	- array initializer operator
+	- errors handling
+	L syntax highlight and stuff support for sumlime text
+	L build for npm
+	L enums
+	L new generator with line number comments support
+	L interfaces
+	L override instruction
+	L multifile classes
+	L new loop: for-in-only
+	L inner classes
+	L warnings
+	L ie8 compilation mode
+	? instuctions to parser or something in comments (developer will generate them with macros)
+	? override parser functions by comments (and again, with macros)
+	? override application functions (in result, i can add warnings support as set of macros)
 
 # Letters
-	- 	Something to do
-	L 	Later
-	? 	Not sure about it
-	V 	Done
-	F 	Fixme
-	X 	Not needed (but, maybe, one day...)
+	- something to do
+	L later
+	? not sure about it
+	V done
+	F fixme
+	X not needed (but, maybe, one day...)

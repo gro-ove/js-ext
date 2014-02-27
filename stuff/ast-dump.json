@@ -1,0 +1,16 @@
+{
+    "type": "Program",
+    "body": [
+        {
+            "type": "ExpressionStatement",
+            "expression": {
+                "type": "Literal",
+                "value": "[object global]"
+            },
+            "lineNumber": 67,
+            "lineStart": 1117,
+            "filename": "current.jsx",
+            "index": 1117
+        }
+    ]
+}

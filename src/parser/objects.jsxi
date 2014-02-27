@@ -1,26 +1,15 @@
-	function setMark (obj, mark){
-		obj.lineNumber 	= mark.lineNumber;
-		obj.lineStart 	= mark.lineStart;
-		obj.filename    = mark.filename;
-		obj.index 		= mark.index;
+	function setMark (obj, mark)
+		return $.extend (obj, mark);
 
-		return obj;
-	}
-
-	function mark (obj){
-		if (state.parsingComplete && obj)
-			return obj;
-
-		if (obj === undefined)
-			obj = {};
-
-		obj.lineNumber 	= lineNumber;
-		obj.lineStart 	= lineStart;
-		obj.filename    = options.filename;
-		obj.index 		= index;
-
-		return obj;
-	}
+	function mark (obj)
+		return state.parsingComplete && obj 
+			? obj 
+			: $.extend (obj === undefined ? {} : obj, {
+				lineNumber: 	lineNumber,
+				lineStart: 	 	lineStart,
+				filename:     	options.filename,
+				index: 		 	index
+			});
 
 	function literal (value)
 		return typeof value === 'object' && value !== null ? {
@@ -66,12 +55,12 @@
 			arguments: 			arguments
 		}
 
-	function superExpression (name, arguments = [], level = 1)
+	function superExpression (name, arguments, level)
 		return {
 			type: 				Syntax.CallExpression,
-			callee: 			identifier (name),
-			arguments: 			arguments,
-			'super': 			level
+			callee: 			identifier (name instanceof Array ? null : name),
+			arguments: 			(name instanceof Array ? name : arguments) || [],
+			'super': 			(name instanceof Array ? arguments : level) || 1
 		}
 
 	function thisExpression ()
@@ -257,13 +246,13 @@
 
 	var tempId = 0;
 
-	function functionExpression (name, params = [], body)
+	function functionExpression (name, params, body)
 		return {
 			type: 				Syntax.FunctionExpression,
-			id: 				identifier (name),
-			params: 			params,
+			id: 				identifier (name instanceof Array ? null : name),
+			params: 			(name instanceof Array ? name : params) || [],
 			defaults: 			[],
-			body: 				blockStatement (body),
+			body: 				blockStatement (name instanceof Array ? params : body),
 			rest: 				null,
 			generator: 			false,
 			expression: 		false,
