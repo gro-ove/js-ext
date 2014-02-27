@@ -66,6 +66,7 @@
 	V syntax like "function name (){ ... }()" support
 	V saving result and stuff
 	V fix this.privatefield access
+	V array initializer operator
 	F fix default arguments to constuctor
 	F fix overrided protected functions
 	F import with dot in name
@@ -73,7 +74,6 @@
 	F fix shit with functions (one-line, objects and stuff)
 	- arguments support
 	- uglifyjs
-	- array initializer operator
 	- errors handling
 	L syntax highlight and stuff support for sumlime text
 	L build for npm

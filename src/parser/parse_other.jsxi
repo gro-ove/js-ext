@@ -32,15 +32,21 @@
 	}
 
 	function parseLeftHandSideExpressionAllowCall (){
-		var temp = matchKeyword ('new') ? parseNewExpression () : parsePrimaryExpression ();
+		var temp = matchKeyword ('new') ? parseNewExpression () : parsePrimaryExpression (),
+			token;
 
 		while (match ('.') || match ('[') || match ('('))
-			if (match ('('))
+			if (match ('(')){
 				temp = callExpression (temp, parseArguments ());
-			else if (match ('['))
+			} else if (match ('[')){
 				temp = memberExpression (temp, parseComputedMember (), true);
-			else
-				temp = memberExpression (temp, parseNonComputedMember (), false);
+			} else {
+				token = lookahead ();
+				if (source [token.range [0] + 1] !== '.')
+					temp = memberExpression (temp, parseNonComputedMember (), false);
+				else
+					break;
+			}
 
 		return temp;
 	}

@@ -357,7 +357,7 @@ function doWhileStatement (body,test){
 return mark ({"type":Syntax.DoWhileStatement,"body":body,"test":test});
 }
 function forStatement (left,test,update,body){
-return mark ({"type":Syntax.ForStatement,"init":left,"test":test,"update":update,"body":body});
+return mark ({"type":Syntax.ForStatement,"init":left,"test":test,"update":update,"body":blockStatement (body)});
 }
 function forInStatement (left,right,body){
 return mark ({"type":Syntax.ForInStatement,"left":left,"right":right,"body":body,"each":false});
@@ -388,7 +388,7 @@ return mark ({"type":Syntax.DebuggerStatement});
 }
 var tempId = 0;
 function functionExpression (name,params,body){
-return {"type":Syntax.FunctionExpression,"id":identifier (name instanceof Array ? null : name),"params":(name instanceof Array ? name : params) || [],"defaults":[],"body":blockStatement (name instanceof Array ? params : body),"rest":null,"generator":false,"expression":false,"number":name + tempId++};
+return {"type":Syntax.FunctionExpression,"id":identifier (name instanceof Array ? null : name),"params":(name instanceof Array ? name : params).map (identifier) || [],"defaults":[],"body":blockStatement (name instanceof Array ? params : body),"rest":null,"generator":false,"expression":false,"number":name + tempId++};
 }
 function functionDeclaration (name,params,body){
 if (params === undefined)
@@ -430,6 +430,39 @@ elements.push (null);
 else
 {
 elements.push (parseAssignmentExpression ());
+if (elements.length === 1 && match ("."))
+{
+token = lookahead ();
+if (source [token.range [0] + 1] === ".")
+{
+lex ();
+lex ();
+var from = elements [0], to = parseAssignmentExpression ();
+expect ("]");
+if (from.type === Syntax.Literal && to.type === Syntax.Literal)
+{
+var nfrom = + from.value, nto = + to.value;
+if (Number.isNaN (nfrom))
+nfrom = String (from.value).charCodeAt (0);
+if (Number.isNaN (nto))
+nto = String (to.value).charCodeAt (0);
+if (Math.abs (nto - nfrom) < 20)
+{
+from.value = nfrom;
+if (nto > nfrom)
+for (nfrom++; 
+nfrom <= nto; nfrom++)
+elements.push (literal (nfrom));
+else
+for (nfrom++; 
+nfrom >= nto; nfrom--)
+elements.push (literal (nfrom));
+return arrayExpression (elements);
+}
+}
+return callExpression (functionExpression (["from","to","result"], [ifStatement (binaryExpression (unaryExpression ("from", "typeof", true), "===", literal ("string")), expressionStatement (assignmentExpression ("from", callExpression (memberExpression ("from", "charCodeAt"), [literal (0)])))),ifStatement (binaryExpression (unaryExpression ("to", "typeof", true), "===", literal ("string")), expressionStatement (assignmentExpression ("to", callExpression (memberExpression ("to", "charCodeAt"), [literal (0)])))),expressionStatement (assignmentExpression ("result", newExpression ("Array", [binaryExpression (callExpression (memberExpression ("Math", "abs"), [binaryExpression ("to", "-", "from")]), "+", literal (1))]))),ifStatement (binaryExpression ("from", "<", "to"), forStatement (variableDeclaration ([variableDeclarator ("i", literal (0))]), binaryExpression ("i", "<", memberExpression ("result", "length")), unaryExpression ("i", "++"), expressionStatement (assignmentExpression (memberExpression ("result", "i", true), binaryExpression ("i", "+", "from")))), forStatement (variableDeclaration ([variableDeclarator ("i", binaryExpression (memberExpression ("result", "length"), "-", literal (1)))]), binaryExpression ("i", ">=", literal (0)), unaryExpression ("i", "--"), expressionStatement (assignmentExpression (memberExpression ("result", "i", true), binaryExpression ("from", "-", "i"))))),returnStatement ("result")]), [from,to]);
+}
+}
 if (! match ("]"))
 expect (",");
 }
@@ -1131,15 +1164,25 @@ expectKeyword ("new");
 return newExpression (parseLeftHandSideExpression (), match ("(") ? parseArguments () : []);
 }
 function parseLeftHandSideExpressionAllowCall (){
-var temp = matchKeyword ("new") ? parseNewExpression () : parsePrimaryExpression ();
+var temp = matchKeyword ("new") ? parseNewExpression () : parsePrimaryExpression (), token;
 while (match (".") || match ("[") || match ("("))
 if (match ("("))
+{
 temp = callExpression (temp, parseArguments ());
+}
 else
 if (match ("["))
+{
 temp = memberExpression (temp, parseComputedMember (), true);
+}
 else
+{
+token = lookahead ();
+if (source [token.range [0] + 1] !== ".")
 temp = memberExpression (temp, parseNonComputedMember (), false);
+else
+break;
+}
 return temp;
 }
 function parseLeftHandSideExpression (){
@@ -4045,8 +4088,8 @@ Worker.prototype.start = function (callback){
 console.assert (this.state == Worker.STATE_INITIAL, "Wrong state (" + this.state + ")");
 this.state = Worker.STATE_WAITING;
 this.log ("started");
-{ var _4pvus57_35 = File.find ("default/*") || []; for (var _98b5k0v_36 = 0; _98b5k0v_36 < _4pvus57_35.length; _98b5k0v_36 ++){
-var file = _4pvus57_35[_98b5k0v_36];
+{ var _741fckj_24 = File.find ("default/*") || []; for (var _4204436_25 = 0; _4204436_25 < _741fckj_24.length; _4204436_25 ++){
+var file = _741fckj_24[_4204436_25];
 file.process ();
 }}
 this.mainFile = new File(this.path);
@@ -4061,8 +4104,8 @@ callback ();
 Worker.prototype.collect = function (callback){
 console.assert (this.state == Worker.STATE_STARTED, "Wrong state (" + this.state + ")");
 this.state = Worker.STATE_WAITING;
-{ var _42kk8hd_37 = fileStorage.files; for (var _837bbv0_38 = 0; _837bbv0_38 < _42kk8hd_37.length; _837bbv0_38 ++){
-var file = _42kk8hd_37[_837bbv0_38];
+{ var _3tovml8_26 = fileStorage.files; for (var _8sdqili_27 = 0; _8sdqili_27 < _3tovml8_26.length; _8sdqili_27 ++){
+var file = _3tovml8_26[_8sdqili_27];
 Array.prototype.push.apply (this.data.statements, file.parsed.body);
 Array.prototype.push.apply (this.data.classes, file.parsed.classes);
 Array.prototype.push.apply (this.data.initializations, file.parsed.initializations);
@@ -4085,6 +4128,7 @@ Worker.prototype.generate = function (callback){
 console.assert (this.state == Worker.STATE_CLASSES, "Wrong state (" + this.state + ")");
 this.state = Worker.STATE_WAITING;
 var elements = this.data.statements.concat (this.data.classes).concat (this.data.initializations), ast = program (elements);
+fs.writeFileSync (path.resolve (__dirname, "../stuff/ast-dump.json"), JSON.stringify (ast, null, 4));
 var result = convert (ast);
 this.log ("js generated");
 this.state = Worker.STATE_GENERATED;

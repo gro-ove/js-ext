@@ -1,1 +1,4 @@
-'51';
+function test(arg) {
+    arg:
+        18;
+}

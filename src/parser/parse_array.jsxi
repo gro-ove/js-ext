@@ -1,22 +1,124 @@
-    // 11.1.4 Array Initialiser
-    
-    function parseArrayInitialiser (){
-        var elements = [];
+	// 11.1.4 Array Initialiser
+	
+	function parseArrayInitialiser (){
+		var elements = [];
 
-        expect ('[');
+		expect ('[');
 
-        while (!match (']'))
-            if (match (',')){
-                lex ();
-                elements.push (null);
-            } else {
-                elements.push (parseAssignmentExpression ());
+		while (!match (']'))
+			if (match (',')){
+				lex ();
+				elements.push (null);
+			} else {
+				elements.push (parseAssignmentExpression ());
 
-                if (!match (']'))
-                    expect (',');
-            }
+				if (elements.length === 1 && match ('.')){
+					token = lookahead ();
+					if (source [token.range [0] + 1] === '.'){
+						lex ();
+						lex ();
 
-        expect (']');
+						var from = elements [0],
+							to = parseAssignmentExpression ();
 
-        return arrayExpression (elements);
-    }
+						expect (']');
+
+						if (from.type === Syntax.Literal && to.type === Syntax.Literal){
+							var nfrom 	= +from.value,
+								nto 	= +to.value;
+
+							if (Number.isNaN (nfrom))
+								nfrom = String (from.value).charCodeAt (0);
+
+							if (Number.isNaN (nto))
+								nto = String (to.value).charCodeAt (0);
+
+							if (Math.abs (nto - nfrom) < 20){
+								from.value = nfrom;
+								if (nto > nfrom)
+									for (nfrom ++; nfrom <= nto; nfrom ++)
+										elements.push (literal (nfrom));
+								else
+									for (nfrom ++; nfrom >= nto; nfrom --)
+										elements.push (literal (nfrom));
+								return arrayExpression (elements);
+							}
+						}
+
+						return callExpression (
+							functionExpression (
+								[ 'from', 'to', 'result' ],
+								[
+									ifStatement (
+										binaryExpression (unaryExpression ('from', 'typeof', true), '===', literal ('string')), 
+										expressionStatement (
+											assignmentExpression ('from', callExpression (memberExpression ('from', 'charCodeAt'), [ literal (0) ]))
+										)
+									),
+									ifStatement (
+										binaryExpression (unaryExpression ('to', 'typeof', true), '===', literal ('string')), 
+										expressionStatement (
+											assignmentExpression ('to', callExpression (memberExpression ('to', 'charCodeAt'), [ literal (0) ]))
+										)
+									),
+									expressionStatement (
+										assignmentExpression ('result',
+											newExpression (
+												'Array', 
+												[ 
+													binaryExpression (
+														callExpression (
+															memberExpression ('Math', 'abs'),
+															[ binaryExpression ('to', '-', 'from') ]
+														), 
+														'+', 
+														literal (1)
+													)
+												]
+											)
+										)
+									),
+									ifStatement (
+										binaryExpression ('from', '<', 'to'), 
+										forStatement (
+											variableDeclaration ([ variableDeclarator ('i', literal (0)) ]),
+											binaryExpression ('i', '<', memberExpression ('result', 'length')),
+											unaryExpression ('i', '++'),
+											expressionStatement (
+												assignmentExpression (memberExpression ('result', 'i', true), binaryExpression ('i', '+', 'from'))
+											)
+										),
+										forStatement (
+											variableDeclaration ([ 
+												variableDeclarator (
+													'i', 
+													binaryExpression (
+														memberExpression ('result', 'length'), 
+														'-', 
+														literal (1)
+													)
+												) 
+											]),
+											binaryExpression ('i', '>=', literal (0)),
+											unaryExpression ('i', '--'),
+											expressionStatement (
+												assignmentExpression (memberExpression ('result', 'i', true), binaryExpression ('from', '-', 'i'))
+											)
+										)
+									),
+									returnStatement ('result')
+								]
+							),
+							[ from, to ]
+						);
+					}
+				}
+
+				if (!match (']'))
+					expect (',');
+			}
+
+		expect (']');
+
+		return arrayExpression (elements);
+	}

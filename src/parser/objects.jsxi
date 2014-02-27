@@ -180,7 +180,7 @@
 			init: 				left,
 			test: 				test,
 			update: 			update,
-			body: 				body
+			body: 				blockStatement (body)
 		})
 
 	function forInStatement (left, right, body)
@@ -250,7 +250,7 @@
 		return {
 			type: 				Syntax.FunctionExpression,
 			id: 				identifier (name instanceof Array ? null : name),
-			params: 			(name instanceof Array ? name : params) || [],
+			params: 			(name instanceof Array ? name : params).map (identifier) || [],
 			defaults: 			[],
 			body: 				blockStatement (name instanceof Array ? params : body),
 			rest: 				null,
