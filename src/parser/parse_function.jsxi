@@ -49,28 +49,38 @@
 	function parseFunctionSourceElements (){
 		var sourceElement, 
 			oldPreventSequence,
-			sourceElements = [];
+			sourceElements;
 
 		if (match ('{')){
-			expect ('{');
-
+			saved = saveAll ();
 			oldPreventSequence = state.preventSequence;
 			state.preventSequence = false;
 
-			while (index < length){
-				if (match ('}'))
-					break;
-				sourceElement = parseSourceElement ();
-				if (typeof sourceElement === 'undefined') 
-					break;
-				sourceElements.push (sourceElement);
+			try {
+				expect ('{');
+				sourceElements = [];
+
+				while (index < length){
+					if (match ('}'))
+						break;
+					sourceElement = parseSourceElement ();
+					if (typeof sourceElement === 'undefined') 
+						break;
+					sourceElements.push (sourceElement);
+				}
+
+				expect ('}');
+				state.preventSequence = oldPreventSequence;
+			} catch {
+				state.preventSequence = oldPreventSequence;
+				restoreAll (saved);
+
+				temp = parseObjectInitialiser ();
+				consumeSemicolon ();
+				sourceElements = [ setReturnStatement (expressionStatement (temp)) ];
 			}
-
-			state.preventSequence = oldPreventSequence;
-
-			expect ('}');
 		} else 
-			sourceElements.push (setReturnStatement (parseSourceElement ()));
+			sourceElements = [ setReturnStatement (parseSourceElement ()) ];
 
 		return blockStatement (sourceElements);
 	}
@@ -116,7 +126,7 @@
 		}
 
 		params 	= match ('(') ? parseFunctionArguments (defaults) : [ identifier ('arg') ];
-		body 	= parseFunctionSourceElements (defaults);
+		body 	= parseFunctionSourceElements ();
 
 		if (defaults.length)
 			body.body = defaults.concat (body.body);
@@ -133,6 +143,8 @@
 			} else if (data.type === Syntax.IfStatement){
 				setReturnStatement (data.consequent);
 				setReturnStatement (data.alternate);
+			} else if (data.type === Syntax.LabelledStatement){
+				setReturnStatement (data.body);
 			} else if (data.type === Syntax.BlockStatement && data.single){
 				setReturnStatement (data.body [0]); 
 			} else if (data.type === Syntax.TryStatement){

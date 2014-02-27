@@ -67,11 +67,11 @@
 	V saving result and stuff
 	V fix this.privatefield access
 	V array initializer operator
+	V fix shit with functions (one-line, objects and stuff)
 	F fix default arguments to constuctor
 	F fix overrided protected functions
 	F import with dot in name
 	F import folders
-	F fix shit with functions (one-line, objects and stuff)
 	- arguments support
 	- uglifyjs
 	- errors handling

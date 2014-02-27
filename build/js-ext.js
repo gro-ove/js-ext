@@ -763,12 +763,15 @@ if (token.type !== Token.EOF)
 return parseStatement ();
 }
 function parseFunctionSourceElements (){
-var sourceElement, oldPreventSequence, sourceElements = [];
+var sourceElement, oldPreventSequence, sourceElements;
 if (match ("{"))
 {
-expect ("{");
+saved = saveAll ();
 oldPreventSequence = state.preventSequence;
 state.preventSequence = false;
+try{
+expect ("{");
+sourceElements = [];
 while (index < length)
 {
 if (match ("}"))
@@ -778,11 +781,18 @@ if (typeof sourceElement === "undefined")
 break;
 sourceElements.push (sourceElement);
 }
-state.preventSequence = oldPreventSequence;
 expect ("}");
+state.preventSequence = oldPreventSequence;
+}catch (e){
+state.preventSequence = oldPreventSequence;
+restoreAll (saved);
+temp = parseObjectInitialiser ();
+consumeSemicolon ();
+sourceElements = [setReturnStatement (expressionStatement (temp))];
+}
 }
 else
-sourceElements.push (setReturnStatement (parseSourceElement ()));
+sourceElements = [setReturnStatement (parseSourceElement ())];
 return blockStatement (sourceElements);
 }
 function parseFunctionDeclarationOrExpression (){
@@ -818,7 +828,7 @@ token = lookahead ();
 id = parseVariableIdentifier ();
 }
 params = match ("(") ? parseFunctionArguments (defaults) : [identifier ("arg")];
-body = parseFunctionSourceElements (defaults);
+body = parseFunctionSourceElements ();
 if (defaults.length)
 body.body = defaults.concat (body.body);
 return functionExpression (id, params, body);
@@ -837,6 +847,11 @@ if (data.type === Syntax.IfStatement)
 {
 setReturnStatement (data.consequent);
 setReturnStatement (data.alternate);
+}
+else
+if (data.type === Syntax.LabelledStatement)
+{
+setReturnStatement (data.body);
 }
 else
 if (data.type === Syntax.BlockStatement && data.single)
