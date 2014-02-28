@@ -2,7 +2,7 @@
 function checkForCircular (){
 	var current = {};
 
-	function check (id){
+	function checkClassForCircular (id){
 		var entry = byName (id.name);
 
 		// Если какого-то класса не достаёт, выкинем ошибку позже, в connectClass
@@ -12,17 +12,17 @@ function checkForCircular (){
 
 			current [id.name] = true;
 
-			if (entry.parent)
-				check (entry.parent, entry.name);
+			if (entry.dependsOn.parent)
+				checkClassForCircular (entry.dependsOn.parent, entry.name);
 
-			for (var use in-array entry.uses)
+			for (var use in-array entry.dependsOn.uses)
 				if (!entry.parent || use.name !== entry.parent.name)
-					check (use, entry.name);
+					checkClassForCircular (use, entry.name);
 
 			delete current [id.name];
 		}
 	}
 
 	for (var c in-array classes)
-		check (c.id);
+		checkClassForCircular (c.id);
 }

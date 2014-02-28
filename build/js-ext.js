@@ -275,7 +275,7 @@ function setMark (obj,mark){
 return $.extend (obj, mark);
 }
 function mark (obj){
-return state.parsingComplete && obj ? obj : $.extend (obj === undefined ? {} : obj, {"lineNumber":lineNumber,"lineStart":lineStart,"filename":options.filename,"index":index});
+return state.parsingComplete && obj ? obj : $.extend (obj === undefined ? {} : obj, {});
 }
 function literal (value){
 return typeof value === "object" && value !== null ? {"type":Syntax.Literal,"value":value.value} : {"type":Syntax.Literal,"value":value};
@@ -391,7 +391,13 @@ return mark ({"type":Syntax.DebuggerStatement});
 }
 var tempId = 0;
 function functionExpression (name,params,body){
-return {"type":Syntax.FunctionExpression,"id":identifier (name instanceof Array ? null : name),"params":(name instanceof Array ? name : params).map (identifier) || [],"defaults":[],"body":blockStatement (name instanceof Array ? params : body),"rest":null,"generator":false,"expression":false,"number":name + tempId++};
+if (name instanceof Array)
+{
+name = null;
+body = params;
+params = name;
+}
+return {"type":Syntax.FunctionExpression,"id":identifier (name),"params":params ? params.map (identifier) : [],"defaults":[],"body":blockStatement (body),"rest":null,"generator":false,"expression":false,"number":name + tempId++};
 }
 function functionDeclaration (name,params,body){
 if (params === undefined)
@@ -583,18 +589,27 @@ function refresh (){
 current = {"publicMode":null,"abstract":params.abstract,"static":params.static};
 }
 function set (obj){
-if (result.hasOwnProperty (obj.id.name))
-throwError (token, "Name \"" + obj.id.name + "\" is already used by an " + (result [obj.id.name].type === Syntax.VariableDeclarator ? "field" : "method"));
-else
-result [obj.id.name] = $.extend (obj, current, {"publicMode":current.publicMode || params.publicMode});
+var name = obj.id.name, has = result.hasOwnProperty (name), temp = has ? result [name] : null;
+$.extend (obj, current, {"publicMode":current.publicMode || params.publicMode});
+if (temp instanceof Array)
+{
+temp.push (obj);
 }
-function field (){
+else
+if (has)
+{
+throwError (token, "Name \"" + name + "\" is already used by an another " + (result [name].type === Syntax.VariableDeclarator ? "field" : "method"));
+}
+else
+result [name] = obj;
+}
+function parseField (){
 if (matchKeyword ("var"))
 lex ();
 var token = lookahead (), data = parseVariableDeclarationList ();
 consumeSemicolon ();
-for (var _8ug39pk_54 = 0; _8ug39pk_54 < data.length; _8ug39pk_54 ++){
-var entry = data[_8ug39pk_54];
+for (var _7dfum0j_22 = 0; _7dfum0j_22 < data.length; _7dfum0j_22 ++){
+var entry = data[_7dfum0j_22];
 if (params.interface && ! current.static)
 throwError (token, "Interface couldn't have object fields.");
 if (params.implemented && entry.init)
@@ -603,24 +618,17 @@ set (entry);
 }
 refresh ();
 }
-function method (){
+function parseMethod (){
 if (matchKeyword ("function"))
 lex ();
 state.superAvailable = ! current.static;
-var token = lookahead (), id = parseVariableIdentifier (), defaults = [], args = match ("(") ? parseFunctionArguments (defaults) : [identifier ("arg")], body = null, fn;
-if (params.interface && ! current.static || params.implemented)
-{
+var token = lookahead (), id = token.type === Token.Identifier ? parseVariableIdentifier () : current.static ? "@initializer" : "@constructor", defaults = [], args = parseFunctionArgumentsIfExist (defaults), body = null;
+if (! current.static && params.interface || params.implemented)
 consumeSemicolon ();
-}
 else
-{
-body = parseFunctionSourceElements ();
-if (defaults.length)
-body.body = defaults.concat (body.body);
-}
+body = parseFunctionSourceElements (defaults);
 state.superAvailable = false;
-fn = functionDeclaration (id, args, body);
-set (fn);
+set (functionDeclaration (id, args, body));
 refresh ();
 }
 state.inClass = true;
@@ -652,21 +660,21 @@ lex ();
 current [token.value] = true;
 break;
 case "var":
-field ();
+parseField ();
 break;
 case "function":
-method ();
+parseMethod ();
 break;
-default:if (token.type === Token.Identifier)
+default:if (token.type === Token.Identifier || token.value === "(" || token.value === "{")
 {
 saved = saveAll ();
 try{
-field ();
+parseField ();
 }catch (e){
 if (String (e).indexOf ("Unexpected token") !== - 1)
 {
 restoreAll (saved);
-method ();
+parseMethod ();
 }
 else
 throw e;
@@ -703,15 +711,17 @@ arguments = parseArguments ();
 consumeSemicolon ();
 return superExpression (name, arguments, level);
 }
-function parseClassDeclaration (){
-var params = parseClassParams ();
-var id = parseClassIdentifier ();
-var dependsOn = parseExtendsImplementsAndUses (params);
-var members = parseClassMembers (params, dependsOn);
+function verbose (id,params,dependsOn,members){
 var membersStrings = [], dependsOnStrings = [], beforeString = "";
 for (var key in members){
 var member = members[key];
 var temp = [];
+if (member instanceof Array)
+{
+member = member [0];
+if (! member)
+continue;
+}
 for (var attribute in member){
 var setted = member[attribute];
 if (setted === true)
@@ -720,8 +730,20 @@ temp.push (attribute);
 if (member.publicMode)
 temp.push (member.publicMode);
 temp.push ({"FunctionDeclaration":"method","VariableDeclarator":"field"} [member.type] || member.type);
-membersStrings.push ("\t* " + member.id.name + " (" + temp.join (" ") + ")");
+if (members [key] instanceof Array)
+temp.push (", total count: " + members [key].length);
+membersStrings.push ("\t* " + member.id.name + " (" + temp.join (" ").replace (/ ,/g, ",") + ")");
 }
+var paramsString = [];
+for (var attribute in params){
+var setted = params[attribute];
+if (setted === true)
+paramsString.push (attribute);
+}
+if (params.publicMode)
+paramsString.push (params.publicMode);
+if (paramsString.length)
+dependsOnStrings.push (paramsString.join (" "));
 if (dependsOn.parent)
 dependsOnStrings.push ("child of " + dependsOn.parent.name);
 if (dependsOn.implements.length)
@@ -735,6 +757,14 @@ return arg.name;
 if (dependsOnStrings.length)
 beforeString = " (" + dependsOnStrings.join ("; ") + ")";
 console.log (id.name + beforeString + ":\n" + membersStrings.join ("\n"));
+}
+function parseClassDeclaration (){
+var params = parseClassParams ();
+var id = parseClassIdentifier ();
+var dependsOn = parseExtendsImplementsAndUses (params);
+var members = parseClassMembers (params, dependsOn);
+verbose (id, params, dependsOn, members);
+state.classes.push ({"id":id,"params":params,"dependsOn":dependsOn,"members":members});
 return null;
 }
 function parseContinueStatement (){
@@ -833,6 +863,15 @@ expect (",");
 expect (")");
 return params;
 }
+function parseFunctionArgumentsIfExist (defaults){
+var saved = saveAll ();
+try{
+return parseFunctionArguments (defaults);
+}catch (e){
+restoreAll (saved);
+return [identifier ("arg")];
+}
+}
 function parseSourceElement (){
 var token = lookahead ();
 if (token.type === Token.Keyword)
@@ -844,8 +883,8 @@ default:return parseStatement ();
 if (token.type !== Token.EOF)
 return parseStatement ();
 }
-function parseFunctionSourceElements (){
-var sourceElement, oldPreventSequence, sourceElements;
+function parseFunctionSourceElements (defaults){
+var sourceElement, oldPreventSequence, sourceElements = defaults || [];
 if (match ("{"))
 {
 saved = saveAll ();
@@ -853,28 +892,26 @@ oldPreventSequence = state.preventSequence;
 state.preventSequence = false;
 try{
 expect ("{");
-sourceElements = [];
 while (index < length)
 {
 if (match ("}"))
 break;
 sourceElement = parseSourceElement ();
-if (typeof sourceElement === "undefined")
+if (sourceElement === undefined)
 break;
 sourceElements.push (sourceElement);
 }
 expect ("}");
 state.preventSequence = oldPreventSequence;
 }catch (e){
-state.preventSequence = oldPreventSequence;
 restoreAll (saved);
 temp = parseObjectInitialiser ();
 consumeSemicolon ();
-sourceElements = [setReturnStatement (expressionStatement (temp))];
+sourceElements.push (setReturnStatement (expressionStatement (temp)));
 }
 }
 else
-sourceElements = [setReturnStatement (parseSourceElement ())];
+sourceElements.push (setReturnStatement (parseSourceElement ()));
 return blockStatement (sourceElements);
 }
 function parseFunctionDeclarationOrExpression (){
@@ -895,10 +932,8 @@ var token, id, params, defaults = [], body;
 expectKeyword ("function");
 token = lookahead ();
 id = parseVariableIdentifier ();
-params = match ("(") ? parseFunctionArguments (defaults) : [identifier ("arg")];
-body = parseFunctionSourceElements ();
-if (defaults.length)
-body.body = defaults.concat (body.body);
+params = parseFunctionArgumentsIfExist (defaults);
+body = parseFunctionSourceElements (defaults);
 return functionDeclaration (id, params, body);
 }
 function parseFunctionExpression (){
@@ -909,10 +944,8 @@ if (! match ("("))
 token = lookahead ();
 id = parseVariableIdentifier ();
 }
-params = match ("(") ? parseFunctionArguments (defaults) : [identifier ("arg")];
-body = parseFunctionSourceElements ();
-if (defaults.length)
-body.body = defaults.concat (body.body);
+params = parseFunctionArgumentsIfExist (defaults);
+body = parseFunctionSourceElements (defaults);
 return functionExpression (id, params, body);
 }
 function setReturnStatement (data){
@@ -952,8 +985,8 @@ setReturnStatement (data.finalizer);
 }
 return data;
 }
-function parseLambdaSourceElements (){
-var sourceElements, oldPreventSequence, temp, saved;
+function parseLambdaSourceElements (defaults){
+var sourceElements = defaults || [], oldPreventSequence, temp, saved;
 oldPreventSequence = state.preventSequence;
 state.preventSequence = true;
 if (match ("{"))
@@ -962,24 +995,22 @@ saved = saveAll ();
 try{
 temp = parseObjectInitialiser ();
 consumeSemicolon ();
-sourceElements = [setReturnStatement (expressionStatement (temp))];
+sourceElements.push (setReturnStatement (expressionStatement (temp)));
 }catch (e){
 restoreAll (saved);
-sourceElements = parseFunctionSourceElements ();
+sourceElements = parseFunctionSourceElements (defaults);
 }
 }
 else
-sourceElements = [setReturnStatement (parseSourceElement ())];
+sourceElements.push (setReturnStatement (parseSourceElement ()));
 state.preventSequence = oldPreventSequence;
 return blockStatement (sourceElements);
 }
 function parseLambdaExpression (){
 var token, param, defaults = [], params = [], body;
 expectKeyword ("lambda");
-params = match ("(") ? parseFunctionArguments (defaults) : [identifier ("arg")];
-body = parseLambdaSourceElements ();
-if (defaults.length)
-body.body = defaults.concat (body.body);
+params = parseFunctionArgumentsIfExist (defaults);
+body = parseLambdaSourceElements (defaults);
 return functionExpression (null, params, body);
 }
 function parseGroupExpression (){
@@ -2269,7 +2300,7 @@ function clone (obj){
 return $.extend (true, {}, obj);
 }
 function saveAll (){
-return clone ({"source":source,"index":index,"lineNumber":lineNumber,"lineStart":lineStart,"length":length,"buffer":buffer,"state":state,"options":options});
+return $.extend ({}, {"source":source,"index":index,"lineNumber":lineNumber,"lineStart":lineStart,"length":length,"buffer":buffer,"state":state,"options":options});
 }
 function restoreAll (obj){
 source = obj.source;
@@ -2400,97 +2431,82 @@ return ch === " " || ch === "\t" || ch === "\u000b" || ch === "\f" || ch === " 
 function isLineTerminator (ch){
 return ch === "\n" || ch === "\r";
 }
-function addClass (rawClass){
-if (byName (rawClass.id.name))
-throwError (rawClass.id, Messages.ClassAlreadyDefined, rawClass.id.name);
-var members = {};
-{ var _3a4ikc7_30 = rawClass.members; for (var _5b2b3ne_31 = 0; _5b2b3ne_31 < _3a4ikc7_30.length; _5b2b3ne_31 ++){
-var member = _3a4ikc7_30[_5b2b3ne_31];
-addMember (members, member, rawClass);
+function addClass (classEntry){
+if (byName (classEntry.id.name))
+throwError (classEntry.id, Messages.ClassAlreadyDefined, classEntry.id.name);
+classEntry.classObject = true;
+{ var _1nesgbu_55 = classEntry.members; for (var name in _1nesgbu_55){
+var member = _1nesgbu_55[name];
+updateMember (member, classEntry);
 }}
-var constructor = getConstructor (members);
-if (! constructor)
+var constructor = classEntry.members ["@constructor"];
+if (constructor === undefined)
 {
-constructor = addMember (members, functionExpression (), rawClass);
+constructor = updateMember (functionDeclaration ("@constructor"), classEntry);
 constructor.autocreated = true;
 }
-var initializer = getInitializer (members);
-if (! initializer)
+var initializer = classEntry.members ["@initializer"];
+if (initializer === undefined)
 {
-initializer = addMember (members, functionExpression (), rawClass, undefined, true);
+initializer = updateMember (functionDeclaration ("@initializer"), classEntry);
+initializer.static = true;
 initializer.autocreated = true;
 }
-var fields = filter (members, function (arg){
-return ! arg.method && ! arg.staticMode && arg.init !== null;
+var fields = filter (classEntry.members, function (arg){
+return ! arg.method && ! arg.static && arg.init !== null;
 });
 var initialization = fields.map (function (arg){
-return $.extend (expressionStatement (assignmentExpression (memberExpression (thisExpression (), arg.id), arg.init)), {"comment":arg.id.name,"autocreated":true});
+return $.extend (expressionStatement (assignmentExpression (memberExpression (thisExpression (), arg.id.name), arg.init)), {"comment":arg.id.name,"autocreated":true});
 });
 constructor.body.body = initialization.concat (constructor.body.body);
-classesByNames [rawClass.id.name] = $.extend (rawClass, {"members":members,"childs":[],"probablyUseOther":0});
-classes.push (classesByNames [rawClass.id.name]);
+classesByNames [classEntry.id.name] = $.extend (classEntry, {"childs":[],"probablyUseOther":0});
+classes.push (classesByNames [classEntry.id.name]);
 }
 function replacement (member,classEntry){
+if (member.static && member.publicMode === "private" || member.id.name [0] === "@")
+return member.id.name;
 switch (member.publicMode){
 case "protected":
 return "__" + member.id.name;
 case "private":
-if (! member.staticMode)
 return "__" + classEntry.id.name + "_" + member.id.name;
 case "public":
 return member.id.name;
-default:console.assert (false, "Unsupported publicMode (" + publicMode + ")");
+default:console.assert (false, "Unsupported publicMode (" + member.publicMode + ")");
 }
 }
-function addMember (members,member,rawClass,publicMode,staticMode){
-var classEntry;
-if ("classObject" in members)
-{
-classEntry = members;
-members = members.members;
-staticMode = publicMode;
-publicMode = rawClass;
-}
-else
-classEntry = rawClass;
-if (typeof publicMode === "boolean")
-{
-staticMode = publicMode;
-publicMode = undefined;
-}
-$.extend (member, {"publicMode":publicMode,"staticMode":staticMode});
-var key = member.id ? member.id.name : member.staticMode ? "@initializer" : "@constructor";
-if (key in members)
-throwError (member.id || classEntry.id, Messages.ClassMemberAlreadyDefined, key === null ? "@constructor" : key);
-members [key] = member;
-if (member.id !== null)
+function updateMember (member,classEntry){
+if (! classEntry.members.hasOwnProperty (member.id.name))
+classEntry.members [member.id.name] = member;
+if (member.publicMode === null)
+member.publicMode = classEntry.publicMode || "private";
 member.id = identifier (replacement (member, classEntry));
-member.className = member.staticMode ? classEntry.id : null;
-member.method = member.type === Syntax.FunctionDeclaration || member.type === Syntax.FunctionExpression;
+member.className = member.static ? classEntry.id : null;
+member.method = member.type === Syntax.FunctionDeclaration;
 return member;
 }
 function checkForCircular (){
 var current = {};
-function check (id){
+function checkClassForCircular (id){
 var entry = byName (id.name);
 if (entry)
 {
 if (id.name in current)
 throwError (id, Messages.CyclicDependencyDetected, id.name);
 current [id.name] = true;
-if (entry.parent)
-check (entry.parent, entry.name);
-{ var _6unmg3l_79 = entry.uses; for (var _33ue1qp_80 = 0; _33ue1qp_80 < _6unmg3l_79.length; _33ue1qp_80 ++){
-var use = _6unmg3l_79[_33ue1qp_80];
+if (entry.dependsOn.parent)
+checkClassForCircular (entry.dependsOn.parent, entry.name);
+{ var _887tjs5_57 = entry.dependsOn.uses; for (var _22k8rhj_58 = 0; _22k8rhj_58 < _887tjs5_57.length; _22k8rhj_58 ++){
+var use = _887tjs5_57[_22k8rhj_58];
 if (! entry.parent || use.name !== entry.parent.name)
-check (use, entry.name);
+checkClassForCircular (use, entry.name);
 }}
 delete current [id.name];
 }
 }
-for (var _67o10vd_81 = 0; _67o10vd_81 < classes.length; _67o10vd_81 ++){
-var c = classes[_67o10vd_81];
-check (c.id);
+for (var _3cr4cgs_59 = 0; _3cr4cgs_59 < classes.length; _3cr4cgs_59 ++){
+var c = classes[_3cr4cgs_59];
+checkClassForCircular (c.id);
 }
 }
 function connectClass (current,from){
@@ -2498,20 +2514,20 @@ if (from !== undefined)
 current.childs.push (from);
 if (current.connected)
 return;
-if (current.parent !== null)
+if (current.dependsOn.parent !== null)
 {
-var parent = byName (current.parent.name);
-if (parent)
-{
+var parent = byName (current.dependsOn.parent.name);
+if (! parent)
+throwError (current.dependsOn.parent, Messages.ParentClassNotFound, current.dependsOn.parent.name);
 connectClass (parent, current.name);
-{ var _2hmsv5n_70 = parent.members; for (var id in _2hmsv5n_70){
-var member = _2hmsv5n_70[id];
-if (! (id in current.members))
+{ var _84h466m_28 = parent.members; for (var id in _84h466m_28){
+var member = _84h466m_28[id];
+if (! current.members.hasOwnProperty (id))
 current.members [id] = $.extend (true, {}, member, {"publicMode":member.publicMode === "private" ? "locked" : member.publicMode});
 }}
-var parentConstructor = getConstructor (parent), currentConstructor = getConstructor (current);
-if (parentConstructor)
-{
+var parentConstructor = parent.members ["@constructor"], currentConstructor = current.members ["@constructor"];
+if (! parentConstructor)
+return;
 if (! currentConstructor)
 {
 addMember (current, functionExpression (parentConstructor.params, [expressionStatement (superExpression (parentConstructor.params))]));
@@ -2533,12 +2549,8 @@ throwError (currentConstructor, Messages.SuperConstructorCallNeeded);
 }
 }
 }
-}
-else
-throwError (current.parent, Messages.ParentClassNotFound, current.parent.name);
-}
-{ var _2g96kqn_71 = current.uses; for (var _cte990_72 = 0; _cte990_72 < _2g96kqn_71.length; _cte990_72 ++){
-var use = _2g96kqn_71[_cte990_72];
+{ var _6gdrj91_29 = current.dependsOn.uses; for (var _5flccgs_30 = 0; _5flccgs_30 < _6gdrj91_29.length; _5flccgs_30 ++){
+var use = _6gdrj91_29[_5flccgs_30];
 var used = byName (use.name);
 if (! used)
 throwError (use, Messages.UsingClassNotFound, use.name);
@@ -2585,26 +2597,28 @@ console.assert (classEntry, "Class not found");
 }
 console.assert (! ("element" in classEntry), "Already processed");
 var processClassFunctionBinded = processClassFunction.bind (null, classEntry), filterBinded = filter.bind (null, classEntry);
-var constructor = getConstructor (classEntry), initializer = getInitializer (classEntry);
+var constructor = classEntry.members ["@constructor"], initializer = classEntry.members ["@initializer"];
 var objectMethods = filterBinded (function (arg){
-return arg.id !== null && arg.method && ! arg.staticMode;
+return arg.id.name [0] !== "@" && arg.method && ! arg.static;
 }), staticMethods = filterBinded (function (arg){
-return arg.id !== null && arg.method && arg.staticMode;
+return arg.id.name [0] !== "@" && arg.method && arg.static;
 }), objectFields = filterBinded (function (arg){
-return arg.id !== null && ! arg.method && ! arg.staticMode;
+return arg.id.name [0] !== "@" && ! arg.method && ! arg.static;
 }), staticFields = filterBinded (function (arg){
-return arg.id !== null && ! arg.method && arg.staticMode;
+return arg.id.name [0] !== "@" && ! arg.method && arg.static;
 });
 processClassFunctionBinded (constructor);
 processClassFunctionBinded (initializer);
 objectMethods.forEach (processClassFunctionBinded);
 staticMethods.forEach (processClassFunctionBinded);
+$.extend (constructor, {"id":null,"type":Syntax.FunctionExpression});
+$.extend (initializer, {"id":null,"type":Syntax.FunctionExpression});
 var mode = "default";
-if (! classEntry.childs.length && ! classEntry.parent && ! objectMethods.length && ! objectFields.length && ! constructor.body.body.length)
+if (! classEntry.childs.length && ! classEntry.dependsOn.parent && ! objectMethods.length && ! objectFields.length && ! constructor.body.body.length)
 {
 classEntry.mode = "static";
 if (! staticFields.length && ! staticMethods.length)
-classEntry.mode = initializer.length ? "initializer-only" : "empty";
+classEntry.mode = initializer.body.body.length > 0 ? "initializer-only" : "empty";
 }
 if (mode === "empty")
 {
@@ -2622,34 +2636,37 @@ var variables = [], resultFunction = [variableDeclaration (variables)];
 if (mode === "default")
 {
 variables.push (variableDeclarator (classEntry.id, constructor));
-if (classEntry.parent)
+if (classEntry.dependsOn.parent)
 {
 var temp = newIdentifier ();
 variables.push (variableDeclarator (temp, functionExpression ()));
-resultFunction.push (expressionStatement (assignmentExpression (memberExpression (temp, "prototype"), memberExpression (classEntry.parent.name, "prototype"))), expressionStatement (assignmentExpression (memberExpression (classEntry.id, "prototype"), newExpression (temp))), expressionStatement (assignmentExpression (memberExpression (memberExpression (classEntry.id, "prototype"), "constructor"), classEntry.id)), expressionStatement (assignmentExpression (temp, "undefined")));
+resultFunction.push (expressionStatement (assignmentExpression (memberExpression (temp, "prototype"), memberExpression (classEntry.dependsOn.parent.name, "prototype"))), expressionStatement (assignmentExpression (memberExpression (classEntry.id, "prototype"), newExpression (temp))), expressionStatement (assignmentExpression (memberExpression (memberExpression (classEntry.id, "prototype"), "constructor"), classEntry.id)), expressionStatement (assignmentExpression (temp, "undefined")));
 }
-for (var _75obsdi_58 = 0; _75obsdi_58 < objectMethods.length; _75obsdi_58 ++){
-var method = objectMethods[_75obsdi_58];
+for (var _2aq91qc_52 = 0; _2aq91qc_52 < objectMethods.length; _2aq91qc_52 ++){
+var method = objectMethods[_2aq91qc_52];
 resultFunction.push (expressionStatement (assignmentExpression (memberExpression (memberExpression (classEntry.id, "prototype"), method.id.name), functionExpression (method.params, method.body))));
 }
 }
 else
 if (mode === "static")
 variables.push (variableDeclarator (classEntry.id, objectExpression ()));
-for (var _40v1hjv_59 = 0; _40v1hjv_59 < staticFields.length; _40v1hjv_59 ++){
-var field = staticFields[_40v1hjv_59];
+for (var _6foaoo9_53 = 0; _6foaoo9_53 < staticFields.length; _6foaoo9_53 ++){
+var field = staticFields[_6foaoo9_53];
+if (field.className === classEntry.id)
+{
 if (field.publicMode !== "private")
 {
 var temp = expressionStatement (assignmentExpression (memberExpression (classEntry.id, field.id), field.init || "undefined"));
-if (byReplacement (classEntry.members, field.id.name).publicMode === "protected")
+if (findByReplacement (classEntry, field.id.name).publicMode === "protected")
 temp.comment = field.id.name;
 resultFunction.push (temp);
 }
 else
 variables.push (field);
 }
-for (var _416r28h_60 = 0; _416r28h_60 < staticMethods.length; _416r28h_60 ++){
-var method = staticMethods[_416r28h_60];
+}
+for (var _5u22bgd_54 = 0; _5u22bgd_54 < staticMethods.length; _5u22bgd_54 ++){
+var method = staticMethods[_5u22bgd_54];
 if (method.publicMode !== "private")
 {
 var temp = expressionStatement (assignmentExpression (memberExpression (classEntry.id, method.id), functionExpression (method.params, method.body)));
@@ -2658,7 +2675,7 @@ resultFunction.push (temp);
 else
 resultFunction.push (method);
 }
-if (initializer)
+if (initializer && initializer.body.body.length > 0)
 resultFunction.push (expressionStatement (callExpression (initializer)));
 resultFunction.push (returnStatement (classEntry.id));
 classEntry.element = variableDeclarator (classEntry.id.name, callExpression (functionExpression ([], resultFunction)));
@@ -2666,7 +2683,7 @@ classEntry.element = variableDeclarator (classEntry.id.name, callExpression (fun
 }
 function processClassFunction (classEntry,functionEntry){
 console.assert (classEntry && functionEntry, "Wrong arguments: " + classEntry + ", " + functionEntry);
-console.log ("[processClassFunction]", classEntry.id.name + "." + (functionEntry.id || {"name":functionEntry.staticMode ? "@initializer" : "@constructor"}).name);
+console.log ("[processClassFunction]", classEntry.id.name + "::" + functionEntry.id.name);
 var exclusions = {};
 var currentFunction;
 var usingThat = false;
@@ -2687,8 +2704,8 @@ if (typeof obj === "object" && obj !== null)
 {
 if (obj instanceof Array)
 {
-for (var _6h9u3jk_81 = 0; _6h9u3jk_81 < obj.length; _6h9u3jk_81 ++){
-var child = obj[_6h9u3jk_81];
+for (var _5cgdoit_2 = 0; _5cgdoit_2 < obj.length; _5cgdoit_2 ++){
+var child = obj[_5cgdoit_2];
 lookForExclusions (child, target);
 }
 }
@@ -2711,10 +2728,12 @@ lookForExclusions (value, target);
 }
 }
 function processFunction (obj,parent){
-console.assert (typeof obj === "object" && (obj.type === Syntax.FunctionExpression || obj.type === Syntax.FunctionDeclaration), "Wrong argument");
+console.assert (typeof obj === "object" && obj.type === Syntax.FunctionDeclaration, "Wrong argument");
 var oldExclusions = clone (exclusions), oldCurrentFunction = currentFunction;
 exclusions = {};
 currentFunction = obj;
+if (! (obj.params instanceof Array))
+console.error (obj.params);
 obj.params.forEach (function (arg){
 return exclusions [arg.name] = true;
 });
@@ -2736,7 +2755,7 @@ process (obj.value, parent);
 }
 function processIdentifier (obj,parent){
 function replaceObject (member){
-if (functionEntry.staticMode)
+if (functionEntry.static)
 throwError (obj, Messages.ObjectAccessError, obj.name);
 if (member.publicMode === "locked")
 throwError (obj, Messages.PrivateAccessError, obj.name);
@@ -2758,7 +2777,7 @@ var result = null, member;
 if (obj.name in classEntry.members)
 {
 member = classEntry.members [obj.name];
-if (! member.staticMode)
+if (! member.static)
 result = replaceObject (member);
 else
 if (member.publicMode !== "private")
@@ -2794,7 +2813,7 @@ var currentClass = classEntry;
 for (var i = 0; 
 i < obj ["super"]; i++)
 {
-currentClass = byName (currentClass.parent.name);
+currentClass = byName (currentClass.dependsOn.parent.name);
 if (! currentClass)
 throwError (obj, Messages.SuperMethodIsNotAvailable);
 }
@@ -2817,8 +2836,8 @@ if (typeof obj === "object" && obj !== null)
 {
 if (obj instanceof Array)
 {
-for (var _4i4vsom_82 = 0; _4i4vsom_82 < obj.length; _4i4vsom_82 ++){
-var child = obj[_4i4vsom_82];
+for (var _59tpaak_3 = 0; _59tpaak_3 < obj.length; _59tpaak_3 ++){
+var child = obj[_59tpaak_3];
 process (child, obj);
 }
 }
@@ -2866,16 +2885,16 @@ console.assert (current, "Class not found");
 if (current.weight)
 return current.weight;
 current.weight = current.probablyUseOther ? 1 + Math.min (current.probablyUseOther, probablyUseOtherMaxValue) / (probablyUseOtherMaxValue + 1) : 1;
-if (current.parent)
-current.weight += getWeight (current.parent.name);
-{ var _3ig3ud1_47 = current.uses; for (var _1or0chf_48 = 0; _1or0chf_48 < _3ig3ud1_47.length; _1or0chf_48 ++){
-var use = _3ig3ud1_47[_1or0chf_48];
+if (current.dependsOn.parent)
+current.weight += getWeight (current.dependsOn.parent.name);
+{ var _2ha0cgo_3 = current.dependsOn.uses; for (var _3l3lrjc_4 = 0; _3l3lrjc_4 < _2ha0cgo_3.length; _3l3lrjc_4 ++){
+var use = _2ha0cgo_3[_3l3lrjc_4];
 current.weight += getWeight (use.name);
 }}
 return current.weight;
 }
-for (var _4knucpb_49 = 0; _4knucpb_49 < classes.length; _4knucpb_49 ++){
-var current = classes[_4knucpb_49];
+for (var _88snigq_5 = 0; _88snigq_5 < classes.length; _88snigq_5 ++){
+var current = classes[_88snigq_5];
 getWeight (current);
 }
 classes.sort (function (a,b){
@@ -2884,7 +2903,7 @@ return a.weight - b.weight;
 }
 var EachMode = {"FILTER_MODE":"filterMode","MAP_MODE":"mapMode","FIRST_HIT_MODE":"firstHitMode"};
 function each (members,filter,callback,mode){
-if ("classObject" in members)
+if (members.classObject)
 members = members.members;
 var result = mode === EachMode.MAP_MODE || mode === EachMode.FILTER_MODE ? [] : undefined, temp;
 if (typeof filter !== "function")
@@ -2916,19 +2935,9 @@ return each (members, filter, callback, EachMode.MAP_MODE);
 function filter (members,filter,callback){
 return each (members, filter, callback, EachMode.FILTER_MODE);
 }
-function byReplacement (members,replacement){
+function findByReplacement (members,replacement){
 return each (members, function (arg){
-return arg.id !== null && arg.id.name === replacement;
-}, EachMode.FIRST_HIT_MODE);
-}
-function getConstructor (members){
-return each (members, function (arg){
-return arg.id === null && ! arg.staticMode;
-}, EachMode.FIRST_HIT_MODE);
-}
-function getInitializer (members){
-return each (members, function (arg){
-return arg.id === null && arg.staticMode;
+return arg.id && arg.id.name === replacement;
 }, EachMode.FIRST_HIT_MODE);
 }
 var fs = require ("fs"), path = require ("path");
@@ -4213,15 +4222,14 @@ Worker.prototype.start = function (callback){
 console.assert (this.state == Worker.STATE_INITIAL, "Wrong state (" + this.state + ")");
 this.state = Worker.STATE_WAITING;
 this.log ("started");
-{ var _4ngp1t8_72 = File.find ("default/*") || []; for (var _6jr0mda_73 = 0; _6jr0mda_73 < _4ngp1t8_72.length; _6jr0mda_73 ++){
-var file = _4ngp1t8_72[_6jr0mda_73];
+{ var _7m6jdth_71 = File.find ("default/*") || []; for (var _41pdneu_72 = 0; _41pdneu_72 < _7m6jdth_71.length; _41pdneu_72 ++){
+var file = _7m6jdth_71[_41pdneu_72];
 file.process ();
 }}
 this.mainFile = new File(this.path);
 this.mainFile.process ();
 this.waitForFinish (function (arg){
 fileStorage.sort ();
-process.exit ();
 this.log ("files processed and sorted");
 this.state = Worker.STATE_STARTED;
 callback ();
@@ -4230,8 +4238,8 @@ callback ();
 Worker.prototype.collect = function (callback){
 console.assert (this.state == Worker.STATE_STARTED, "Wrong state (" + this.state + ")");
 this.state = Worker.STATE_WAITING;
-{ var _5kd2p7v_74 = fileStorage.files; for (var _7t64pjt_75 = 0; _7t64pjt_75 < _5kd2p7v_74.length; _7t64pjt_75 ++){
-var file = _5kd2p7v_74[_7t64pjt_75];
+{ var _95ontkl_73 = fileStorage.files; for (var _4uess19_74 = 0; _4uess19_74 < _95ontkl_73.length; _4uess19_74 ++){
+var file = _95ontkl_73[_4uess19_74];
 Array.prototype.push.apply (this.data.statements, file.parsed.body);
 Array.prototype.push.apply (this.data.classes, file.parsed.classes);
 Array.prototype.push.apply (this.data.initializations, file.parsed.initializations);

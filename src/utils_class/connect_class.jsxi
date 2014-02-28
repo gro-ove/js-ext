@@ -5,45 +5,43 @@ function connectClass (current, from){
 	if (current.connected)
 		return;
 
-	if (current.parent !== null){
-		var parent = byName (current.parent.name);
+	if (current.dependsOn.parent !== null){
+		var parent = byName (current.dependsOn.parent.name);
 
-		if (parent){
-			connectClass (parent, current.name);
+		if (!parent)
+			throwError (current.dependsOn.parent, Messages.ParentClassNotFound, current.dependsOn.parent.name);
 
-			for (var id, member in parent.members)
-				if (!(id in current.members))
-					current.members [id] = $.extend (true, {}, member, {
-						publicMode: member.publicMode === 'private' ? 'locked' : member.publicMode
-					});
+		connectClass (parent, current.name);
 
-			var parentConstructor = getConstructor (parent),
-				currentConstructor = getConstructor (current);
+		for (var id, member in parent.members)
+			if (!current.members.hasOwnProperty (id))
+				current.members [id] = $.extend (true, {}, member, { publicMode: member.publicMode === 'private' ? 'locked' : member.publicMode });
 
-			if (parentConstructor){
-				if (!currentConstructor){
-					addMember (
-						current, 
-						functionExpression (
-							parentConstructor.params, 
-							[ expressionStatement (superExpression (parentConstructor.params)) ]
-						)
-					)
-				} else if (!currentConstructor.body.body.filter (lambda arg.type === Syntax.ExpressionStatement && 'super' in arg.expression).length){ 	// FIXME
-					if (currentConstructor.autocreated || parentConstructor.params.length === 0){
-						if (currentConstructor.autocreated)
-							currentConstructor.params = parentConstructor.params;
-						currentConstructor.body.body = [ expressionStatement (superExpression (null, parentConstructor.params)) ].concat (currentConstructor.body.body);
-					} else {
-						throwError (currentConstructor, Messages.SuperConstructorCallNeeded);
-					}
-				}
+		var parentConstructor = parent.members ['@constructor'],
+			currentConstructor = current.members ['@constructor'];
+
+		if (!parentConstructor)
+			return;
+
+		if (!currentConstructor){
+			addMember (
+				current, 
+				functionExpression (
+					parentConstructor.params, 
+					[ expressionStatement (superExpression (parentConstructor.params)) ]))
+			
+		} else if (!currentConstructor.body.body.filter (lambda arg.type === Syntax.ExpressionStatement && 'super' in arg.expression).length){ 	// FIXME
+			if (currentConstructor.autocreated || parentConstructor.params.length === 0){
+				if (currentConstructor.autocreated)
+					currentConstructor.params = parentConstructor.params;
+				currentConstructor.body.body = [ expressionStatement (superExpression (null, parentConstructor.params)) ].concat (currentConstructor.body.body);
+			} else {
+				throwError (currentConstructor, Messages.SuperConstructorCallNeeded);
 			}
-		} else 
-			throwError (current.parent, Messages.ParentClassNotFound, current.parent.name);
+		}
 	}
 
-	for (var use in-array current.uses){
+	for (var use in-array current.dependsOn.uses){
 		var used = byName (use.name);
 		if (!used)
 			throwError (use, Messages.UsingClassNotFound, use.name);

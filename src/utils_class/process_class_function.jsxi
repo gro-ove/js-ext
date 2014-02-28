@@ -3,7 +3,7 @@
 		console.assert (classEntry && functionEntry, 'Wrong arguments: ' + classEntry + ', ' + functionEntry);
 
 		// Для отладки
-		console.log ('[processClassFunction]', classEntry.id.name + '.' + (functionEntry.id || { name: functionEntry.staticMode ? '@initializer' : '@constructor' }).name);
+		console.log ('[processClassFunction]', classEntry.id.name + '::' + functionEntry.id.name);
 
 		// Тут будут лежать имена локальных переменных — им не нужно будет подставлять «this»
 		var exclusions = {};
@@ -57,7 +57,7 @@
 
 		// Обработка функции
 		function processFunction (obj, parent){
-			console.assert (typeof obj === 'object' && (obj.type === Syntax.FunctionExpression || obj.type === Syntax.FunctionDeclaration), 'Wrong argument');
+			console.assert (typeof obj === 'object' && obj.type === Syntax.FunctionDeclaration, 'Wrong argument');
 
 			// Сохраняем текущие значения, а после переустанавливаем на свои
 			var oldExclusions = clone (exclusions),
@@ -65,6 +65,9 @@
 
 			exclusions = {};
 			currentFunction = obj;
+
+			if (!(obj.params instanceof Array))
+				console.error (obj.params);	// WTF?
 
 			// Заносим в исключения аргументы функции
 			obj.params.forEach (lambda exclusions [arg.name] = true);
@@ -102,7 +105,7 @@
 			function replaceObject (member){
 				// Из статичных свойств обращаться к свойствам объекта как-то неправильно (functionEntry -
 				// нода AST основной обрабатываемой функции, на неё и смотрим)
-				if (functionEntry.staticMode)
+				if (functionEntry.static)
 					throwError (obj, Messages.ObjectAccessError, obj.name);
 
 				// Не даём обращаться и к скрытым полям
@@ -147,7 +150,7 @@
 					// иначе, и замена для них не нужна)
 
 					member = classEntry.members [obj.name];
-					if (!member.staticMode)
+					if (!member.static)
 						result = replaceObject (member);
 					else if (member.publicMode !== 'private')
 						result = replaceStatic (member);
@@ -199,7 +202,7 @@
 
 			// В поле «super» хранится, на сколько нужно подняться
 			for (var i = 0; i < obj ['super']; i ++){
-				currentClass = byName (currentClass.parent.name);
+				currentClass = byName (currentClass.dependsOn.parent.name);
 
 				// Если вдруг родителей не хватает, вываливаемся
 				if (!currentClass)
@@ -230,7 +233,7 @@
 			obj.arguments = [ that ].concat (obj.arguments);
 		}
 
-		function process (obj, parent)
+		function process (obj, parent){
 			if (typeof obj === 'object' && obj !== null){
 				// Как-нибудь обойдёмся и без строк, чисел, null'ов и прочей мути
 
@@ -277,6 +280,7 @@
 					}
 				}
 			}
+		}
 
 		process (functionEntry);
 	}

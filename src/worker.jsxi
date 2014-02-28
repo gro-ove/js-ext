@@ -47,8 +47,6 @@
 		this.waitForFinish (lambda {
 			fileStorage.sort ();
 
-			process.exit ();
-
 			this.log ('files processed and sorted');
 			this.state = Worker.STATE_STARTED;
 			callback ();

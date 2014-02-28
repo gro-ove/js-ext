@@ -6,7 +6,7 @@ var EachMode = {
 
 // Проходим по полям и методам класса
 function each (members, filter, callback, mode){
-	if ('classObject' in members)
+	if (members.classObject)
 		members = members.members;
 
 	var result = mode === EachMode.MAP_MODE || mode === EachMode.FILTER_MODE ? [] : undefined,
@@ -47,23 +47,9 @@ function map (members, callback, filter)
 function filter (members, filter, callback)
 	return each (members, filter, callback, EachMode.FILTER_MODE);
 
-function byReplacement (members, replacement)
+function findByReplacement (members, replacement)
 	return each (
 		members, 
-		lambda arg.id !== null && arg.id.name === replacement, 
-		EachMode.FIRST_HIT_MODE
-	);
-
-function getConstructor (members)
-	return each (
-		members, 
-		lambda arg.id === null && !arg.staticMode, 
-		EachMode.FIRST_HIT_MODE
-	);
-
-function getInitializer (members)
-	return each (
-		members, 
-		lambda arg.id === null && arg.staticMode, 
+		lambda arg.id && arg.id.name === replacement, 
 		EachMode.FIRST_HIT_MODE
 	);

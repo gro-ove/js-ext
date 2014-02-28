@@ -77,7 +77,7 @@
 	}
 
 	function saveAll ()
-		return clone ({
+		return $.extend ({}, {
 			source: 		source,
 			index: 			index,
 			lineNumber: 	lineNumber,
@@ -89,14 +89,14 @@
 		});
 
 	function restoreAll (obj){
-		source  		= obj.source;
-		index  			= obj.index;
-		lineNumber  	= obj.lineNumber;
-		lineStart  		= obj.lineStart;
-		length  		= obj.length;
-		buffer  		= obj.buffer;
-		state  		 	= obj.state;
-		options  		= obj.options;
+		source  			= obj.source;
+		index  				= obj.index;
+		lineNumber  		= obj.lineNumber;
+		lineStart  			= obj.lineStart;
+		length  			= obj.length;
+		buffer  			= obj.buffer;
+		state  		 		= obj.state;
+		options  			= obj.options;
 	}
 
 	function advance (){

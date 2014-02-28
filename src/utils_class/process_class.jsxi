@@ -1,4 +1,4 @@
-// Ключевая функция для обработки класса (переводит его в AST-дерево стандартного формата)
+// Ключевая функция для обработки класса (конвертирует его в стандартное AST-дерево)
 function processClass (classEntry){
 	if (typeof classEntry === 'string'){
 		classEntry = byName (classEntry);
@@ -12,14 +12,14 @@ function processClass (classEntry){
 		filterBinded 				= filter.bind (null, classEntry);
 
 	// Находим конструкторы
-	var constructor 				= getConstructor (classEntry),
-		initializer 				= getInitializer (classEntry);
+	var constructor 				= classEntry.members ['@constructor'],
+		initializer 				= classEntry.members ['@initializer'];
 
 	// И поля с методами
-	var objectMethods 				= filterBinded (lambda arg.id !== null &&  arg.method && !arg.staticMode),
-		staticMethods 				= filterBinded (lambda arg.id !== null &&  arg.method &&  arg.staticMode),
-		objectFields 				= filterBinded (lambda arg.id !== null && !arg.method && !arg.staticMode),
-		staticFields 				= filterBinded (lambda arg.id !== null && !arg.method &&  arg.staticMode);
+	var objectMethods 				= filterBinded (lambda arg.id.name [0] !== '@' &&  arg.method && !arg.static),
+		staticMethods 				= filterBinded (lambda arg.id.name [0] !== '@' &&  arg.method &&  arg.static),
+		objectFields 				= filterBinded (lambda arg.id.name [0] !== '@' && !arg.method && !arg.static),
+		staticFields 				= filterBinded (lambda arg.id.name [0] !== '@' && !arg.method &&  arg.static);
 
 	// Обрабатываем конструктор, инициализатор и методы
 	processClassFunctionBinded (constructor);
@@ -28,11 +28,15 @@ function processClass (classEntry){
 	objectMethods.forEach (processClassFunctionBinded);
 	staticMethods.forEach (processClassFunctionBinded);
 
+	// Слегка меняем конструктор и инициализатор
+	$.extend (constructor, { id: null, type: Syntax.FunctionExpression });
+	$.extend (initializer, { id: null, type: Syntax.FunctionExpression });
+
 	// Режим сборки
 	var mode = 'default';
 
 	if (!classEntry.childs.length &&
-		!classEntry.parent && 
+		!classEntry.dependsOn.parent && 
 		!objectMethods.length && 
 		!objectFields.length &&
 		!constructor.body.body.length){
@@ -42,7 +46,7 @@ function processClass (classEntry){
 
 		// Для пустых классов или для классов, состоящих лишь из одного иницилизатора
 		if (!staticFields.length && !staticMethods.length)
-			classEntry.mode = initializer.length ? 'initializer-only' : 'empty';
+			classEntry.mode = initializer.body.body.length > 0 ? 'initializer-only' : 'empty';
 	}
 
 	if (mode === 'empty'){
@@ -67,13 +71,13 @@ function processClass (classEntry){
 			variables.push (variableDeclarator (classEntry.id, constructor));
 
 			// Лепим муть, нужную для наследования
-			if (classEntry.parent){
+			if (classEntry.dependsOn.parent){
 				var temp = newIdentifier ();
 				variables.push (variableDeclarator (temp, functionExpression ()));
 
 				resultFunction.push (
 					expressionStatement (assignmentExpression (
-							memberExpression (temp, 'prototype'), memberExpression (classEntry.parent.name, 'prototype'))),
+							memberExpression (temp, 'prototype'), memberExpression (classEntry.dependsOn.parent.name, 'prototype'))),
 					expressionStatement (assignmentExpression (
 							memberExpression (classEntry.id, 'prototype'), newExpression (temp))),
 					expressionStatement (assignmentExpression (
@@ -92,18 +96,19 @@ function processClass (classEntry){
 			variables.push (variableDeclarator (classEntry.id, objectExpression ()));
 
 		// Добавляем статические поля ...
-		for (var field in-array staticFields){
-			if (field.publicMode !== 'private'){
-				var temp = expressionStatement (assignmentExpression (
-					memberExpression (classEntry.id, field.id), field.init || 'undefined'));
+		for (var field in-array staticFields)
+			if (field.className === classEntry.id){
+				if (field.publicMode !== 'private'){
+					var temp = expressionStatement (assignmentExpression (
+						memberExpression (classEntry.id, field.id), field.init || 'undefined'));
 
-				if (byReplacement (classEntry.members, field.id.name).publicMode === 'protected')
-					temp.comment = field.id.name;
+					if (findByReplacement (classEntry, field.id.name).publicMode === 'protected')
+						temp.comment = field.id.name;
 
-				resultFunction.push (temp);
-			} else 
-				variables.push (field);
-		}
+					resultFunction.push (temp);
+				} else 
+					variables.push (field);
+			}
 
 		// ... после — статические методы ...
 		for (var method in-array staticMethods){
@@ -116,7 +121,7 @@ function processClass (classEntry){
 		}
 
 		// ... инициализатор ...
-		if (initializer)
+		if (initializer && initializer.body.body.length > 0)
 			resultFunction.push (expressionStatement (callExpression (initializer)));
 
 		// ... и оператор «return»

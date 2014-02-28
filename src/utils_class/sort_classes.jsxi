@@ -11,9 +11,9 @@ function sortClasses (){
 		current.weight = current.probablyUseOther ? 1 + 
 			Math.min (current.probablyUseOther, probablyUseOtherMaxValue) / (probablyUseOtherMaxValue + 1) : 1;
 
-		if (current.parent)
-			current.weight += getWeight (current.parent.name);
-		for (var use in-array current.uses)
+		if (current.dependsOn.parent)
+			current.weight += getWeight (current.dependsOn.parent.name);
+		for (var use in-array current.dependsOn.uses)
 			current.weight += getWeight (use.name);
 		return current.weight;
 	}

@@ -31,6 +31,17 @@
 		return params;
 	}
 
+	function parseFunctionArgumentsIfExist (defaults){
+		var saved = saveAll ();
+
+		try {
+			return parseFunctionArguments (defaults);
+		} catch {
+			restoreAll (saved);
+			return [ identifier ('arg') ];
+		}
+	}
+
 	function parseSourceElement (){
 		var token = lookahead ();
 
@@ -46,10 +57,10 @@
 			return parseStatement ();
 	}
 
-	function parseFunctionSourceElements (){
+	function parseFunctionSourceElements (defaults){
 		var sourceElement, 
 			oldPreventSequence,
-			sourceElements;
+			sourceElements = defaults || [];
 
 		if (match ('{')){
 			saved = saveAll ();
@@ -58,13 +69,12 @@
 
 			try {
 				expect ('{');
-				sourceElements = [];
 
 				while (index < length){
 					if (match ('}'))
 						break;
 					sourceElement = parseSourceElement ();
-					if (typeof sourceElement === 'undefined') 
+					if (sourceElement === undefined) 
 						break;
 					sourceElements.push (sourceElement);
 				}
@@ -72,15 +82,14 @@
 				expect ('}');
 				state.preventSequence = oldPreventSequence;
 			} catch {
-				state.preventSequence = oldPreventSequence;
 				restoreAll (saved);
 
 				temp = parseObjectInitialiser ();
 				consumeSemicolon ();
-				sourceElements = [ setReturnStatement (expressionStatement (temp)) ];
+				sourceElements.push (setReturnStatement (expressionStatement (temp)));
 			}
 		} else 
-			sourceElements = [ setReturnStatement (parseSourceElement ()) ];
+			sourceElements.push (setReturnStatement (parseSourceElement ()));
 
 		return blockStatement (sourceElements);
 	}
@@ -106,11 +115,8 @@
 
 		token 	= lookahead ();
 		id 		= parseVariableIdentifier ();
-		params 	= match ('(') ? parseFunctionArguments (defaults) : [ identifier ('arg') ];
-		body 	= parseFunctionSourceElements ();
-
-		if (defaults.length)
-			body.body = defaults.concat (body.body);
+		params 	= parseFunctionArgumentsIfExist (defaults);
+		body 	= parseFunctionSourceElements (defaults);
 
 		return functionDeclaration (id, params, body);
 	}
@@ -125,11 +131,8 @@
 			id 		= parseVariableIdentifier ();
 		}
 
-		params 	= match ('(') ? parseFunctionArguments (defaults) : [ identifier ('arg') ];
-		body 	= parseFunctionSourceElements ();
-
-		if (defaults.length)
-			body.body = defaults.concat (body.body);
+		params 	= parseFunctionArgumentsIfExist (defaults);
+		body 	= parseFunctionSourceElements (defaults);
 
 		return functionExpression (id, params, body);
 	}
@@ -160,8 +163,8 @@
 		return data;
 	}
 
-	function parseLambdaSourceElements (){
-		var sourceElements,
+	function parseLambdaSourceElements (defaults){
+		var sourceElements = defaults || [],
 			oldPreventSequence,
 			temp,
 			saved;
@@ -175,13 +178,13 @@
 			try {
 				temp = parseObjectInitialiser ();
 				consumeSemicolon ();
-				sourceElements = [ setReturnStatement (expressionStatement (temp)) ];
+				sourceElements.push (setReturnStatement (expressionStatement (temp)));
 			} catch {
 				restoreAll (saved);
-				sourceElements = parseFunctionSourceElements ();
+				sourceElements = parseFunctionSourceElements (defaults);
 			}
 		} else 
-			sourceElements = [ setReturnStatement (parseSourceElement ()) ];
+			sourceElements.push (setReturnStatement (parseSourceElement ()));
 
 		state.preventSequence = oldPreventSequence;
 
@@ -193,11 +196,8 @@
 
 		expectKeyword ('lambda');
 
-		params = match ('(') ? parseFunctionArguments (defaults) : [ identifier ('arg') ];
-		body = parseLambdaSourceElements ();
-
-		if (defaults.length)
-			body.body = defaults.concat (body.body);
+		params = parseFunctionArgumentsIfExist (defaults);
+		body = parseLambdaSourceElements (defaults);
 
 		return functionExpression (null, params, body);
 	}

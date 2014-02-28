@@ -5,10 +5,10 @@
 		return state.parsingComplete && obj 
 			? obj 
 			: $.extend (obj === undefined ? {} : obj, {
-				lineNumber: 	lineNumber,
-				lineStart: 	 	lineStart,
-				filename:     	options.filename,
-				index: 		 	index
+				// lineNumber: 	lineNumber,
+				// lineStart: 	 	lineStart,
+				// filename:     	options.filename,
+				// index: 		 	index
 			});
 
 	function literal (value)
@@ -246,18 +246,25 @@
 
 	var tempId = 0;
 
-	function functionExpression (name, params, body)
+	function functionExpression (name, params, body){
+		if (name instanceof Array){
+			name = null;
+			body = params;
+			params = name;
+		}
+
 		return {
 			type: 				Syntax.FunctionExpression,
-			id: 				identifier (name instanceof Array ? null : name),
-			params: 			(name instanceof Array ? name : params).map (identifier) || [],
+			id: 				identifier (name),
+			params: 			params ? params.map (identifier) : [],
 			defaults: 			[],
-			body: 				blockStatement (name instanceof Array ? params : body),
+			body: 				blockStatement (body),
 			rest: 				null,
 			generator: 			false,
 			expression: 		false,
 			number: 			name + tempId ++
 		};
+	}
 
 	function functionDeclaration (name, params = [], body)
 		return mark ({
