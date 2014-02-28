@@ -1,5 +1,5 @@
 # TODO
-	V Classes
+	V classes
 		V arguments to exclusions list
 		V classes extends
 		V initialization order
@@ -10,15 +10,16 @@
 		V super requested in constuctors
 		V check for parent class static field change
 		V names fix
+		V this support
+		V renaming private and protected variables
+		V abstract classes
+		V short syntax
 		F check for order of super constructor call and methods initialization
 		F static private and object locked conflict
-		F this support
 		F special access like ['field' + name] support
-		F renaming private and protected variables
 		- interfaces
 			- interfaces generator
-		- abstract classes
-		- short syntax
+		- without "return" in constructors
 		- anonymous classes
 		- initialization with constructor: for example, "var a = new A (){ objectField = value; for (var i = 0; i < 10; i ++) something ++ }"
 		- processing default fields initializations
@@ -72,6 +73,7 @@
 	F import with dot in name
 	F import folders
 	F fix shit with functions (callable declarations)
+	- new operator instead of "in"
 	- arguments support
 	- uglifyjs
 	- errors handling

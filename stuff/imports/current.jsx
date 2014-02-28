@@ -1,26 +1,44 @@
 class First {
-	static var h = 18;
+	static var psv = ':staticprivate';
 
-	a = 1024;
+	a = ':a';
 
 	(a){
-		this.a = a + h;
+		this.a = a + psv;
 	}
 
 	public oldFn {
-		console.log (h);
+		console.log ('[ oldfn ]', psv, a);
 	}
 }
 
 public class Second extends First {
-	static var h = 'overrided';
+	static var psv = ':overrided';
+	protected static dsv = ':protected';
+	var usv = ':public';
 
 	fn (){
-		console.log (h);
+		console.log ('[ fn ]', psv, test ());
 		return this;
+	}
+
+	abstract protected test ();
+}
+
+public class SecondNotAbstract extends Second {
+	protected test ()
+		'test';
+}
+
+protected class Third extends Second {
+	(){
+		super (':argument');
+		console.log ('[ static test ]', dsv, this.dsv, this.usv)
 	}
 }
 
 {
-	new Second ().fn ().oldFn ();
+	new First (':first');
+	new SecondNotAbstract (':test').fn ().oldFn ();
+	new Third ().fn ().oldFn ();
 }

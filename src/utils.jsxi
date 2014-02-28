@@ -44,3 +44,35 @@ function isEmpty (obj){
 		return false;
 	return true;
 }
+
+
+var $ = { 
+	extend: (function (){
+		// Taken from Zepto
+
+		function extend (target, source, deep)
+			for (var key, value in source)
+				if (deep && (typeof value === 'object' || value instanceof Array)){
+					if (value instanceof Array && !(target [key] instanceof Array))
+						target [key] = [];
+					else if (typeof value === 'object' && typeof target [key] !== 'object')
+						target [key] = {};
+
+					extend (target [key], value, deep);
+				} else if (value !== undefined) 
+					target [key] = value;
+
+		return function (target){
+			var deep, 
+				args = Array.prototype.slice.call (arguments, 1);
+
+			if (typeof target == 'boolean'){
+				deep = target;
+				target = args.shift ();
+			}
+
+			args.forEach (lambda extend (target, arg, deep));
+			return target;
+		}
+	})() 
+};

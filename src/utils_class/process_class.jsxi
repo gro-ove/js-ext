@@ -16,10 +16,11 @@ function processClass (classEntry){
 		initializer 				= classEntry.members ['@initializer'];
 
 	// И поля с методами
-	var objectMethods 				= filterBinded (lambda arg.id.name [0] !== '@' &&  arg.method && !arg.static),
-		staticMethods 				= filterBinded (lambda arg.id.name [0] !== '@' &&  arg.method &&  arg.static),
-		objectFields 				= filterBinded (lambda arg.id.name [0] !== '@' && !arg.method && !arg.static),
-		staticFields 				= filterBinded (lambda arg.id.name [0] !== '@' && !arg.method &&  arg.static);
+	var filtered 					= filterBinded (lambda arg.className === classEntry.id && arg.id.name [0] !== '@'),
+		objectMethods 				= filtered.filter (lambda  arg.method && !arg.static),
+		staticMethods 				= filtered.filter (lambda  arg.method &&  arg.static),
+		objectFields 				= filtered.filter (lambda !arg.method && !arg.static),
+		staticFields 				= filtered.filter (lambda !arg.method &&  arg.static);
 
 	// Обрабатываем конструктор, инициализатор и методы
 	processClassFunctionBinded (constructor);
@@ -64,7 +65,8 @@ function processClass (classEntry){
 	} else {
 		// А тут всё уже несколько посерьёзнее
 		var variables = [],
-			resultFunction = [ variableDeclaration (variables) ];
+			resultFunction = [ variableDeclaration (variables) ],
+			abstract;
 
 		if (mode === 'default'){
 			// Добавляем конструктор как основную фунцию
@@ -88,27 +90,37 @@ function processClass (classEntry){
 
 			// Цепляем к прототипу методы объекта
 			for (var method in-array objectMethods)
-				resultFunction.push (expressionStatement (assignmentExpression (
-						memberExpression (memberExpression (classEntry.id, 'prototype'), method.id.name), 
-						functionExpression (method.params, method.body))));
+				if (!method.abstract){
+					var target = memberExpression (memberExpression (classEntry.id, 'prototype'), method.id.name),
+						value = functionExpression (method.params, method.body);
+
+					resultFunction.push (expressionStatement (assignmentExpression (target, value)));
+				} else
+					abstract = true;
+
+			if (abstract){
+				constructor.body.body = [ 
+					ifStatement (
+						binaryExpression (memberExpression (thisExpression (), 'constructor'), '===', classEntry.id.name),
+						throwStatement (newExpression ('Error', [ literal ('Trying to instantiate abstract class') ])))
+				].concat (constructor.body.body);
+			}
 		} else if (mode === 'static')
 			// Вместо функции добавляем пустой объект
 			variables.push (variableDeclarator (classEntry.id, objectExpression ()));
 
 		// Добавляем статические поля ...
 		for (var field in-array staticFields)
-			if (field.className === classEntry.id){
-				if (field.publicMode !== 'private'){
-					var temp = expressionStatement (assignmentExpression (
-						memberExpression (classEntry.id, field.id), field.init || 'undefined'));
+			if (field.publicMode !== 'private'){
+				var temp = expressionStatement (assignmentExpression (
+					memberExpression (classEntry.id, field.id), field.init || 'undefined'));
 
-					if (findByReplacement (classEntry, field.id.name).publicMode === 'protected')
-						temp.comment = field.id.name;
+				if (findByReplacement (classEntry, field.id.name).publicMode === 'protected')
+					temp.comment = field.id.name;
 
-					resultFunction.push (temp);
-				} else 
-					variables.push (field);
-			}
+				resultFunction.push (temp);
+			} else 
+				variables.push (field);
 
 		// ... после — статические методы ...
 		for (var method in-array staticMethods){

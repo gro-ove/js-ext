@@ -255,7 +255,7 @@
 		return result;
 	}
 
-	function parseSuperExpression (){
+	function parseSuperStatement (){
 		var level = 1, name, temp, arguments;
 
 		expectKeyword ('super');
@@ -278,7 +278,7 @@
 		arguments = parseArguments ();
 		consumeSemicolon ();
 
-		return superExpression (name, arguments, level);
+		return expressionStatement (superExpression (name, arguments, level));
 	}
 
 	function verbose (id, params, dependsOn, members){

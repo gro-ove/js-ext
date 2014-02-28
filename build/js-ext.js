@@ -608,8 +608,8 @@ if (matchKeyword ("var"))
 lex ();
 var token = lookahead (), data = parseVariableDeclarationList ();
 consumeSemicolon ();
-for (var _7dfum0j_22 = 0; _7dfum0j_22 < data.length; _7dfum0j_22 ++){
-var entry = data[_7dfum0j_22];
+for (var _64lsukt_43 = 0; _64lsukt_43 < data.length; _64lsukt_43 ++){
+var entry = data[_64lsukt_43];
 if (params.interface && ! current.static)
 throwError (token, "Interface couldn't have object fields.");
 if (params.implemented && entry.init)
@@ -688,7 +688,7 @@ expect ("}");
 state.inClass = oldInClass;
 return result;
 }
-function parseSuperExpression (){
+function parseSuperStatement (){
 var level = 1, name, temp, arguments;
 expectKeyword ("super");
 if (! state.superAvailable)
@@ -709,7 +709,7 @@ break;
 }
 arguments = parseArguments ();
 consumeSemicolon ();
-return superExpression (name, arguments, level);
+return expressionStatement (superExpression (name, arguments, level));
 }
 function verbose (id,params,dependsOn,members){
 var membersStrings = [], dependsOnStrings = [], beforeString = "";
@@ -2265,37 +2265,6 @@ while (busy (str = "_" + (lastIdentifier++).toString (32)))
 return str;
 };
 }) ();
-var $ = {"extend":(function (){
-function extend (target,source,deep){
-for (var key in source){
-var value = source[key];
-if (deep && (typeof value === "object" || value instanceof Array))
-{
-if (typeof value === "object" && typeof target [key] !== "object")
-target [key] = {};
-else
-if (value instanceof Array && ! (target [key] instanceof Array))
-target [key] = [];
-extend (target [key], value, deep);
-}
-else
-if (value !== undefined)
-target [key] = value;
-}
-}
-return function (target){
-var deep, args = Array.prototype.slice.call (arguments, 1);
-if (typeof target == "boolean")
-{
-deep = target;
-target = args.shift ();
-}
-args.forEach (function (arg){
-return extend (target, arg, deep);
-});
-return target;
-};
-}) ()};
 function clone (obj){
 return $.extend (true, {}, obj);
 }
@@ -2435,8 +2404,8 @@ function addClass (classEntry){
 if (byName (classEntry.id.name))
 throwError (classEntry.id, Messages.ClassAlreadyDefined, classEntry.id.name);
 classEntry.classObject = true;
-{ var _1nesgbu_55 = classEntry.members; for (var name in _1nesgbu_55){
-var member = _1nesgbu_55[name];
+{ var _4vi8a48_29 = classEntry.members; for (var name in _4vi8a48_29){
+var member = _4vi8a48_29[name];
 updateMember (member, classEntry);
 }}
 var constructor = classEntry.members ["@constructor"];
@@ -2481,7 +2450,7 @@ classEntry.members [member.id.name] = member;
 if (member.publicMode === null)
 member.publicMode = classEntry.publicMode || "private";
 member.id = identifier (replacement (member, classEntry));
-member.className = member.static ? classEntry.id : null;
+member.className = classEntry.id;
 member.method = member.type === Syntax.FunctionDeclaration;
 return member;
 }
@@ -2520,8 +2489,8 @@ var parent = byName (current.dependsOn.parent.name);
 if (! parent)
 throwError (current.dependsOn.parent, Messages.ParentClassNotFound, current.dependsOn.parent.name);
 connectClass (parent, current.name);
-{ var _84h466m_28 = parent.members; for (var id in _84h466m_28){
-var member = _84h466m_28[id];
+{ var _18kdeck_14 = parent.members; for (var id in _18kdeck_14){
+var member = _18kdeck_14[id];
 if (! current.members.hasOwnProperty (id))
 current.members [id] = $.extend (true, {}, member, {"publicMode":member.publicMode === "private" ? "locked" : member.publicMode});
 }}
@@ -2544,13 +2513,11 @@ currentConstructor.params = parentConstructor.params;
 currentConstructor.body.body = [expressionStatement (superExpression (null, parentConstructor.params))].concat (currentConstructor.body.body);
 }
 else
-{
 throwError (currentConstructor, Messages.SuperConstructorCallNeeded);
 }
 }
-}
-{ var _6gdrj91_29 = current.dependsOn.uses; for (var _5flccgs_30 = 0; _5flccgs_30 < _6gdrj91_29.length; _5flccgs_30 ++){
-var use = _6gdrj91_29[_5flccgs_30];
+{ var _7kqgdd0_15 = current.dependsOn.uses; for (var _69i00ns_16 = 0; _69i00ns_16 < _7kqgdd0_15.length; _69i00ns_16 ++){
+var use = _7kqgdd0_15[_69i00ns_16];
 var used = byName (use.name);
 if (! used)
 throwError (use, Messages.UsingClassNotFound, use.name);
@@ -2598,14 +2565,16 @@ console.assert (classEntry, "Class not found");
 console.assert (! ("element" in classEntry), "Already processed");
 var processClassFunctionBinded = processClassFunction.bind (null, classEntry), filterBinded = filter.bind (null, classEntry);
 var constructor = classEntry.members ["@constructor"], initializer = classEntry.members ["@initializer"];
-var objectMethods = filterBinded (function (arg){
-return arg.id.name [0] !== "@" && arg.method && ! arg.static;
-}), staticMethods = filterBinded (function (arg){
-return arg.id.name [0] !== "@" && arg.method && arg.static;
-}), objectFields = filterBinded (function (arg){
-return arg.id.name [0] !== "@" && ! arg.method && ! arg.static;
-}), staticFields = filterBinded (function (arg){
-return arg.id.name [0] !== "@" && ! arg.method && arg.static;
+var filtered = filterBinded (function (arg){
+return arg.className === classEntry.id && arg.id.name [0] !== "@";
+}), objectMethods = filtered.filter (function (arg){
+return arg.method && ! arg.static;
+}), staticMethods = filtered.filter (function (arg){
+return arg.method && arg.static;
+}), objectFields = filtered.filter (function (arg){
+return ! arg.method && ! arg.static;
+}), staticFields = filtered.filter (function (arg){
+return ! arg.method && arg.static;
 });
 processClassFunctionBinded (constructor);
 processClassFunctionBinded (initializer);
@@ -2632,7 +2601,7 @@ classEntry.element = variableDeclarator (classEntry.id.name, sequenceExpression 
 }
 else
 {
-var variables = [], resultFunction = [variableDeclaration (variables)];
+var variables = [], resultFunction = [variableDeclaration (variables)], abstract;
 if (mode === "default")
 {
 variables.push (variableDeclarator (classEntry.id, constructor));
@@ -2642,18 +2611,26 @@ var temp = newIdentifier ();
 variables.push (variableDeclarator (temp, functionExpression ()));
 resultFunction.push (expressionStatement (assignmentExpression (memberExpression (temp, "prototype"), memberExpression (classEntry.dependsOn.parent.name, "prototype"))), expressionStatement (assignmentExpression (memberExpression (classEntry.id, "prototype"), newExpression (temp))), expressionStatement (assignmentExpression (memberExpression (memberExpression (classEntry.id, "prototype"), "constructor"), classEntry.id)), expressionStatement (assignmentExpression (temp, "undefined")));
 }
-for (var _2aq91qc_52 = 0; _2aq91qc_52 < objectMethods.length; _2aq91qc_52 ++){
-var method = objectMethods[_2aq91qc_52];
-resultFunction.push (expressionStatement (assignmentExpression (memberExpression (memberExpression (classEntry.id, "prototype"), method.id.name), functionExpression (method.params, method.body))));
+for (var _7bon111_50 = 0; _7bon111_50 < objectMethods.length; _7bon111_50 ++){
+var method = objectMethods[_7bon111_50];
+if (! method.abstract)
+{
+var target = memberExpression (memberExpression (classEntry.id, "prototype"), method.id.name), value = functionExpression (method.params, method.body);
+resultFunction.push (expressionStatement (assignmentExpression (target, value)));
+}
+else
+abstract = true;
+}
+if (abstract)
+{
+constructor.body.body = [ifStatement (binaryExpression (memberExpression (thisExpression (), "constructor"), "===", classEntry.id.name), throwStatement (newExpression ("Error", [literal ("Trying to instantiate abstract class")])))].concat (constructor.body.body);
 }
 }
 else
 if (mode === "static")
 variables.push (variableDeclarator (classEntry.id, objectExpression ()));
-for (var _6foaoo9_53 = 0; _6foaoo9_53 < staticFields.length; _6foaoo9_53 ++){
-var field = staticFields[_6foaoo9_53];
-if (field.className === classEntry.id)
-{
+for (var _35imli1_51 = 0; _35imli1_51 < staticFields.length; _35imli1_51 ++){
+var field = staticFields[_35imli1_51];
 if (field.publicMode !== "private")
 {
 var temp = expressionStatement (assignmentExpression (memberExpression (classEntry.id, field.id), field.init || "undefined"));
@@ -2664,9 +2641,8 @@ resultFunction.push (temp);
 else
 variables.push (field);
 }
-}
-for (var _5u22bgd_54 = 0; _5u22bgd_54 < staticMethods.length; _5u22bgd_54 ++){
-var method = staticMethods[_5u22bgd_54];
+for (var _1r4f1dp_52 = 0; _1r4f1dp_52 < staticMethods.length; _1r4f1dp_52 ++){
+var method = staticMethods[_1r4f1dp_52];
 if (method.publicMode !== "private")
 {
 var temp = expressionStatement (assignmentExpression (memberExpression (classEntry.id, method.id), functionExpression (method.params, method.body)));
@@ -2704,8 +2680,8 @@ if (typeof obj === "object" && obj !== null)
 {
 if (obj instanceof Array)
 {
-for (var _5cgdoit_2 = 0; _5cgdoit_2 < obj.length; _5cgdoit_2 ++){
-var child = obj[_5cgdoit_2];
+for (var _6jgph0n_84 = 0; _6jgph0n_84 < obj.length; _6jgph0n_84 ++){
+var child = obj[_6jgph0n_84];
 lookForExclusions (child, target);
 }
 }
@@ -2732,8 +2708,6 @@ console.assert (typeof obj === "object" && obj.type === Syntax.FunctionDeclarati
 var oldExclusions = clone (exclusions), oldCurrentFunction = currentFunction;
 exclusions = {};
 currentFunction = obj;
-if (! (obj.params instanceof Array))
-console.error (obj.params);
 obj.params.forEach (function (arg){
 return exclusions [arg.name] = true;
 });
@@ -2791,14 +2765,8 @@ set (obj, result);
 }
 }
 function processMemberExpression (obj,parent){
-try{
-if (obj.object.type === Syntax.ThisExpression && obj.computed === false && obj.property.type === Syntax.Identifier && obj.property.name in classEntry.members)
-{
+if (obj.object.type === Syntax.ThisExpression && obj.computed === false && obj.property.type === Syntax.Identifier && classEntry.members.hasOwnProperty (obj.property.name) && ! classEntry.members [obj.property.name].static)
 obj.property.name = classEntry.members [obj.property.name].id.name;
-}
-}catch (e){
-throw new Error(JSON.stringify (parent, false, 4) + "\n" + e.stack);
-}
 process (obj.object, obj);
 if (obj.computed)
 process (obj.property, obj);
@@ -2836,8 +2804,8 @@ if (typeof obj === "object" && obj !== null)
 {
 if (obj instanceof Array)
 {
-for (var _59tpaak_3 = 0; _59tpaak_3 < obj.length; _59tpaak_3 ++){
-var child = obj[_59tpaak_3];
+for (var _80ie13f_85 = 0; _80ie13f_85 < obj.length; _80ie13f_85 ++){
+var child = obj[_80ie13f_85];
 process (child, obj);
 }
 }
@@ -4185,6 +4153,37 @@ for (var n in obj)
 return false;
 return true;
 }
+var $ = {"extend":(function (){
+function extend (target,source,deep){
+for (var key in source){
+var value = source[key];
+if (deep && (typeof value === "object" || value instanceof Array))
+{
+if (value instanceof Array && ! (target [key] instanceof Array))
+target [key] = [];
+else
+if (typeof value === "object" && typeof target [key] !== "object")
+target [key] = {};
+extend (target [key], value, deep);
+}
+else
+if (value !== undefined)
+target [key] = value;
+}
+}
+return function (target){
+var deep, args = Array.prototype.slice.call (arguments, 1);
+if (typeof target == "boolean")
+{
+deep = target;
+target = args.shift ();
+}
+args.forEach (function (arg){
+return extend (target, arg, deep);
+});
+return target;
+};
+}) ()};
 function Worker (path){
 this.path = path;
 this.mainFile = undefined;

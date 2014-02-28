@@ -84,7 +84,7 @@ function updateMember (member, classEntry){
 	member.id = identifier (replacement (member, classEntry));
 
 	// И добавляем пару вспомогательных атрибутов
-	member.className = member.static ? classEntry.id : null
+	member.className = classEntry.id;
 	member.method = member.type === Syntax.FunctionDeclaration;
 
 	return member;

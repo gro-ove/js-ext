@@ -66,9 +66,6 @@
 			exclusions = {};
 			currentFunction = obj;
 
-			if (!(obj.params instanceof Array))
-				console.error (obj.params);	// WTF?
-
 			// Заносим в исключения аргументы функции
 			obj.params.forEach (lambda exclusions [arg.name] = true);
 
@@ -168,13 +165,12 @@
 		}
 
 		function processMemberExpression (obj, parent){
-			try 
-			if (obj.object.type === Syntax.ThisExpression && obj.computed === false && obj.property.type === Syntax.Identifier && obj.property.name in classEntry.members){
-				// TODO
+			if (obj.object.type === Syntax.ThisExpression 
+				&& obj.computed === false 
+				&& obj.property.type === Syntax.Identifier 
+				&& classEntry.members.hasOwnProperty (obj.property.name)
+				&& !classEntry.members [obj.property.name].static)
 				obj.property.name = classEntry.members [obj.property.name].id.name;
-			} 
-			catch
-				throw new Error (JSON.stringify (parent, false, 4) + '\n' + e.stack);
 
 			// Всё довольно просто — обрабатываем объект ...
 			process (obj.object, obj);
