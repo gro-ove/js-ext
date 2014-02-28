@@ -275,7 +275,11 @@
 			}
 		}
 
-		arguments = parseArguments ();
+		if (match ('('))
+			arguments = parseArguments ();
+		else
+			arguments = [];
+		
 		consumeSemicolon ();
 
 		return expressionStatement (superExpression (name, arguments, level));

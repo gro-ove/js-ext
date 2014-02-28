@@ -22,6 +22,9 @@ function processClass (classEntry){
 		objectFields 				= filtered.filter (lambda !arg.method && !arg.static),
 		staticFields 				= filtered.filter (lambda !arg.method &&  arg.static);
 
+	if (!classEntry.params.abstract && filterBinded (lambda arg.abstract)[0])
+		classEntry.params.abstract = true;
+
 	// Обрабатываем конструктор, инициализатор и методы
 	processClassFunctionBinded (constructor);
 	processClassFunctionBinded (initializer);
@@ -65,8 +68,7 @@ function processClass (classEntry){
 	} else {
 		// А тут всё уже несколько посерьёзнее
 		var variables = [],
-			resultFunction = [ variableDeclaration (variables) ],
-			abstract;
+			resultFunction = [ variableDeclaration (variables) ];
 
 		if (mode === 'default'){
 			// Добавляем конструктор как основную фунцию
@@ -98,13 +100,14 @@ function processClass (classEntry){
 				} else
 					abstract = true;
 
-			if (abstract){
+			// Если класс внезапно абстрактен, ставим проверку
+			// TODO: Сделать вставку проверки опциональной
+			if (classEntry.params.abstract)
 				constructor.body.body = [ 
 					ifStatement (
 						binaryExpression (memberExpression (thisExpression (), 'constructor'), '===', classEntry.id.name),
-						throwStatement (newExpression ('Error', [ literal ('Trying to instantiate abstract class') ])))
+						throwStatement (newExpression ('Error', [ literal ('Trying to instantiate abstract class ' + classEntry.id.name) ])))
 				].concat (constructor.body.body);
-			}
 		} else if (mode === 'static')
 			// Вместо функции добавляем пустой объект
 			variables.push (variableDeclarator (classEntry.id, objectExpression ()));
@@ -142,4 +145,9 @@ function processClass (classEntry){
 		// И втыкаем куда-нибудь получившийся кусок AST, чтобы после забрать
 		classEntry.element = variableDeclarator (classEntry.id.name, callExpression (functionExpression ([], resultFunction)));
 	}
+}
+
+function processClasses (){
+	for (var classEntry in-array classes)
+		processClass (classEntry);
 }

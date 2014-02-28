@@ -49,27 +49,6 @@ function addClass (classEntry){
 	classes.push (classesByNames [classEntry.id.name]);
 }
 
-// Получаем заменённое имя в зависимости от видимости переменной
-function replacement (member, classEntry){
-	// Конструкторам, инициализаторам и приватным статическим переменным имя не меняем
-	if (member.static && member.publicMode === 'private' || member.id.name [0] === '@')
-		return member.id.name;
-
-	switch (member.publicMode){
-		case 'protected':
-			return '__' + member.id.name;
-
-		case 'private':
-			return '__' + classEntry.id.name + '_' + member.id.name;
-
-		case 'public':
-			return member.id.name;
-
-		default:
-			console.assert (false, 'Unsupported publicMode (' + member.publicMode + ')');
-	}
-}
-
 // Обновляем метод или поле
 function updateMember (member, classEntry){
 	// Если вдруг такого метода или поля в классе нет, добавим
@@ -79,9 +58,6 @@ function updateMember (member, classEntry){
 	// Если нужно, меняем publicMode на значение по умолчанию
 	if (member.publicMode === null)
 		member.publicMode = classEntry.publicMode || 'private';
-
-	// Обновляем имя
-	member.id = identifier (replacement (member, classEntry));
 
 	// И добавляем пару вспомогательных атрибутов
 	member.className = classEntry.id;

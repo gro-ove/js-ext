@@ -1,5 +1,12 @@
 # js-ext
 
+### Disclaimer
+
+I'm really sorry for russian in comments, but right now I trying to implement a lot of new features, fix a lot of bugs and optimize everything, 
+so I can't look aside to search, how one or another word is writed in English.
+
+After all I'll remove a lot of these comments and translate to English remaining.
+
 ### What this is
 
 This is a another preprocessor for JavaScript. Based on [Esprima](https://github.com/ariya/esprima) and using [UglifyJS2](https://github.com/mishoo/UglifyJS2) to compress result.

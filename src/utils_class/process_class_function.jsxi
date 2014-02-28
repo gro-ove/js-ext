@@ -206,13 +206,13 @@
 			}
 
 			// Имя вызываемого метода
-			var callee = obj.callee ? obj.callee.name : functionEntry.name;
+			var callee = obj.callee ? obj.callee.name : functionEntry.id.name;
 
 			// У кого вызывать метод
 			var target;
 
-			if (callee){
-				// Если имя где-то, но есть, вызываем метод из прототипа
+			if (callee && callee [0] !== '@'){
+				// Если имя где-то, но есть, и при этом это не конструктор или деструктор, вызываем метод из прототипа
 				target = memberExpression (memberExpression (currentClass.id, 'prototype'), callee);
 			} else {
 				// Иначе вызываем конструктор

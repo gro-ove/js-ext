@@ -23,6 +23,7 @@
 		- anonymous classes
 		- initialization with constructor: for example, "var a = new A (){ objectField = value; for (var i = 0; i < 10; i ++) something ++ }"
 		- processing default fields initializations
+		- partial classes
 		? binded functions fixed 
 			/*
 			 * 	...

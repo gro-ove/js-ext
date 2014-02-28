@@ -18,15 +18,11 @@ function doClasses (rawClasses, callback){
 		addClass (rawClass);
 
 	if (classes.length > 0){
-		checkForCircular ();
-		
-		for (var classEntry in-array classes)
-			connectClass (classEntry);
-
+		checkClassesForCircular ();
+		connectClasses ();
 		sortClasses ();
-
-		for (var classEntry in-array classes)
-			processClass (classEntry);
+		renameClassesMembers ();
+		processClasses ();
 
 		callback ([ variableDeclaration (classes.map (lambda arg.element)) ]);
 	} else

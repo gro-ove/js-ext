@@ -1,5 +1,5 @@
 // Проверяем, ацикличен ли граф классов
-function checkForCircular (){
+function checkClassesForCircular (){
 	var current = {};
 
 	function checkClassForCircular (id){
@@ -13,11 +13,11 @@ function checkForCircular (){
 			current [id.name] = true;
 
 			if (entry.dependsOn.parent)
-				checkClassForCircular (entry.dependsOn.parent, entry.name);
+				checkClassForCircular (entry.dependsOn.parent);
 
 			for (var use in-array entry.dependsOn.uses)
 				if (!entry.parent || use.name !== entry.parent.name)
-					checkClassForCircular (use, entry.name);
+					checkClassForCircular (use);
 
 			delete current [id.name];
 		}

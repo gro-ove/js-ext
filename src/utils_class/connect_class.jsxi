@@ -11,7 +11,7 @@ function connectClass (current, from){
 		if (!parent)
 			throwError (current.dependsOn.parent, Messages.ParentClassNotFound, current.dependsOn.parent.name);
 
-		connectClass (parent, current.name);
+		connectClass (parent, current);
 
 		for (var id, member in parent.members)
 			if (!current.members.hasOwnProperty (id))
@@ -47,4 +47,9 @@ function connectClass (current, from){
 	}
 
 	current.connected = true;
+}
+
+function connectClasses (){
+	for (var classEntry in-array classes)
+		connectClass (classEntry);
 }
