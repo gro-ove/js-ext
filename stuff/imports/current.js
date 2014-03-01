@@ -1,12 +1,12 @@
 var A = function () {
         var A = function () {
-            this.PUBLIC_a = undefined;
+            this.__a = 10;
         };
         return A;
     }(), B = function () {
         var B = function () {
                 A.call(this);
-                this.PUBLIC_a = undefined;
+                this.PUBLIC_b = 11;
             }, _0 = function () {
             };
         _0.prototype = A.prototype;
@@ -16,11 +16,11 @@ var A = function () {
         return B;
     }(), C = function () {
         var C = function () {
-                A.call(this);
-                this.PUBLIC_a = undefined;
+                B.call(this);
+                this.PUBLIC_b = 11;
             }, _1 = function () {
             };
-        _1.prototype = A.prototype;
+        _1.prototype = B.prototype;
         C.prototype = new _1();
         C.prototype.constructor = C;
         _1 = undefined;

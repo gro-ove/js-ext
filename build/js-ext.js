@@ -608,8 +608,8 @@ if (matchKeyword ("var"))
 lex ();
 var token = lookahead (), data = parseVariableDeclarationList ();
 consumeSemicolon ();
-for (var _2c17k5m_65 = 0; _2c17k5m_65 < data.length; _2c17k5m_65 ++){
-var entry = data[_2c17k5m_65];
+for (var _4fj3fh3_14 = 0; _4fj3fh3_14 < data.length; _4fj3fh3_14 ++){
+var entry = data[_4fj3fh3_14];
 if (params.interface && ! current.static)
 throwError (token, "Interface couldn't have object fields.");
 if (params.implemented && entry.init)
@@ -630,6 +630,8 @@ consumeSemicolon ();
 else
 body = parseFunctionSourceElements (defaults);
 state.superAvailable = false;
+if (current.publicMode === "private" && current.abstract)
+throwError (token, "Private method could't be abstract.");
 set (functionDeclaration (id, args, body));
 refresh ();
 }

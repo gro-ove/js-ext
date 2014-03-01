@@ -28,10 +28,10 @@
                                                 "id": {
                                                     "type": "Identifier",
                                                     "name": "A",
-                                                    "lineNumber": 1,
-                                                    "lineStart": 0,
+                                                    "lineNumber": 19,
+                                                    "lineStart": 196,
                                                     "filename": "current.jsx",
-                                                    "index": 7
+                                                    "index": 203
                                                 },
                                                 "init": {
                                                     "type": "FunctionExpression",
@@ -54,12 +54,12 @@
                                                                         },
                                                                         "property": {
                                                                             "type": "Identifier",
-                                                                            "name": "PUBLIC_a"
+                                                                            "name": "__a"
                                                                         }
                                                                     },
                                                                     "right": {
-                                                                        "type": "Identifier",
-                                                                        "name": "undefined"
+                                                                        "type": "Literal",
+                                                                        "value": 10
                                                                     }
                                                                 },
                                                                 "comment": "a",
@@ -75,10 +75,10 @@
                                                     "className": {
                                                         "type": "Identifier",
                                                         "name": "A",
-                                                        "lineNumber": 1,
-                                                        "lineStart": 0,
+                                                        "lineNumber": 19,
+                                                        "lineStart": 196,
                                                         "filename": "current.jsx",
-                                                        "index": 7
+                                                        "index": 203
                                                     },
                                                     "method": true,
                                                     "processed": false,
@@ -93,10 +93,10 @@
                                         "argument": {
                                             "type": "Identifier",
                                             "name": "A",
-                                            "lineNumber": 1,
-                                            "lineStart": 0,
+                                            "lineNumber": 19,
+                                            "lineStart": 196,
                                             "filename": "current.jsx",
-                                            "index": 7
+                                            "index": 203
                                         }
                                     }
                                 ]
@@ -133,10 +133,10 @@
                                                 "id": {
                                                     "type": "Identifier",
                                                     "name": "B",
-                                                    "lineNumber": 5,
-                                                    "lineStart": 27,
+                                                    "lineNumber": 23,
+                                                    "lineStart": 231,
                                                     "filename": "current.jsx",
-                                                    "index": 34
+                                                    "index": 238
                                                 },
                                                 "init": {
                                                     "type": "FunctionExpression",
@@ -156,10 +156,10 @@
                                                                         "object": {
                                                                             "type": "Identifier",
                                                                             "name": "A",
-                                                                            "lineNumber": 1,
-                                                                            "lineStart": 0,
+                                                                            "lineNumber": 19,
+                                                                            "lineStart": 196,
                                                                             "filename": "current.jsx",
-                                                                            "index": 7
+                                                                            "index": 203
                                                                         },
                                                                         "property": {
                                                                             "type": "Identifier",
@@ -187,15 +187,15 @@
                                                                         },
                                                                         "property": {
                                                                             "type": "Identifier",
-                                                                            "name": "PUBLIC_a"
+                                                                            "name": "PUBLIC_b"
                                                                         }
                                                                     },
                                                                     "right": {
-                                                                        "type": "Identifier",
-                                                                        "name": "undefined"
+                                                                        "type": "Literal",
+                                                                        "value": 11
                                                                     }
                                                                 },
-                                                                "comment": "a",
+                                                                "comment": "b",
                                                                 "autocreated": true
                                                             }
                                                         ]
@@ -208,10 +208,10 @@
                                                     "className": {
                                                         "type": "Identifier",
                                                         "name": "B",
-                                                        "lineNumber": 5,
-                                                        "lineStart": 27,
+                                                        "lineNumber": 23,
+                                                        "lineStart": 231,
                                                         "filename": "current.jsx",
-                                                        "index": 34
+                                                        "index": 238
                                                     },
                                                     "method": true,
                                                     "processed": false,
@@ -284,10 +284,10 @@
                                                 "object": {
                                                     "type": "Identifier",
                                                     "name": "B",
-                                                    "lineNumber": 5,
-                                                    "lineStart": 27,
+                                                    "lineNumber": 23,
+                                                    "lineStart": 231,
                                                     "filename": "current.jsx",
-                                                    "index": 34
+                                                    "index": 238
                                                 },
                                                 "property": {
                                                     "type": "Identifier",
@@ -318,10 +318,10 @@
                                                     "object": {
                                                         "type": "Identifier",
                                                         "name": "B",
-                                                        "lineNumber": 5,
-                                                        "lineStart": 27,
+                                                        "lineNumber": 23,
+                                                        "lineStart": 231,
                                                         "filename": "current.jsx",
-                                                        "index": 34
+                                                        "index": 238
                                                     },
                                                     "property": {
                                                         "type": "Identifier",
@@ -336,10 +336,10 @@
                                             "right": {
                                                 "type": "Identifier",
                                                 "name": "B",
-                                                "lineNumber": 5,
-                                                "lineStart": 27,
+                                                "lineNumber": 23,
+                                                "lineStart": 231,
                                                 "filename": "current.jsx",
-                                                "index": 34
+                                                "index": 238
                                             }
                                         }
                                     },
@@ -363,10 +363,10 @@
                                         "argument": {
                                             "type": "Identifier",
                                             "name": "B",
-                                            "lineNumber": 5,
-                                            "lineStart": 27,
+                                            "lineNumber": 23,
+                                            "lineStart": 231,
                                             "filename": "current.jsx",
-                                            "index": 34
+                                            "index": 238
                                         }
                                     }
                                 ]
@@ -403,10 +403,10 @@
                                                 "id": {
                                                     "type": "Identifier",
                                                     "name": "C",
-                                                    "lineNumber": 9,
-                                                    "lineStart": 64,
+                                                    "lineNumber": 27,
+                                                    "lineStart": 275,
                                                     "filename": "current.jsx",
-                                                    "index": 71
+                                                    "index": 282
                                                 },
                                                 "init": {
                                                     "type": "FunctionExpression",
@@ -425,11 +425,11 @@
                                                                         "computed": false,
                                                                         "object": {
                                                                             "type": "Identifier",
-                                                                            "name": "A",
-                                                                            "lineNumber": 1,
-                                                                            "lineStart": 0,
+                                                                            "name": "B",
+                                                                            "lineNumber": 23,
+                                                                            "lineStart": 231,
                                                                             "filename": "current.jsx",
-                                                                            "index": 7
+                                                                            "index": 238
                                                                         },
                                                                         "property": {
                                                                             "type": "Identifier",
@@ -457,15 +457,15 @@
                                                                         },
                                                                         "property": {
                                                                             "type": "Identifier",
-                                                                            "name": "PUBLIC_a"
+                                                                            "name": "PUBLIC_b"
                                                                         }
                                                                     },
                                                                     "right": {
-                                                                        "type": "Identifier",
-                                                                        "name": "undefined"
+                                                                        "type": "Literal",
+                                                                        "value": 11
                                                                     }
                                                                 },
-                                                                "comment": "a",
+                                                                "comment": "b",
                                                                 "autocreated": true
                                                             }
                                                         ]
@@ -478,10 +478,10 @@
                                                     "className": {
                                                         "type": "Identifier",
                                                         "name": "C",
-                                                        "lineNumber": 9,
-                                                        "lineStart": 64,
+                                                        "lineNumber": 27,
+                                                        "lineStart": 275,
                                                         "filename": "current.jsx",
-                                                        "index": 71
+                                                        "index": 282
                                                     },
                                                     "method": true,
                                                     "processed": false,
@@ -534,7 +534,7 @@
                                                 "computed": false,
                                                 "object": {
                                                     "type": "Identifier",
-                                                    "name": "A"
+                                                    "name": "B"
                                                 },
                                                 "property": {
                                                     "type": "Identifier",
@@ -554,10 +554,10 @@
                                                 "object": {
                                                     "type": "Identifier",
                                                     "name": "C",
-                                                    "lineNumber": 9,
-                                                    "lineStart": 64,
+                                                    "lineNumber": 27,
+                                                    "lineStart": 275,
                                                     "filename": "current.jsx",
-                                                    "index": 71
+                                                    "index": 282
                                                 },
                                                 "property": {
                                                     "type": "Identifier",
@@ -588,10 +588,10 @@
                                                     "object": {
                                                         "type": "Identifier",
                                                         "name": "C",
-                                                        "lineNumber": 9,
-                                                        "lineStart": 64,
+                                                        "lineNumber": 27,
+                                                        "lineStart": 275,
                                                         "filename": "current.jsx",
-                                                        "index": 71
+                                                        "index": 282
                                                     },
                                                     "property": {
                                                         "type": "Identifier",
@@ -606,10 +606,10 @@
                                             "right": {
                                                 "type": "Identifier",
                                                 "name": "C",
-                                                "lineNumber": 9,
-                                                "lineStart": 64,
+                                                "lineNumber": 27,
+                                                "lineStart": 275,
                                                 "filename": "current.jsx",
-                                                "index": 71
+                                                "index": 282
                                             }
                                         }
                                     },
@@ -633,10 +633,10 @@
                                         "argument": {
                                             "type": "Identifier",
                                             "name": "C",
-                                            "lineNumber": 9,
-                                            "lineStart": 64,
+                                            "lineNumber": 27,
+                                            "lineStart": 275,
                                             "filename": "current.jsx",
-                                            "index": 71
+                                            "index": 282
                                         }
                                     }
                                 ]
