@@ -75,20 +75,8 @@ function processClass (classEntry){
 			variables.push (variableDeclarator (classEntry.id, constructor));
 
 			// Лепим муть, нужную для наследования
-			if (classEntry.dependsOn.parent){
-				var temp = newIdentifier ();
-				variables.push (variableDeclarator (temp, functionExpression ()));
-
-				resultFunction.push (
-					expressionStatement (assignmentExpression (
-							memberExpression (temp, 'prototype'), memberExpression (classEntry.dependsOn.parent.name, 'prototype'))),
-					expressionStatement (assignmentExpression (
-							memberExpression (classEntry.id, 'prototype'), newExpression (temp))),
-					expressionStatement (assignmentExpression (
-							memberExpression (memberExpression (classEntry.id, 'prototype'), 'constructor'), classEntry.id)),
-					expressionStatement (assignmentExpression (temp, 'undefined'))
-				);
-			}
+			if (classEntry.dependsOn.parent)
+				resultFunction.push (expressionStatement (callExpression ('__pe', [ classEntry.id.name, classEntry.dependsOn.parent.name ])));
 
 			// Цепляем к прототипу методы объекта
 			for (var method in-array objectMethods)

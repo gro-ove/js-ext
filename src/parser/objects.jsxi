@@ -52,7 +52,7 @@
 		return {
 			type: 				Syntax.CallExpression,
 			callee: 			identifier (name),
-			arguments: 			arguments
+			arguments: 			arguments.map (identifier)
 		}
 
 	function superExpression (name, arguments, level)
@@ -91,7 +91,7 @@
 		return {
 			type: 				Syntax.NewExpression,
 			callee: 			identifier (callee),
-			arguments: 			arguments
+			arguments: 			arguments.map (identifier)
 		}
 
 	function sequenceExpression (expressions)
@@ -270,7 +270,7 @@
 		return mark ({
 			type: 				Syntax.FunctionDeclaration,
 			id: 				identifier (name),
-			params: 			params,
+			params: 			params.map (identifier),
 			defaults: 			[],
 			body: 				blockStatement (body),
 			rest: 				null,

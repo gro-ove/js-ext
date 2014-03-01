@@ -14,7 +14,7 @@
 			case 'interface':
 				return parseClassDeclaration ();
 			case 'function':
-				return parseFunctionDeclarationOrExpression ();
+				return parseFunctionDeclaration ();
 			default:
 				if (token.type === Token.Keyword)
 					return parseStatement ();
@@ -46,7 +46,7 @@
 			temp = parseProgramElement ();
 			if (temp === null)
 				continue;
-			if (typeof temp === 'undefined') 
+			if (temp === undefined) 
 				break;
 			sourceElements.push (temp);
 		}

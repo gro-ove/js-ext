@@ -123,11 +123,12 @@
 			jsxParse (this.content, {
 				filename: 				this.filename,
 				initializationAllowed: 	true
-			}, lambda {
+			}, lambda (parsed, helpers){
 				this.log ('parsing processed');
 
 				this.state 		= File.STATE_FINISHED;
-				this.parsed 	= arg;
+				this.parsed 	= parsed;
+				this.helpers	= helpers;
 
 				callback ();
 			}.bind (this));

@@ -14,17 +14,7 @@
 		V renaming private and protected variables
 		V abstract classes
 		V short syntax
-		F check for order of super constructor call and methods initialization
-		F static private and object locked conflict
-		F special access like ['field' + name] support
-		- interfaces
-			- interfaces generator
-		- without "return" in constructors
-		- anonymous classes
-		- initialization with constructor: for example, "var a = new A (){ objectField = value; for (var i = 0; i < 10; i ++) something ++ }"
-		- processing default fields initializations
-		- partial classes
-		? binded functions fixed 
+		V binded functions fixed 
 			/*
 			 * 	...
 			 * 	
@@ -35,6 +25,22 @@
 			 * 	}
 			 * 	
 			 */
+		V static private and object locked conflict
+		V function expression without args
+		F check for order of super constructor call and methods initialization
+		F special access like ['field' + name] support
+		- add error if "return" found in constructor
+		- convert member expression for static private to identifier
+		- processSuperExpression add static check
+		- prevent binded functions processing
+		- prevent functions with "call" or "apply" processing
+		- interfaces
+			- interfaces generator
+		- without "return" in constructors
+		- anonymous classes
+		- initialization with constructor: for example, "var a = new A (){ objectField = value; for (var i = 0; i < 10; i ++) something ++ }"
+		- processing default fields initializations
+		- partial classes
 		? kind of multiple inheritance 
 	V notimplemented operator
 	V strings format
@@ -69,13 +75,17 @@
 	V saving result and stuff
 	V fix this.privatefield access
 	V array initializer operator
-	F fix default arguments to constuctor
-	F fix overrided protected functions
+		V with function
+	F default arguments to constuctor
+	F overrided protected functions
 	F import with dot in name
 	F import folders
-	F fix shit with functions (callable declarations)
+	F shit with functions (callable declarations)
+	F improve errors detect for function or lambda body and stuff
 	- new operator instead of "in"
 	- arguments support
+	- randomized names
+	- object initializer features
 	- uglifyjs
 	- errors handling
 	L syntax highlight and stuff support for sumlime text

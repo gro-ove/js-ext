@@ -1,12 +1,3 @@
-	// Ensure the condition is true, otherwise throw an error.
-	// This is only to have a better contract semantic, i.e. another safety net
-	// to catch a logic error. The condition shall be fulfilled in normal case.
-	// Do NOT use this to enforce a certain condition on any user input.
-
-	function assert (condition, message)
-		if (!condition)
-			throw new Error ('ASSERT: ' + message);
-
 	function sliceSource (from, to) 
 		return source.slice (from, to);
 
@@ -43,10 +34,6 @@
 		}
 	})();
 
-	function clone (obj){
-		return $.extend (true, {}, obj);
-	}
-
 	function saveAll ()
 		return $.extend ({}, {
 			source: 		source,
@@ -56,7 +43,8 @@
 			length: 		length,
 			buffer: 		buffer,
 			state: 		 	state,
-			options: 		options
+			options: 		options,
+			helpers: 		helpers
 		});
 
 	function restoreAll (obj){
@@ -68,7 +56,25 @@
 		buffer  			= obj.buffer;
 		state  		 		= obj.state;
 		options  			= obj.options;
+		helpers  			= obj.helpers;
 	}
+
+	function attemptTo (firstFn, secondFn, forceSecond)
+		if (forceSecond){
+			return secondFn ();
+		} else {
+			saved = saveAll ();
+
+			try {
+				return firstFn ();
+			} catch {
+				if (String (e).indexOf ('Unexpected token') !== -1){
+					restoreAll (saved);
+					return secondFn ();
+				} else
+					throw new Error ('AttemptError:', e.message);
+			}
+		}
 
 	function advance (){
 		var ch, token;
@@ -84,7 +90,7 @@
 			};
 
 		token = scanPunctuator ();
-		if (typeof token !== 'undefined')
+		if (token !== undefined)
 			return token;
 
 		ch = source [index];
@@ -95,7 +101,7 @@
 			return scanNumericLiteral ();
 
 		token = scanIdentifier ();
-		if (typeof token !== 'undefined')
+		if (token !== undefined)
 			return token;
 
 		throwError ({}, Messages.UnexpectedToken, 'ILLEGAL');
@@ -152,29 +158,23 @@
 		return found;
 	}
 
-	// Expect the next token to match the specified punctuator.
-	// If not, an exception will be thrown.
 	function expect (value){
 		var token = lex ();
 		if (token.type !== Token.Punctuator || token.value !== value) 
 			throwUnexpected (token);
 	}
 
-	// Expect the next token to match the specified keyword.
-	// If not, an exception will be thrown.
 	function expectKeyword (keyword){
 		var token = lex ();
 		if (token.type !== Token.Keyword || token.value !== keyword) 
 			throwUnexpected (token);
 	}
 
-	// Return true if the next token matches the specified punctuator.
 	function match (value){
 		var token = lookahead ();
 		return token.type === Token.Punctuator && token.value === value;
 	}
 
-	// Return true if the next token matches the specified keyword
 	function matchKeyword (keyword){
 		var token = lookahead ();
 		return token.type === Token.Keyword && token.value === keyword;
@@ -188,7 +188,6 @@
 		return result;
 	}
 
-	// Return true if the next token is an assignment operator
 	function matchAssign (){
 		var token = lookahead (),
 			op = token.value;
@@ -236,6 +235,5 @@
 		}
 	}
 
-	// Return true if provided expression is LeftHandSideExpression
 	function isLeftHandSide (expr)
 		return expr.type === Syntax.Identifier || expr.type === Syntax.MemberExpression;

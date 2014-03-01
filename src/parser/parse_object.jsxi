@@ -64,18 +64,15 @@
 		}
 	}
 
-	function parseObjectInitialiser() {
-		var properties = [], property, name, kind, map = {}, toString = String;
-
-		expect ('{');
+	function parseObjectContent (){
+		var properties = [], property, name, kind, map = {};
 
 		while (!match ('}')){
 			property = parseObjectProperty ();
 
-			if (property.key.type === Syntax.Identifier)
-				name = property.key.name;
-			else
-				name = toString (property.key.value);
+			name = property.key.type === Syntax.Identifier
+				? property.key.name
+				: String (property.key.value);
 
 			kind = property.kind === 'init' 
 				? PropertyKind.Data 
@@ -93,6 +90,7 @@
 					else if (map [name] & kind) 
 						throwError ({}, Messages.AccessorGetSet);
 				}
+
 				map [name] |= kind;
 			} else
 				map [name] = kind;
@@ -102,8 +100,12 @@
 			if (!match ('}'))
 				expect (',');
 		}
+	}
 
+	function parseObjectInitialiser (){
+		expect ('{');
+		var result = parseObjectContent ();
 		expect ('}');
-
-		return objectExpression (properties);
+		
+		return objectExpression (result);
 	}

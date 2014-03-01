@@ -1,28 +1,10 @@
-var A = function () {
-        var A = function () {
-            this.__a = 10;
+var Test = function () {
+        var Test = function (arg) {
+            this.__Test_a = 19;
+            console.log(this[arg]);
         };
-        return A;
-    }(), B = function () {
-        var B = function () {
-                A.call(this);
-                this.PUBLIC_b = 11;
-            }, _0 = function () {
-            };
-        _0.prototype = A.prototype;
-        B.prototype = new _0();
-        B.prototype.constructor = B;
-        _0 = undefined;
-        return B;
-    }(), C = function () {
-        var C = function () {
-                B.call(this);
-                this.PUBLIC_b = 11;
-            }, _1 = function () {
-            };
-        _1.prototype = B.prototype;
-        C.prototype = new _1();
-        C.prototype.constructor = C;
-        _1 = undefined;
-        return C;
+        return Test;
     }();
+(function () {
+    new Test('a');
+}());

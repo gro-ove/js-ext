@@ -30,8 +30,7 @@ function addClass (classEntry){
 	var fields = filter (classEntry.members, lambda !arg.method && !arg.static);
 
 	// Собираем присваивания для инициализации
-	var initialization = fields.map (
-		lambda $.extend (
+	var initialization = fields.map (lambda $.extend (
 			expressionStatement (assignmentExpression (memberExpression (thisExpression (), arg.id.name), arg.init || 'undefined')),
 			{ comment: arg.id.name, autocreated: true }));
 
@@ -39,13 +38,7 @@ function addClass (classEntry){
 	constructor.body.body = initialization.concat (constructor.body.body);
 
 	// И записываем результат
-	classesByNames [classEntry.id.name] = $.extend (
-		classEntry, 
-		{
-			childs: 			[],
-			probablyUseOther: 	0
-		});
-
+	classesByNames [classEntry.id.name] = $.extend (classEntry, { childs: [], probablyUseOther: 0 });
 	classes.push (classesByNames [classEntry.id.name]);
 }
 

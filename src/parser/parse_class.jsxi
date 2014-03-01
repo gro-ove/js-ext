@@ -93,6 +93,7 @@
 
 					lex ();
 					result.parent = parseClassIdentifier ();
+					helpers.prototypeExtend = true;
 					break;
 
 				case 'implements':
@@ -167,30 +168,19 @@
 			if (matchKeyword ('function'))
 				lex ();
 
-			state.superAvailable = !current.static;
-
-			var token 		= lookahead (),
-				id 			= token.type === Token.Identifier 
-								? parseVariableIdentifier () 
-								: current.static 
-									? '@initializer' 
-									: '@constructor',
-				defaults 	= [],
-				args 		= parseFunctionArgumentsIfExist (defaults),
-				body 		= null;
-
-			if (!current.static && params.interface || params.implemented)
-				consumeSemicolon ();
-			else 
-				body = parseFunctionSourceElements (defaults);
-
-			state.superAvailable = false;
+			state.superAvailable = !current.static && dependsOn.parent;
 
 			if (current.publicMode === 'private' && current.abstract)
 				throwError (token, 'Private method could\'t be abstract.');
 
-			set (functionDeclaration (id, args, body));
+			var result = parseFunction ({ keyword: null, declaration: true, empty: params.interface && !current.static || params.implemented });
 
+			if (result.id === null)
+				result.id = identifier (current.static ? '@initializer' : '@constructor');
+
+			set (result);
+
+			state.superAvailable = false;
 			refresh ();
 		}
 
@@ -240,23 +230,9 @@
 
 				default:
 					if (token.type === Token.Identifier || token.value === '(' || token.value === '{'){
-						saved = saveAll ();
-
-						try {
-							parseField ();
-						} catch {
-							if (String (e).indexOf ('Unexpected token') !== -1){
-								restoreAll (saved);
-								parseMethod ();
-							} else
-								throw e;
-						}
-
-						break;
-					}
-
-					throwUnexpected (token);
-					// throw new Error ('Token: "' + token.value + '", type: ' + token.type);
+						attemptTo (parseField, parseMethod);
+					} else
+						throwUnexpected (token);
 			}
 		} while (index < length);
 
@@ -264,36 +240,6 @@
 
 		state.inClass = oldInClass;
 		return result;
-	}
-
-	function parseSuperStatement (){
-		var level = 1, name, temp, arguments;
-
-		expectKeyword ('super');
-
-		if (!state.superAvailable)
-			throwError ({}, 'Super can be used in class functions only');
-
-		while (match ('.')){
-			lex ();
-
-			if (matchKeyword ('super')){
-				level ++;
-				lex ();
-			} else {
-				name = parseClassIdentifier ();
-				break;
-			}
-		}
-
-		if (match ('('))
-			arguments = parseArguments ();
-		else
-			arguments = [];
-		
-		consumeSemicolon ();
-
-		return expressionStatement (superExpression (name, arguments, level));
 	}
 
 	function verbose (id, params, dependsOn, members){

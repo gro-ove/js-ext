@@ -1,59 +1,3 @@
-function processClassMembersOld (classEntry){
-	var replace,
-		childMember;
-
-	console.log ('class:', classEntry.id.name);
-
-	// Проходим по всем полям и методам класса
-	for (var name, parentMember in classEntry.members)
-		if (name [0] !== '@'){
-			// На что обновлять
-			replacement = null;
-
-			console.log ('.', 'member:', parentMember.publicMode, name);
-
-			// Если поле или метод для этого класса недоступны, идём дальше
-			if (parentMember.publicMode === 'locked')
-				continue;
-
-			// Если поле или метод не приватные, перебираем все дочерние классы. Иначе их незачем там искать — дочерний
-			// класс не будет их трогать (см. предыдущий «if»).
-			if (parentMember.publicMode !== 'private')
-				for (var childClass in-array classEntry.childs)
-					if (childClass.members.hasOwnProperty (name)){
-						// Дочернее поле или метод
-						childMember = childClass.members [name];
-
-						// Если какой-то из дочерних классов заново определяет поле или метод, понизив его
-						// видимость, сообщаем об ошибке
-						if (testBadOverride (parentMember, childMember))
-							throwError (childMember.id, 'Invalid public mode (' + childMember.publicMode + ' instead of ' + parentMember.publicMode + ')');
-
-						// Если поле или метод найдены, возьмём название себе
-						replacement = childMember.id.name;
-						console.log ('. .', 'found:', replacement);
-						break;
-					}
-
-			// Если ничего не нашли (или даже не искали), придумаем новое имя
-			if (replacement === null)
-				replacement = rename (name, parentMember, classEntry);
-
-			console.log ('. .', 'result:', replacement);
-
-			// И, разумеется, запишем
-			parentMember.id.name = replacement;
-		}
-}
-
-function processClassesMembersOld (){
-	// Перебираем, начиная с тех классов, которые зависят от большего числа дру-
-	// гих классов и не имеют «детей». Или можно сказать, начиная с конца масси-
-	// ва — он уже отсортирован в порядке вывода в классов в результирующий файл
-	for (var i = classes.length - 1; i >= 0; i --)
-		processClassMembers (classes [i]);
-}
-
 // Получаем заменённое имя в зависимости от видимости переменной
 function rename (name, member, classEntry){
 	// Конструкторам, инициализаторам, скрытым или приватным статическим имя не меняем
@@ -113,7 +57,7 @@ function processClassMember (classEntry, name, parentMember){
 		argument,
 		updatedName;
 
-	console.log ('member:', classEntry.id.name, parentMember.publicMode, name);
+	// console.log ('member:', classEntry.id.name, parentMember.publicMode, name);
 
 	function testChilds (currentClass){
 		var childMember;
@@ -128,7 +72,7 @@ function processClassMember (classEntry, name, parentMember){
 				newPublicMode = morePublicMode (newPublicMode, childMember.publicMode);
 				targetMembers.push (childMember);
 
-				console.log ('.', 'found in', childClass.id.name, '(' + childMember.publicMode + ', current result:', newPublicMode + ')');
+				// console.log ('.', 'found in', childClass.id.name, '(' + childMember.publicMode + ', current result:', newPublicMode + ')');
 			}
 
 			testChilds (childClass);
@@ -149,7 +93,7 @@ function processClassMember (classEntry, name, parentMember){
 		targetMember.processed = true;
 	}
 
-	console.log ('.', newPublicMode, parentMember.id.name);
+	// console.log ('.', newPublicMode, parentMember.id.name);
 }
 
 function processClassMembers (classEntry){

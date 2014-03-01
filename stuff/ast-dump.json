@@ -8,7 +8,7 @@
                     "type": "VariableDeclarator",
                     "id": {
                         "type": "Identifier",
-                        "name": "A"
+                        "name": "Test"
                     },
                     "init": {
                         "type": "CallExpression",
@@ -27,16 +27,25 @@
                                                 "type": "VariableDeclarator",
                                                 "id": {
                                                     "type": "Identifier",
-                                                    "name": "A",
-                                                    "lineNumber": 19,
-                                                    "lineStart": 196,
+                                                    "name": "Test",
+                                                    "lineNumber": 1,
+                                                    "lineStart": 0,
                                                     "filename": "current.jsx",
-                                                    "index": 203
+                                                    "index": 10
                                                 },
                                                 "init": {
                                                     "type": "FunctionExpression",
                                                     "id": null,
-                                                    "params": [],
+                                                    "params": [
+                                                        {
+                                                            "type": "Identifier",
+                                                            "name": "arg",
+                                                            "lineNumber": 4,
+                                                            "lineStart": 23,
+                                                            "filename": "current.jsx",
+                                                            "index": 28
+                                                        }
+                                                    ],
                                                     "defaults": [],
                                                     "body": {
                                                         "type": "BlockStatement",
@@ -54,98 +63,17 @@
                                                                         },
                                                                         "property": {
                                                                             "type": "Identifier",
-                                                                            "name": "__a"
+                                                                            "name": "__Test_a"
                                                                         }
                                                                     },
                                                                     "right": {
                                                                         "type": "Literal",
-                                                                        "value": 10
+                                                                        "value": 19
                                                                     }
                                                                 },
                                                                 "comment": "a",
                                                                 "autocreated": true
-                                                            }
-                                                        ]
-                                                    },
-                                                    "rest": null,
-                                                    "generator": false,
-                                                    "expression": false,
-                                                    "number": "@constructor0",
-                                                    "publicMode": "private",
-                                                    "className": {
-                                                        "type": "Identifier",
-                                                        "name": "A",
-                                                        "lineNumber": 19,
-                                                        "lineStart": 196,
-                                                        "filename": "current.jsx",
-                                                        "index": 203
-                                                    },
-                                                    "method": true,
-                                                    "processed": false,
-                                                    "autocreated": true
-                                                }
-                                            }
-                                        ],
-                                        "kind": "var"
-                                    },
-                                    {
-                                        "type": "ReturnStatement",
-                                        "argument": {
-                                            "type": "Identifier",
-                                            "name": "A",
-                                            "lineNumber": 19,
-                                            "lineStart": 196,
-                                            "filename": "current.jsx",
-                                            "index": 203
-                                        }
-                                    }
-                                ]
-                            },
-                            "rest": null,
-                            "generator": false,
-                            "expression": false,
-                            "number": 6
-                        },
-                        "arguments": []
-                    }
-                },
-                {
-                    "type": "VariableDeclarator",
-                    "id": {
-                        "type": "Identifier",
-                        "name": "B"
-                    },
-                    "init": {
-                        "type": "CallExpression",
-                        "callee": {
-                            "type": "FunctionExpression",
-                            "id": null,
-                            "params": [],
-                            "defaults": [],
-                            "body": {
-                                "type": "BlockStatement",
-                                "body": [
-                                    {
-                                        "type": "VariableDeclaration",
-                                        "declarations": [
-                                            {
-                                                "type": "VariableDeclarator",
-                                                "id": {
-                                                    "type": "Identifier",
-                                                    "name": "B",
-                                                    "lineNumber": 23,
-                                                    "lineStart": 231,
-                                                    "filename": "current.jsx",
-                                                    "index": 238
-                                                },
-                                                "init": {
-                                                    "type": "FunctionExpression",
-                                                    "id": null,
-                                                    "params": [],
-                                                    "defaults": [],
-                                                    "body": {
-                                                        "type": "BlockStatement",
-                                                        "body": [
+                                                            },
                                                             {
                                                                 "type": "ExpressionStatement",
                                                                 "expression": {
@@ -155,218 +83,85 @@
                                                                         "computed": false,
                                                                         "object": {
                                                                             "type": "Identifier",
-                                                                            "name": "A",
-                                                                            "lineNumber": 19,
-                                                                            "lineStart": 196,
+                                                                            "name": "console",
+                                                                            "lineNumber": 5,
+                                                                            "lineStart": 31,
                                                                             "filename": "current.jsx",
-                                                                            "index": 203
+                                                                            "index": 40
                                                                         },
                                                                         "property": {
                                                                             "type": "Identifier",
-                                                                            "name": "call"
+                                                                            "name": "log",
+                                                                            "lineNumber": 5,
+                                                                            "lineStart": 31,
+                                                                            "filename": "current.jsx",
+                                                                            "index": 44
                                                                         }
                                                                     },
                                                                     "arguments": [
                                                                         {
-                                                                            "type": "ThisExpression"
+                                                                            "type": "MemberExpression",
+                                                                            "computed": true,
+                                                                            "object": {
+                                                                                "type": "ThisExpression"
+                                                                            },
+                                                                            "property": {
+                                                                                "type": "Identifier",
+                                                                                "name": "arg",
+                                                                                "lineNumber": 5,
+                                                                                "lineStart": 31,
+                                                                                "filename": "current.jsx",
+                                                                                "index": 55
+                                                                            }
                                                                         }
-                                                                    ],
-                                                                    "super": 1
-                                                                }
-                                                            },
-                                                            {
-                                                                "type": "ExpressionStatement",
-                                                                "expression": {
-                                                                    "type": "AssignmentExpression",
-                                                                    "operator": "=",
-                                                                    "left": {
-                                                                        "type": "MemberExpression",
-                                                                        "computed": false,
-                                                                        "object": {
-                                                                            "type": "ThisExpression"
-                                                                        },
-                                                                        "property": {
-                                                                            "type": "Identifier",
-                                                                            "name": "PUBLIC_b"
-                                                                        }
-                                                                    },
-                                                                    "right": {
-                                                                        "type": "Literal",
-                                                                        "value": 11
-                                                                    }
+                                                                    ]
                                                                 },
-                                                                "comment": "b",
-                                                                "autocreated": true
+                                                                "lineNumber": 5,
+                                                                "lineStart": 31,
+                                                                "filename": "current.jsx",
+                                                                "index": 58
                                                             }
-                                                        ]
+                                                        ],
+                                                        "lineNumber": 6,
+                                                        "lineStart": 59,
+                                                        "filename": "current.jsx",
+                                                        "index": 61
                                                     },
                                                     "rest": null,
                                                     "generator": false,
                                                     "expression": false,
-                                                    "number": "@constructor2",
+                                                    "number": 0,
+                                                    "lineNumber": 6,
+                                                    "lineStart": 59,
+                                                    "filename": "current.jsx",
+                                                    "index": 61,
                                                     "publicMode": "private",
+                                                    "abstract": false,
+                                                    "static": false,
                                                     "className": {
                                                         "type": "Identifier",
-                                                        "name": "B",
-                                                        "lineNumber": 23,
-                                                        "lineStart": 231,
+                                                        "name": "Test",
+                                                        "lineNumber": 1,
+                                                        "lineStart": 0,
                                                         "filename": "current.jsx",
-                                                        "index": 238
+                                                        "index": 10
                                                     },
                                                     "method": true,
-                                                    "processed": false,
-                                                    "autocreated": true
-                                                }
-                                            },
-                                            {
-                                                "type": "VariableDeclarator",
-                                                "id": {
-                                                    "type": "Identifier",
-                                                    "name": "_0"
-                                                },
-                                                "init": {
-                                                    "type": "FunctionExpression",
-                                                    "id": null,
-                                                    "params": [],
-                                                    "defaults": [],
-                                                    "body": {
-                                                        "type": "BlockStatement",
-                                                        "body": []
-                                                    },
-                                                    "rest": null,
-                                                    "generator": false,
-                                                    "expression": false,
-                                                    "number": null
+                                                    "processed": false
                                                 }
                                             }
                                         ],
                                         "kind": "var"
                                     },
                                     {
-                                        "type": "ExpressionStatement",
-                                        "expression": {
-                                            "type": "AssignmentExpression",
-                                            "operator": "=",
-                                            "left": {
-                                                "type": "MemberExpression",
-                                                "computed": false,
-                                                "object": {
-                                                    "type": "Identifier",
-                                                    "name": "_0"
-                                                },
-                                                "property": {
-                                                    "type": "Identifier",
-                                                    "name": "prototype"
-                                                }
-                                            },
-                                            "right": {
-                                                "type": "MemberExpression",
-                                                "computed": false,
-                                                "object": {
-                                                    "type": "Identifier",
-                                                    "name": "A"
-                                                },
-                                                "property": {
-                                                    "type": "Identifier",
-                                                    "name": "prototype"
-                                                }
-                                            }
-                                        }
-                                    },
-                                    {
-                                        "type": "ExpressionStatement",
-                                        "expression": {
-                                            "type": "AssignmentExpression",
-                                            "operator": "=",
-                                            "left": {
-                                                "type": "MemberExpression",
-                                                "computed": false,
-                                                "object": {
-                                                    "type": "Identifier",
-                                                    "name": "B",
-                                                    "lineNumber": 23,
-                                                    "lineStart": 231,
-                                                    "filename": "current.jsx",
-                                                    "index": 238
-                                                },
-                                                "property": {
-                                                    "type": "Identifier",
-                                                    "name": "prototype"
-                                                }
-                                            },
-                                            "right": {
-                                                "type": "NewExpression",
-                                                "callee": {
-                                                    "type": "Identifier",
-                                                    "name": "_0"
-                                                },
-                                                "arguments": []
-                                            }
-                                        }
-                                    },
-                                    {
-                                        "type": "ExpressionStatement",
-                                        "expression": {
-                                            "type": "AssignmentExpression",
-                                            "operator": "=",
-                                            "left": {
-                                                "type": "MemberExpression",
-                                                "computed": false,
-                                                "object": {
-                                                    "type": "MemberExpression",
-                                                    "computed": false,
-                                                    "object": {
-                                                        "type": "Identifier",
-                                                        "name": "B",
-                                                        "lineNumber": 23,
-                                                        "lineStart": 231,
-                                                        "filename": "current.jsx",
-                                                        "index": 238
-                                                    },
-                                                    "property": {
-                                                        "type": "Identifier",
-                                                        "name": "prototype"
-                                                    }
-                                                },
-                                                "property": {
-                                                    "type": "Identifier",
-                                                    "name": "constructor"
-                                                }
-                                            },
-                                            "right": {
-                                                "type": "Identifier",
-                                                "name": "B",
-                                                "lineNumber": 23,
-                                                "lineStart": 231,
-                                                "filename": "current.jsx",
-                                                "index": 238
-                                            }
-                                        }
-                                    },
-                                    {
-                                        "type": "ExpressionStatement",
-                                        "expression": {
-                                            "type": "AssignmentExpression",
-                                            "operator": "=",
-                                            "left": {
-                                                "type": "Identifier",
-                                                "name": "_0"
-                                            },
-                                            "right": {
-                                                "type": "Identifier",
-                                                "name": "undefined"
-                                            }
-                                        }
-                                    },
-                                    {
                                         "type": "ReturnStatement",
                                         "argument": {
                                             "type": "Identifier",
-                                            "name": "B",
-                                            "lineNumber": 23,
-                                            "lineStart": 231,
+                                            "name": "Test",
+                                            "lineNumber": 1,
+                                            "lineStart": 0,
                                             "filename": "current.jsx",
-                                            "index": 238
+                                            "index": 10
                                         }
                                     }
                                 ]
@@ -374,283 +169,68 @@
                             "rest": null,
                             "generator": false,
                             "expression": false,
-                            "number": 8
-                        },
-                        "arguments": []
-                    }
-                },
-                {
-                    "type": "VariableDeclarator",
-                    "id": {
-                        "type": "Identifier",
-                        "name": "C"
-                    },
-                    "init": {
-                        "type": "CallExpression",
-                        "callee": {
-                            "type": "FunctionExpression",
-                            "id": null,
-                            "params": [],
-                            "defaults": [],
-                            "body": {
-                                "type": "BlockStatement",
-                                "body": [
-                                    {
-                                        "type": "VariableDeclaration",
-                                        "declarations": [
-                                            {
-                                                "type": "VariableDeclarator",
-                                                "id": {
-                                                    "type": "Identifier",
-                                                    "name": "C",
-                                                    "lineNumber": 27,
-                                                    "lineStart": 275,
-                                                    "filename": "current.jsx",
-                                                    "index": 282
-                                                },
-                                                "init": {
-                                                    "type": "FunctionExpression",
-                                                    "id": null,
-                                                    "params": [],
-                                                    "defaults": [],
-                                                    "body": {
-                                                        "type": "BlockStatement",
-                                                        "body": [
-                                                            {
-                                                                "type": "ExpressionStatement",
-                                                                "expression": {
-                                                                    "type": "CallExpression",
-                                                                    "callee": {
-                                                                        "type": "MemberExpression",
-                                                                        "computed": false,
-                                                                        "object": {
-                                                                            "type": "Identifier",
-                                                                            "name": "B",
-                                                                            "lineNumber": 23,
-                                                                            "lineStart": 231,
-                                                                            "filename": "current.jsx",
-                                                                            "index": 238
-                                                                        },
-                                                                        "property": {
-                                                                            "type": "Identifier",
-                                                                            "name": "call"
-                                                                        }
-                                                                    },
-                                                                    "arguments": [
-                                                                        {
-                                                                            "type": "ThisExpression"
-                                                                        }
-                                                                    ],
-                                                                    "super": 1
-                                                                }
-                                                            },
-                                                            {
-                                                                "type": "ExpressionStatement",
-                                                                "expression": {
-                                                                    "type": "AssignmentExpression",
-                                                                    "operator": "=",
-                                                                    "left": {
-                                                                        "type": "MemberExpression",
-                                                                        "computed": false,
-                                                                        "object": {
-                                                                            "type": "ThisExpression"
-                                                                        },
-                                                                        "property": {
-                                                                            "type": "Identifier",
-                                                                            "name": "PUBLIC_b"
-                                                                        }
-                                                                    },
-                                                                    "right": {
-                                                                        "type": "Literal",
-                                                                        "value": 11
-                                                                    }
-                                                                },
-                                                                "comment": "b",
-                                                                "autocreated": true
-                                                            }
-                                                        ]
-                                                    },
-                                                    "rest": null,
-                                                    "generator": false,
-                                                    "expression": false,
-                                                    "number": "@constructor4",
-                                                    "publicMode": "private",
-                                                    "className": {
-                                                        "type": "Identifier",
-                                                        "name": "C",
-                                                        "lineNumber": 27,
-                                                        "lineStart": 275,
-                                                        "filename": "current.jsx",
-                                                        "index": 282
-                                                    },
-                                                    "method": true,
-                                                    "processed": false,
-                                                    "autocreated": true
-                                                }
-                                            },
-                                            {
-                                                "type": "VariableDeclarator",
-                                                "id": {
-                                                    "type": "Identifier",
-                                                    "name": "_1"
-                                                },
-                                                "init": {
-                                                    "type": "FunctionExpression",
-                                                    "id": null,
-                                                    "params": [],
-                                                    "defaults": [],
-                                                    "body": {
-                                                        "type": "BlockStatement",
-                                                        "body": []
-                                                    },
-                                                    "rest": null,
-                                                    "generator": false,
-                                                    "expression": false,
-                                                    "number": null
-                                                }
-                                            }
-                                        ],
-                                        "kind": "var"
-                                    },
-                                    {
-                                        "type": "ExpressionStatement",
-                                        "expression": {
-                                            "type": "AssignmentExpression",
-                                            "operator": "=",
-                                            "left": {
-                                                "type": "MemberExpression",
-                                                "computed": false,
-                                                "object": {
-                                                    "type": "Identifier",
-                                                    "name": "_1"
-                                                },
-                                                "property": {
-                                                    "type": "Identifier",
-                                                    "name": "prototype"
-                                                }
-                                            },
-                                            "right": {
-                                                "type": "MemberExpression",
-                                                "computed": false,
-                                                "object": {
-                                                    "type": "Identifier",
-                                                    "name": "B"
-                                                },
-                                                "property": {
-                                                    "type": "Identifier",
-                                                    "name": "prototype"
-                                                }
-                                            }
-                                        }
-                                    },
-                                    {
-                                        "type": "ExpressionStatement",
-                                        "expression": {
-                                            "type": "AssignmentExpression",
-                                            "operator": "=",
-                                            "left": {
-                                                "type": "MemberExpression",
-                                                "computed": false,
-                                                "object": {
-                                                    "type": "Identifier",
-                                                    "name": "C",
-                                                    "lineNumber": 27,
-                                                    "lineStart": 275,
-                                                    "filename": "current.jsx",
-                                                    "index": 282
-                                                },
-                                                "property": {
-                                                    "type": "Identifier",
-                                                    "name": "prototype"
-                                                }
-                                            },
-                                            "right": {
-                                                "type": "NewExpression",
-                                                "callee": {
-                                                    "type": "Identifier",
-                                                    "name": "_1"
-                                                },
-                                                "arguments": []
-                                            }
-                                        }
-                                    },
-                                    {
-                                        "type": "ExpressionStatement",
-                                        "expression": {
-                                            "type": "AssignmentExpression",
-                                            "operator": "=",
-                                            "left": {
-                                                "type": "MemberExpression",
-                                                "computed": false,
-                                                "object": {
-                                                    "type": "MemberExpression",
-                                                    "computed": false,
-                                                    "object": {
-                                                        "type": "Identifier",
-                                                        "name": "C",
-                                                        "lineNumber": 27,
-                                                        "lineStart": 275,
-                                                        "filename": "current.jsx",
-                                                        "index": 282
-                                                    },
-                                                    "property": {
-                                                        "type": "Identifier",
-                                                        "name": "prototype"
-                                                    }
-                                                },
-                                                "property": {
-                                                    "type": "Identifier",
-                                                    "name": "constructor"
-                                                }
-                                            },
-                                            "right": {
-                                                "type": "Identifier",
-                                                "name": "C",
-                                                "lineNumber": 27,
-                                                "lineStart": 275,
-                                                "filename": "current.jsx",
-                                                "index": 282
-                                            }
-                                        }
-                                    },
-                                    {
-                                        "type": "ExpressionStatement",
-                                        "expression": {
-                                            "type": "AssignmentExpression",
-                                            "operator": "=",
-                                            "left": {
-                                                "type": "Identifier",
-                                                "name": "_1"
-                                            },
-                                            "right": {
-                                                "type": "Identifier",
-                                                "name": "undefined"
-                                            }
-                                        }
-                                    },
-                                    {
-                                        "type": "ReturnStatement",
-                                        "argument": {
-                                            "type": "Identifier",
-                                            "name": "C",
-                                            "lineNumber": 27,
-                                            "lineStart": 275,
-                                            "filename": "current.jsx",
-                                            "index": 282
-                                        }
-                                    }
-                                ]
-                            },
-                            "rest": null,
-                            "generator": false,
-                            "expression": false,
-                            "number": 10
+                            "number": 3
                         },
                         "arguments": []
                     }
                 }
             ],
             "kind": "var"
+        },
+        {
+            "type": "ExpressionStatement",
+            "expression": {
+                "type": "CallExpression",
+                "callee": {
+                    "type": "FunctionExpression",
+                    "id": null,
+                    "params": [],
+                    "defaults": [],
+                    "body": {
+                        "type": "BlockStatement",
+                        "body": [
+                            {
+                                "type": "ExpressionStatement",
+                                "expression": {
+                                    "type": "NewExpression",
+                                    "callee": {
+                                        "type": "Identifier",
+                                        "name": "Test",
+                                        "lineNumber": 10,
+                                        "lineStart": 67,
+                                        "filename": "current.jsx",
+                                        "index": 76
+                                    },
+                                    "arguments": [
+                                        {
+                                            "type": "Literal",
+                                            "value": "a"
+                                        }
+                                    ]
+                                },
+                                "lineNumber": 10,
+                                "lineStart": 67,
+                                "filename": "current.jsx",
+                                "index": 83
+                            }
+                        ],
+                        "lineNumber": 11,
+                        "lineStart": 84,
+                        "filename": "current.jsx",
+                        "index": 85
+                    },
+                    "rest": null,
+                    "generator": false,
+                    "expression": false,
+                    "number": 1
+                },
+                "arguments": []
+            },
+            "lineNumber": 11,
+            "lineStart": 84,
+            "filename": "current.jsx",
+            "index": 85,
+            "after": true
         }
     ]
 }

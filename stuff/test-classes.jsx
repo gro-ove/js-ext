@@ -1,96 +1,99 @@
-class A {
-	use B;
+class First {
+	static var cat = 'Meow?';
 
-	static var a = 18, b = B.variable, c = C.test;
+	dog = 'SORRY I CAN\'T WOOF BECAUSE I\'M SICK';
+	private var horse = 'IGOGO, MOTHERFUCKERS!';
 
-	static function privateStatic (){
-		console.debug ('A: static private')
+	(dog){
+		console.log ('.', '"First" says "Hi!"');
+		this.dog = dog + ' (' + cat + ')';
+		console.log ('.', '.', this.dog);
 	}
 
-	static public function publicStatic (){
-		console.debug ('A: static public');
-		privateStatic ();
-	}
-
-	static {
-		console.debug ('A: static initialize (' + B.variable + ')');
-		publicStatic ();
-	}
-
-	public var publicVar = 1;
-	private var privateVar = 2;
-	protected var protectedVar = 3;
-
-	var undefinedVar;
-
-	function privateObject (){
-		console.debug ('A: object private');
-	}
-
-	public function publicObject (arg){
-		console.debug ('A: object public (' + arg + ')');
-
-		protectedVar = protectedVar + 1;
-		var publicVar = function (){};
-		publicVar ();
-	}
-
-	(arg){
-		console.debug ('A: constructor (' + arg + ')');
-		privateVar = privateVar + arg;
-		privateVar [privateVar]();
-
-		privateObject ();
+	public cow {
+		console.log ('.', 'Mo-o-o-o from "First".');
 	}
 }
 
-static class B {
-	use C;
-	public var variable = JSON.stringify ({ key: 'value' });
+public class Second extends First {
+	private static var cat = 'Meow!';
+	protected static dog = 'WOOF! WOOF! WOOF!';
+	var horse = 'Horse, tazshemta';
+
+	whoIsIt {
+		console.log ('.', 'Michael Jackson, for example');
+		console.log ('.', 'Or cat:', cat);
+		console.log ('.', 'Or dog:', dog);
+		console.log ('.', 'Or horse:', horse);
+	}
+
+	eat (){
+		console.log ('.', 'Wow, yammy!');
+	}
+
+	abstract protected sleep (){
+		console.log ('.', 'Z-z-z-z...');
+	}
+
+	abstract protected poop ();
 }
 
-class C {
-	static public function test (){
-		return Empty.variable;
+public class Third extends Second {
+	eat (){
+		super;
+		console.log ('.', 'And chew-chew-chew!');
+	}
+
+	sleep (){
+		super;
+		console.log ('. .', 'Now with 20% more snoring!');
+	}
+
+	poop (){
+		console.log ('.', 'E-e-e-w.');
 	}
 }
 
-class Child extends A {
-	public function publicObject (){
-		console.debug ('Child: object public');
-		super ('HI');
-		publicVar = protectedVar;
-	}
-
-	(arg){
-		super (arg + ', PKYSLF');
-		console.debug ('Child: constructor (' + arg + ')');
-
-		super.publicObject ();
-	}
-}
-
-class ChildChild extends Child {
-	function test (publicVar){
-		protectedVar = publicVar
-	}
-
+protected class Fourth extends Third {
 	(){
-		super ('WTFMAN');
-		console.debug ('ChildChild: constructor');
-
-		super.super.publicObject ('ALLO A ETO TI?');
-
-		publicObject (protectedVar);
+		super ('Dogs don\'t say "KRAKOZYABRA"');
+		console.log ('.', '"Fourth" in da house.');
 	}
+
+	public poop ()
+		console.log ('.', 'I won\'t do it, I\'m hungry and it is disgusting!');
 }
 
-class Empty {
-	
-}
+{
+	var c;
 
-class App {
-	use ChildChild;
+	console.log ('Here come "First"!');
+	new First ('What do dogs say?');
 
-	var c = new ChildChild ();
+	console.log ('And now — "Second"!');
+	try
+		new Second ('Nothing here.');
+	catch
+		console.log ('.', '"Second" is too tired: ' + e.message);
+
+	console.log ('Next is "Third"!');
+	c = new Third ('What do dogs say? Last try!');
+
+	console.log ('"Third" has something to eat!');
+	c.eat ();
+
+	console.log ('Now he wants to sleep!');
+	c.sleep ();
+
+	console.log ('Isn\'t he cute? But now this adorable thing just choose to make THE BIGGEST PIECE OF SHIT I EVER SAW!');
+	c.poop ();
+
+	console.log ('And now "Third" has something to tell us! "Third", who is it?');
+	c.whoIsIt ();
+
+	console.log ('And, finally, "Fourth".');
+	c = new Fourth ();
+
+	console.log ('Give us some your regular crap, please.');
+	c.poop ();
 }

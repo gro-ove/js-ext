@@ -1,144 +1,120 @@
 	// 13 Function Definition
 
-	function parseFunctionArguments (defaults){
-		var token, temp, params = [];
+	function parseFunctionArguments (defaults, noargs)
+		return attemptTo (
+			lambda {
+				var name, 
+					params = [];
 
-		expect ('(');
+				expect ('(');
 
-		if (!match (')'))
-			while (index < length){
-				token = lookahead ();
+				if (!match (')'))
+					while (index < length){
+						name = parseVariableIdentifier ();
 
-				temp = parseVariableIdentifier ();
+						if (defaults && match ('=')){
+							lex ();
+							defaults.push (ifStatement (
+									binaryExpression (name.name, '===', 'undefined'),
+									expressionStatement (assignmentExpression (name.name, parseAssignmentExpression ()))));
+						}
 
-				if (defaults && match ('=')){
-					lex ();
-					defaults.push (ifStatement (
-							binaryExpression (temp.name, '===', 'undefined'),
-							expressionStatement (assignmentExpression (temp.name, parseAssignmentExpression ()))));
-				}
+						params.push (name);
 
-				params.push (temp);
+						if (match (')'))
+							break;
 
-				if (match (')'))
-					break;
+						expect (',');
+					}
 
-				expect (',');
-			}
-
-		expect (')');
-
-		return params;
-	}
-
-	function parseFunctionArgumentsIfExist (defaults){
-		var saved = saveAll ();
-
-		try {
-			return parseFunctionArguments (defaults);
-		} catch {
-			restoreAll (saved);
-			return [ identifier ('arg') ];
-		}
-	}
-
-	function parseSourceElement (){
-		var token = lookahead ();
-
-		if (token.type === Token.Keyword)
-			switch (token.value){
-				case 'function':
-					return parseFunctionDeclaration ();
-				default:
-					return parseStatement ();
-			}
-
-		if (token.type !== Token.EOF) 
-			return parseStatement ();
-	}
+				expect (')');
+				return params;
+			},
+			lambda {
+				return noargs ? [] : [ identifier ('arg') ];
+			},
+			!match ('(')
+		)
 
 	function parseFunctionSourceElements (defaults){
-		var sourceElement, 
-			oldPreventSequence,
-			sourceElements = defaults || [];
+		var oldPreventSequence = state.preventSequence,
+			sourceElements = defaults || [],
+			token;
 
 		if (match ('{')){
-			saved = saveAll ();
-			oldPreventSequence = state.preventSequence;
-			state.preventSequence = false;
+			expect ('{');
 
-			try {
-				expect ('{');
+			token = lookahead ();
 
-				while (index < length){
-					if (match ('}'))
-						break;
-					sourceElement = parseSourceElement ();
-					if (sourceElement === undefined) 
-						break;
-					sourceElements.push (sourceElement);
-				}
+			attemptTo (
+				lambda {
+					var object = parseObjectContent (),
+						statement = returnStatement (expressionStatement (object));
 
-				expect ('}');
-				state.preventSequence = oldPreventSequence;
-			} catch {
-				restoreAll (saved);
+					sourceElements.push (statement);
+					consumeSemicolon ();
+				},
+				lambda {
+					state.preventSequence = false;
 
-				temp = parseObjectInitialiser ();
-				consumeSemicolon ();
-				sourceElements.push (setReturnStatement (expressionStatement (temp)));
-			}
-		} else 
-			sourceElements.push (setReturnStatement (parseSourceElement ()));
+					while (index < length){
+						if (match ('}'))
+							break;
 
+						sourceElements.push (parseStatement ());
+					}
+				},
+				token.type !== Syntax.Literal && token.type !== Syntax.Identifier
+			);
+
+			expect ('}');
+		} else {
+			state.preventSequence = true;
+			sourceElements.push (setReturnStatement (parseStatement ()));
+		}
+
+		state.preventSequence = oldPreventSequence;
 		return blockStatement (sourceElements);
 	}
 
-	function parseFunctionDeclarationOrExpression (){
-		var result = parseFunctionExpression ();
+	// 	options:
+	// 		- keyword: 		искомое ключевое слово (по умолчанию «function»)
+	// 		- declaration: 	true - режим FunctionDeclaration, false - режим FunctionExpression
+	// 		- name: 		true - поиск имени обязателен, false - поиска имени не будет
+	// 		- empty: 		true - функция без содержимого, false - и с содержимым
+	function parseFunction (options = {}){
+		var id = null, 
+			params, 
+			defaults = [], 
+			body = null;
 
-		if (match ('(')){
-			result = callExpression (result, parseArguments ());
-		} else if (result.id !== null)
-			result.type = Syntax.FunctionDeclaration;
+		if (options.keyword !== null)
+			expectKeyword (options.keyword || 'function');
 
-		if (result.type !== Syntax.FunctionDeclaration)
-			result = expressionStatement (result);
+		if (options.name === true || options.name !== false && lookahead ().type === Token.Identifier)
+			id = parseVariableIdentifier ();
 
-		return result;
+		params = parseFunctionArguments (defaults);
+
+		if (options.empty)
+			consumeSemicolon ();
+		else
+			body = parseFunctionSourceElements (defaults);
+
+		return (options.declaration ? functionDeclaration : functionExpression)(id, params, body);
 	}
 
-	function parseFunctionDeclaration (){
-		var token, id, params, defaults = [], body;
+	function parseFunctionExpression ()
+		return parseFunction ();
 
-		expectKeyword ('function');
+	function parseFunctionDeclaration ()
+		return parseFunction ({ name: true, declaration: true });
 
-		token 	= lookahead ();
-		id 		= parseVariableIdentifier ();
-		params 	= parseFunctionArgumentsIfExist (defaults);
-		body 	= parseFunctionSourceElements (defaults);
-
-		return functionDeclaration (id, params, body);
-	}
-
-	function parseFunctionExpression (){
-		var token, id = null, params, defaults = [], body;
-
-		expectKeyword ('function');
-
-		if (!match ('(')){
-			token 	= lookahead ();
-			id 		= parseVariableIdentifier ();
-		}
-
-		params 	= parseFunctionArgumentsIfExist (defaults);
-		body 	= parseFunctionSourceElements (defaults);
-
-		return functionExpression (id, params, body);
-	}
+	function parseLambdaExpression ()
+		return parseFunction ({ name: false, keyword: 'lambda' });
 
 	function setReturnStatement (data){
-		if (data){
+		if (data)
 			if (data.type === Syntax.ExpressionStatement){
 				data.type = Syntax.ReturnStatement;
 				data.argument = data.expression;
@@ -152,52 +128,11 @@
 				setReturnStatement (data.body [0]); 
 			} else if (data.type === Syntax.TryStatement){
 				setReturnStatement (data.block);
-
 				if (data.handlers && data.handlers [0])
 					setReturnStatement (data.handlers [0].body);
 				if (data.finalizer)
 					setReturnStatement (data.finalizer);
 			}
-		}
 
 		return data;
-	}
-
-	function parseLambdaSourceElements (defaults){
-		var sourceElements = defaults || [],
-			oldPreventSequence,
-			temp,
-			saved;
-
-		oldPreventSequence = state.preventSequence;
-		state.preventSequence = true;
-
-		if (match ('{')){
-			saved = saveAll ();
-
-			try {
-				temp = parseObjectInitialiser ();
-				consumeSemicolon ();
-				sourceElements.push (setReturnStatement (expressionStatement (temp)));
-			} catch {
-				restoreAll (saved);
-				sourceElements = parseFunctionSourceElements (defaults);
-			}
-		} else 
-			sourceElements.push (setReturnStatement (parseSourceElement ()));
-
-		state.preventSequence = oldPreventSequence;
-
-		return blockStatement (sourceElements);
-	}
-
-	function parseLambdaExpression (){
-		var token, param, defaults = [], params = [], body;
-
-		expectKeyword ('lambda');
-
-		params = parseFunctionArgumentsIfExist (defaults);
-		body = parseLambdaSourceElements (defaults);
-
-		return functionExpression (null, params, body);
 	}

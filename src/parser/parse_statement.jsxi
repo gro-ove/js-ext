@@ -35,6 +35,8 @@
 
 		if (token.type === Token.Keyword)
 			switch (token.value){
+				case 'function':
+					return parseFunctionDeclaration ();
 				case 'break':
 					return parseBreakStatement ();
 				case 'continue':
@@ -45,8 +47,6 @@
 					return parseDoWhileStatement ();
 				case 'for':
 					return parseForStatement ();
-				case 'function':
-					return parseFunctionDeclarationOrExpression ();
 				case 'if':
 					return parseIfStatement ();
 				case 'return':
@@ -63,8 +63,6 @@
 					return parseWhileStatement ();
 				case 'with':
 					return parseWithStatement ();
-				case 'super':
-					return parseSuperStatement ();
 				default:
 					break;
 			}

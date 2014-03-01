@@ -186,6 +186,29 @@ else
 break;
 }
 }
+function helperById (id,value){
+switch (id){
+case "prototypeExtend":
+return functionDeclaration ("__pe", ["child","parent","temp"], [expressionStatement (assignmentExpression ("temp", functionExpression ())),expressionStatement (assignmentExpression (memberExpression ("temp", "prototype"), memberExpression ("parent", "prototype"))),expressionStatement (assignmentExpression (memberExpression ("child", "prototype"), newExpression ("temp"))),expressionStatement (assignmentExpression (memberExpression (memberExpression ("child", "prototype"), "constructor"), "child"))]);
+case "createArray":
+return functionDeclaration ("__ca", ["from","to","result"], [ifStatement (binaryExpression (unaryExpression ("from", "typeof", true), "===", literal ("string")), expressionStatement (assignmentExpression ("from", callExpression (memberExpression ("from", "charCodeAt"), [literal (0)])))),ifStatement (binaryExpression (unaryExpression ("to", "typeof", true), "===", literal ("string")), expressionStatement (assignmentExpression ("to", callExpression (memberExpression ("to", "charCodeAt"), [literal (0)])))),expressionStatement (assignmentExpression ("result", newExpression ("Array", [binaryExpression (callExpression (memberExpression ("Math", "abs"), [binaryExpression ("to", "-", "from")]), "+", literal (1))]))),ifStatement (binaryExpression ("from", "<", "to"), forStatement (variableDeclaration ([variableDeclarator ("i", literal (0))]), binaryExpression ("i", "<", memberExpression ("result", "length")), unaryExpression ("i", "++"), expressionStatement (assignmentExpression (memberExpression ("result", "i", true), binaryExpression ("i", "+", "from")))), forStatement (variableDeclaration ([variableDeclarator ("i", binaryExpression (memberExpression ("result", "length"), "-", literal (1)))]), binaryExpression ("i", ">=", literal (0)), unaryExpression ("i", "--"), expressionStatement (assignmentExpression (memberExpression ("result", "i", true), binaryExpression ("from", "-", "i"))))),returnStatement ("result")]);
+case "bindOnce":
+var bindedTable = memberExpression ("obj", "__bt"), objectFunction = memberExpression ("obj", "name", true), placeInTable = memberExpression (bindedTable, "name", true);
+return functionDeclaration ("__bo", ["obj","name"], [ifStatement (unaryExpression (callExpression (memberExpression ("obj", "hasOwnProperty"), [literal ("__bt")]), "!", true), expressionStatement (assignmentExpression (bindedTable, objectExpression ()))),ifStatement (unaryExpression (callExpression (memberExpression (bindedTable, "hasOwnProperty"), ["name"]), "!", true), expressionStatement (assignmentExpression (placeInTable, callExpression (memberExpression (objectFunction, "bind"), ["obj"])))),returnStatement (placeInTable)]);
+case "findReplaced":
+return functionDeclaration ("__fr", ["obj","name"], [returnStatement ("undefined")]);
+default:console.assert (false, "Wrong helper id: " + id);
+}
+}
+function doHelpers (helpers){
+var result = [];
+for (var id in helpers){
+var value = helpers[id];
+if (value)
+result.push (helperById (id, value));
+}
+return result;
+}
 function isIdentifierStart (ch){
 return ch === "$" || ch === "_" || ch === "\\" || ch >= "a" && ch <= "z" || ch >= "A" && ch <= "Z" || ch.charCodeAt (0) >= 128 && Regex.NonAsciiIdentifierStart.test (ch);
 }
@@ -201,9 +224,10 @@ length = source.length;
 buffer = null;
 state = {"allowIn":true,"inClass":false,"parsingComplete":false,"preventSequence":false,"classes":[]};
 options = args || {"filename":"[ not a file ]","insertReturn":false,"initializationAllowed":false};
+helpers = {};
 var result = parseProgram ();
 if (typeof callback === "function")
-callback (result);
+callback (result, helpers);
 else
 return result;
 }
@@ -256,7 +280,7 @@ return true;
 default:return false;
 }
 }
-var Token, PropertyKind, TokenName, Syntax, Messages, Regex, source, index, lineNumber, lineStart, length, buffer, state, information, options;
+var Token, PropertyKind, TokenName, Syntax, Messages, Regex, source, index, lineNumber, lineStart, length, buffer, state, information, options, helpers;
 Token = {"BooleanLiteral":1,"EOF":2,"Identifier":3,"Keyword":4,"NullLiteral":5,"NumericLiteral":6,"Punctuator":7,"StringLiteral":8};
 PropertyKind = {"Data":1,"Get":2,"Set":4};
 TokenName = {};
@@ -301,7 +325,7 @@ return {"type":Syntax.MemberExpression,"computed":computed,"object":identifier (
 function callExpression (name,arguments){
 if (arguments === undefined)
 arguments = [];
-return {"type":Syntax.CallExpression,"callee":identifier (name),"arguments":arguments};
+return {"type":Syntax.CallExpression,"callee":identifier (name),"arguments":arguments.map (identifier)};
 }
 function superExpression (name,arguments,level){
 return {"type":Syntax.CallExpression,"callee":identifier (name instanceof Array ? null : name),"arguments":(name instanceof Array ? name : arguments) || [],"super":(name instanceof Array ? arguments : level) || 1};
@@ -318,7 +342,7 @@ return typeof operator !== "string" || operator [operator.length - 1] !== "=" ? 
 function newExpression (callee,arguments){
 if (arguments === undefined)
 arguments = [];
-return {"type":Syntax.NewExpression,"callee":identifier (callee),"arguments":arguments};
+return {"type":Syntax.NewExpression,"callee":identifier (callee),"arguments":arguments.map (identifier)};
 }
 function sequenceExpression (expressions){
 return {"type":Syntax.SequenceExpression,"expressions":expressions};
@@ -402,7 +426,7 @@ return {"type":Syntax.FunctionExpression,"id":identifier (name),"params":params 
 function functionDeclaration (name,params,body){
 if (params === undefined)
 params = [];
-return mark ({"type":Syntax.FunctionDeclaration,"id":identifier (name),"params":params,"defaults":[],"body":blockStatement (body),"rest":null,"generator":false,"expression":false,"number":name + tempId++});
+return mark ({"type":Syntax.FunctionDeclaration,"id":identifier (name),"params":params.map (identifier),"defaults":[],"body":blockStatement (body),"rest":null,"generator":false,"expression":false,"number":name + tempId++});
 }
 function variableDeclarator (name,value){
 return {"type":Syntax.VariableDeclarator,"id":identifier (name),"init":identifier (value)};
@@ -469,7 +493,8 @@ elements.push (literal (nfrom));
 return arrayExpression (elements);
 }
 }
-return callExpression (functionExpression (["from","to","result"], [ifStatement (binaryExpression (unaryExpression ("from", "typeof", true), "===", literal ("string")), expressionStatement (assignmentExpression ("from", callExpression (memberExpression ("from", "charCodeAt"), [literal (0)])))),ifStatement (binaryExpression (unaryExpression ("to", "typeof", true), "===", literal ("string")), expressionStatement (assignmentExpression ("to", callExpression (memberExpression ("to", "charCodeAt"), [literal (0)])))),expressionStatement (assignmentExpression ("result", newExpression ("Array", [binaryExpression (callExpression (memberExpression ("Math", "abs"), [binaryExpression ("to", "-", "from")]), "+", literal (1))]))),ifStatement (binaryExpression ("from", "<", "to"), forStatement (variableDeclaration ([variableDeclarator ("i", literal (0))]), binaryExpression ("i", "<", memberExpression ("result", "length")), unaryExpression ("i", "++"), expressionStatement (assignmentExpression (memberExpression ("result", "i", true), binaryExpression ("i", "+", "from")))), forStatement (variableDeclaration ([variableDeclarator ("i", binaryExpression (memberExpression ("result", "length"), "-", literal (1)))]), binaryExpression ("i", ">=", literal (0)), unaryExpression ("i", "--"), expressionStatement (assignmentExpression (memberExpression ("result", "i", true), binaryExpression ("from", "-", "i"))))),returnStatement ("result")]), [from,to]);
+helpers.createArray = true;
+return callExpression ("__ca", [from,to]);
 }
 }
 if (! match ("]"))
@@ -479,26 +504,18 @@ expect ("]");
 return arrayExpression (elements);
 }
 function parseStatementList (){
-var list = [], statement;
-while (index < length)
-{
-if (match ("}"))
-break;
-statement = parseSourceElement ();
-if (typeof statement === "undefined")
-break;
-list.push (statement);
-}
+var list = [];
+while (index < length && ! match ("}"))
+list.push (parseStatement ());
 return list;
 }
 function parseBlock (){
-var block, oldPreventSequence;
-expect ("{");
-oldPreventSequence = state.preventSequence;
+var block, oldPreventSequence = state.preventSequence;
 state.preventSequence = false;
+expect ("{");
 block = parseStatementList ();
-state.preventSequence = oldPreventSequence;
 expect ("}");
+state.preventSequence = oldPreventSequence;
 return blockStatement (block);
 }
 function parseBlockOrNotBlock (){
@@ -571,6 +588,7 @@ if (result.parent || mode.interface || mode.static)
 throwUnexpected (token);
 lex ();
 result.parent = parseClassIdentifier ();
+helpers.prototypeExtend = true;
 break;
 case "implements":
 
@@ -608,8 +626,8 @@ if (matchKeyword ("var"))
 lex ();
 var token = lookahead (), data = parseVariableDeclarationList ();
 consumeSemicolon ();
-for (var _4fj3fh3_14 = 0; _4fj3fh3_14 < data.length; _4fj3fh3_14 ++){
-var entry = data[_4fj3fh3_14];
+for (var _5q3n971_94 = 0; _5q3n971_94 < data.length; _5q3n971_94 ++){
+var entry = data[_5q3n971_94];
 if (params.interface && ! current.static)
 throwError (token, "Interface couldn't have object fields.");
 if (params.implemented && entry.init)
@@ -623,16 +641,14 @@ refresh ();
 function parseMethod (){
 if (matchKeyword ("function"))
 lex ();
-state.superAvailable = ! current.static;
-var token = lookahead (), id = token.type === Token.Identifier ? parseVariableIdentifier () : current.static ? "@initializer" : "@constructor", defaults = [], args = parseFunctionArgumentsIfExist (defaults), body = null;
-if (! current.static && params.interface || params.implemented)
-consumeSemicolon ();
-else
-body = parseFunctionSourceElements (defaults);
-state.superAvailable = false;
+state.superAvailable = ! current.static && dependsOn.parent;
 if (current.publicMode === "private" && current.abstract)
 throwError (token, "Private method could't be abstract.");
-set (functionDeclaration (id, args, body));
+var result = parseFunction ({"keyword":null,"declaration":true,"empty":params.interface && ! current.static || params.implemented});
+if (result.id === null)
+result.id = identifier (current.static ? "@initializer" : "@constructor");
+set (result);
+state.superAvailable = false;
 refresh ();
 }
 state.inClass = true;
@@ -672,52 +688,16 @@ parseMethod ();
 break;
 default:if (token.type === Token.Identifier || token.value === "(" || token.value === "{")
 {
-saved = saveAll ();
-try{
-parseField ();
-}catch (e){
-if (String (e).indexOf ("Unexpected token") !== - 1)
-{
-restoreAll (saved);
-parseMethod ();
+attemptTo (parseField, parseMethod);
 }
 else
-throw e;
-}
-break;
-} throwUnexpected (token);
+throwUnexpected (token);
 }
 }
  while (index < length);
 expect ("}");
 state.inClass = oldInClass;
 return result;
-}
-function parseSuperStatement (){
-var level = 1, name, temp, arguments;
-expectKeyword ("super");
-if (! state.superAvailable)
-throwError ({}, "Super can be used in class functions only");
-while (match ("."))
-{
-lex ();
-if (matchKeyword ("super"))
-{
-level++;
-lex ();
-}
-else
-{
-name = parseClassIdentifier ();
-break;
-}
-}
-if (match ("("))
-arguments = parseArguments ();
-else
-arguments = [];
-consumeSemicolon ();
-return expressionStatement (superExpression (name, arguments, level));
 }
 function verbose (id,params,dependsOn,members){
 var membersStrings = [], dependsOnStrings = [], beforeString = "";
@@ -850,115 +830,85 @@ var expr = parseExpression ();
 consumeSemicolon ();
 return {"type":Syntax.ExpressionStatement,"expression":expr};
 }
-function parseFunctionArguments (defaults){
-var token, temp, params = [];
+function parseFunctionArguments (defaults,noargs){
+return attemptTo (function (arg){
+var name, params = [];
 expect ("(");
 if (! match (")"))
 while (index < length)
 {
-token = lookahead ();
-temp = parseVariableIdentifier ();
+name = parseVariableIdentifier ();
 if (defaults && match ("="))
 {
 lex ();
-defaults.push (ifStatement (binaryExpression (temp.name, "===", "undefined"), expressionStatement (assignmentExpression (temp.name, parseAssignmentExpression ()))));
+defaults.push (ifStatement (binaryExpression (name.name, "===", "undefined"), expressionStatement (assignmentExpression (name.name, parseAssignmentExpression ()))));
 }
-params.push (temp);
+params.push (name);
 if (match (")"))
 break;
 expect (",");
 }
 expect (")");
 return params;
-}
-function parseFunctionArgumentsIfExist (defaults){
-var saved = saveAll ();
-try{
-return parseFunctionArguments (defaults);
-}catch (e){
-restoreAll (saved);
-return [identifier ("arg")];
-}
-}
-function parseSourceElement (){
-var token = lookahead ();
-if (token.type === Token.Keyword)
-switch (token.value){
-case "function":
-return parseFunctionDeclaration ();
-default:return parseStatement ();
-}
-if (token.type !== Token.EOF)
-return parseStatement ();
+}, function (arg){
+return noargs ? [] : [identifier ("arg")];
+}, ! match ("("));
 }
 function parseFunctionSourceElements (defaults){
-var sourceElement, oldPreventSequence, sourceElements = defaults || [];
+var oldPreventSequence = state.preventSequence, sourceElements = defaults || [], token;
 if (match ("{"))
 {
-saved = saveAll ();
-oldPreventSequence = state.preventSequence;
-state.preventSequence = false;
-try{
 expect ("{");
+token = lookahead ();
+attemptTo (function (arg){
+var object = parseObjectContent (), statement = returnStatement (expressionStatement (object));
+sourceElements.push (statement);
+consumeSemicolon ();
+}, function (arg){
+state.preventSequence = false;
 while (index < length)
 {
 if (match ("}"))
 break;
-sourceElement = parseSourceElement ();
-if (sourceElement === undefined)
-break;
-sourceElements.push (sourceElement);
+sourceElements.push (parseStatement ());
 }
+}, token.type !== Syntax.Literal && token.type !== Syntax.Identifier);
 expect ("}");
-state.preventSequence = oldPreventSequence;
-}catch (e){
-restoreAll (saved);
-temp = parseObjectInitialiser ();
-consumeSemicolon ();
-sourceElements.push (setReturnStatement (expressionStatement (temp)));
-}
 }
 else
-sourceElements.push (setReturnStatement (parseSourceElement ()));
+{
+state.preventSequence = true;
+sourceElements.push (setReturnStatement (parseStatement ()));
+}
+state.preventSequence = oldPreventSequence;
 return blockStatement (sourceElements);
 }
-function parseFunctionDeclarationOrExpression (){
-var result = parseFunctionExpression ();
-if (match ("("))
-{
-result = callExpression (result, parseArguments ());
-}
-else
-if (result.id !== null)
-result.type = Syntax.FunctionDeclaration;
-if (result.type !== Syntax.FunctionDeclaration)
-result = expressionStatement (result);
-return result;
-}
-function parseFunctionDeclaration (){
-var token, id, params, defaults = [], body;
-expectKeyword ("function");
-token = lookahead ();
+function parseFunction (options){
+if (options === undefined)
+options = {};
+var id = null, params, defaults = [], body = null;
+if (options.keyword !== null)
+expectKeyword (options.keyword || "function");
+if (options.name === true || options.name !== false && lookahead ().type === Token.Identifier)
 id = parseVariableIdentifier ();
-params = parseFunctionArgumentsIfExist (defaults);
+params = parseFunctionArguments (defaults);
+if (options.empty)
+consumeSemicolon ();
+else
 body = parseFunctionSourceElements (defaults);
-return functionDeclaration (id, params, body);
+return (options.declaration ? functionDeclaration : functionExpression) (id, params, body);
 }
 function parseFunctionExpression (){
-var token, id = null, params, defaults = [], body;
-expectKeyword ("function");
-if (! match ("("))
-{
-token = lookahead ();
-id = parseVariableIdentifier ();
+return parseFunction ();
 }
-params = parseFunctionArgumentsIfExist (defaults);
-body = parseFunctionSourceElements (defaults);
-return functionExpression (id, params, body);
+function parseFunctionDeclaration (){
+return parseFunction ({"name":true,"declaration":true});
+}
+function parseLambdaExpression (){
+return parseFunction ({"name":false,"keyword":"lambda"});
 }
 function setReturnStatement (data){
 if (data)
-{
 if (data.type === Syntax.ExpressionStatement)
 {
 data.type = Syntax.ReturnStatement;
@@ -990,36 +940,7 @@ setReturnStatement (data.handlers [0].body);
 if (data.finalizer)
 setReturnStatement (data.finalizer);
 }
-}
 return data;
-}
-function parseLambdaSourceElements (defaults){
-var sourceElements = defaults || [], oldPreventSequence, temp, saved;
-oldPreventSequence = state.preventSequence;
-state.preventSequence = true;
-if (match ("{"))
-{
-saved = saveAll ();
-try{
-temp = parseObjectInitialiser ();
-consumeSemicolon ();
-sourceElements.push (setReturnStatement (expressionStatement (temp)));
-}catch (e){
-restoreAll (saved);
-sourceElements = parseFunctionSourceElements (defaults);
-}
-}
-else
-sourceElements.push (setReturnStatement (parseSourceElement ()));
-state.preventSequence = oldPreventSequence;
-return blockStatement (sourceElements);
-}
-function parseLambdaExpression (){
-var token, param, defaults = [], params = [], body;
-expectKeyword ("lambda");
-params = parseFunctionArgumentsIfExist (defaults);
-body = parseLambdaSourceElements (defaults);
-return functionExpression (null, params, body);
 }
 function parseGroupExpression (){
 expect ("(");
@@ -1242,16 +1163,12 @@ expect (":");
 return property (key, parseAssignmentExpression ());
 }
 }
-function parseObjectInitialiser (){
-var properties = [], property, name, kind, map = {}, toString = String;
-expect ("{");
+function parseObjectContent (){
+var properties = [], property, name, kind, map = {};
 while (! match ("}"))
 {
 property = parseObjectProperty ();
-if (property.key.type === Syntax.Identifier)
-name = property.key.name;
-else
-name = toString (property.key.value);
+name = property.key.type === Syntax.Identifier ? property.key.name : String (property.key.value);
 kind = property.kind === "init" ? PropertyKind.Data : property.kind === "get" ? PropertyKind.Get : PropertyKind.Set;
 if (Object.prototype.hasOwnProperty.call (map, name))
 {
@@ -1276,8 +1193,12 @@ properties.push (property);
 if (! match ("}"))
 expect (",");
 }
+}
+function parseObjectInitialiser (){
+expect ("{");
+var result = parseObjectContent ();
 expect ("}");
-return objectExpression (properties);
+return objectExpression (result);
 }
 function parseNonComputedProperty (){
 var token = lex ();
@@ -1299,8 +1220,11 @@ function parseNewExpression (){
 expectKeyword ("new");
 return newExpression (parseLeftHandSideExpression (), match ("(") ? parseArguments () : []);
 }
+function parseLeftHandSideExpressionTemp (){
+return matchKeyword ("new") ? parseNewExpression () : matchKeyword ("super") ? parseSuperExpression () : parsePrimaryExpression ();
+}
 function parseLeftHandSideExpressionAllowCall (){
-var temp = matchKeyword ("new") ? parseNewExpression () : parsePrimaryExpression (), token;
+var temp = parseLeftHandSideExpressionTemp (), token;
 while (match (".") || match ("[") || match ("("))
 if (match ("("))
 {
@@ -1322,7 +1246,7 @@ break;
 return temp;
 }
 function parseLeftHandSideExpression (){
-var temp = matchKeyword ("new") ? parseNewExpression () : parsePrimaryExpression ();
+var temp = parseLeftHandSideExpressionTemp ();
 while (match (".") || match ("["))
 if (match ("["))
 temp = memberExpression (temp, parseComputedMember (), true);
@@ -1544,7 +1468,7 @@ case "class":
 case "interface":
 return parseClassDeclaration ();
 case "function":
-return parseFunctionDeclarationOrExpression ();
+return parseFunctionDeclaration ();
 default:if (token.type === Token.Keyword)
 return parseStatement ();
 }
@@ -1570,7 +1494,7 @@ while (index < length)
 temp = parseProgramElement ();
 if (temp === null)
 continue;
-if (typeof temp === "undefined")
+if (temp === undefined)
 break;
 sourceElements.push (temp);
 }
@@ -1619,6 +1543,8 @@ return expressionStatement (callExpression (memberExpression ("console", "warn")
 }
 if (token.type === Token.Keyword)
 switch (token.value){
+case "function":
+return parseFunctionDeclaration ();
 case "break":
 return parseBreakStatement ();
 case "continue":
@@ -1629,8 +1555,6 @@ case "do":
 return parseDoWhileStatement ();
 case "for":
 return parseForStatement ();
-case "function":
-return parseFunctionDeclarationOrExpression ();
 case "if":
 return parseIfStatement ();
 case "return":
@@ -1647,8 +1571,6 @@ case "while":
 return parseWhileStatement ();
 case "with":
 return parseWithStatement ();
-case "super":
-return parseSuperStatement ();
 default:break;
 }
 expr = parseExpression ();
@@ -1659,6 +1581,27 @@ return labeledStatement (expr, parseStatement ());
 }
 consumeSemicolon ();
 return expressionStatement (expr);
+}
+function parseSuperExpression (){
+var level = 1, name, temp, arguments;
+expectKeyword ("super");
+if (! state.superAvailable)
+throwError (lookahead (), "Super can be used in class functions only");
+while (match ("."))
+{
+lex ();
+if (matchKeyword ("super"))
+{
+level++;
+lex ();
+}
+else
+{
+name = parseClassIdentifier ();
+break;
+}
+}
+return superExpression (name, match ("(") ? parseArguments () : [], level);
 }
 function parseSwitchCase (){
 var test, consequent = [], statement;
@@ -1880,7 +1823,7 @@ return {"type":Token.Punctuator,"value":source [index++],"lineNumber":lineNumber
 function scanNumericLiteral (){
 var number, start, ch;
 ch = source [index];
-assert (isDecimalDigit (ch) || ch === ".", "Numeric literal must start with a decimal digit or a decimal point");
+console.assert (isDecimalDigit (ch) || ch === ".", "Numeric literal must start with a decimal digit or a decimal point");
 start = index;
 number = "";
 if (ch !== ".")
@@ -1987,7 +1930,7 @@ return {"type":Token.NumericLiteral,"value":parseFloat (number),"lineNumber":lin
 function scanStringLiteral (){
 var str = "", quote, start, ch, code, unescaped, restore, octal = false;
 quote = source [index];
-assert (quote === "'" || quote === "\"" || quote === "`", "String literal must starts with a quote");
+console.assert (quote === "'" || quote === "\"" || quote === "`", "String literal must starts with a quote");
 start = index;
 ++ index;
 if (quote === "`")
@@ -2104,7 +2047,7 @@ buffer = null;
 skipComment ();
 start = index;
 ch = source [index];
-assert (ch === "/", "Regular expression literal must start with a slash");
+console.assert (ch === "/", "Regular expression literal must start with a slash");
 str = source [index++];
 while (index < length)
 {
@@ -2232,10 +2175,6 @@ throwError (token, Messages.UnexpectedToken, token.value);
 }
 throwError (token, Messages.UnexpectedToken, token.value);
 }
-function assert (condition,message){
-if (! condition)
-throw new Error("ASSERT: " + message);
-}
 function sliceSource (from,to){
 return source.slice (from, to);
 }
@@ -2273,11 +2212,8 @@ while (busy (str = "_" + (lastIdentifier++).toString (32)))
 return str;
 };
 }) ();
-function clone (obj){
-return $.extend (true, {}, obj);
-}
 function saveAll (){
-return $.extend ({}, {"source":source,"index":index,"lineNumber":lineNumber,"lineStart":lineStart,"length":length,"buffer":buffer,"state":state,"options":options});
+return $.extend ({}, {"source":source,"index":index,"lineNumber":lineNumber,"lineStart":lineStart,"length":length,"buffer":buffer,"state":state,"options":options,"helpers":helpers});
 }
 function restoreAll (obj){
 source = obj.source;
@@ -2288,6 +2224,28 @@ length = obj.length;
 buffer = obj.buffer;
 state = obj.state;
 options = obj.options;
+helpers = obj.helpers;
+}
+function attemptTo (firstFn,secondFn,forceSecond){
+if (forceSecond)
+{
+return secondFn ();
+}
+else
+{
+saved = saveAll ();
+try{
+return firstFn ();
+}catch (e){
+if (String (e).indexOf ("Unexpected token") !== - 1)
+{
+restoreAll (saved);
+return secondFn ();
+}
+else
+throw new Error("AttemptError:", e.message);
+}
+}
 }
 function advance (){
 var ch, token;
@@ -2295,7 +2253,7 @@ skipComment ();
 if (index >= length)
 return {"type":Token.EOF,"lineNumber":lineNumber,"lineStart":lineStart,"range":[index,index]};
 token = scanPunctuator ();
-if (typeof token !== "undefined")
+if (token !== undefined)
 return token;
 ch = source [index];
 if (ch === "'" || ch === "\"" || ch === "`")
@@ -2303,7 +2261,7 @@ return scanStringLiteral ();
 if (ch === "." || isDecimalDigit (ch))
 return scanNumericLiteral ();
 token = scanIdentifier ();
-if (typeof token !== "undefined")
+if (token !== undefined)
 return token;
 throwError ({}, Messages.UnexpectedToken, "ILLEGAL");
 }
@@ -2425,8 +2383,8 @@ initializer = updateMember (functionDeclaration ("@initializer"), classEntry);
 initializer.static = true;
 initializer.autocreated = true;
 }
-{ var _asg16d_73 = classEntry.members; for (var name in _asg16d_73){
-var member = _asg16d_73[name];
+{ var _27qn5tn_90 = classEntry.members; for (var name in _27qn5tn_90){
+var member = _27qn5tn_90[name];
 updateMember (member, classEntry);
 }}
 var fields = filter (classEntry.members, function (arg){
@@ -2484,8 +2442,8 @@ var parent = byName (current.dependsOn.parent.name);
 if (! parent)
 throwError (current.dependsOn.parent, Messages.ParentClassNotFound, current.dependsOn.parent.name);
 connectClass (parent, current);
-{ var _6h9vnci_85 = parent.members; for (var id in _6h9vnci_85){
-var member = _6h9vnci_85[id];
+{ var _26h2rku_62 = parent.members; for (var id in _26h2rku_62){
+var member = _26h2rku_62[id];
 if (! current.members.hasOwnProperty (id))
 current.members [id] = $.extend (true, {}, member, {"publicMode":member.publicMode === "private" ? "locked" : member.publicMode});
 }}
@@ -2511,8 +2469,8 @@ else
 throwError (currentConstructor, Messages.SuperConstructorCallNeeded);
 }
 }
-{ var _4i59189_86 = current.dependsOn.uses; for (var _18ap9t1_87 = 0; _18ap9t1_87 < _4i59189_86.length; _18ap9t1_87 ++){
-var use = _4i59189_86[_18ap9t1_87];
+{ var _191e1dn_63 = current.dependsOn.uses; for (var _6c057rr_64 = 0; _6c057rr_64 < _191e1dn_63.length; _6c057rr_64 ++){
+var use = _191e1dn_63[_6c057rr_64];
 var used = byName (use.name);
 if (! used)
 throwError (use, Messages.UsingClassNotFound, use.name);
@@ -2520,8 +2478,8 @@ throwError (use, Messages.UsingClassNotFound, use.name);
 current.connected = true;
 }
 function connectClasses (){
-for (var _69o4c3d_88 = 0; _69o4c3d_88 < classes.length; _69o4c3d_88 ++){
-var classEntry = classes[_69o4c3d_88];
+for (var _qbq1ng_65 = 0; _qbq1ng_65 < classes.length; _qbq1ng_65 ++){
+var classEntry = classes[_qbq1ng_65];
 connectClass (classEntry);
 }
 }
@@ -2530,12 +2488,13 @@ function byName (name){
 return classesByNames [name];
 }
 function doClasses (rawClasses,callback){
+helpers = {};
 classes = [];
 classesByNames = {};
 probablyUseOtherMaxValue = 100;
 thatVariable = newIdentifier ("__that");
-for (var _29oued4_85 = 0; _29oued4_85 < rawClasses.length; _29oued4_85 ++){
-var rawClass = rawClasses[_29oued4_85];
+for (var _2nag38d_44 = 0; _2nag38d_44 < rawClasses.length; _2nag38d_44 ++){
+var rawClass = rawClasses[_2nag38d_44];
 addClass (rawClass);
 }
 if (classes.length > 0)
@@ -2547,10 +2506,10 @@ processClassesMembers ();
 processClasses ();
 callback ([variableDeclaration (classes.map (function (arg){
 return arg.element;
-}))]);
+}))], helpers);
 }
 else
-callback ([]);
+callback ();
 }
 function processClass (classEntry){
 if (typeof classEntry === "string")
@@ -2606,13 +2565,9 @@ if (mode === "default")
 {
 variables.push (variableDeclarator (classEntry.id, constructor));
 if (classEntry.dependsOn.parent)
-{
-var temp = newIdentifier ();
-variables.push (variableDeclarator (temp, functionExpression ()));
-resultFunction.push (expressionStatement (assignmentExpression (memberExpression (temp, "prototype"), memberExpression (classEntry.dependsOn.parent.name, "prototype"))), expressionStatement (assignmentExpression (memberExpression (classEntry.id, "prototype"), newExpression (temp))), expressionStatement (assignmentExpression (memberExpression (memberExpression (classEntry.id, "prototype"), "constructor"), classEntry.id)), expressionStatement (assignmentExpression (temp, "undefined")));
-}
-for (var _5esqd73_78 = 0; _5esqd73_78 < objectMethods.length; _5esqd73_78 ++){
-var method = objectMethods[_5esqd73_78];
+resultFunction.push (expressionStatement (callExpression ("__pe", [classEntry.id.name,classEntry.dependsOn.parent.name])));
+for (var _3usglln_88 = 0; _3usglln_88 < objectMethods.length; _3usglln_88 ++){
+var method = objectMethods[_3usglln_88];
 if (! method.abstract || method.body.body.length > 0)
 {
 var target = memberExpression (memberExpression (classEntry.id, "prototype"), method.id.name), value = functionExpression (method.params, method.body);
@@ -2627,8 +2582,8 @@ constructor.body.body = [ifStatement (binaryExpression (memberExpression (thisEx
 else
 if (mode === "static")
 variables.push (variableDeclarator (classEntry.id, objectExpression ()));
-for (var _7gue9fk_79 = 0; _7gue9fk_79 < staticFields.length; _7gue9fk_79 ++){
-var field = staticFields[_7gue9fk_79];
+for (var _1s759em_89 = 0; _1s759em_89 < staticFields.length; _1s759em_89 ++){
+var field = staticFields[_1s759em_89];
 if (field.publicMode !== "private")
 {
 var temp = expressionStatement (assignmentExpression (memberExpression (classEntry.id, field.id), field.init || "undefined"));
@@ -2639,8 +2594,8 @@ resultFunction.push (temp);
 else
 variables.push (field);
 }
-for (var _34m1mh2_80 = 0; _34m1mh2_80 < staticMethods.length; _34m1mh2_80 ++){
-var method = staticMethods[_34m1mh2_80];
+for (var _8sq0f4p_90 = 0; _8sq0f4p_90 < staticMethods.length; _8sq0f4p_90 ++){
+var method = staticMethods[_8sq0f4p_90];
 if (method.publicMode !== "private")
 {
 var temp = expressionStatement (assignmentExpression (memberExpression (classEntry.id, method.id), functionExpression (method.params, method.body)));
@@ -2656,8 +2611,8 @@ classEntry.element = variableDeclarator (classEntry.id.name, callExpression (fun
 }
 }
 function processClasses (){
-for (var _42lfi2k_81 = 0; _42lfi2k_81 < classes.length; _42lfi2k_81 ++){
-var classEntry = classes[_42lfi2k_81];
+for (var _4h0of0i_91 = 0; _4h0of0i_91 < classes.length; _4h0of0i_91 ++){
+var classEntry = classes[_4h0of0i_91];
 processClass (classEntry);
 }
 }
@@ -2683,8 +2638,8 @@ if (typeof obj === "object" && obj !== null)
 {
 if (obj instanceof Array)
 {
-for (var _7sdcrl8_38 = 0; _7sdcrl8_38 < obj.length; _7sdcrl8_38 ++){
-var child = obj[_7sdcrl8_38];
+for (var _23l8nh8_71 = 0; _23l8nh8_71 < obj.length; _23l8nh8_71 ++){
+var child = obj[_23l8nh8_71];
 lookForExclusions (child, target);
 }
 }
@@ -2708,7 +2663,7 @@ lookForExclusions (value, target);
 }
 function processFunction (obj,parent){
 console.assert (typeof obj === "object" && obj.type === Syntax.FunctionDeclaration, "Wrong argument");
-var oldExclusions = clone (exclusions), oldCurrentFunction = currentFunction;
+var oldExclusions = $.extend (true, {}, exclusions), oldCurrentFunction = currentFunction;
 exclusions = {};
 currentFunction = obj;
 obj.params.forEach (function (arg){
@@ -2737,9 +2692,16 @@ throwError (obj, Messages.ObjectAccessError, obj.name);
 if (member.publicMode === "locked")
 throwError (obj, Messages.PrivateAccessError, obj.name);
 var that = getThis ();
-var result = memberExpression (that, member.id.name);
+var result;
 if (member.method && parent.type !== Syntax.CallExpression)
-result = callExpression (memberExpression (result, "bind"), [that]);
+{
+helpers.bindOnce = true;
+result = callExpression ("__bo", [that,literal (member.id.name)]);
+}
+else
+{
+result = memberExpression (that, member.id.name);
+}
 return result;
 }
 function replaceStatic (member){
@@ -2768,8 +2730,27 @@ set (obj, result);
 }
 }
 function processMemberExpression (obj,parent){
-if (obj.object.type === Syntax.ThisExpression && obj.computed === false && obj.property.type === Syntax.Identifier && classEntry.members.hasOwnProperty (obj.property.name) && ! classEntry.members [obj.property.name].static)
-obj.property.name = classEntry.members [obj.property.name].id.name;
+if (obj.object.type === Syntax.ThisExpression)
+{
+if (obj.computed && obj.property.type !== Syntax.Literal)
+{
+
+}
+else
+{
+var name = obj.property.type === Syntax.Identifier ? obj.property.name : obj.property.value, member = classEntry.members.hasOwnProperty (name) ? classEntry.members [name] : null;
+if (member && ! member.static)
+{
+obj.property.name = classEntry.members [name].id.name;
+if (obj.property.type === Syntax.Literal)
+{
+obj.computed = false;
+obj.property.type = Syntax.Identifier;
+delete obj.property.value;
+}
+}
+}
+}
 process (obj.object, obj);
 if (obj.computed)
 process (obj.property, obj);
@@ -2792,7 +2773,7 @@ var callee = obj.callee ? obj.callee.name : functionEntry.id.name;
 var target;
 if (callee && callee [0] !== "@")
 {
-target = memberExpression (memberExpression (currentClass.id, "prototype"), callee);
+target = memberExpression (memberExpression (currentClass.id, "prototype"), currentClass.members [callee].id.name);
 }
 else
 {
@@ -2807,8 +2788,8 @@ if (typeof obj === "object" && obj !== null)
 {
 if (obj instanceof Array)
 {
-for (var _63ln05_39 = 0; _63ln05_39 < obj.length; _63ln05_39 ++){
-var child = obj[_63ln05_39];
+for (var _93bsi49_72 = 0; _93bsi49_72 < obj.length; _93bsi49_72 ++){
+var child = obj[_93bsi49_72];
 process (child, obj);
 }
 }
@@ -2846,42 +2827,6 @@ process (value, obj);
 }
 process (functionEntry);
 }
-function processClassMembersOld (classEntry){
-var replace, childMember;
-console.log ("class:", classEntry.id.name);
-{ var _4a6fhfr_45 = classEntry.members; for (var name in _4a6fhfr_45){
-var parentMember = _4a6fhfr_45[name];
-if (name [0] !== "@")
-{
-replacement = null;
-console.log (".", "member:", parentMember.publicMode, name);
-if (parentMember.publicMode === "locked")
-continue;
-if (parentMember.publicMode !== "private")
-{ var _2ukcdd9_46 = classEntry.childs; for (var _2hf2unr_47 = 0; _2hf2unr_47 < _2ukcdd9_46.length; _2hf2unr_47 ++){
-var childClass = _2ukcdd9_46[_2hf2unr_47];
-if (childClass.members.hasOwnProperty (name))
-{
-childMember = childClass.members [name];
-if (testBadOverride (parentMember, childMember))
-throwError (childMember.id, "Invalid public mode (" + childMember.publicMode + " instead of " + parentMember.publicMode + ")");
-replacement = childMember.id.name;
-console.log (". .", "found:", replacement);
-break;
-}
-}}
-if (replacement === null)
-replacement = rename (name, parentMember, classEntry);
-console.log (". .", "result:", replacement);
-parentMember.id.name = replacement;
-}
-}}
-}
-function processClassesMembersOld (){
-for (var i = classes.length - 1; 
-i >= 0; i--)
-processClassMembers (classes [i]);
-}
 function rename (name,member,classEntry){
 if (member.static && member.publicMode === "private" || member.publicMode === "locked")
 return name;
@@ -2914,11 +2859,10 @@ return modes [maxId];
 }
 function processClassMember (classEntry,name,parentMember){
 var newPublicMode = parentMember.publicMode, targetMembers = [parentMember], argument, updatedName;
-console.log ("member:", classEntry.id.name, parentMember.publicMode, name);
 function testChilds (currentClass){
 var childMember;
-{ var _vvc2k6_48 = currentClass.childs; for (var _196af5i_49 = 0; _196af5i_49 < _vvc2k6_48.length; _196af5i_49 ++){
-var childClass = _vvc2k6_48[_196af5i_49];
+{ var _434097g_21 = currentClass.childs; for (var _3un8hqa_22 = 0; _3un8hqa_22 < _434097g_21.length; _3un8hqa_22 ++){
+var childClass = _434097g_21[_3un8hqa_22];
 if (childClass.members.hasOwnProperty (name))
 {
 childMember = childClass.members [name];
@@ -2926,7 +2870,6 @@ if (testBadOverride (parentMember, childMember))
 throwError (childMember.id, "Invalid public mode (" + childMember.publicMode + " instead of " + parentMember.publicMode + ")");
 newPublicMode = morePublicMode (newPublicMode, childMember.publicMode);
 targetMembers.push (childMember);
-console.log (".", "found in", childClass.id.name, "(" + childMember.publicMode + ", current result:", newPublicMode + ")");
 }
 testChilds (childClass);
 }}
@@ -2937,24 +2880,23 @@ argument = $.extend ({}, parentMember, {"publicMode":newPublicMode});
 else
 argument = parentMember;
 updatedName = rename (name, argument, classEntry);
-for (var _34jcf5v_50 = 0; _34jcf5v_50 < targetMembers.length; _34jcf5v_50 ++){
-var targetMember = targetMembers[_34jcf5v_50];
+for (var _2p74rm3_23 = 0; _2p74rm3_23 < targetMembers.length; _2p74rm3_23 ++){
+var targetMember = targetMembers[_2p74rm3_23];
 targetMember.id.name = updatedName;
 targetMember.processed = true;
 }
-console.log (".", newPublicMode, parentMember.id.name);
 }
 function processClassMembers (classEntry){
 var replace, childMember;
-{ var _6206ora_51 = classEntry.members; for (var name in _6206ora_51){
-var member = _6206ora_51[name];
+{ var _37cvkbi_24 = classEntry.members; for (var name in _37cvkbi_24){
+var member = _37cvkbi_24[name];
 if (name [0] !== "@" && ! member.processed)
 processClassMember (classEntry, name, member);
 }}
 }
 function processClassesMembers (){
-for (var _77l2lbr_52 = 0; _77l2lbr_52 < classes.length; _77l2lbr_52 ++){
-var classEntry = classes[_77l2lbr_52];
+for (var _5g2cskf_25 = 0; _5g2cskf_25 < classes.length; _5g2cskf_25 ++){
+var classEntry = classes[_5g2cskf_25];
 processClassMembers (classEntry);
 }
 }
@@ -3167,8 +3109,8 @@ return [temp];
 current = path.dirname (current);
 }
 }
-{ var _28dkmn1_6 = this instanceof File ? [{"root":this.root,"dirname":this.dirname}].concat (lookingAt) : lookingAt; for (var _4gs02tb_7 = 0; _4gs02tb_7 < _28dkmn1_6.length; _4gs02tb_7 ++){
-var entry = _28dkmn1_6[_4gs02tb_7];
+{ var _97ar7m7_1 = this instanceof File ? [{"root":this.root,"dirname":this.dirname}].concat (lookingAt) : lookingAt; for (var _5cd0aou_2 = 0; _5cd0aou_2 < _97ar7m7_1.length; _5cd0aou_2 ++){
+var entry = _97ar7m7_1[_5cd0aou_2];
 var temp = findInFolder (entry.root, entry.dirname, child);
 if (temp)
 return temp.map (function (arg){
@@ -3212,10 +3154,11 @@ File.prototype.parsing = function (callback){
 console.assert (this.state == File.STATE_MACROS, "Wrong state (" + this.state + ")");
 this.state = File.STATE_WAITING;
 try{
-jsxParse (this.content, {"filename":this.filename,"initializationAllowed":true}, function (arg){
+jsxParse (this.content, {"filename":this.filename,"initializationAllowed":true}, function (parsed,helpers){
 this.log ("parsing processed");
 this.state = File.STATE_FINISHED;
-this.parsed = arg;
+this.parsed = parsed;
+this.helpers = helpers;
 callback ();
 }.bind (this));
 }catch (e){
@@ -4303,7 +4246,7 @@ function Worker (path){
 this.path = path;
 this.mainFile = undefined;
 this.state = Worker.STATE_INITIAL;
-this.data = {"statements":[],"classes":[],"initializations":[]};
+this.data = {"statements":[],"classes":[],"initializations":[],"helpers":{}};
 }
 Worker.STATE_WAITING = - 1;
 Worker.STATE_INITIAL = 0;
@@ -4336,8 +4279,8 @@ Worker.prototype.start = function (callback){
 console.assert (this.state == Worker.STATE_INITIAL, "Wrong state (" + this.state + ")");
 this.state = Worker.STATE_WAITING;
 this.log ("started");
-{ var _7m6jdth_71 = File.find ("default/*") || []; for (var _41pdneu_72 = 0; _41pdneu_72 < _7m6jdth_71.length; _41pdneu_72 ++){
-var file = _7m6jdth_71[_41pdneu_72];
+{ var _5n4mh2p_30 = File.find ("default/*") || []; for (var _10m19mp_31 = 0; _10m19mp_31 < _5n4mh2p_30.length; _10m19mp_31 ++){
+var file = _5n4mh2p_30[_10m19mp_31];
 file.process ();
 }}
 this.mainFile = new File(this.path);
@@ -4352,8 +4295,9 @@ callback ();
 Worker.prototype.collect = function (callback){
 console.assert (this.state == Worker.STATE_STARTED, "Wrong state (" + this.state + ")");
 this.state = Worker.STATE_WAITING;
-{ var _95ontkl_73 = fileStorage.files; for (var _4uess19_74 = 0; _4uess19_74 < _95ontkl_73.length; _4uess19_74 ++){
-var file = _95ontkl_73[_4uess19_74];
+{ var _5fv7ua5_32 = fileStorage.files; for (var _2gok74p_33 = 0; _2gok74p_33 < _5fv7ua5_32.length; _2gok74p_33 ++){
+var file = _5fv7ua5_32[_2gok74p_33];
+$.extend (this.data.helpers, file.helpers);
 Array.prototype.push.apply (this.data.statements, file.parsed.body);
 Array.prototype.push.apply (this.data.classes, file.parsed.classes);
 Array.prototype.push.apply (this.data.initializations, file.parsed.initializations);
@@ -4365,17 +4309,20 @@ callback ();
 Worker.prototype.classes = function (callback){
 console.assert (this.state == Worker.STATE_COLLECTED, "Wrong state (" + this.state + ")");
 this.state = Worker.STATE_WAITING;
-doClasses (this.data.classes, function (arg){
+doClasses (this.data.classes, function (classes,helpers){
+if (classes === undefined)
+classes = [];
 this.log ("classes processed");
+$.extend (this.data.helpers, helpers);
 this.state = Worker.STATE_CLASSES;
-this.data.classes = arg;
+this.data.classes = classes;
 callback ();
 }.bind (this));
 };
 Worker.prototype.generate = function (callback){
 console.assert (this.state == Worker.STATE_CLASSES, "Wrong state (" + this.state + ")");
 this.state = Worker.STATE_WAITING;
-var elements = this.data.statements.concat (this.data.classes).concat (this.data.initializations), ast = program (elements);
+var elements = doHelpers (this.data.helpers).concat (this.data.statements).concat (this.data.classes).concat (this.data.initializations), ast = program (elements);
 fs.writeFileSync (path.resolve (__dirname, "../stuff/ast-dump.json"), JSON.stringify (ast, null, 4));
 var result = convert (ast);
 this.log ("js generated");

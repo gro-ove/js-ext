@@ -2,7 +2,7 @@
 		this.path 				= path;
 		this.mainFile			= undefined;
 		this.state 				= Worker.STATE_INITIAL;
-		this.data 				= { statements: [], classes: [], initializations: [] };
+		this.data 				= { statements: [], classes: [], initializations: [], helpers: {} };
 	}
 
 	Worker.STATE_WAITING		= -1;
@@ -58,6 +58,8 @@
 		this.state = Worker.STATE_WAITING;
 
 		for (var file in-array fileStorage.files){
+			$.extend (this.data.helpers, file.helpers);
+
 			Array.prototype.push.apply (this.data.statements, file.parsed.body);
 			Array.prototype.push.apply (this.data.classes, file.parsed.classes);
 			Array.prototype.push.apply (this.data.initializations, file.parsed.initializations);
@@ -73,11 +75,12 @@
 		console.assert (this.state == Worker.STATE_COLLECTED, 'Wrong state (' + this.state + ')');
 		this.state = Worker.STATE_WAITING;
 
-		doClasses (this.data.classes, lambda {
+		doClasses (this.data.classes, lambda (classes = [], helpers){
 			this.log ('classes processed');
+			$.extend (this.data.helpers, helpers);
 
 			this.state 				= Worker.STATE_CLASSES;
-			this.data.classes 	 	= arg;
+			this.data.classes 	 	= classes;
 
 			callback ();
 		}.bind (this));
@@ -87,7 +90,10 @@
 		console.assert (this.state == Worker.STATE_CLASSES, 'Wrong state (' + this.state + ')');
 		this.state = Worker.STATE_WAITING;
 
-		var elements 	= this.data.statements.concat (this.data.classes).concat (this.data.initializations),
+		var elements 	= doHelpers (this.data.helpers)
+							.concat (this.data.statements)
+							.concat (this.data.classes)
+							.concat (this.data.initializations),
 			ast 		= program (elements);
 
 		fs.writeFileSync (path.resolve (__dirname, '../stuff/ast-dump.json'), JSON.stringify (ast, null, 4));

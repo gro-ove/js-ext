@@ -45,72 +45,8 @@
 							}
 						}
 
-						return callExpression (
-							functionExpression (
-								[ 'from', 'to', 'result' ],
-								[
-									ifStatement (
-										binaryExpression (unaryExpression ('from', 'typeof', true), '===', literal ('string')), 
-										expressionStatement (
-											assignmentExpression ('from', callExpression (memberExpression ('from', 'charCodeAt'), [ literal (0) ]))
-										)
-									),
-									ifStatement (
-										binaryExpression (unaryExpression ('to', 'typeof', true), '===', literal ('string')), 
-										expressionStatement (
-											assignmentExpression ('to', callExpression (memberExpression ('to', 'charCodeAt'), [ literal (0) ]))
-										)
-									),
-									expressionStatement (
-										assignmentExpression ('result',
-											newExpression (
-												'Array', 
-												[ 
-													binaryExpression (
-														callExpression (
-															memberExpression ('Math', 'abs'),
-															[ binaryExpression ('to', '-', 'from') ]
-														), 
-														'+', 
-														literal (1)
-													)
-												]
-											)
-										)
-									),
-									ifStatement (
-										binaryExpression ('from', '<', 'to'), 
-										forStatement (
-											variableDeclaration ([ variableDeclarator ('i', literal (0)) ]),
-											binaryExpression ('i', '<', memberExpression ('result', 'length')),
-											unaryExpression ('i', '++'),
-											expressionStatement (
-												assignmentExpression (memberExpression ('result', 'i', true), binaryExpression ('i', '+', 'from'))
-											)
-										),
-										forStatement (
-											variableDeclaration ([ 
-												variableDeclarator (
-													'i', 
-													binaryExpression (
-														memberExpression ('result', 'length'), 
-														'-', 
-														literal (1)
-													)
-												) 
-											]),
-											binaryExpression ('i', '>=', literal (0)),
-											unaryExpression ('i', '--'),
-											expressionStatement (
-												assignmentExpression (memberExpression ('result', 'i', true), binaryExpression ('from', '-', 'i'))
-											)
-										)
-									),
-									returnStatement ('result')
-								]
-							),
-							[ from, to ]
-						);
+						helpers.createArray = true;
+						return callExpression ('__ca', [ from, to ]);
 					}
 				}
 

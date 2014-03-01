@@ -9,6 +9,7 @@ function byName (name)
 
 // Обрабатываем все классы
 function doClasses (rawClasses, callback){
+	helpers 					= {};
 	classes 					= [];
 	classesByNames 				= {};
 	probablyUseOtherMaxValue 	= 100;
@@ -24,7 +25,7 @@ function doClasses (rawClasses, callback){
 		processClassesMembers ();
 		processClasses ();
 
-		callback ([ variableDeclaration (classes.map (lambda arg.element)) ]);
+		callback ([ variableDeclaration (classes.map (lambda arg.element)) ], helpers);
 	} else
-		callback ([]);
+		callback ();
 }

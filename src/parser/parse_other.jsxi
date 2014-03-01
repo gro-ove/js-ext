@@ -22,17 +22,14 @@
 
 	function parseNewExpression (){
 		expectKeyword ('new');
-
-		return newExpression (
-			parseLeftHandSideExpression (), 
-			match ('(') 
-				? parseArguments () 
-				: []
-		);
+		return newExpression (parseLeftHandSideExpression (), match ('(') ? parseArguments () : []);
 	}
 
+	function parseLeftHandSideExpressionTemp ()
+		return matchKeyword ('new') ? parseNewExpression () : matchKeyword ('super') ? parseSuperExpression () : parsePrimaryExpression ();
+
 	function parseLeftHandSideExpressionAllowCall (){
-		var temp = matchKeyword ('new') ? parseNewExpression () : parsePrimaryExpression (),
+		var temp = parseLeftHandSideExpressionTemp (),
 			token;
 
 		while (match ('.') || match ('[') || match ('('))
@@ -52,7 +49,7 @@
 	}
 
 	function parseLeftHandSideExpression (){
-		var temp = matchKeyword ('new') ? parseNewExpression () : parsePrimaryExpression ();
+		var temp = parseLeftHandSideExpressionTemp ();
 
 		while (match ('.') || match ('['))
 			if (match ('['))

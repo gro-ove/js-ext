@@ -60,7 +60,7 @@
 			console.assert (typeof obj === 'object' && obj.type === Syntax.FunctionDeclaration, 'Wrong argument');
 
 			// Сохраняем текущие значения, а после переустанавливаем на свои
-			var oldExclusions = clone (exclusions),
+			var oldExclusions = $.extend (true, {}, exclusions),
 				oldCurrentFunction = currentFunction;
 
 			exclusions = {};
@@ -112,12 +112,16 @@
 				// Получаем ссылку на «this» (или «that»)
 				var that = getThis ();
 
-				// Собираем результат
-				var result = memberExpression (that, member.id.name);
+				// Результат
+				var result;
 
 				// Если обращались к функции и при этом она не вызывается, имеет смысл привязать её к объекту
-				if (member.method && parent.type !== Syntax.CallExpression)
-					result = callExpression (memberExpression (result, 'bind'), [ that ]);
+				if (member.method && parent.type !== Syntax.CallExpression){
+					helpers.bindOnce = true;
+					result = callExpression ('__bo', [ that, literal (member.id.name) ]);
+				} else {
+					result = memberExpression (that, member.id.name);
+				}
 
 				return result;
 			}
@@ -165,12 +169,31 @@
 		}
 
 		function processMemberExpression (obj, parent){
-			if (obj.object.type === Syntax.ThisExpression 
-				&& obj.computed === false 
-				&& obj.property.type === Syntax.Identifier 
-				&& classEntry.members.hasOwnProperty (obj.property.name)
-				&& !classEntry.members [obj.property.name].static)
-				obj.property.name = classEntry.members [obj.property.name].id.name;
+			if (obj.object.type === Syntax.ThisExpression){
+				if (obj.computed && obj.property.type !== Syntax.Literal){
+					// TODO
+					
+					// set (obj, callExpression ('__fr', [ obj.object, obj.property ]));
+
+					// if (helpers.findReplaced)
+					// 	helpers.findReplaced.push (classEntry);
+					// else
+					// 	helpers.findReplaced = [ classEntry ];
+				} else {
+					var name = obj.property.type === Syntax.Identifier ? obj.property.name : obj.property.value,
+						member = classEntry.members.hasOwnProperty (name) ? classEntry.members [name] : null;
+
+					if (member && !member.static){
+						obj.property.name = classEntry.members [name].id.name;
+
+						if (obj.property.type === Syntax.Literal){
+							obj.computed = false;
+							obj.property.type = Syntax.Identifier;
+							delete obj.property.value;
+						}
+					}
+				}
+			}
 
 			// Всё довольно просто — обрабатываем объект ...
 			process (obj.object, obj);
@@ -213,7 +236,7 @@
 
 			if (callee && callee [0] !== '@'){
 				// Если имя где-то, но есть, и при этом это не конструктор или деструктор, вызываем метод из прототипа
-				target = memberExpression (memberExpression (currentClass.id, 'prototype'), callee);
+				target = memberExpression (memberExpression (currentClass.id, 'prototype'), currentClass.members [callee].id.name);
 			} else {
 				// Иначе вызываем конструктор
 				target = currentClass.id;

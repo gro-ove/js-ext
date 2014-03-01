@@ -11,10 +11,12 @@ function jsxParse (code, args, callback){
 	buffer          = null;
 	state 			= { allowIn: true, inClass: false, parsingComplete: false, preventSequence: false, classes: [] };
 	options		    = args || { filename: '[ not a file ]', insertReturn: false, initializationAllowed: false };
+	helpers 		= {};
 
 	var result = parseProgram ();
+	
 	if (typeof callback === 'function')
-		callback (result);
+		callback (result, helpers);
 	else
 		return result;
 }

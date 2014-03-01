@@ -179,7 +179,7 @@
 		var number, start, ch;
 
 		ch = source [index];
-		assert (isDecimalDigit (ch) || ch === '.', 'Numeric literal must start with a decimal digit or a decimal point');
+		console.assert (isDecimalDigit (ch) || ch === '.', 'Numeric literal must start with a decimal digit or a decimal point');
 
 		start = index;
 		number = '';
@@ -308,7 +308,7 @@
 		var str = '', quote, start, ch, code, unescaped, restore, octal = false;
 
 		quote = source [index];
-		assert (quote === '\'' || quote === '"' || quote === '`', 'String literal must starts with a quote');
+		console.assert (quote === '\'' || quote === '"' || quote === '`', 'String literal must starts with a quote');
 
 		start = index;
 		++ index;
@@ -423,7 +423,7 @@
 
 		start = index;
 		ch = source [index];
-		assert (ch === '/', 'Regular expression literal must start with a slash');
+		console.assert (ch === '/', 'Regular expression literal must start with a slash');
 		str = source [index ++];
 
 		while (index < length){
