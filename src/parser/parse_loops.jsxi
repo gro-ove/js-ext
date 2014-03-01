@@ -39,7 +39,7 @@
 	}
 
 	function parseForStatement (){
-		var init, test, update, left, right, body, temp, result, arrayMode;
+		var init, test, update, left, right, body, temp, result, arrayMode, identifierMode, propertyName;
 
 		init = test = update = null;
 
@@ -54,8 +54,8 @@
 				init			= parseForVariableDeclaration ();
 				state.allowIn 	= true;
 
-				if (init.declarations.length <= 2 && (matchKeyword ('in-array') && (arrayMode = 1) || matchKeyword ('in'))){
-					lex ();
+				if (init.declarations.length <= 2 && (matchKeyword ('in-array') || matchKeyword ('in-object') || matchKeyword ('in'))){
+					arrayMode 	= lex ().value;
 					left 		= init;
 					right 		= parseExpression ();
 					init 		= null;
@@ -65,12 +65,11 @@
 				init 			= parseExpression ();
 				state.allowIn 	= true;
 
-				if (matchKeyword ('in-array') && (arrayMode = 1) || matchKeyword ('in')){
-					// LeftHandSideExpression
-					if (!isLeftHandSide (init) && (init.type != 'SequenceExpression' || init.expressions.length != 2))
+				if (matchKeyword ('in-array') || matchKeyword ('in-object') || matchKeyword ('in')){
+					if (!isLeftHandSide (init) && (init.type !== Syntax.SequenceExpression || init.expressions.length !== 2))
 						throwError ({}, Messages.InvalidLHSInForIn);
 
-					lex ();
+					arrayMode 	= lex ().value;
 					left 		= init;
 					right 		= parseExpression();
 					init 		= null;
@@ -94,30 +93,30 @@
 		expect (')');
 		body = parseStatement ();
 
-		if (arrayMode)
+		if (arrayMode === 'in-array')
 			if (left.type === Syntax.VariableDeclaration && left.declarations.length === 1){
 				left.declarations = [ variableDeclarator (newIdentifier ()), left.declarations [0] ]
 			} else if (left.type === Syntax.Identifier){
 				left = variableDeclaration ([ variableDeclarator (newIdentifier ()), variableDeclarator (left) ]);
-				arrayMode = 2;
+				identifierMode = true;
 			}
 
-		if (typeof left === 'undefined'){
+		if (left === undefined){
 			return forStatement (init, test, update, body);
-		} else if (left.type === Syntax.SequenceExpression && left.expressions.length === 2 || arrayMode === 2){
+		} else if (left.type === Syntax.SequenceExpression && left.expressions.length === 2 || identifierMode){
 			temp = body;
 
 			body = blockStatement ([ 
 				expressionStatement (assignmentExpression (
-						arrayMode === 2 ? left.declarations [1].id : left.expressions [1],
-						memberExpression (right, arrayMode === 2 ? left.declarations [0].id : left.expressions [0], true))) ]);
+						identifierMode ? left.declarations [1].id : left.expressions [1],
+						memberExpression (right, identifierMode ? left.declarations [0].id : left.expressions [0], true))) ]);
 
 			if (temp.type === Syntax.BlockStatement)
 				body.body = body.body.concat (temp.body);
 			else
 				body.body.push (temp);
 
-			if (arrayMode === 2)
+			if (identifierMode)
 				left.declarations.length = 1;
 			else
 				left = left.expressions [0];
@@ -134,7 +133,7 @@
 			left.declarations.length = 1;
 		}
 
-		if (arrayMode){
+		if (arrayMode === 'in-array'){
 			if (left.type === Syntax.VariableDeclaration && !left.declarations [0].init)
 				left.declarations [0].init = literal (0);
 
@@ -152,13 +151,19 @@
 				binaryExpression (temp, '<', memberExpression (right, 'length')), 
 				unaryExpression (temp, '++', false), 
 				body);
-		} else 
-			result = forInStatement (left, right, body);
+		} else {
+			if (arrayMode === 'in-object'){
+				propertyName = left.type === Syntax.VariableDeclaration ? left.declarations [0].id.name : left.name;
+				body = ifStatement (callExpression (memberExpression (right, 'hasOwnProperty'), [ propertyName ]), body);
+			}
 
-		if (typeof temp !== 'undefined' && right.type !== Syntax.Identifier){
+			result = forInStatement (left, right, body);
+		}
+
+		if ((temp !== undefined || arrayMode === 'in-object') && right.type !== Syntax.Identifier){
 			var identifier = newIdentifier ();
 
-			temp = clone (right);
+			temp = $.extend (true, {}, right);
 
 			for (var n in right)
 				delete right [n];

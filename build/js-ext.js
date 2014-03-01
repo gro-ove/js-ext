@@ -325,6 +325,15 @@ return {"type":Syntax.MemberExpression,"computed":computed,"object":identifier (
 function callExpression (name,arguments){
 if (arguments === undefined)
 arguments = [];
+if (name && name.type === Syntax.MemberExpression && name.property.type === Syntax.Identifier && name.object.type === Syntax.MemberExpression && name.object.property.type === Syntax.Identifier && (name.property.name === "call" || name.property.name === "apply"))
+{
+var obj = name.object.object;
+if (obj.type === Syntax.ArrayExpression && obj.elements.length === 0)
+name.object.object = memberExpression ("Array", "prototype");
+else
+if (obj.type === Syntax.ObjectExpression && obj.properties.length === 0)
+name.object.object = memberExpression ("Object", "prototype");
+}
 return {"type":Syntax.CallExpression,"callee":identifier (name),"arguments":arguments.map (identifier)};
 }
 function superExpression (name,arguments,level){
@@ -372,7 +381,7 @@ return mark ({"type":Syntax.ExpressionStatement,"expression":expression});
 function ifStatement (test,trueStatement,falseStatement){
 if (falseStatement === undefined)
 falseStatement = null;
-return mark ({"type":Syntax.IfStatement,"test":test,"consequent":trueStatement,"alternate":falseStatement});
+return mark ({"type":Syntax.IfStatement,"test":identifier (test),"consequent":trueStatement,"alternate":falseStatement});
 }
 function whileStatement (test,body){
 return mark ({"type":Syntax.WhileStatement,"test":test,"body":body});
@@ -438,38 +447,20 @@ function program (elements,classes,initializations){
 return {"type":Syntax.Program,"body":elements,"classes":classes,"initializations":initializations};
 }
 function parseArguments (){
-var args = [];
+var args = [], comma = {};
 expect ("(");
-if (! match (")"))
-while (index < length)
+while (! match (")"))
 {
+if (args.length)
+parseOptionalComma (comma);
 args.push (parseAssignmentExpression ());
-if (match (")"))
-break;
-expect (",");
 }
 expect (")");
 return args;
 }
-function parseArrayInitialiser (){
-var elements = [];
-expect ("[");
-while (! match ("]"))
-if (match (","))
-{
-lex ();
-elements.push (null);
-}
-else
-{
-elements.push (parseAssignmentExpression ());
-if (elements.length === 1 && match ("."))
-{
-token = lookahead ();
-if (source [token.range [0] + 1] === ".")
-{
-lex ();
-lex ();
+function parseArrayPerlInitializer (elements){
+expect (".");
+expect (".");
 var from = elements [0], to = parseAssignmentExpression ();
 expect ("]");
 if (from.type === Syntax.Literal && to.type === Syntax.Literal)
@@ -496,9 +487,33 @@ return arrayExpression (elements);
 helpers.createArray = true;
 return callExpression ("__ca", [from,to]);
 }
+function parseOptionalComma (state){
+var token = lookahead ();
+if (state.comma === undefined)
+state.comma = token.value === ",";
+else
+if (state.comma !== (token.value === ","))
+throwUnexpected (token);
+if (token.value === ",")
+lex ();
 }
-if (! match ("]"))
-expect (",");
+function parseArrayInitialiser (){
+var elements = [], token, comma = {};
+expect ("[");
+while (! match ("]"))
+if (match (","))
+{
+parseOptionalComma (comma);
+elements.push (null);
+}
+else
+{
+elements.push (parseAssignmentExpression ());
+token = lookahead ();
+if (elements.length === 1 && token.value === "." && source [token.range [0] + 1] === ".")
+return parseArrayPerlInitializer (elements);
+if (token.value !== "]")
+parseOptionalComma (comma);
 }
 expect ("]");
 return arrayExpression (elements);
@@ -832,11 +847,12 @@ return {"type":Syntax.ExpressionStatement,"expression":expr};
 }
 function parseFunctionArguments (defaults,noargs){
 return attemptTo (function (arg){
-var name, params = [];
+var name, params = [], comma = {};
 expect ("(");
-if (! match (")"))
-while (index < length)
+while (! match (")"))
 {
+if (params.length)
+parseOptionalComma (comma);
 name = parseVariableIdentifier ();
 if (defaults && match ("="))
 {
@@ -844,9 +860,6 @@ lex ();
 defaults.push (ifStatement (binaryExpression (name.name, "===", "undefined"), expressionStatement (assignmentExpression (name.name, parseAssignmentExpression ()))));
 }
 params.push (name);
-if (match (")"))
-break;
-expect (",");
 }
 expect (")");
 return params;
@@ -866,12 +879,8 @@ sourceElements.push (statement);
 consumeSemicolon ();
 }, function (arg){
 state.preventSequence = false;
-while (index < length)
-{
-if (match ("}"))
-break;
+while (! match ("}"))
 sourceElements.push (parseStatement ());
-}
 }, token.type !== Syntax.Literal && token.type !== Syntax.Identifier);
 expect ("}");
 }
@@ -989,7 +998,7 @@ lex ();
 return variableDeclaration (parseVariableDeclarationList ());
 }
 function parseForStatement (){
-var init, test, update, left, right, body, temp, result, arrayMode;
+var init, test, update, left, right, body, temp, result, arrayMode, identifierMode, propertyName;
 init = test = update = null;
 expectKeyword ("for");
 expect ("(");
@@ -1004,9 +1013,9 @@ if (matchKeyword ("var"))
 state.allowIn = false;
 init = parseForVariableDeclaration ();
 state.allowIn = true;
-if (init.declarations.length <= 2 && (matchKeyword ("in-array") && (arrayMode = 1) || matchKeyword ("in")))
+if (init.declarations.length <= 2 && (matchKeyword ("in-array") || matchKeyword ("in-object") || matchKeyword ("in")))
 {
-lex ();
+arrayMode = lex ().value;
 left = init;
 right = parseExpression ();
 init = null;
@@ -1017,11 +1026,11 @@ else
 state.allowIn = false;
 init = parseExpression ();
 state.allowIn = true;
-if (matchKeyword ("in-array") && (arrayMode = 1) || matchKeyword ("in"))
+if (matchKeyword ("in-array") || matchKeyword ("in-object") || matchKeyword ("in"))
 {
-if (! isLeftHandSide (init) && (init.type != "SequenceExpression" || init.expressions.length != 2))
+if (! isLeftHandSide (init) && (init.type !== Syntax.SequenceExpression || init.expressions.length !== 2))
 throwError ({}, Messages.InvalidLHSInForIn);
-lex ();
+arrayMode = lex ().value;
 left = init;
 right = parseExpression ();
 init = null;
@@ -1040,7 +1049,7 @@ update = parseExpression ();
 }
 expect (")");
 body = parseStatement ();
-if (arrayMode)
+if (arrayMode === "in-array")
 if (left.type === Syntax.VariableDeclaration && left.declarations.length === 1)
 {
 left.declarations = [variableDeclarator (newIdentifier ()),left.declarations [0]];
@@ -1049,22 +1058,22 @@ else
 if (left.type === Syntax.Identifier)
 {
 left = variableDeclaration ([variableDeclarator (newIdentifier ()),variableDeclarator (left)]);
-arrayMode = 2;
+identifierMode = true;
 }
-if (typeof left === "undefined")
+if (left === undefined)
 {
 return forStatement (init, test, update, body);
 }
 else
-if (left.type === Syntax.SequenceExpression && left.expressions.length === 2 || arrayMode === 2)
+if (left.type === Syntax.SequenceExpression && left.expressions.length === 2 || identifierMode)
 {
 temp = body;
-body = blockStatement ([expressionStatement (assignmentExpression (arrayMode === 2 ? left.declarations [1].id : left.expressions [1], memberExpression (right, arrayMode === 2 ? left.declarations [0].id : left.expressions [0], true)))]);
+body = blockStatement ([expressionStatement (assignmentExpression (identifierMode ? left.declarations [1].id : left.expressions [1], memberExpression (right, identifierMode ? left.declarations [0].id : left.expressions [0], true)))]);
 if (temp.type === Syntax.BlockStatement)
 body.body = body.body.concat (temp.body);
 else
 body.body.push (temp);
-if (arrayMode === 2)
+if (identifierMode)
 left.declarations.length = 1;
 else
 left = left.expressions [0];
@@ -1081,7 +1090,7 @@ else
 body.body.push (temp);
 left.declarations.length = 1;
 }
-if (arrayMode)
+if (arrayMode === "in-array")
 {
 if (left.type === Syntax.VariableDeclaration && ! left.declarations [0].init)
 left.declarations [0].init = literal (0);
@@ -1091,11 +1100,18 @@ left = assignmentExpression (left, literal (0));
 result = forStatement (left, binaryExpression (temp, "<", memberExpression (right, "length")), unaryExpression (temp, "++", false), body);
 }
 else
+{
+if (arrayMode === "in-object")
+{
+propertyName = left.type === Syntax.VariableDeclaration ? left.declarations [0].id.name : left.name;
+body = ifStatement (callExpression (memberExpression (right, "hasOwnProperty"), [propertyName]), body);
+}
 result = forInStatement (left, right, body);
-if (typeof temp !== "undefined" && right.type !== Syntax.Identifier)
+}
+if ((temp !== undefined || arrayMode === "in-object") && right.type !== Syntax.Identifier)
 {
 var identifier = newIdentifier ();
-temp = clone (right);
+temp = $.extend (true, {}, right);
 for (var n in right)
 delete right [n];
 right.type = Syntax.Identifier;
@@ -1164,9 +1180,11 @@ return property (key, parseAssignmentExpression ());
 }
 }
 function parseObjectContent (){
-var properties = [], property, name, kind, map = {};
+var properties = [], property, name, kind, map = {}, comma = {};
 while (! match ("}"))
 {
+if (properties.length)
+parseOptionalComma (comma);
 property = parseObjectProperty ();
 name = property.key.type === Syntax.Identifier ? property.key.name : String (property.key.value);
 kind = property.kind === "init" ? PropertyKind.Data : property.kind === "get" ? PropertyKind.Get : PropertyKind.Set;
@@ -1190,9 +1208,8 @@ map [name] |= kind;
 else
 map [name] = kind;
 properties.push (property);
-if (! match ("}"))
-expect (",");
 }
+return properties;
 }
 function parseObjectInitialiser (){
 expect ("{");
@@ -1273,12 +1290,39 @@ temp = binaryExpression (temp, lex ().value, parseAdditiveExpression ());
 return temp;
 }
 function parseRelationalExpression (){
-var temp, previousAllowIn;
+var inverse, temp, previousAllowIn;
 previousAllowIn = state.allowIn;
 state.allowIn = true;
 temp = parseShiftExpression ();
-while (match ("<") || match (">") || match ("<=") || match (">=") || previousAllowIn && matchKeyword ("in") || matchKeyword ("instanceof"))
+while (index < length)
+{
+if (match ("!") && source [lookahead ().range [0] + 1] === "i")
+{
+inverse = saveAll ();
+lex ();
+}
+if (match ("<") || match (">") || match ("<=") || match (">=") || previousAllowIn && matchKeyword ("in") || matchKeyword ("instanceof"))
+{
 temp = binaryExpression (temp, lex ().value, parseShiftExpression ());
+}
+else
+if (previousAllowIn && (matchKeyword ("in-object") || matchKeyword ("in-array")))
+{
+lex ();
+temp = callExpression (memberExpression (parseShiftExpression (), "hasOwnProperty"), [temp]);
+}
+else
+{
+if (inverse)
+restoreAll (inverse);
+break;
+}
+if (inverse)
+{
+temp = unaryExpression (temp, "!", true);
+inverse = false;
+}
+}
 state.allowIn = previousAllowIn;
 return temp;
 }
@@ -1764,15 +1808,23 @@ return "";
 return String.fromCharCode (code);
 }
 function scanIdentifier (){
-var start, id, restore;
+var start, id, restore, special;
 if (! isIdentifierStart (source [index]))
 return;
 start = index;
 id = source [index++];
-if (id === "i" && source.substr (index, 7) === "n-array")
+if (id === "i")
 {
-index += 7;
-return {"type":Token.Keyword,"value":"in-array","lineNumber":lineNumber,"lineStart":lineStart,"range":[start,index]};
+if (source.substr (index, 7) === "n-array")
+special = "in-array";
+else
+if (source.substr (index, 8) === "n-object")
+special = "in-object";
+if (special)
+{
+index += special.length - 1;
+return {"type":Token.Keyword,"value":special,"lineNumber":lineNumber,"lineStart":lineStart,"range":[start,index]};
+}
 }
 while (index < length)
 {
@@ -2836,7 +2888,7 @@ return "__" + name;
 case "private":
 return "__" + classEntry.id.name + "_" + name;
 case "public":
-return "PUBLIC_" + name;
+return name;
 default:console.assert (false, "Unsupported publicMode (" + member.publicMode + ")");
 }
 }
@@ -2861,8 +2913,8 @@ function processClassMember (classEntry,name,parentMember){
 var newPublicMode = parentMember.publicMode, targetMembers = [parentMember], argument, updatedName;
 function testChilds (currentClass){
 var childMember;
-{ var _434097g_21 = currentClass.childs; for (var _3un8hqa_22 = 0; _3un8hqa_22 < _434097g_21.length; _3un8hqa_22 ++){
-var childClass = _434097g_21[_3un8hqa_22];
+{ var _97a4a4l_51 = currentClass.childs; for (var _8jv8ide_52 = 0; _8jv8ide_52 < _97a4a4l_51.length; _8jv8ide_52 ++){
+var childClass = _97a4a4l_51[_8jv8ide_52];
 if (childClass.members.hasOwnProperty (name))
 {
 childMember = childClass.members [name];
@@ -2880,23 +2932,23 @@ argument = $.extend ({}, parentMember, {"publicMode":newPublicMode});
 else
 argument = parentMember;
 updatedName = rename (name, argument, classEntry);
-for (var _2p74rm3_23 = 0; _2p74rm3_23 < targetMembers.length; _2p74rm3_23 ++){
-var targetMember = targetMembers[_2p74rm3_23];
+for (var _6d32mk_53 = 0; _6d32mk_53 < targetMembers.length; _6d32mk_53 ++){
+var targetMember = targetMembers[_6d32mk_53];
 targetMember.id.name = updatedName;
 targetMember.processed = true;
 }
 }
 function processClassMembers (classEntry){
 var replace, childMember;
-{ var _37cvkbi_24 = classEntry.members; for (var name in _37cvkbi_24){
-var member = _37cvkbi_24[name];
+{ var _57sp1mq_54 = classEntry.members; for (var name in _57sp1mq_54){
+var member = _57sp1mq_54[name];
 if (name [0] !== "@" && ! member.processed)
 processClassMember (classEntry, name, member);
 }}
 }
 function processClassesMembers (){
-for (var _5g2cskf_25 = 0; _5g2cskf_25 < classes.length; _5g2cskf_25 ++){
-var classEntry = classes[_5g2cskf_25];
+for (var _5mlkcbs_55 = 0; _5mlkcbs_55 < classes.length; _5mlkcbs_55 ++){
+var classEntry = classes[_5mlkcbs_55];
 processClassMembers (classEntry);
 }
 }
@@ -3552,8 +3604,8 @@ Macro.Defaults = {"fs":fs,"path":path,"params":paramsManager,"ReturnType":Macro.
 Macro.globalStorage = {};
 Macro.prototype.defaults = function (context){
 var result = {}, obj = {"name":this.name,"context":context,"macroContext":this.context};
-{ var _74chns3_65 = Macro.Defaults; for (var key in _74chns3_65){
-var value = _74chns3_65[key];
+{ var _78v857t_75 = Macro.Defaults; for (var key in _78v857t_75){
+var value = _78v857t_75[key];
 if (typeof value === "function")
 result [key] = value.call (obj);
 else
@@ -3577,7 +3629,7 @@ if (temp.value === arg.value)
 return true;
 return false;
 });
-while (found = liteParser.findNext (/@([_$a-zA-Z][_$a-zA-Z0-9]*)/))
+while (found = liteParser.findNext (/@([_$a-zA-Z][_$a-zA-Z0-9\.\-]*)/))
 {
 while (macroBody.indexOf (name = "_" + (lastIdentifier++).toString (32)) !== - 1)
 ;
@@ -3604,10 +3656,10 @@ variables.push ("require = this.require");
 variables.push ("macro = this.macro.bind (this)");
 for (var key in Macro.Defaults)
 variables.push (key + " = this.defaults." + key);
-{ var _5q08vio_66 = phase.used; for (var _1hnufle_67 = 0; _1hnufle_67 < _5q08vio_66.length; _1hnufle_67 ++){
-var entry = _5q08vio_66[_1hnufle_67];
+{ var _10o7uj_76 = phase.used; for (var _7poac9n_77 = 0; _7poac9n_77 < _10o7uj_76.length; _7poac9n_77 ++){
+var entry = _10o7uj_76[_7poac9n_77];
 queue.add (macroStorage.get, entry.macro, this.level);
-variables.push (entry.name + " = function (){ return this.macros." + entry.macro + ".call (this.context, arguments) }.bind (this)");
+variables.push (entry.name + " = function (){ return this.macros." + entry.macro + ".call (this.context, [].slice.call (arguments)) }.bind (this)");
 }}
 this.macros = {};
 this.debug = (variables.length ? "var " + variables.join (", ") + ";\n" : "") + converted;
@@ -3627,7 +3679,7 @@ callback ();
 };
 Macro.prototype.call = function (context,args){
 console.assert (this.callee, "Macro is not initialized");
-console.assert (args && typeof args.length === "number", "Wrong argument");
+console.assert (args instanceof Array, "Wrong argument");
 console.assert (context instanceof Context, "Context required");
 var that = this, object = {"defaults":this.defaults (context),"macros":this.macros,"macroContext":this.context,"context":context,"global":Macro.globalStorage,"local":this.localStorage,"require":function (arg){
 return require (path.resolve (context.file.dirname, "node_modules", arg));
@@ -3635,6 +3687,11 @@ return require (path.resolve (context.file.dirname, "node_modules", arg));
 return macroStorage.add (new Macro(name, that.level, that.context, typeof arguments === "string" ? arguments.split (",").map (Function.prototype.call.bind (String.prototype.trim)) : arguments, body));
 }};
 try{
+{ var _6tvu2qq_78 = this.arguments; for (var id = 0; id < _6tvu2qq_78.length; id ++){
+var arg = _6tvu2qq_78[id];
+if (arg.type === "callback" && typeof args [id] !== "function")
+throw new MacroError(this.name, args, "Callback requested");
+}}
 return this.callee.apply (object, args.map (function (value,pos){
 switch (this.arguments [pos].type){
 case "boolean":
@@ -3847,6 +3904,7 @@ function macrosParse (source,level,context){
 console.assert (context instanceof Context, "Context required");
 function parseMacroDefine (){
 var name = found.raw [1], position, argument, arguments, blockMode, temp, body, converted, insertCall = false, from;
+try{
 if (name === "macro")
 throwError (liteParser.getPosition (), "This word is reserved");
 temp = liteParser.whatNext (/[^\s]/);
@@ -3860,17 +3918,19 @@ while (temp = liteParser.findHere (",", ")"))
 {
 argument = liteParser.substring (position, liteParser.index - 1).trim ();
 if (argument.length)
+{
 arguments.push (argument);
-else
-if (arguments.length || temp.value === ",")
-throwError (liteParser.getPosition (), "Missing argument");
-position = liteParser.index;
 if (! /^[a-z$_][a-z$_\d]*(\:[a-z\-]+)?$/i.test (argument))
 {
 arguments = null;
 liteParser.index = from;
 break;
 }
+}
+else
+if (arguments.length || temp.value === ",")
+throwError (liteParser.getPosition (), "Missing argument");
+position = liteParser.index;
 if (temp.value === ")")
 break;
 }
@@ -3889,13 +3949,13 @@ else
 temp = liteParser.findHere (";", LiteParser.EOF);
 if (! temp || temp.value === LiteParser.EOF)
 {
-throwError (liteParser.getPosition (), "End of macro's body not found");
+throw new Error("End of macro's body not found" + fromfrom);
 }
 else
 if (temp.value === "}")
 {
 temp = liteParser.whatNext (/[^\s]/);
-if (temp.value === "(")
+if (temp && temp.value === "(")
 insertCall = true;
 }
 body = liteParser.substring (position, liteParser.index).trim ();
@@ -3916,6 +3976,9 @@ if (insertCall)
 {
 liteParser.replace (liteParser.index, liteParser.index, "@" + macro.name);
 liteParser.index = found.index;
+}
+}catch (e){
+throw new Error("Macro parsing failed (" + found.raw [0] + "):\n" + e.stack);
 }
 }
 function parseMacroCall (){
@@ -3991,7 +4054,7 @@ if (temp.value === arg.value)
 return true;
 return false;
 }), found;
-while (found = liteParser.findNext (/@macro\s+([_$a-zA-Z][_$a-zA-Z0-9]*(?:\:[a-z\-]+)?)?/, /@([_$a-zA-Z][_$a-zA-Z0-9]*)/, "{", "}"))
+while (found = liteParser.findNext (/@macro\s+([_$a-zA-Z][_$a-zA-Z0-9\.\-]*(?:\:[a-z\-]+)?)?/, /@([_$a-zA-Z][_$a-zA-Z0-9\.\-]*)/, "{", "}"))
 {
 switch (found.id){
 case 0:
@@ -4020,13 +4083,13 @@ level = "";
 console.assert (context instanceof Context, "Context required");
 console.assert (typeof callback === "function", "Function required");
 var temp = macrosParse (data, level, context), queue = new Queue(Queue.MODE_PARALLEL).description ("macros process");
-{ var _ckmcjd_11 = temp.calls; for (var _34lu40a_12 = 0; _34lu40a_12 < _ckmcjd_11.length; _34lu40a_12 ++){
-var call = _ckmcjd_11[_34lu40a_12];
+{ var _2i6lneh_93 = temp.calls; for (var _3rb3l3n_94 = 0; _3rb3l3n_94 < _2i6lneh_93.length; _3rb3l3n_94 ++){
+var call = _2i6lneh_93[_3rb3l3n_94];
 queue.add (call, call.process.bind (call));
 }}
 queue.run (function (arg){
-for (var _230roqq_13 = 0; _230roqq_13 < arg.length; _230roqq_13 ++){
-var entry = arg[_230roqq_13];
+for (var _67e4986_95 = 0; _67e4986_95 < arg.length; _67e4986_95 ++){
+var entry = arg[_67e4986_95];
 temp.data = temp.data.split (entry.data.replacement).join (entry.result [0]);
 }
 callback (temp.data);
@@ -4203,6 +4266,7 @@ if (f [0].length > size)
 f [0] = f [0].substr (0, size - 4) + "...:";
 f [0] += new Array(1 + size - f [0].length).join (" ");
 f.push.apply (f, arguments);
+console.log.apply (console, f);
 };
 return p ? (p.prototype.log = r) : r;
 }

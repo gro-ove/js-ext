@@ -65,9 +65,12 @@
 	}
 
 	function parseObjectContent (){
-		var properties = [], property, name, kind, map = {};
+		var properties = [], property, name, kind, map = {}, comma = {};
 
 		while (!match ('}')){
+			if (properties.length)
+				parseOptionalComma (comma);
+
 			property = parseObjectProperty ();
 
 			name = property.key.type === Syntax.Identifier
@@ -96,10 +99,9 @@
 				map [name] = kind;
 
 			properties.push (property);
-
-			if (!match ('}'))
-				expect (',');
 		}
+
+		return properties;
 	}
 
 	function parseObjectInitialiser (){

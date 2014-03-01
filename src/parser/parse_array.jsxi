@@ -1,57 +1,70 @@
 	// 11.1.4 Array Initialiser
+
+	function parseArrayPerlInitializer (elements){
+		expect ('.');
+		expect ('.');
+
+		var from = elements [0],
+			to = parseAssignmentExpression ();
+
+		expect (']');
+
+		if (from.type === Syntax.Literal && to.type === Syntax.Literal){
+			var nfrom 	= +from.value,
+				nto 	= +to.value;
+
+			if (Number.isNaN (nfrom))
+				nfrom = String (from.value).charCodeAt (0);
+
+			if (Number.isNaN (nto))
+				nto = String (to.value).charCodeAt (0);
+
+			if (Math.abs (nto - nfrom) < 20){
+				from.value = nfrom;
+				if (nto > nfrom)
+					for (nfrom ++; nfrom <= nto; nfrom ++)
+						elements.push (literal (nfrom));
+				else
+					for (nfrom ++; nfrom >= nto; nfrom --)
+						elements.push (literal (nfrom));
+				return arrayExpression (elements);
+			}
+		}
+
+		helpers.createArray = true;
+		return callExpression ('__ca', [ from, to ]);
+	}
+
+	function parseOptionalComma (state){
+		var token = lookahead ();
+
+		if (state.comma === undefined)
+			state.comma = token.value === ',';
+		else if (state.comma !== (token.value === ','))
+			throwUnexpected (token);
+
+		if (token.value === ',')
+			lex ();
+	}
 	
 	function parseArrayInitialiser (){
-		var elements = [];
+		var elements = [], token, comma = {};
 
 		expect ('[');
 
 		while (!match (']'))
 			if (match (',')){
-				lex ();
+				parseOptionalComma (comma);
 				elements.push (null);
 			} else {
 				elements.push (parseAssignmentExpression ());
+				token = lookahead ();
 
-				if (elements.length === 1 && match ('.')){
-					token = lookahead ();
-					if (source [token.range [0] + 1] === '.'){
-						lex ();
-						lex ();
+				if (elements.length === 1 && token.value === '.' && source [token.range [0] + 1] === '.')
+					return parseArrayPerlInitializer (elements);
 
-						var from = elements [0],
-							to = parseAssignmentExpression ();
-
-						expect (']');
-
-						if (from.type === Syntax.Literal && to.type === Syntax.Literal){
-							var nfrom 	= +from.value,
-								nto 	= +to.value;
-
-							if (Number.isNaN (nfrom))
-								nfrom = String (from.value).charCodeAt (0);
-
-							if (Number.isNaN (nto))
-								nto = String (to.value).charCodeAt (0);
-
-							if (Math.abs (nto - nfrom) < 20){
-								from.value = nfrom;
-								if (nto > nfrom)
-									for (nfrom ++; nfrom <= nto; nfrom ++)
-										elements.push (literal (nfrom));
-								else
-									for (nfrom ++; nfrom >= nto; nfrom --)
-										elements.push (literal (nfrom));
-								return arrayExpression (elements);
-							}
-						}
-
-						helpers.createArray = true;
-						return callExpression ('__ca', [ from, to ]);
-					}
-				}
-
-				if (!match (']'))
-					expect (',');
+				if (token.value !== ']')
+					parseOptionalComma (comma);
 			}
 
 		expect (']');

@@ -33,7 +33,7 @@ function addLog (p, key, fn){
 			f [0] += new Array (1 + size - f [0].length).join (' ');
 			f.push.apply (f, arguments);
 
-			// console.log.apply (console, f);
+			console.log.apply (console, f);
 		};
 
 	return p ? (p.prototype.log = r) : r;

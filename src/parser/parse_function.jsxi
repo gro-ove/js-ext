@@ -4,28 +4,26 @@
 		return attemptTo (
 			lambda {
 				var name, 
-					params = [];
+					params = [],
+					comma = {};
 
 				expect ('(');
 
-				if (!match (')'))
-					while (index < length){
-						name = parseVariableIdentifier ();
+				while (!match (')')){
+					if (params.length)
+						parseOptionalComma (comma);
 
-						if (defaults && match ('=')){
-							lex ();
-							defaults.push (ifStatement (
-									binaryExpression (name.name, '===', 'undefined'),
-									expressionStatement (assignmentExpression (name.name, parseAssignmentExpression ()))));
-						}
+					name = parseVariableIdentifier ();
 
-						params.push (name);
-
-						if (match (')'))
-							break;
-
-						expect (',');
+					if (defaults && match ('=')){
+						lex ();
+						defaults.push (ifStatement (
+								binaryExpression (name.name, '===', 'undefined'),
+								expressionStatement (assignmentExpression (name.name, parseAssignmentExpression ()))));
 					}
+
+					params.push (name);
+				}
 
 				expect (')');
 				return params;
@@ -57,12 +55,8 @@
 				lambda {
 					state.preventSequence = false;
 
-					while (index < length){
-						if (match ('}'))
-							break;
-
+					while (!match ('}'))
 						sourceElements.push (parseStatement ());
-					}
 				},
 				token.type !== Syntax.Literal && token.type !== Syntax.Identifier
 			);

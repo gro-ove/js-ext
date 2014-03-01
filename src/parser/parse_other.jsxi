@@ -96,14 +96,34 @@
 	// 11.8 Relational Operators
 
 	function parseRelationalExpression (){
-		var temp, previousAllowIn;
+		var inverse, temp, previousAllowIn;
 
 		previousAllowIn 	= state.allowIn;
 		state.allowIn 		= true;
-		temp 				= parseShiftExpression();
+		temp 				= parseShiftExpression ();
 
-		while (match ('<') || match ('>') || match ('<=') || match ('>=') || previousAllowIn && matchKeyword ('in') || matchKeyword ('instanceof'))
-			temp = binaryExpression (temp, lex ().value, parseShiftExpression ());
+		while (index < length){
+			if (match ('!') && source [lookahead ().range [0] + 1] === 'i'){
+				inverse = saveAll ();
+				lex ();
+			}
+
+			if (match ('<') || match ('>') || match ('<=') || match ('>=') || previousAllowIn && matchKeyword ('in') || matchKeyword ('instanceof')){
+				temp = binaryExpression (temp, lex ().value, parseShiftExpression ());
+			} else if (previousAllowIn && (matchKeyword ('in-object') || matchKeyword ('in-array'))){
+				lex ();
+				temp = callExpression (memberExpression (parseShiftExpression (), 'hasOwnProperty'), [ temp ]);
+			} else {
+				if (inverse)
+					restoreAll (inverse);
+				break;
+			}
+
+			if (inverse){
+				temp = unaryExpression (temp, '!', true);
+				inverse = false;
+			}
+		}
 
 		state.allowIn 		= previousAllowIn;
 		return temp;

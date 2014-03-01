@@ -48,12 +48,29 @@
 			property: 			identifier (property)
 		}
 
-	function callExpression (name, arguments = [])
+	function callExpression (name, arguments = []){
+		if (name 
+			&& name.type === Syntax.MemberExpression 
+			&& name.property.type === Syntax.Identifier
+			&& name.object.type === Syntax.MemberExpression 
+			&& name.object.property.type === Syntax.Identifier 
+			&& (name.property.name === 'call' || name.property.name === 'apply')){
+
+			var obj = name.object.object;
+
+			if (obj.type === Syntax.ArrayExpression && obj.elements.length === 0)
+				name.object.object = memberExpression ('Array', 'prototype');
+
+			else if (obj.type === Syntax.ObjectExpression && obj.properties.length === 0)
+				name.object.object = memberExpression ('Object', 'prototype');
+		}
+
 		return {
 			type: 				Syntax.CallExpression,
 			callee: 			identifier (name),
 			arguments: 			arguments.map (identifier)
 		}
+	}
 
 	function superExpression (name, arguments, level)
 		return {
@@ -148,7 +165,7 @@
 	function ifStatement (test, trueStatement, falseStatement = null)
 		return mark ({
 			type: 				Syntax.IfStatement,
-			test: 				test,
+			test: 				identifier (test),
 			consequent: 		trueStatement,
 			alternate: 			falseStatement
 		})

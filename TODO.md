@@ -27,6 +27,7 @@
 			 */
 		V static private and object locked conflict
 		V function expression without args
+		V new operator instead of "in"
 		F check for order of super constructor call and initialization
 		- convert member expression for static private to identifier
 		- processSuperExpression add static check
@@ -75,17 +76,18 @@
 	V fix this.privatefield access
 	V array initializer operator
 		V with function
+	V convert [].forEach into Array.prototype.forEach and stuff
 	F default arguments to constuctor
 	F overrided protected functions
 	F import with dot in name
 	F import folders
 	F shit with functions (callable declarations)
 	F improve errors detect for function or lambda body and stuff
-	- new operator instead of "in"
 	- arguments support
 	- randomized names
 	- object initializer features
 	- uglifyjs
+	- correct macro parsing errors (filename, linenumber, etc.)
 	- errors handling
 	L syntax highlight and stuff support for sumlime text
 	L build for npm

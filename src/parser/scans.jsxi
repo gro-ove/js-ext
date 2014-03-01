@@ -13,7 +13,7 @@
 	}
 
 	function scanIdentifier (){
-		var start, id, restore;
+		var start, id, restore, special;
 
 		if (!isIdentifierStart (source [index]))
 			return;
@@ -21,15 +21,22 @@
 		start = index;
 		id = source [index ++];
 
-		if (id === 'i' && source.substr (index, 7) === 'n-array'){
-			index += 7;
-			
-			return {
-				type:           Token.Keyword,
-				value:          'in-array',
-				lineNumber:     lineNumber,
-				lineStart:      lineStart,
-				range:          [ start, index ]
+		if (id === 'i'){
+			if (source.substr (index, 7) === 'n-array')
+				special = 'in-array';
+			else if (source.substr (index, 8) === 'n-object')
+				special = 'in-object';
+
+			if (special){
+				index += special.length - 1;
+				
+				return {
+					type:           Token.Keyword,
+					value:          special,
+					lineNumber:     lineNumber,
+					lineStart:      lineStart,
+					range:          [ start, index ]
+				}
 			}
 		}
 

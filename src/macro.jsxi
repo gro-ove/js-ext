@@ -86,7 +86,7 @@
 						return false;
 					});
 
-				while (found = liteParser.findNext (/@([_$a-zA-Z][_$a-zA-Z0-9]*)/)){
+				while (found = liteParser.findNext (/@([_$a-zA-Z][_$a-zA-Z0-9\.\-]*)/)){
 					while (macroBody.indexOf (name = '_' + (lastIdentifier ++).toString (32)) !== -1);
 					used.push ({ name: name, macro: found.raw [1] });
 
@@ -126,7 +126,7 @@
 
 		for (var entry in-array phase.used){
 			queue.add (macroStorage.get, entry.macro, this.level);
-			variables.push (entry.name + ' = function (){ return this.macros.' + entry.macro + '.call (this.context, arguments) }.bind (this)');
+			variables.push (entry.name + ' = function (){ return this.macros.' + entry.macro + '.call (this.context, [].slice.call (arguments)) }.bind (this)');
 		}
 
 		this.macros 	= {};
@@ -146,7 +146,7 @@
 
 	Macro.prototype.call = function (context, args){
 		console.assert (this.callee, 'Macro is not initialized');
-		console.assert (args && typeof args.length === 'number', 'Wrong argument');
+		console.assert (args instanceof Array, 'Wrong argument');
 		console.assert (context instanceof Context, 'Context required');
 
 		var that = this,
@@ -170,7 +170,11 @@
 										body))
 			};
 
-		try
+		try {
+			for (var id, arg in-array this.arguments)
+				if (arg.type === 'callback' && typeof args [id] !== 'function')
+					throw new MacroError (this.name, args, 'Callback requested');
+
 			return this.callee.apply (
 				object,
 				args.map (
@@ -190,11 +194,12 @@
 					}.bind (this)
 				)
 			)
-		catch
+		} catch {
 			if (e.name === 'MacroError')
 				throw e;
 			else
 				throw new MacroError (this.name, args, e);
+		}
 	}
 
 	function MacroError (name, args, parent, message){

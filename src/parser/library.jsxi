@@ -72,7 +72,6 @@
 		WithStatement: 					'WithStatement'
 	};
 
-	// Error messages should be identical to V8.
 	Messages = {
 		UnexpectedToken:  				'Unexpected token %0',
 		UnexpectedNumber:  				'Unexpected number',
