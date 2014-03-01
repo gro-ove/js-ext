@@ -8,7 +8,7 @@
                     "type": "VariableDeclarator",
                     "id": {
                         "type": "Identifier",
-                        "name": "First"
+                        "name": "A"
                     },
                     "init": {
                         "type": "CallExpression",
@@ -27,17 +27,16 @@
                                                 "type": "VariableDeclarator",
                                                 "id": {
                                                     "type": "Identifier",
-                                                    "name": "First"
+                                                    "name": "A",
+                                                    "lineNumber": 1,
+                                                    "lineStart": 0,
+                                                    "filename": "current.jsx",
+                                                    "index": 7
                                                 },
                                                 "init": {
                                                     "type": "FunctionExpression",
                                                     "id": null,
-                                                    "params": [
-                                                        {
-                                                            "type": "Identifier",
-                                                            "name": "dog"
-                                                        }
-                                                    ],
+                                                    "params": [],
                                                     "defaults": [],
                                                     "body": {
                                                         "type": "BlockStatement",
@@ -55,129 +54,16 @@
                                                                         },
                                                                         "property": {
                                                                             "type": "Identifier",
-                                                                            "name": "dog"
+                                                                            "name": "__a"
                                                                         }
                                                                     },
                                                                     "right": {
-                                                                        "type": "Literal",
-                                                                        "value": "SORRY I CAN'T WOOF BECAUSE I'M SICK"
+                                                                        "type": "Identifier",
+                                                                        "name": "undefined"
                                                                     }
                                                                 },
-                                                                "comment": "dog",
+                                                                "comment": "a",
                                                                 "autocreated": true
-                                                            },
-                                                            {
-                                                                "type": "ExpressionStatement",
-                                                                "expression": {
-                                                                    "type": "CallExpression",
-                                                                    "callee": {
-                                                                        "type": "MemberExpression",
-                                                                        "computed": false,
-                                                                        "object": {
-                                                                            "type": "Identifier",
-                                                                            "name": "console"
-                                                                        },
-                                                                        "property": {
-                                                                            "type": "Identifier",
-                                                                            "name": "log"
-                                                                        }
-                                                                    },
-                                                                    "arguments": [
-                                                                        {
-                                                                            "type": "Literal",
-                                                                            "value": "."
-                                                                        },
-                                                                        {
-                                                                            "type": "Literal",
-                                                                            "value": "\"First\" says \"Hi!\""
-                                                                        }
-                                                                    ]
-                                                                }
-                                                            },
-                                                            {
-                                                                "type": "ExpressionStatement",
-                                                                "expression": {
-                                                                    "type": "AssignmentExpression",
-                                                                    "operator": "=",
-                                                                    "left": {
-                                                                        "type": "MemberExpression",
-                                                                        "computed": false,
-                                                                        "object": {
-                                                                            "type": "ThisExpression"
-                                                                        },
-                                                                        "property": {
-                                                                            "type": "Identifier",
-                                                                            "name": "dog"
-                                                                        }
-                                                                    },
-                                                                    "right": {
-                                                                        "type": "BinaryExpression",
-                                                                        "operator": "+",
-                                                                        "left": {
-                                                                            "type": "BinaryExpression",
-                                                                            "operator": "+",
-                                                                            "left": {
-                                                                                "type": "BinaryExpression",
-                                                                                "operator": "+",
-                                                                                "left": {
-                                                                                    "type": "Identifier",
-                                                                                    "name": "dog"
-                                                                                },
-                                                                                "right": {
-                                                                                    "type": "Literal",
-                                                                                    "value": " ("
-                                                                                }
-                                                                            },
-                                                                            "right": {
-                                                                                "type": "Identifier",
-                                                                                "name": "cat"
-                                                                            }
-                                                                        },
-                                                                        "right": {
-                                                                            "type": "Literal",
-                                                                            "value": ")"
-                                                                        }
-                                                                    }
-                                                                }
-                                                            },
-                                                            {
-                                                                "type": "ExpressionStatement",
-                                                                "expression": {
-                                                                    "type": "CallExpression",
-                                                                    "callee": {
-                                                                        "type": "MemberExpression",
-                                                                        "computed": false,
-                                                                        "object": {
-                                                                            "type": "Identifier",
-                                                                            "name": "console"
-                                                                        },
-                                                                        "property": {
-                                                                            "type": "Identifier",
-                                                                            "name": "log"
-                                                                        }
-                                                                    },
-                                                                    "arguments": [
-                                                                        {
-                                                                            "type": "Literal",
-                                                                            "value": "."
-                                                                        },
-                                                                        {
-                                                                            "type": "Literal",
-                                                                            "value": "."
-                                                                        },
-                                                                        {
-                                                                            "type": "MemberExpression",
-                                                                            "computed": false,
-                                                                            "object": {
-                                                                                "type": "ThisExpression"
-                                                                            },
-                                                                            "property": {
-                                                                                "type": "Identifier",
-                                                                                "name": "dog"
-                                                                            }
-                                                                        }
-                                                                    ]
-                                                                }
                                                             }
                                                         ]
                                                     },
@@ -186,112 +72,30 @@
                                                     "expression": false,
                                                     "number": "@constructor0",
                                                     "publicMode": "private",
-                                                    "abstract": false,
-                                                    "static": false,
                                                     "className": {
                                                         "type": "Identifier",
-                                                        "name": "First"
+                                                        "name": "A",
+                                                        "lineNumber": 1,
+                                                        "lineStart": 0,
+                                                        "filename": "current.jsx",
+                                                        "index": 7
                                                     },
-                                                    "method": true
+                                                    "method": true,
+                                                    "autocreated": true
                                                 }
-                                            },
-                                            {
-                                                "type": "VariableDeclarator",
-                                                "id": {
-                                                    "type": "Identifier",
-                                                    "name": "cat"
-                                                },
-                                                "init": {
-                                                    "type": "Literal",
-                                                    "value": "Meow?"
-                                                },
-                                                "publicMode": "private",
-                                                "abstract": false,
-                                                "static": true,
-                                                "className": {
-                                                    "type": "Identifier",
-                                                    "name": "First"
-                                                },
-                                                "method": false
                                             }
                                         ],
                                         "kind": "var"
                                     },
                                     {
-                                        "type": "ExpressionStatement",
-                                        "expression": {
-                                            "type": "AssignmentExpression",
-                                            "operator": "=",
-                                            "left": {
-                                                "type": "MemberExpression",
-                                                "computed": false,
-                                                "object": {
-                                                    "type": "MemberExpression",
-                                                    "computed": false,
-                                                    "object": {
-                                                        "type": "Identifier",
-                                                        "name": "First"
-                                                    },
-                                                    "property": {
-                                                        "type": "Identifier",
-                                                        "name": "prototype"
-                                                    }
-                                                },
-                                                "property": {
-                                                    "type": "Identifier",
-                                                    "name": "cow"
-                                                }
-                                            },
-                                            "right": {
-                                                "type": "FunctionExpression",
-                                                "id": null,
-                                                "params": [],
-                                                "defaults": [],
-                                                "body": {
-                                                    "type": "BlockStatement",
-                                                    "body": [
-                                                        {
-                                                            "type": "ExpressionStatement",
-                                                            "expression": {
-                                                                "type": "CallExpression",
-                                                                "callee": {
-                                                                    "type": "MemberExpression",
-                                                                    "computed": false,
-                                                                    "object": {
-                                                                        "type": "Identifier",
-                                                                        "name": "console"
-                                                                    },
-                                                                    "property": {
-                                                                        "type": "Identifier",
-                                                                        "name": "log"
-                                                                    }
-                                                                },
-                                                                "arguments": [
-                                                                    {
-                                                                        "type": "Literal",
-                                                                        "value": "."
-                                                                    },
-                                                                    {
-                                                                        "type": "Literal",
-                                                                        "value": "Mo-o-o-o from \"First\"."
-                                                                    }
-                                                                ]
-                                                            }
-                                                        }
-                                                    ]
-                                                },
-                                                "rest": null,
-                                                "generator": false,
-                                                "expression": false,
-                                                "number": 18
-                                            }
-                                        }
-                                    },
-                                    {
                                         "type": "ReturnStatement",
                                         "argument": {
                                             "type": "Identifier",
-                                            "name": "First"
+                                            "name": "A",
+                                            "lineNumber": 1,
+                                            "lineStart": 0,
+                                            "filename": "current.jsx",
+                                            "index": 7
                                         }
                                     }
                                 ]
@@ -299,7 +103,7 @@
                             "rest": null,
                             "generator": false,
                             "expression": false,
-                            "number": 19
+                            "number": 6
                         },
                         "arguments": []
                     }
@@ -308,7 +112,7 @@
                     "type": "VariableDeclarator",
                     "id": {
                         "type": "Identifier",
-                        "name": "Second"
+                        "name": "B"
                     },
                     "init": {
                         "type": "CallExpression",
@@ -327,60 +131,20 @@
                                                 "type": "VariableDeclarator",
                                                 "id": {
                                                     "type": "Identifier",
-                                                    "name": "Second"
+                                                    "name": "B",
+                                                    "lineNumber": 5,
+                                                    "lineStart": 27,
+                                                    "filename": "current.jsx",
+                                                    "index": 34
                                                 },
                                                 "init": {
                                                     "type": "FunctionExpression",
                                                     "id": null,
-                                                    "params": [
-                                                        {
-                                                            "type": "Identifier",
-                                                            "name": "dog"
-                                                        }
-                                                    ],
+                                                    "params": [],
                                                     "defaults": [],
                                                     "body": {
                                                         "type": "BlockStatement",
                                                         "body": [
-                                                            {
-                                                                "type": "IfStatement",
-                                                                "test": {
-                                                                    "type": "BinaryExpression",
-                                                                    "operator": "===",
-                                                                    "left": {
-                                                                        "type": "MemberExpression",
-                                                                        "computed": false,
-                                                                        "object": {
-                                                                            "type": "ThisExpression"
-                                                                        },
-                                                                        "property": {
-                                                                            "type": "Identifier",
-                                                                            "name": "constructor"
-                                                                        }
-                                                                    },
-                                                                    "right": {
-                                                                        "type": "Identifier",
-                                                                        "name": "Second"
-                                                                    }
-                                                                },
-                                                                "consequent": {
-                                                                    "type": "ThrowStatement",
-                                                                    "argument": {
-                                                                        "type": "NewExpression",
-                                                                        "callee": {
-                                                                            "type": "Identifier",
-                                                                            "name": "Error"
-                                                                        },
-                                                                        "arguments": [
-                                                                            {
-                                                                                "type": "Literal",
-                                                                                "value": "Trying to instantiate abstract class Second"
-                                                                            }
-                                                                        ]
-                                                                    }
-                                                                },
-                                                                "alternate": null
-                                                            },
                                                             {
                                                                 "type": "ExpressionStatement",
                                                                 "expression": {
@@ -390,7 +154,11 @@
                                                                         "computed": false,
                                                                         "object": {
                                                                             "type": "Identifier",
-                                                                            "name": "First"
+                                                                            "name": "A",
+                                                                            "lineNumber": 1,
+                                                                            "lineStart": 0,
+                                                                            "filename": "current.jsx",
+                                                                            "index": 7
                                                                         },
                                                                         "property": {
                                                                             "type": "Identifier",
@@ -400,10 +168,6 @@
                                                                     "arguments": [
                                                                         {
                                                                             "type": "ThisExpression"
-                                                                        },
-                                                                        {
-                                                                            "type": "Identifier",
-                                                                            "name": "dog"
                                                                         }
                                                                     ],
                                                                     "super": 1
@@ -422,15 +186,15 @@
                                                                         },
                                                                         "property": {
                                                                             "type": "Identifier",
-                                                                            "name": "horse"
+                                                                            "name": "__a"
                                                                         }
                                                                     },
                                                                     "right": {
-                                                                        "type": "Literal",
-                                                                        "value": "Horse, tazshemta"
+                                                                        "type": "Identifier",
+                                                                        "name": "undefined"
                                                                     }
                                                                 },
-                                                                "comment": "horse",
+                                                                "comment": "a",
                                                                 "autocreated": true
                                                             }
                                                         ]
@@ -438,10 +202,15 @@
                                                     "rest": null,
                                                     "generator": false,
                                                     "expression": false,
-                                                    "number": "@constructor13",
+                                                    "number": "@constructor2",
+                                                    "publicMode": "private",
                                                     "className": {
                                                         "type": "Identifier",
-                                                        "name": "Second"
+                                                        "name": "B",
+                                                        "lineNumber": 5,
+                                                        "lineStart": 27,
+                                                        "filename": "current.jsx",
+                                                        "index": 34
                                                     },
                                                     "method": true,
                                                     "autocreated": true
@@ -467,25 +236,6 @@
                                                     "expression": false,
                                                     "number": null
                                                 }
-                                            },
-                                            {
-                                                "type": "VariableDeclarator",
-                                                "id": {
-                                                    "type": "Identifier",
-                                                    "name": "cat"
-                                                },
-                                                "init": {
-                                                    "type": "Literal",
-                                                    "value": "Meow!"
-                                                },
-                                                "publicMode": "private",
-                                                "abstract": false,
-                                                "static": true,
-                                                "className": {
-                                                    "type": "Identifier",
-                                                    "name": "Second"
-                                                },
-                                                "method": false
                                             }
                                         ],
                                         "kind": "var"
@@ -512,7 +262,7 @@
                                                 "computed": false,
                                                 "object": {
                                                     "type": "Identifier",
-                                                    "name": "First"
+                                                    "name": "A"
                                                 },
                                                 "property": {
                                                     "type": "Identifier",
@@ -531,7 +281,11 @@
                                                 "computed": false,
                                                 "object": {
                                                     "type": "Identifier",
-                                                    "name": "Second"
+                                                    "name": "B",
+                                                    "lineNumber": 5,
+                                                    "lineStart": 27,
+                                                    "filename": "current.jsx",
+                                                    "index": 34
                                                 },
                                                 "property": {
                                                     "type": "Identifier",
@@ -561,7 +315,11 @@
                                                     "computed": false,
                                                     "object": {
                                                         "type": "Identifier",
-                                                        "name": "Second"
+                                                        "name": "B",
+                                                        "lineNumber": 5,
+                                                        "lineStart": 27,
+                                                        "filename": "current.jsx",
+                                                        "index": 34
                                                     },
                                                     "property": {
                                                         "type": "Identifier",
@@ -575,7 +333,11 @@
                                             },
                                             "right": {
                                                 "type": "Identifier",
-                                                "name": "Second"
+                                                "name": "B",
+                                                "lineNumber": 5,
+                                                "lineStart": 27,
+                                                "filename": "current.jsx",
+                                                "index": 34
                                             }
                                         }
                                     },
@@ -595,377 +357,14 @@
                                         }
                                     },
                                     {
-                                        "type": "ExpressionStatement",
-                                        "expression": {
-                                            "type": "AssignmentExpression",
-                                            "operator": "=",
-                                            "left": {
-                                                "type": "MemberExpression",
-                                                "computed": false,
-                                                "object": {
-                                                    "type": "MemberExpression",
-                                                    "computed": false,
-                                                    "object": {
-                                                        "type": "Identifier",
-                                                        "name": "Second"
-                                                    },
-                                                    "property": {
-                                                        "type": "Identifier",
-                                                        "name": "prototype"
-                                                    }
-                                                },
-                                                "property": {
-                                                    "type": "Identifier",
-                                                    "name": "whoIsIt"
-                                                }
-                                            },
-                                            "right": {
-                                                "type": "FunctionExpression",
-                                                "id": null,
-                                                "params": [],
-                                                "defaults": [],
-                                                "body": {
-                                                    "type": "BlockStatement",
-                                                    "body": [
-                                                        {
-                                                            "type": "ExpressionStatement",
-                                                            "expression": {
-                                                                "type": "CallExpression",
-                                                                "callee": {
-                                                                    "type": "MemberExpression",
-                                                                    "computed": false,
-                                                                    "object": {
-                                                                        "type": "Identifier",
-                                                                        "name": "console"
-                                                                    },
-                                                                    "property": {
-                                                                        "type": "Identifier",
-                                                                        "name": "log"
-                                                                    }
-                                                                },
-                                                                "arguments": [
-                                                                    {
-                                                                        "type": "Literal",
-                                                                        "value": "."
-                                                                    },
-                                                                    {
-                                                                        "type": "Literal",
-                                                                        "value": "Michael Jackson, for example"
-                                                                    }
-                                                                ]
-                                                            }
-                                                        },
-                                                        {
-                                                            "type": "ExpressionStatement",
-                                                            "expression": {
-                                                                "type": "CallExpression",
-                                                                "callee": {
-                                                                    "type": "MemberExpression",
-                                                                    "computed": false,
-                                                                    "object": {
-                                                                        "type": "Identifier",
-                                                                        "name": "console"
-                                                                    },
-                                                                    "property": {
-                                                                        "type": "Identifier",
-                                                                        "name": "log"
-                                                                    }
-                                                                },
-                                                                "arguments": [
-                                                                    {
-                                                                        "type": "Literal",
-                                                                        "value": "."
-                                                                    },
-                                                                    {
-                                                                        "type": "Literal",
-                                                                        "value": "Or cat:"
-                                                                    },
-                                                                    {
-                                                                        "type": "Identifier",
-                                                                        "name": "cat"
-                                                                    }
-                                                                ]
-                                                            }
-                                                        },
-                                                        {
-                                                            "type": "ExpressionStatement",
-                                                            "expression": {
-                                                                "type": "CallExpression",
-                                                                "callee": {
-                                                                    "type": "MemberExpression",
-                                                                    "computed": false,
-                                                                    "object": {
-                                                                        "type": "Identifier",
-                                                                        "name": "console"
-                                                                    },
-                                                                    "property": {
-                                                                        "type": "Identifier",
-                                                                        "name": "log"
-                                                                    }
-                                                                },
-                                                                "arguments": [
-                                                                    {
-                                                                        "type": "Literal",
-                                                                        "value": "."
-                                                                    },
-                                                                    {
-                                                                        "type": "Literal",
-                                                                        "value": "Or dog:"
-                                                                    },
-                                                                    {
-                                                                        "type": "MemberExpression",
-                                                                        "computed": false,
-                                                                        "object": {
-                                                                            "type": "Identifier",
-                                                                            "name": "Second"
-                                                                        },
-                                                                        "property": {
-                                                                            "type": "Identifier",
-                                                                            "name": "dog"
-                                                                        }
-                                                                    }
-                                                                ]
-                                                            }
-                                                        },
-                                                        {
-                                                            "type": "ExpressionStatement",
-                                                            "expression": {
-                                                                "type": "CallExpression",
-                                                                "callee": {
-                                                                    "type": "MemberExpression",
-                                                                    "computed": false,
-                                                                    "object": {
-                                                                        "type": "Identifier",
-                                                                        "name": "console"
-                                                                    },
-                                                                    "property": {
-                                                                        "type": "Identifier",
-                                                                        "name": "log"
-                                                                    }
-                                                                },
-                                                                "arguments": [
-                                                                    {
-                                                                        "type": "Literal",
-                                                                        "value": "."
-                                                                    },
-                                                                    {
-                                                                        "type": "Literal",
-                                                                        "value": "Or horse:"
-                                                                    },
-                                                                    {
-                                                                        "type": "MemberExpression",
-                                                                        "computed": false,
-                                                                        "object": {
-                                                                            "type": "ThisExpression"
-                                                                        },
-                                                                        "property": {
-                                                                            "type": "Identifier",
-                                                                            "name": "horse"
-                                                                        }
-                                                                    }
-                                                                ]
-                                                            }
-                                                        }
-                                                    ]
-                                                },
-                                                "rest": null,
-                                                "generator": false,
-                                                "expression": false,
-                                                "number": 21
-                                            }
-                                        }
-                                    },
-                                    {
-                                        "type": "ExpressionStatement",
-                                        "expression": {
-                                            "type": "AssignmentExpression",
-                                            "operator": "=",
-                                            "left": {
-                                                "type": "MemberExpression",
-                                                "computed": false,
-                                                "object": {
-                                                    "type": "MemberExpression",
-                                                    "computed": false,
-                                                    "object": {
-                                                        "type": "Identifier",
-                                                        "name": "Second"
-                                                    },
-                                                    "property": {
-                                                        "type": "Identifier",
-                                                        "name": "prototype"
-                                                    }
-                                                },
-                                                "property": {
-                                                    "type": "Identifier",
-                                                    "name": "eat"
-                                                }
-                                            },
-                                            "right": {
-                                                "type": "FunctionExpression",
-                                                "id": null,
-                                                "params": [],
-                                                "defaults": [],
-                                                "body": {
-                                                    "type": "BlockStatement",
-                                                    "body": [
-                                                        {
-                                                            "type": "ExpressionStatement",
-                                                            "expression": {
-                                                                "type": "CallExpression",
-                                                                "callee": {
-                                                                    "type": "MemberExpression",
-                                                                    "computed": false,
-                                                                    "object": {
-                                                                        "type": "Identifier",
-                                                                        "name": "console"
-                                                                    },
-                                                                    "property": {
-                                                                        "type": "Identifier",
-                                                                        "name": "log"
-                                                                    }
-                                                                },
-                                                                "arguments": [
-                                                                    {
-                                                                        "type": "Literal",
-                                                                        "value": "."
-                                                                    },
-                                                                    {
-                                                                        "type": "Literal",
-                                                                        "value": "Wow, yammy!"
-                                                                    }
-                                                                ]
-                                                            }
-                                                        },
-                                                        {
-                                                            "type": "ExpressionStatement",
-                                                            "expression": {
-                                                                "type": "CallExpression",
-                                                                "callee": {
-                                                                    "type": "MemberExpression",
-                                                                    "computed": false,
-                                                                    "object": {
-                                                                        "type": "Identifier",
-                                                                        "name": "console"
-                                                                    },
-                                                                    "property": {
-                                                                        "type": "Identifier",
-                                                                        "name": "log"
-                                                                    }
-                                                                },
-                                                                "arguments": [
-                                                                    {
-                                                                        "type": "Literal",
-                                                                        "value": "."
-                                                                    },
-                                                                    {
-                                                                        "type": "Literal",
-                                                                        "value": "."
-                                                                    },
-                                                                    {
-                                                                        "type": "CallExpression",
-                                                                        "callee": {
-                                                                            "type": "MemberExpression",
-                                                                            "computed": false,
-                                                                            "object": {
-                                                                                "type": "ThisExpression"
-                                                                            },
-                                                                            "property": {
-                                                                                "type": "Identifier",
-                                                                                "name": "sleep"
-                                                                            }
-                                                                        },
-                                                                        "arguments": []
-                                                                    }
-                                                                ]
-                                                            }
-                                                        },
-                                                        {
-                                                            "type": "ExpressionStatement",
-                                                            "expression": {
-                                                                "type": "CallExpression",
-                                                                "callee": {
-                                                                    "type": "MemberExpression",
-                                                                    "computed": false,
-                                                                    "object": {
-                                                                        "type": "Identifier",
-                                                                        "name": "console"
-                                                                    },
-                                                                    "property": {
-                                                                        "type": "Identifier",
-                                                                        "name": "log"
-                                                                    }
-                                                                },
-                                                                "arguments": [
-                                                                    {
-                                                                        "type": "Literal",
-                                                                        "value": "."
-                                                                    },
-                                                                    {
-                                                                        "type": "Literal",
-                                                                        "value": "."
-                                                                    },
-                                                                    {
-                                                                        "type": "CallExpression",
-                                                                        "callee": {
-                                                                            "type": "MemberExpression",
-                                                                            "computed": false,
-                                                                            "object": {
-                                                                                "type": "ThisExpression"
-                                                                            },
-                                                                            "property": {
-                                                                                "type": "Identifier",
-                                                                                "name": "poo"
-                                                                            }
-                                                                        },
-                                                                        "arguments": []
-                                                                    }
-                                                                ]
-                                                            }
-                                                        },
-                                                        {
-                                                            "type": "ReturnStatement",
-                                                            "argument": {
-                                                                "type": "ThisExpression"
-                                                            }
-                                                        }
-                                                    ]
-                                                },
-                                                "rest": null,
-                                                "generator": false,
-                                                "expression": false,
-                                                "number": 22
-                                            }
-                                        }
-                                    },
-                                    {
-                                        "type": "ExpressionStatement",
-                                        "expression": {
-                                            "type": "AssignmentExpression",
-                                            "operator": "=",
-                                            "left": {
-                                                "type": "MemberExpression",
-                                                "computed": false,
-                                                "object": {
-                                                    "type": "Identifier",
-                                                    "name": "Second"
-                                                },
-                                                "property": {
-                                                    "type": "Identifier",
-                                                    "name": "dog"
-                                                }
-                                            },
-                                            "right": {
-                                                "type": "Literal",
-                                                "value": "WOOF WOOF WOOF"
-                                            }
-                                        },
-                                        "comment": "dog"
-                                    },
-                                    {
                                         "type": "ReturnStatement",
                                         "argument": {
                                             "type": "Identifier",
-                                            "name": "Second"
+                                            "name": "B",
+                                            "lineNumber": 5,
+                                            "lineStart": 27,
+                                            "filename": "current.jsx",
+                                            "index": 34
                                         }
                                     }
                                 ]
@@ -973,7 +372,7 @@
                             "rest": null,
                             "generator": false,
                             "expression": false,
-                            "number": 23
+                            "number": 8
                         },
                         "arguments": []
                     }
@@ -982,7 +381,7 @@
                     "type": "VariableDeclarator",
                     "id": {
                         "type": "Identifier",
-                        "name": "Third"
+                        "name": "C"
                     },
                     "init": {
                         "type": "CallExpression",
@@ -1001,17 +400,16 @@
                                                 "type": "VariableDeclarator",
                                                 "id": {
                                                     "type": "Identifier",
-                                                    "name": "Third"
+                                                    "name": "C",
+                                                    "lineNumber": 9,
+                                                    "lineStart": 64,
+                                                    "filename": "current.jsx",
+                                                    "index": 71
                                                 },
                                                 "init": {
                                                     "type": "FunctionExpression",
                                                     "id": null,
-                                                    "params": [
-                                                        {
-                                                            "type": "Identifier",
-                                                            "name": "dog"
-                                                        }
-                                                    ],
+                                                    "params": [],
                                                     "defaults": [],
                                                     "body": {
                                                         "type": "BlockStatement",
@@ -1025,7 +423,11 @@
                                                                         "computed": false,
                                                                         "object": {
                                                                             "type": "Identifier",
-                                                                            "name": "Second"
+                                                                            "name": "A",
+                                                                            "lineNumber": 1,
+                                                                            "lineStart": 0,
+                                                                            "filename": "current.jsx",
+                                                                            "index": 7
                                                                         },
                                                                         "property": {
                                                                             "type": "Identifier",
@@ -1035,24 +437,49 @@
                                                                     "arguments": [
                                                                         {
                                                                             "type": "ThisExpression"
-                                                                        },
-                                                                        {
-                                                                            "type": "Identifier",
-                                                                            "name": "dog"
                                                                         }
                                                                     ],
                                                                     "super": 1
                                                                 }
+                                                            },
+                                                            {
+                                                                "type": "ExpressionStatement",
+                                                                "expression": {
+                                                                    "type": "AssignmentExpression",
+                                                                    "operator": "=",
+                                                                    "left": {
+                                                                        "type": "MemberExpression",
+                                                                        "computed": false,
+                                                                        "object": {
+                                                                            "type": "ThisExpression"
+                                                                        },
+                                                                        "property": {
+                                                                            "type": "Identifier",
+                                                                            "name": "PUBLIC_a"
+                                                                        }
+                                                                    },
+                                                                    "right": {
+                                                                        "type": "Identifier",
+                                                                        "name": "undefined"
+                                                                    }
+                                                                },
+                                                                "comment": "a",
+                                                                "autocreated": true
                                                             }
                                                         ]
                                                     },
                                                     "rest": null,
                                                     "generator": false,
                                                     "expression": false,
-                                                    "number": "@constructor15",
+                                                    "number": "@constructor4",
+                                                    "publicMode": "private",
                                                     "className": {
                                                         "type": "Identifier",
-                                                        "name": "Third"
+                                                        "name": "C",
+                                                        "lineNumber": 9,
+                                                        "lineStart": 64,
+                                                        "filename": "current.jsx",
+                                                        "index": 71
                                                     },
                                                     "method": true,
                                                     "autocreated": true
@@ -1104,7 +531,7 @@
                                                 "computed": false,
                                                 "object": {
                                                     "type": "Identifier",
-                                                    "name": "Second"
+                                                    "name": "A"
                                                 },
                                                 "property": {
                                                     "type": "Identifier",
@@ -1123,7 +550,11 @@
                                                 "computed": false,
                                                 "object": {
                                                     "type": "Identifier",
-                                                    "name": "Third"
+                                                    "name": "C",
+                                                    "lineNumber": 9,
+                                                    "lineStart": 64,
+                                                    "filename": "current.jsx",
+                                                    "index": 71
                                                 },
                                                 "property": {
                                                     "type": "Identifier",
@@ -1153,7 +584,11 @@
                                                     "computed": false,
                                                     "object": {
                                                         "type": "Identifier",
-                                                        "name": "Third"
+                                                        "name": "C",
+                                                        "lineNumber": 9,
+                                                        "lineStart": 64,
+                                                        "filename": "current.jsx",
+                                                        "index": 71
                                                     },
                                                     "property": {
                                                         "type": "Identifier",
@@ -1167,7 +602,11 @@
                                             },
                                             "right": {
                                                 "type": "Identifier",
-                                                "name": "Third"
+                                                "name": "C",
+                                                "lineNumber": 9,
+                                                "lineStart": 64,
+                                                "filename": "current.jsx",
+                                                "index": 71
                                             }
                                         }
                                     },
@@ -1187,300 +626,14 @@
                                         }
                                     },
                                     {
-                                        "type": "ExpressionStatement",
-                                        "expression": {
-                                            "type": "AssignmentExpression",
-                                            "operator": "=",
-                                            "left": {
-                                                "type": "MemberExpression",
-                                                "computed": false,
-                                                "object": {
-                                                    "type": "MemberExpression",
-                                                    "computed": false,
-                                                    "object": {
-                                                        "type": "Identifier",
-                                                        "name": "Third"
-                                                    },
-                                                    "property": {
-                                                        "type": "Identifier",
-                                                        "name": "prototype"
-                                                    }
-                                                },
-                                                "property": {
-                                                    "type": "Identifier",
-                                                    "name": "eat"
-                                                }
-                                            },
-                                            "right": {
-                                                "type": "FunctionExpression",
-                                                "id": null,
-                                                "params": [],
-                                                "defaults": [],
-                                                "body": {
-                                                    "type": "BlockStatement",
-                                                    "body": [
-                                                        {
-                                                            "type": "ExpressionStatement",
-                                                            "expression": {
-                                                                "type": "CallExpression",
-                                                                "callee": {
-                                                                    "type": "MemberExpression",
-                                                                    "computed": false,
-                                                                    "object": {
-                                                                        "type": "MemberExpression",
-                                                                        "computed": false,
-                                                                        "object": {
-                                                                            "type": "MemberExpression",
-                                                                            "computed": false,
-                                                                            "object": {
-                                                                                "type": "Identifier",
-                                                                                "name": "Second"
-                                                                            },
-                                                                            "property": {
-                                                                                "type": "Identifier",
-                                                                                "name": "prototype"
-                                                                            }
-                                                                        },
-                                                                        "property": {
-                                                                            "type": "Identifier",
-                                                                            "name": "eat"
-                                                                        }
-                                                                    },
-                                                                    "property": {
-                                                                        "type": "Identifier",
-                                                                        "name": "call"
-                                                                    }
-                                                                },
-                                                                "arguments": [
-                                                                    {
-                                                                        "type": "ThisExpression"
-                                                                    }
-                                                                ],
-                                                                "super": 1
-                                                            }
-                                                        },
-                                                        {
-                                                            "type": "ExpressionStatement",
-                                                            "expression": {
-                                                                "type": "CallExpression",
-                                                                "callee": {
-                                                                    "type": "MemberExpression",
-                                                                    "computed": false,
-                                                                    "object": {
-                                                                        "type": "Identifier",
-                                                                        "name": "console"
-                                                                    },
-                                                                    "property": {
-                                                                        "type": "Identifier",
-                                                                        "name": "log"
-                                                                    }
-                                                                },
-                                                                "arguments": [
-                                                                    {
-                                                                        "type": "Literal",
-                                                                        "value": "."
-                                                                    },
-                                                                    {
-                                                                        "type": "Literal",
-                                                                        "value": "And chew-chew-chew!"
-                                                                    }
-                                                                ]
-                                                            }
-                                                        }
-                                                    ]
-                                                },
-                                                "rest": null,
-                                                "generator": false,
-                                                "expression": false,
-                                                "number": 25
-                                            }
-                                        }
-                                    },
-                                    {
-                                        "type": "ExpressionStatement",
-                                        "expression": {
-                                            "type": "AssignmentExpression",
-                                            "operator": "=",
-                                            "left": {
-                                                "type": "MemberExpression",
-                                                "computed": false,
-                                                "object": {
-                                                    "type": "MemberExpression",
-                                                    "computed": false,
-                                                    "object": {
-                                                        "type": "Identifier",
-                                                        "name": "Third"
-                                                    },
-                                                    "property": {
-                                                        "type": "Identifier",
-                                                        "name": "prototype"
-                                                    }
-                                                },
-                                                "property": {
-                                                    "type": "Identifier",
-                                                    "name": "sleep"
-                                                }
-                                            },
-                                            "right": {
-                                                "type": "FunctionExpression",
-                                                "id": null,
-                                                "params": [],
-                                                "defaults": [],
-                                                "body": {
-                                                    "type": "BlockStatement",
-                                                    "body": [
-                                                        {
-                                                            "type": "ExpressionStatement",
-                                                            "expression": {
-                                                                "type": "CallExpression",
-                                                                "callee": {
-                                                                    "type": "MemberExpression",
-                                                                    "computed": false,
-                                                                    "object": {
-                                                                        "type": "MemberExpression",
-                                                                        "computed": false,
-                                                                        "object": {
-                                                                            "type": "MemberExpression",
-                                                                            "computed": false,
-                                                                            "object": {
-                                                                                "type": "Identifier",
-                                                                                "name": "Second"
-                                                                            },
-                                                                            "property": {
-                                                                                "type": "Identifier",
-                                                                                "name": "prototype"
-                                                                            }
-                                                                        },
-                                                                        "property": {
-                                                                            "type": "Identifier",
-                                                                            "name": "sleep"
-                                                                        }
-                                                                    },
-                                                                    "property": {
-                                                                        "type": "Identifier",
-                                                                        "name": "call"
-                                                                    }
-                                                                },
-                                                                "arguments": [
-                                                                    {
-                                                                        "type": "ThisExpression"
-                                                                    }
-                                                                ],
-                                                                "super": 1
-                                                            }
-                                                        },
-                                                        {
-                                                            "type": "ExpressionStatement",
-                                                            "expression": {
-                                                                "type": "CallExpression",
-                                                                "callee": {
-                                                                    "type": "MemberExpression",
-                                                                    "computed": false,
-                                                                    "object": {
-                                                                        "type": "Identifier",
-                                                                        "name": "console"
-                                                                    },
-                                                                    "property": {
-                                                                        "type": "Identifier",
-                                                                        "name": "log"
-                                                                    }
-                                                                },
-                                                                "arguments": [
-                                                                    {
-                                                                        "type": "Literal",
-                                                                        "value": "."
-                                                                    },
-                                                                    {
-                                                                        "type": "Literal",
-                                                                        "value": "Now with 20% more snoring!"
-                                                                    }
-                                                                ]
-                                                            }
-                                                        }
-                                                    ]
-                                                },
-                                                "rest": null,
-                                                "generator": false,
-                                                "expression": false,
-                                                "number": 26
-                                            }
-                                        }
-                                    },
-                                    {
-                                        "type": "ExpressionStatement",
-                                        "expression": {
-                                            "type": "AssignmentExpression",
-                                            "operator": "=",
-                                            "left": {
-                                                "type": "MemberExpression",
-                                                "computed": false,
-                                                "object": {
-                                                    "type": "MemberExpression",
-                                                    "computed": false,
-                                                    "object": {
-                                                        "type": "Identifier",
-                                                        "name": "Third"
-                                                    },
-                                                    "property": {
-                                                        "type": "Identifier",
-                                                        "name": "prototype"
-                                                    }
-                                                },
-                                                "property": {
-                                                    "type": "Identifier",
-                                                    "name": "poo"
-                                                }
-                                            },
-                                            "right": {
-                                                "type": "FunctionExpression",
-                                                "id": null,
-                                                "params": [],
-                                                "defaults": [],
-                                                "body": {
-                                                    "type": "BlockStatement",
-                                                    "body": [
-                                                        {
-                                                            "type": "ExpressionStatement",
-                                                            "expression": {
-                                                                "type": "CallExpression",
-                                                                "callee": {
-                                                                    "type": "MemberExpression",
-                                                                    "computed": false,
-                                                                    "object": {
-                                                                        "type": "Identifier",
-                                                                        "name": "console"
-                                                                    },
-                                                                    "property": {
-                                                                        "type": "Identifier",
-                                                                        "name": "log"
-                                                                    }
-                                                                },
-                                                                "arguments": [
-                                                                    {
-                                                                        "type": "Literal",
-                                                                        "value": "."
-                                                                    },
-                                                                    {
-                                                                        "type": "Literal",
-                                                                        "value": "E-e-e-w."
-                                                                    }
-                                                                ]
-                                                            }
-                                                        }
-                                                    ]
-                                                },
-                                                "rest": null,
-                                                "generator": false,
-                                                "expression": false,
-                                                "number": 27
-                                            }
-                                        }
-                                    },
-                                    {
                                         "type": "ReturnStatement",
                                         "argument": {
                                             "type": "Identifier",
-                                            "name": "Third"
+                                            "name": "C",
+                                            "lineNumber": 9,
+                                            "lineStart": 64,
+                                            "filename": "current.jsx",
+                                            "index": 71
                                         }
                                     }
                                 ]
@@ -1488,605 +641,13 @@
                             "rest": null,
                             "generator": false,
                             "expression": false,
-                            "number": 28
-                        },
-                        "arguments": []
-                    }
-                },
-                {
-                    "type": "VariableDeclarator",
-                    "id": {
-                        "type": "Identifier",
-                        "name": "Fourth"
-                    },
-                    "init": {
-                        "type": "CallExpression",
-                        "callee": {
-                            "type": "FunctionExpression",
-                            "id": null,
-                            "params": [],
-                            "defaults": [],
-                            "body": {
-                                "type": "BlockStatement",
-                                "body": [
-                                    {
-                                        "type": "VariableDeclaration",
-                                        "declarations": [
-                                            {
-                                                "type": "VariableDeclarator",
-                                                "id": {
-                                                    "type": "Identifier",
-                                                    "name": "Fourth"
-                                                },
-                                                "init": {
-                                                    "type": "FunctionExpression",
-                                                    "id": null,
-                                                    "params": [],
-                                                    "defaults": [],
-                                                    "body": {
-                                                        "type": "BlockStatement",
-                                                        "body": [
-                                                            {
-                                                                "type": "ExpressionStatement",
-                                                                "expression": {
-                                                                    "type": "CallExpression",
-                                                                    "callee": {
-                                                                        "type": "MemberExpression",
-                                                                        "computed": false,
-                                                                        "object": {
-                                                                            "type": "Identifier",
-                                                                            "name": "Third"
-                                                                        },
-                                                                        "property": {
-                                                                            "type": "Identifier",
-                                                                            "name": "call"
-                                                                        }
-                                                                    },
-                                                                    "arguments": [
-                                                                        {
-                                                                            "type": "ThisExpression"
-                                                                        },
-                                                                        {
-                                                                            "type": "Literal",
-                                                                            "value": "Dogs don't say \"KRAKOZYABRA\""
-                                                                        }
-                                                                    ],
-                                                                    "super": 1
-                                                                }
-                                                            },
-                                                            {
-                                                                "type": "ExpressionStatement",
-                                                                "expression": {
-                                                                    "type": "CallExpression",
-                                                                    "callee": {
-                                                                        "type": "MemberExpression",
-                                                                        "computed": false,
-                                                                        "object": {
-                                                                            "type": "Identifier",
-                                                                            "name": "console"
-                                                                        },
-                                                                        "property": {
-                                                                            "type": "Identifier",
-                                                                            "name": "log"
-                                                                        }
-                                                                    },
-                                                                    "arguments": [
-                                                                        {
-                                                                            "type": "Literal",
-                                                                            "value": "."
-                                                                        },
-                                                                        {
-                                                                            "type": "Literal",
-                                                                            "value": "\"Fourth\" in da house."
-                                                                        }
-                                                                    ]
-                                                                }
-                                                            }
-                                                        ]
-                                                    },
-                                                    "rest": null,
-                                                    "generator": false,
-                                                    "expression": false,
-                                                    "number": "@constructor9",
-                                                    "publicMode": "protected",
-                                                    "abstract": false,
-                                                    "static": false,
-                                                    "className": {
-                                                        "type": "Identifier",
-                                                        "name": "Fourth"
-                                                    },
-                                                    "method": true
-                                                }
-                                            },
-                                            {
-                                                "type": "VariableDeclarator",
-                                                "id": {
-                                                    "type": "Identifier",
-                                                    "name": "_2"
-                                                },
-                                                "init": {
-                                                    "type": "FunctionExpression",
-                                                    "id": null,
-                                                    "params": [],
-                                                    "defaults": [],
-                                                    "body": {
-                                                        "type": "BlockStatement",
-                                                        "body": []
-                                                    },
-                                                    "rest": null,
-                                                    "generator": false,
-                                                    "expression": false,
-                                                    "number": null
-                                                }
-                                            }
-                                        ],
-                                        "kind": "var"
-                                    },
-                                    {
-                                        "type": "ExpressionStatement",
-                                        "expression": {
-                                            "type": "AssignmentExpression",
-                                            "operator": "=",
-                                            "left": {
-                                                "type": "MemberExpression",
-                                                "computed": false,
-                                                "object": {
-                                                    "type": "Identifier",
-                                                    "name": "_2"
-                                                },
-                                                "property": {
-                                                    "type": "Identifier",
-                                                    "name": "prototype"
-                                                }
-                                            },
-                                            "right": {
-                                                "type": "MemberExpression",
-                                                "computed": false,
-                                                "object": {
-                                                    "type": "Identifier",
-                                                    "name": "Third"
-                                                },
-                                                "property": {
-                                                    "type": "Identifier",
-                                                    "name": "prototype"
-                                                }
-                                            }
-                                        }
-                                    },
-                                    {
-                                        "type": "ExpressionStatement",
-                                        "expression": {
-                                            "type": "AssignmentExpression",
-                                            "operator": "=",
-                                            "left": {
-                                                "type": "MemberExpression",
-                                                "computed": false,
-                                                "object": {
-                                                    "type": "Identifier",
-                                                    "name": "Fourth"
-                                                },
-                                                "property": {
-                                                    "type": "Identifier",
-                                                    "name": "prototype"
-                                                }
-                                            },
-                                            "right": {
-                                                "type": "NewExpression",
-                                                "callee": {
-                                                    "type": "Identifier",
-                                                    "name": "_2"
-                                                },
-                                                "arguments": []
-                                            }
-                                        }
-                                    },
-                                    {
-                                        "type": "ExpressionStatement",
-                                        "expression": {
-                                            "type": "AssignmentExpression",
-                                            "operator": "=",
-                                            "left": {
-                                                "type": "MemberExpression",
-                                                "computed": false,
-                                                "object": {
-                                                    "type": "MemberExpression",
-                                                    "computed": false,
-                                                    "object": {
-                                                        "type": "Identifier",
-                                                        "name": "Fourth"
-                                                    },
-                                                    "property": {
-                                                        "type": "Identifier",
-                                                        "name": "prototype"
-                                                    }
-                                                },
-                                                "property": {
-                                                    "type": "Identifier",
-                                                    "name": "constructor"
-                                                }
-                                            },
-                                            "right": {
-                                                "type": "Identifier",
-                                                "name": "Fourth"
-                                            }
-                                        }
-                                    },
-                                    {
-                                        "type": "ExpressionStatement",
-                                        "expression": {
-                                            "type": "AssignmentExpression",
-                                            "operator": "=",
-                                            "left": {
-                                                "type": "Identifier",
-                                                "name": "_2"
-                                            },
-                                            "right": {
-                                                "type": "Identifier",
-                                                "name": "undefined"
-                                            }
-                                        }
-                                    },
-                                    {
-                                        "type": "ExpressionStatement",
-                                        "expression": {
-                                            "type": "AssignmentExpression",
-                                            "operator": "=",
-                                            "left": {
-                                                "type": "MemberExpression",
-                                                "computed": false,
-                                                "object": {
-                                                    "type": "MemberExpression",
-                                                    "computed": false,
-                                                    "object": {
-                                                        "type": "Identifier",
-                                                        "name": "Fourth"
-                                                    },
-                                                    "property": {
-                                                        "type": "Identifier",
-                                                        "name": "prototype"
-                                                    }
-                                                },
-                                                "property": {
-                                                    "type": "Identifier",
-                                                    "name": "__poo"
-                                                }
-                                            },
-                                            "right": {
-                                                "type": "FunctionExpression",
-                                                "id": null,
-                                                "params": [],
-                                                "defaults": [],
-                                                "body": {
-                                                    "type": "BlockStatement",
-                                                    "body": [
-                                                        {
-                                                            "type": "ReturnStatement",
-                                                            "argument": {
-                                                                "type": "CallExpression",
-                                                                "callee": {
-                                                                    "type": "MemberExpression",
-                                                                    "computed": false,
-                                                                    "object": {
-                                                                        "type": "Identifier",
-                                                                        "name": "console"
-                                                                    },
-                                                                    "property": {
-                                                                        "type": "Identifier",
-                                                                        "name": "log"
-                                                                    }
-                                                                },
-                                                                "arguments": [
-                                                                    {
-                                                                        "type": "Literal",
-                                                                        "value": "."
-                                                                    },
-                                                                    {
-                                                                        "type": "Literal",
-                                                                        "value": "I won't do it, I'm hungry and it is disgusting!"
-                                                                    }
-                                                                ]
-                                                            }
-                                                        }
-                                                    ]
-                                                },
-                                                "rest": null,
-                                                "generator": false,
-                                                "expression": false,
-                                                "number": 30
-                                            }
-                                        }
-                                    },
-                                    {
-                                        "type": "ReturnStatement",
-                                        "argument": {
-                                            "type": "Identifier",
-                                            "name": "Fourth"
-                                        }
-                                    }
-                                ]
-                            },
-                            "rest": null,
-                            "generator": false,
-                            "expression": false,
-                            "number": 31
+                            "number": 10
                         },
                         "arguments": []
                     }
                 }
             ],
             "kind": "var"
-        },
-        {
-            "type": "ExpressionStatement",
-            "expression": {
-                "type": "CallExpression",
-                "callee": {
-                    "type": "FunctionExpression",
-                    "id": null,
-                    "params": [],
-                    "defaults": [],
-                    "body": {
-                        "type": "BlockStatement",
-                        "body": [
-                            {
-                                "type": "ExpressionStatement",
-                                "expression": {
-                                    "type": "CallExpression",
-                                    "callee": {
-                                        "type": "MemberExpression",
-                                        "computed": false,
-                                        "object": {
-                                            "type": "Identifier",
-                                            "name": "console"
-                                        },
-                                        "property": {
-                                            "type": "Identifier",
-                                            "name": "log"
-                                        }
-                                    },
-                                    "arguments": [
-                                        {
-                                            "type": "Literal",
-                                            "value": "Here come \"First\"!"
-                                        }
-                                    ]
-                                }
-                            },
-                            {
-                                "type": "ExpressionStatement",
-                                "expression": {
-                                    "type": "NewExpression",
-                                    "callee": {
-                                        "type": "Identifier",
-                                        "name": "First"
-                                    },
-                                    "arguments": [
-                                        {
-                                            "type": "Literal",
-                                            "value": "What do dogs say?"
-                                        }
-                                    ]
-                                }
-                            },
-                            {
-                                "type": "ExpressionStatement",
-                                "expression": {
-                                    "type": "CallExpression",
-                                    "callee": {
-                                        "type": "MemberExpression",
-                                        "computed": false,
-                                        "object": {
-                                            "type": "Identifier",
-                                            "name": "console"
-                                        },
-                                        "property": {
-                                            "type": "Identifier",
-                                            "name": "log"
-                                        }
-                                    },
-                                    "arguments": [
-                                        {
-                                            "type": "Literal",
-                                            "value": "And now — \"Second\"!"
-                                        }
-                                    ]
-                                }
-                            },
-                            {
-                                "type": "TryStatement",
-                                "block": {
-                                    "type": "BlockStatement",
-                                    "body": [
-                                        {
-                                            "type": "ExpressionStatement",
-                                            "expression": {
-                                                "type": "NewExpression",
-                                                "callee": {
-                                                    "type": "Identifier",
-                                                    "name": "Second"
-                                                },
-                                                "arguments": [
-                                                    {
-                                                        "type": "Literal",
-                                                        "value": "Nothing here."
-                                                    }
-                                                ]
-                                            }
-                                        }
-                                    ],
-                                    "single": true
-                                },
-                                "guardedHandlers": [],
-                                "handlers": [
-                                    {
-                                        "type": "CatchClause",
-                                        "param": {
-                                            "type": "Identifier",
-                                            "name": "e"
-                                        },
-                                        "body": {
-                                            "type": "BlockStatement",
-                                            "body": [
-                                                {
-                                                    "type": "ExpressionStatement",
-                                                    "expression": {
-                                                        "type": "CallExpression",
-                                                        "callee": {
-                                                            "type": "MemberExpression",
-                                                            "computed": false,
-                                                            "object": {
-                                                                "type": "Identifier",
-                                                                "name": "console"
-                                                            },
-                                                            "property": {
-                                                                "type": "Identifier",
-                                                                "name": "log"
-                                                            }
-                                                        },
-                                                        "arguments": [
-                                                            {
-                                                                "type": "Literal",
-                                                                "value": "."
-                                                            },
-                                                            {
-                                                                "type": "BinaryExpression",
-                                                                "operator": "+",
-                                                                "left": {
-                                                                    "type": "Literal",
-                                                                    "value": "\"Second\" is too tired: "
-                                                                },
-                                                                "right": {
-                                                                    "type": "MemberExpression",
-                                                                    "computed": false,
-                                                                    "object": {
-                                                                        "type": "Identifier",
-                                                                        "name": "e"
-                                                                    },
-                                                                    "property": {
-                                                                        "type": "Identifier",
-                                                                        "name": "message"
-                                                                    }
-                                                                }
-                                                            }
-                                                        ]
-                                                    }
-                                                }
-                                            ],
-                                            "single": true
-                                        }
-                                    }
-                                ],
-                                "finalizer": null
-                            },
-                            {
-                                "type": "ExpressionStatement",
-                                "expression": {
-                                    "type": "CallExpression",
-                                    "callee": {
-                                        "type": "MemberExpression",
-                                        "computed": false,
-                                        "object": {
-                                            "type": "Identifier",
-                                            "name": "console"
-                                        },
-                                        "property": {
-                                            "type": "Identifier",
-                                            "name": "log"
-                                        }
-                                    },
-                                    "arguments": [
-                                        {
-                                            "type": "Literal",
-                                            "value": "Next is \"Third\"!"
-                                        }
-                                    ]
-                                }
-                            },
-                            {
-                                "type": "ExpressionStatement",
-                                "expression": {
-                                    "type": "CallExpression",
-                                    "callee": {
-                                        "type": "MemberExpression",
-                                        "computed": false,
-                                        "object": {
-                                            "type": "NewExpression",
-                                            "callee": {
-                                                "type": "Identifier",
-                                                "name": "Third"
-                                            },
-                                            "arguments": [
-                                                {
-                                                    "type": "Literal",
-                                                    "value": "What do dogs say? Last try!"
-                                                }
-                                            ]
-                                        },
-                                        "property": {
-                                            "type": "Identifier",
-                                            "name": "eat"
-                                        }
-                                    },
-                                    "arguments": []
-                                }
-                            },
-                            {
-                                "type": "ExpressionStatement",
-                                "expression": {
-                                    "type": "CallExpression",
-                                    "callee": {
-                                        "type": "MemberExpression",
-                                        "computed": false,
-                                        "object": {
-                                            "type": "Identifier",
-                                            "name": "console"
-                                        },
-                                        "property": {
-                                            "type": "Identifier",
-                                            "name": "log"
-                                        }
-                                    },
-                                    "arguments": [
-                                        {
-                                            "type": "Literal",
-                                            "value": "And, finally, \"Fourth\"."
-                                        }
-                                    ]
-                                }
-                            },
-                            {
-                                "type": "ExpressionStatement",
-                                "expression": {
-                                    "type": "CallExpression",
-                                    "callee": {
-                                        "type": "MemberExpression",
-                                        "computed": false,
-                                        "object": {
-                                            "type": "NewExpression",
-                                            "callee": {
-                                                "type": "Identifier",
-                                                "name": "Fourth"
-                                            },
-                                            "arguments": []
-                                        },
-                                        "property": {
-                                            "type": "Identifier",
-                                            "name": "poo"
-                                        }
-                                    },
-                                    "arguments": []
-                                }
-                            }
-                        ]
-                    },
-                    "rest": null,
-                    "generator": false,
-                    "expression": false,
-                    "number": 11
-                },
-                "arguments": []
-            },
-            "after": true
         }
     ]
 }

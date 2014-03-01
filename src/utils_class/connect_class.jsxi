@@ -30,7 +30,7 @@ function connectClass (current, from){
 					parentConstructor.params, 
 					[ expressionStatement (superExpression (parentConstructor.params)) ]))
 
-		} else if (!currentConstructor.body.body.filter (lambda arg.type === Syntax.ExpressionStatement && 'super' in arg.expression).length){ 	// FIXME
+		} else if (!currentConstructor.body.body.filter (lambda arg.type === Syntax.ExpressionStatement && 'super' in arg.expression).length){ 	// FIXME: Deep search
 			if (currentConstructor.autocreated || parentConstructor.params.length === 0){
 				if (currentConstructor.autocreated)
 					currentConstructor.params = parentConstructor.params;

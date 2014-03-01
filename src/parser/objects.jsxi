@@ -5,10 +5,10 @@
 		return state.parsingComplete && obj 
 			? obj 
 			: $.extend (obj === undefined ? {} : obj, {
-				// lineNumber: 	lineNumber,
-				// lineStart: 	 	lineStart,
-				// filename:     	options.filename,
-				// index: 		 	index
+				lineNumber: 	lineNumber,
+				lineStart: 	 	lineStart,
+				filename:     	options.filename,
+				index: 		 	index
 			});
 
 	function literal (value)

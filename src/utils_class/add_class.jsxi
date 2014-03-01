@@ -7,10 +7,6 @@ function addClass (classEntry){
 	// Вспомогательный атрибут на будущее
 	classEntry.classObject = true;
 
-	// Обновляем поля и методы
-	for (var name, member in classEntry.members)
-		updateMember (member, classEntry);
-
 	// Находим, а если понадобится, то создаём конструктор
 	var constructor = classEntry.members ['@constructor'];
 	if (constructor === undefined){
@@ -26,13 +22,17 @@ function addClass (classEntry){
 		initializer.autocreated = true;
 	}
 
+	// Обновляем поля и методы
+	for (var name, member in classEntry.members)
+		updateMember (member, classEntry);
+
 	// Находим список полей объекта, требующих инициализации
-	var fields = filter (classEntry.members, lambda !arg.method && !arg.static && arg.init !== null);
+	var fields = filter (classEntry.members, lambda !arg.method && !arg.static);
 
 	// Собираем присваивания для инициализации
 	var initialization = fields.map (
 		lambda $.extend (
-			expressionStatement (assignmentExpression (memberExpression (thisExpression (), arg.id.name), arg.init)),
+			expressionStatement (assignmentExpression (memberExpression (thisExpression (), arg.id.name), arg.init || 'undefined')),
 			{ comment: arg.id.name, autocreated: true }));
 
 	// Запихиваем присваивания в начало конструктора
@@ -56,7 +56,7 @@ function updateMember (member, classEntry){
 		classEntry.members [member.id.name] = member;
 
 	// Если нужно, меняем publicMode на значение по умолчанию
-	if (member.publicMode === null)
+	if (!member.hasOwnProperty ('publicMode') || member.publicMode === null)
 		member.publicMode = classEntry.publicMode || 'private';
 
 	// И добавляем пару вспомогательных атрибутов

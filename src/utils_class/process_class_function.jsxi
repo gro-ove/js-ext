@@ -3,7 +3,7 @@
 		console.assert (classEntry && functionEntry, 'Wrong arguments: ' + classEntry + ', ' + functionEntry);
 
 		// Для отладки
-		console.log ('[processClassFunction]', classEntry.id.name + '::' + functionEntry.id.name);
+		// console.log ('[processClassFunction]', classEntry.id.name + '::' + functionEntry.id.name);
 
 		// Тут будут лежать имена локальных переменных — им не нужно будет подставлять «this»
 		var exclusions = {};

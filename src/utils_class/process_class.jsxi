@@ -92,7 +92,7 @@ function processClass (classEntry){
 
 			// Цепляем к прототипу методы объекта
 			for (var method in-array objectMethods)
-				if (!method.abstract){
+				if (!method.abstract || method.body.body.length > 0){
 					var target = memberExpression (memberExpression (classEntry.id, 'prototype'), method.id.name),
 						value = functionExpression (method.params, method.body);
 

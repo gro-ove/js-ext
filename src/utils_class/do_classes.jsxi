@@ -21,7 +21,7 @@ function doClasses (rawClasses, callback){
 		checkClassesForCircular ();
 		connectClasses ();
 		sortClasses ();
-		renameClassesMembers ();
+		processClassesMembers ();
 		processClasses ();
 
 		callback ([ variableDeclaration (classes.map (lambda arg.element)) ]);
