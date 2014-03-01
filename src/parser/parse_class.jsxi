@@ -153,6 +153,10 @@
 				if (params.implemented && entry.init)
 					throwError (token, 'Implemented couldn\'t have initialized fields.');
 
+				// TODO: Check if class is abstract
+				if (current.abstract)
+					throwError (token, 'Field could\'t be abstract.');
+
 				set (entry);
 			}
 
@@ -181,6 +185,10 @@
 				body = parseFunctionSourceElements (defaults);
 
 			state.superAvailable = false;
+
+			if (current.publicMode === 'private' && current.abstract)
+				throwError (token, 'Private method could\'t be abstract.');
+
 			set (functionDeclaration (id, args, body));
 
 			refresh ();
@@ -197,8 +205,11 @@
 				break;
 
 			switch (token.value){
-				case 'public':
 				case 'private':
+					if (current.abstract)
+						throwUnexpected (token);
+
+				case 'public':
 				case 'protected':
 					if (current.publicMode !== null)
 						throwUnexpected (token);
@@ -208,7 +219,7 @@
 					break;
 
 				case 'abstract':
-					if (params.interface)
+					if (params.interface || current.publicMode === 'private')
 						throwUnexpected (token);
 
 				case 'static':

@@ -54,7 +54,7 @@
                                                                         },
                                                                         "property": {
                                                                             "type": "Identifier",
-                                                                            "name": "__a"
+                                                                            "name": "PUBLIC_a"
                                                                         }
                                                                     },
                                                                     "right": {
@@ -81,6 +81,7 @@
                                                         "index": 7
                                                     },
                                                     "method": true,
+                                                    "processed": false,
                                                     "autocreated": true
                                                 }
                                             }
@@ -186,7 +187,7 @@
                                                                         },
                                                                         "property": {
                                                                             "type": "Identifier",
-                                                                            "name": "__a"
+                                                                            "name": "PUBLIC_a"
                                                                         }
                                                                     },
                                                                     "right": {
@@ -213,6 +214,7 @@
                                                         "index": 34
                                                     },
                                                     "method": true,
+                                                    "processed": false,
                                                     "autocreated": true
                                                 }
                                             },
@@ -482,6 +484,7 @@
                                                         "index": 71
                                                     },
                                                     "method": true,
+                                                    "processed": false,
                                                     "autocreated": true
                                                 }
                                             },

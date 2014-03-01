@@ -608,12 +608,14 @@ if (matchKeyword ("var"))
 lex ();
 var token = lookahead (), data = parseVariableDeclarationList ();
 consumeSemicolon ();
-for (var _6bbq7bs_68 = 0; _6bbq7bs_68 < data.length; _6bbq7bs_68 ++){
-var entry = data[_6bbq7bs_68];
+for (var _2c17k5m_65 = 0; _2c17k5m_65 < data.length; _2c17k5m_65 ++){
+var entry = data[_2c17k5m_65];
 if (params.interface && ! current.static)
 throwError (token, "Interface couldn't have object fields.");
 if (params.implemented && entry.init)
 throwError (token, "Implemented couldn't have initialized fields.");
+if (current.abstract)
+throwError (token, "Field could't be abstract.");
 set (entry);
 }
 refresh ();
@@ -640,9 +642,10 @@ token = lookahead ();
 if (token.value === "}")
 break;
 switch (token.value){
-case "public":
-
 case "private":
+if (current.abstract)
+throwUnexpected (token);
+case "public":
 
 case "protected":
 if (current.publicMode !== null)
@@ -651,7 +654,7 @@ lex ();
 current.publicMode = token.value;
 break;
 case "abstract":
-if (params.interface)
+if (params.interface || current.publicMode === "private")
 throwUnexpected (token);
 case "static":
 if (current.abstract || current.static)
@@ -2420,8 +2423,8 @@ initializer = updateMember (functionDeclaration ("@initializer"), classEntry);
 initializer.static = true;
 initializer.autocreated = true;
 }
-{ var _97j6k09_32 = classEntry.members; for (var name in _97j6k09_32){
-var member = _97j6k09_32[name];
+{ var _asg16d_73 = classEntry.members; for (var name in _asg16d_73){
+var member = _asg16d_73[name];
 updateMember (member, classEntry);
 }}
 var fields = filter (classEntry.members, function (arg){
@@ -2441,6 +2444,7 @@ if (! member.hasOwnProperty ("publicMode") || member.publicMode === null)
 member.publicMode = classEntry.publicMode || "private";
 member.className = classEntry.id;
 member.method = member.type === Syntax.FunctionDeclaration;
+member.processed = false;
 return member;
 }
 function checkClassesForCircular (){
@@ -2840,6 +2844,42 @@ process (value, obj);
 }
 process (functionEntry);
 }
+function processClassMembersOld (classEntry){
+var replace, childMember;
+console.log ("class:", classEntry.id.name);
+{ var _4a6fhfr_45 = classEntry.members; for (var name in _4a6fhfr_45){
+var parentMember = _4a6fhfr_45[name];
+if (name [0] !== "@")
+{
+replacement = null;
+console.log (".", "member:", parentMember.publicMode, name);
+if (parentMember.publicMode === "locked")
+continue;
+if (parentMember.publicMode !== "private")
+{ var _2ukcdd9_46 = classEntry.childs; for (var _2hf2unr_47 = 0; _2hf2unr_47 < _2ukcdd9_46.length; _2hf2unr_47 ++){
+var childClass = _2ukcdd9_46[_2hf2unr_47];
+if (childClass.members.hasOwnProperty (name))
+{
+childMember = childClass.members [name];
+if (testBadOverride (parentMember, childMember))
+throwError (childMember.id, "Invalid public mode (" + childMember.publicMode + " instead of " + parentMember.publicMode + ")");
+replacement = childMember.id.name;
+console.log (". .", "found:", replacement);
+break;
+}
+}}
+if (replacement === null)
+replacement = rename (name, parentMember, classEntry);
+console.log (". .", "result:", replacement);
+parentMember.id.name = replacement;
+}
+}}
+}
+function processClassesMembersOld (){
+for (var i = classes.length - 1; 
+i >= 0; i--)
+processClassMembers (classes [i]);
+}
 function rename (name,member,classEntry){
 if (member.static && member.publicMode === "private" || member.publicMode === "locked")
 return name;
@@ -2866,41 +2906,55 @@ return false;
 default:console.assert (false, "Wrong value\n" + JSON.stringify (childMember, false, 4));
 }
 }
-function processClassMembers (classEntry){
-var replace, childMember;
-console.log ("class:", classEntry.id.name);
-{ var _47k9d52_76 = classEntry.members; for (var name in _47k9d52_76){
-var parentMember = _47k9d52_76[name];
-if (name [0] !== "@")
-{
-replacement = null;
-console.log (".", "member:", parentMember.publicMode, name);
-if (parentMember.publicMode === "locked")
-continue;
-if (parentMember.publicMode !== "private")
-{ var _7bngr4v_77 = classEntry.childs; for (var _7puc3d5_78 = 0; _7puc3d5_78 < _7bngr4v_77.length; _7puc3d5_78 ++){
-var childClass = _7bngr4v_77[_7puc3d5_78];
+function morePublicMode (firstMode,secondMode){
+var modes = ["locked","private","protected","public"], firstId = modes.indexOf (firstMode), secondId = modes.indexOf (secondMode), maxId = Math.max (firstId, secondId);
+return modes [maxId];
+}
+function processClassMember (classEntry,name,parentMember){
+var newPublicMode = parentMember.publicMode, targetMembers = [parentMember], argument, updatedName;
+console.log ("member:", classEntry.id.name, parentMember.publicMode, name);
+function testChilds (currentClass){
+var childMember;
+{ var _vvc2k6_48 = currentClass.childs; for (var _196af5i_49 = 0; _196af5i_49 < _vvc2k6_48.length; _196af5i_49 ++){
+var childClass = _vvc2k6_48[_196af5i_49];
 if (childClass.members.hasOwnProperty (name))
 {
 childMember = childClass.members [name];
 if (testBadOverride (parentMember, childMember))
 throwError (childMember.id, "Invalid public mode (" + childMember.publicMode + " instead of " + parentMember.publicMode + ")");
-replacement = childMember.id.name;
-console.log (". .", "found:", replacement);
-break;
+newPublicMode = morePublicMode (newPublicMode, childMember.publicMode);
+targetMembers.push (childMember);
+console.log (".", "found in", childClass.id.name, "(" + childMember.publicMode + ", current result:", newPublicMode + ")");
 }
+testChilds (childClass);
 }}
-if (replacement === null)
-replacement = rename (name, parentMember, classEntry);
-console.log (". .", "result:", replacement);
-parentMember.id.name = replacement;
 }
+testChilds (classEntry);
+if (newPublicMode !== parentMember.publicMode)
+argument = $.extend ({}, parentMember, {"publicMode":newPublicMode});
+else
+argument = parentMember;
+updatedName = rename (name, argument, classEntry);
+for (var _34jcf5v_50 = 0; _34jcf5v_50 < targetMembers.length; _34jcf5v_50 ++){
+var targetMember = targetMembers[_34jcf5v_50];
+targetMember.id.name = updatedName;
+targetMember.processed = true;
+}
+console.log (".", newPublicMode, parentMember.id.name);
+}
+function processClassMembers (classEntry){
+var replace, childMember;
+{ var _6206ora_51 = classEntry.members; for (var name in _6206ora_51){
+var member = _6206ora_51[name];
+if (name [0] !== "@" && ! member.processed)
+processClassMember (classEntry, name, member);
 }}
 }
 function processClassesMembers (){
-for (var i = classes.length - 1; 
-i >= 0; i--)
-processClassMembers (classes [i]);
+for (var _77l2lbr_52 = 0; _77l2lbr_52 < classes.length; _77l2lbr_52 ++){
+var classEntry = classes[_77l2lbr_52];
+processClassMembers (classEntry);
+}
 }
 function sortClasses (){
 function getWeight (current){

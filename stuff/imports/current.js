@@ -1,12 +1,12 @@
 var A = function () {
         var A = function () {
-            this.__a = undefined;
+            this.PUBLIC_a = undefined;
         };
         return A;
     }(), B = function () {
         var B = function () {
                 A.call(this);
-                this.__a = undefined;
+                this.PUBLIC_a = undefined;
             }, _0 = function () {
             };
         _0.prototype = A.prototype;

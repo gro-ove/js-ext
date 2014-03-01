@@ -62,6 +62,7 @@ function updateMember (member, classEntry){
 	// И добавляем пару вспомогательных атрибутов
 	member.className = classEntry.id;
 	member.method = member.type === Syntax.FunctionDeclaration;
+	member.processed = false;
 
 	return member;
 }

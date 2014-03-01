@@ -1,47 +1,4 @@
-// Получаем заменённое имя в зависимости от видимости переменной
-function rename (name, member, classEntry){
-	// Конструкторам, инициализаторам, скрытым или приватным статическим имя не меняем
-	if (member.static && member.publicMode === 'private' || member.publicMode === 'locked')
-		return name;
-
-	switch (member.publicMode){
-		case 'protected':
-			return '__' + name;
-
-		case 'private':
-			return '__' + classEntry.id.name + '_' + name;
-
-		case 'public':
-			return 'PUBLIC_' + name;
-
-		default:
-			console.assert (false, 'Unsupported publicMode (' + member.publicMode + ')');
-	}
-}
-
-function testBadOverride (parentMember, childMember){
-	// Как с градусом, нельзя понижать. Я имею в виду, конечно же, уровень види-
-	// мости.
-
-	switch (childMember.publicMode){
-		case 'public':
-			return false;
-
-		case 'protected':
-			return parentMember.publicMode === 'public';
-
-		case 'private':
-			return parentMember.publicMode !== 'private';
-
-		case 'locked':
-			return false;
-
-		default:
-			console.assert (false, 'Wrong value\n' + JSON.stringify (childMember, false, 4));
-	}
-}
-
-function processClassMembers (classEntry){
+function processClassMembersOld (classEntry){
 	var replace,
 		childMember;
 
@@ -89,10 +46,124 @@ function processClassMembers (classEntry){
 		}
 }
 
-function processClassesMembers (){
+function processClassesMembersOld (){
 	// Перебираем, начиная с тех классов, которые зависят от большего числа дру-
 	// гих классов и не имеют «детей». Или можно сказать, начиная с конца масси-
 	// ва — он уже отсортирован в порядке вывода в классов в результирующий файл
 	for (var i = classes.length - 1; i >= 0; i --)
 		processClassMembers (classes [i]);
+}
+
+// Получаем заменённое имя в зависимости от видимости переменной
+function rename (name, member, classEntry){
+	// Конструкторам, инициализаторам, скрытым или приватным статическим имя не меняем
+	if (member.static && member.publicMode === 'private' || member.publicMode === 'locked')
+		return name;
+
+	switch (member.publicMode){
+		case 'protected':
+			return '__' + name;
+
+		case 'private':
+			return '__' + classEntry.id.name + '_' + name;
+
+		case 'public':
+			return 'PUBLIC_' + name;
+
+		default:
+			console.assert (false, 'Unsupported publicMode (' + member.publicMode + ')');
+	}
+}
+
+// Проверяем, может ли поле или метод childMember перекрыть поле или метод роди-
+// тельского класса parentMember
+function testBadOverride (parentMember, childMember)
+	switch (childMember.publicMode){
+		// Как и с градусом, нельзя понижать. Я имею в виду, конечно же, уровень
+		// видимости.
+
+		case 'public':
+			return false;
+
+		case 'protected':
+			return parentMember.publicMode === 'public';
+
+		case 'private':
+			return parentMember.publicMode !== 'private';
+
+		case 'locked':
+			return false;
+
+		default:
+			console.assert (false, 'Wrong value\n' + JSON.stringify (childMember, false, 4));
+	}
+
+function morePublicMode (firstMode, secondMode){
+	var modes = [ 'locked', 'private', 'protected', 'public' ],
+		firstId = modes.indexOf (firstMode),
+		secondId = modes.indexOf (secondMode),
+		maxId = Math.max (firstId, secondId);
+
+	return modes [maxId];
+}
+
+function processClassMember (classEntry, name, parentMember){
+	var newPublicMode = parentMember.publicMode,
+		targetMembers = [ parentMember ],
+		argument,
+		updatedName;
+
+	console.log ('member:', classEntry.id.name, parentMember.publicMode, name);
+
+	function testChilds (currentClass){
+		var childMember;
+
+		for (var childClass in-array currentClass.childs){
+			if (childClass.members.hasOwnProperty (name)){
+				childMember = childClass.members [name];
+
+				if (testBadOverride (parentMember, childMember))
+					throwError (childMember.id, 'Invalid public mode (' + childMember.publicMode + ' instead of ' + parentMember.publicMode + ')');
+
+				newPublicMode = morePublicMode (newPublicMode, childMember.publicMode);
+				targetMembers.push (childMember);
+
+				console.log ('.', 'found in', childClass.id.name, '(' + childMember.publicMode + ', current result:', newPublicMode + ')');
+			}
+
+			testChilds (childClass);
+		}
+	}
+
+	testChilds (classEntry);
+
+	if (newPublicMode !== parentMember.publicMode)
+		argument = $.extend ({}, parentMember, { publicMode: newPublicMode });
+	else
+		argument = parentMember;
+
+	updatedName = rename (name, argument, classEntry);
+
+	for (var targetMember in-array targetMembers){
+		targetMember.id.name = updatedName;
+		targetMember.processed = true;
+	}
+
+	console.log ('.', newPublicMode, parentMember.id.name);
+}
+
+function processClassMembers (classEntry){
+	var replace,
+		childMember;
+
+	// Проходим по всем полям и методам класса,  кроме конструктора, инициализа-
+	// тора и уже обработанных полей или методов
+	for (var name, member in classEntry.members)
+		if (name [0] !== '@' && !member.processed)
+			processClassMember (classEntry, name, member);
+}
+
+function processClassesMembers (){
+	for (var classEntry in-array classes)
+		processClassMembers (classEntry);
 }
