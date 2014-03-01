@@ -27,9 +27,7 @@
 			 */
 		V static private and object locked conflict
 		V function expression without args
-		F check for order of super constructor call and methods initialization
-		F special access like ['field' + name] support
-		- add error if "return" found in constructor
+		F check for order of super constructor call and initialization
 		- convert member expression for static private to identifier
 		- processSuperExpression add static check
 		- prevent binded functions processing
@@ -41,6 +39,7 @@
 		- initialization with constructor: for example, "var a = new A (){ objectField = value; for (var i = 0; i < 10; i ++) something ++ }"
 		- processing default fields initializations
 		- partial classes
+		L special access like ['field' + name] support
 		? kind of multiple inheritance 
 	V notimplemented operator
 	V strings format
