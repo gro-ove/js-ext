@@ -15,3 +15,15 @@
 
 		return args;
 	}
+
+	function parseOptionalComma (state){
+		var token = lookahead ();
+
+		if (state.comma === undefined)
+			state.comma = token.value === ',';
+		else if (state.comma !== (token.value === ','))
+			throwUnexpected (token);
+
+		if (token.value === ',')
+			lex ();
+	}

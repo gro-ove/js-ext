@@ -1,6 +1,7 @@
 	function LiteParser (data, index = 0){
 		this.data 		= data;
 		this.index 		= index;
+		this.debugMode 	= false;
 		this.binded 	= [];
 	}
 
@@ -30,15 +31,24 @@
 		return this.data.substring (from, to);
 	}
 
-	LiteParser.prototype.getPosition = function (data, delta){
-		var lines = this.data.substr (0, this.index).split ('\n');
+	Object.defineProperty (LiteParser.prototype, 'lineNumber', {
+		get: function (){
+			var result = 1;
 
+			for (var i = 0, d = this.data, n = Math.min (d.length, this.index); 
+				i < n; i ++)
+				if (d [i] === '\n')
+					result ++;
+
+			return result;
+		}
+	});
+
+	LiteParser.prototype.getPosition = function (data, delta)
 		return {
 			index: 			this.index,
-			lineNumber: 	lines.length,
-			lineStart: 		lines.slice (0, -1).join ('\n').length
+			lineNumber: 	this.lineNumber
 		}
-	}
 
 	LiteParser.prototype.update = function (data, index){
 		if (typeof data === 'string')
@@ -53,9 +63,23 @@
 	}
 
 	LiteParser.prototype.on = function (){
-		for (var i = 0; i < arguments.length - 1; i ++)
-			this.binded.push ({ match: arguments [i], react: arguments [arguments.length - 1] });
+		var args = [].slice.call (arguments),
+			comment,
+			handler;
+
+		if (typeof args [args.length - 2] === 'function')
+			comment = args.pop ();
+
+		handler = args.pop ();
+
+		for (var entry in-array args)
+			this.binded.push ({ match: entry, handler: handler, comment: comment });
 		
+		return this;
+	}
+
+	LiteParser.prototype.debug = function (from, to){
+		this.debugMode = true;
 		return this;
 	}
 
@@ -126,24 +150,25 @@
 
 		var value 		= { index: Number.POSITIVE_INFINITY },
 			oldIndex 	= this.index,
-			react,
-			result;
+			bindedObj,
+			result,
+			temp;
 
 		for (var i, arg in-array this.binded){
-			var temp = indexOfExt (this.data, arg.match, this.index, i);
+			temp = indexOfExt (this.data, arg.match, this.index, i);
 
 			if (temp.index !== -1 && temp.index < value.index){
 				value = temp;
-				react = arg.react;
+				bindedObj = arg;
 			}
 		}
 
 		for (var i, arg in-array args){
-			var temp = indexOfExt (this.data, arg, this.index, i);
+			temp = indexOfExt (this.data, arg, this.index, i);
 
 			if (temp.index !== -1 && temp.index < value.index){
 				value = temp;
-				react = null;
+				bindedObj = null;
 			}
 		}
 
@@ -152,10 +177,40 @@
 
 		this.moveTo (value);
 
-		if (react)
-			result = react.call (this, value) ? this.innerFindNext (args, fixedMode) : null;
-		else
+		if (!bindedObj){
 			result = value;
+		} else if (this.debugMode){
+			var from = this.lineNumber, 
+				fromIndex = this.index,
+				temp = bindedObj.handler.call (this, value),
+				to = this.lineNumber,
+				toIndex = this.index,
+				log;
+
+			if (bindedObj.comment){
+				log = '[LiteParser] ' 
+					+ (
+						typeof bindedObj.comment === 'string' 
+						? bindedObj.comment
+						: bindedObj.comment.name
+					) 
+					+ ' at ' + from + ' (' + fromIndex + ':' + toIndex + '): ' 
+					+ (
+						typeof bindedObj.comment === 'string' 
+						? this.data.substring (fromIndex, toIndex)
+						: bindedObj.comment.call (this, fromIndex, toIndex, value)
+					).replace (/[\n\r]+/g, '\\n');
+
+				if (log.length > 100)
+					log = log.substr (0, 48) + '...' + log.slice (-49);
+
+				console.log (log);
+			}
+
+			result = temp ? this.innerFindNext (args, fixedMode) : null;
+		} else 
+			result = bindedObj.handler.call (this, value) ? this.innerFindNext (args, fixedMode) : null;
+
 
 		if (fixedMode)
 			this.index = oldIndex;

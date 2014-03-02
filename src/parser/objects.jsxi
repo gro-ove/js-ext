@@ -2,14 +2,15 @@
 		return $.extend (obj, mark);
 
 	function mark (obj)
-		return state.parsingComplete && obj 
-			? obj 
-			: $.extend (obj === undefined ? {} : obj, {
-				lineNumber: 	lineNumber,
-				lineStart: 	 	lineStart,
-				filename:     	options.filename,
-				index: 		 	index
-			});
+		return $.extend (obj || {}, {
+			lineNumber: 	lineNumber,
+			lineStart: 	 	lineStart,
+			filename:     	options.filename,
+			index: 		 	index
+		});
+
+	function markIf (obj)
+		return obj && (state.inClass || !state.parsingComplete) ? mark (obj) : obj;
 
 	function literal (value)
 		return typeof value === 'object' && value !== null ? {
@@ -21,10 +22,10 @@
 		}
 
 	function identifier (arg)
-		return typeof arg !== 'string' ? arg || null : mark ({
+		return typeof arg === 'string' ? markIf ({
 			type: 				Syntax.Identifier,
 			name: 				arg
-		});
+		}) : arg || null;
 
 	function property (key, value, kind = 'init')
 		return {
@@ -265,9 +266,9 @@
 
 	function functionExpression (name, params, body){
 		if (name instanceof Array){
-			name = null;
 			body = params;
 			params = name;
+			name = null;
 		}
 
 		return {

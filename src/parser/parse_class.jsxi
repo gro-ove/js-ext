@@ -8,7 +8,6 @@
 		// Возможно, публичный, приватный или защищённый.
 		// Если класс, то, возможно, абстрактный.
 		// Но в таком случае ни за что не статический.
-		// Let's do it.
 
 		var token, 
 			result = { 
@@ -154,7 +153,6 @@
 				if (params.implemented && entry.init)
 					throwError (token, 'Implemented couldn\'t have initialized fields.');
 
-				// TODO: Check if class is abstract
 				if (current.abstract)
 					throwError (token, 'Field could\'t be abstract.');
 
@@ -308,7 +306,7 @@
 		var members = parseClassMembers (params, dependsOn);
 
 		// Выводим распарсенное в консоль
-		verbose (id, params, dependsOn, members);
+		// verbose (id, params, dependsOn, members);
 
 		// Записываем новый класс
 		state.classes.push ({

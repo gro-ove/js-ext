@@ -46,8 +46,8 @@
 
 			attemptTo (
 				lambda {
-					var object = parseObjectContent (),
-						statement = returnStatement (expressionStatement (object));
+					var object = objectExpression (parseObjectContent ()),
+						statement = returnStatement (object);
 
 					sourceElements.push (statement);
 					consumeSemicolon ();
@@ -58,7 +58,7 @@
 					while (!match ('}'))
 						sourceElements.push (parseStatement ());
 				},
-				token.type !== Syntax.Literal && token.type !== Syntax.Identifier
+				token.type !== Token.Literal && token.type !== Token.Identifier
 			);
 
 			expect ('}');

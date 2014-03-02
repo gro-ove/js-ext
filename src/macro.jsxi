@@ -119,7 +119,7 @@
 		variables.push ('global = this.global');
 		variables.push ('local = this.local');
 		variables.push ('require = this.require');
-		variables.push ('macro = this.macro.bind (this)');
+		variables.push ('defineMacro = this.defineMacro.bind (this)');
 
 		for (var key in Macro.Defaults)
 			variables.push (key + ' = this.defaults.' + key);
@@ -158,8 +158,13 @@
 				global: 		Macro.globalStorage,
 				local: 			this.localStorage,
 
-				require: 		lambda require (path.resolve (context.file.dirname, 'node_modules', arg)),
-				macro: 			lambda (name, arguments, body)
+				require: 		lambda require (path.resolve (that.context.file.dirname, 'node_modules', arg)),
+				defineMacro: 	lambda (name, arguments, body){
+									if (body === undefined){
+										body = arguments;
+										arguments = [];
+									}
+									
 									macroStorage.add (new Macro (
 										name, 
 										that.level, 
@@ -168,6 +173,7 @@
 											? arguments.split (',').map (Function.prototype.call.bind (String.prototype.trim))
 											: arguments, 
 										body))
+								}
 			};
 
 		try {
@@ -179,7 +185,7 @@
 				object,
 				args.map (
 					lambda (value, pos){
-						switch (this.arguments [pos].type){
+						switch (this.arguments [pos] && this.arguments [pos].type){
 							case 'boolean':
 								return !!value;
 							case 'string':
@@ -209,10 +215,10 @@
 			parent 		= undefined;
 		}
 
-		this.name 		= 'MacroError';
-		this.message 	= 'Error at @' + name 
+		var result = new Error ('@' + name 
 			+ (args ? ' (' + Array.prototype.map.call (args, lambda JSON.stringify (arg)).join (', ') + ')' : '') 
-			+ (parent ? '\n' + parent.stack : message ? ': ' + message : '');
+			+ (parent ? ':\n' + parent.stack : message ? ': ' + message : ''));
+		result.name 		= 'MacroError';
+		return result;
 	};
-
-	MacroError.prototype = Error.prototype;
+	

@@ -13,7 +13,12 @@
 	}
 
 	function scanIdentifier (){
-		var start, id, restore, special;
+		var start, id, restore, special, temp;
+
+		if (source [index] === '@'){
+			try temp = ' ' + source.substr (index).match (/@([_$a-zA-Z][_$a-zA-Z0-9\.\-]*)/)[0].toUpperCase ();
+			throwError ({}, Messages.UnexpectedToken, 'AND IT LOOKS LIKE MACROS' + temp);
+		}
 
 		if (!isIdentifierStart (source [index]))
 			return;

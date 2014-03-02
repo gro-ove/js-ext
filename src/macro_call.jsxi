@@ -31,7 +31,7 @@
 			if (arg == null)
 				throw new MacroNotFoundError (this.name);
 
-			this.log ('macro found');
+			this.log ('macro @' + this.name + ' found');
 
 			this.state 		= MacroCall.STATE_CONNECTED;
 			this.macro 		= arg;
@@ -56,16 +56,16 @@
 					console.fatal (2, 'Error at argument preparing:\n' + (value || '< empty string >') + ' ⇒ ' + (arg || '< empty string >') + '\n\n' + e.stack);
 			}
 
-			switch (argument.type){
+			switch (argument && argument.type){
 				case 'raw-nm':
 					callback (value);
-					return;
+					break;
 				case 'raw':
 					macrosProcess (value, this.level, this.context, callback);
-					return;
+					break;
+				default:
+					macrosProcess (value, this.level, this.context, nextStep);
 			}
-			
-			macrosProcess (value, this.level, this.context, nextStep);
 		}
 
 		var queue = new Queue (this, Queue.MODE_PARALLEL).description ('macro call arguments prepare');
@@ -92,6 +92,7 @@
 		var resultHandler = function (answer){
 			if (this.result !== undefined)
 				throw new Error ('Callback already called');
+			this.log ('call complete');
 
 			if (answer === undefined)
 				answer = '';
@@ -169,6 +170,7 @@
 			result = '';
 
 		var resultHandler = function (result){
+			this.log ('result processed');
 			this.state 		= MacroCall.STATE_FINISHED;
 			this.result 	= result;
 

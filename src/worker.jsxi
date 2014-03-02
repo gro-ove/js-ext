@@ -27,7 +27,7 @@
 				&& MacroCall.waitingForCallback === 0 
 				&& MacroCall.waitingForMacro > 0){
 
-				console.fatal (1, 'Macro initialization failed: ' + macroStorage.requests.map (lambda '@' + arg [0]).join (', '));
+				console.fatal ('Macro initialization failed: ' + macroStorage.requests.map (lambda '@' + arg [0]).join (', '));
 			}
 		}, 100);
 	}
@@ -96,7 +96,7 @@
 							.concat (this.data.initializations),
 			ast 		= program (elements);
 
-		fs.writeFileSync (path.resolve (__dirname, '../stuff/ast-dump.json'), JSON.stringify (ast, null, 4));
+		// fs.writeFileSync (path.resolve (__dirname, '../stuff/ast-dump.json'), JSON.stringify (ast, null, 4));
 
 		var result 		= convert (ast);
 

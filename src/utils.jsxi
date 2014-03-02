@@ -1,6 +1,13 @@
-console.fatal = function (code){
-	console.error.apply (console, Array.prototype.slice.call (arguments, typeof code === 'number' ? 1 : 0));
-	process.exit (typeof code === 'number' ? code : 0);
+process.on ('uncaughtException', function (error){
+	console.fatal (error && error.stack ? error.stack : String (error));
+});
+
+console.fatal = function (){
+	console.log ('\n    [ FATAL ERROR ]\n');
+	console.log.apply (console, arguments);
+	console.log ('');
+	console.log = lambda;
+	setTimeout (lambda process.exit (1), 500);
 };
 
 console.json = function (obj){
@@ -11,7 +18,9 @@ function convert (jsxCode, options)
 	try {
 		return require ('escodegen').generate (typeof jsxCode === 'string' ? jsxParse (jsxCode, typeof options === 'string' ? { filename: options } : options) : jsxCode);
 	} catch 
-		console.fatal (4, 'Parsing failed:\n' + jsxCode + '\n\n' + e.stack);
+		console.fatal ('Parsing failed (' + options.filename + ')' 
+			+ ('\n' + jsxCode.trim ()).replace (/\n/g, '\n> ') + '\n\n'
+			+ e.stack);
 
 function addLog (p, key, fn){
 	if (!p || !p.prototype){
@@ -33,7 +42,7 @@ function addLog (p, key, fn){
 			f [0] += new Array (1 + size - f [0].length).join (' ');
 			f.push.apply (f, arguments);
 
-			console.log.apply (console, f);
+			// console.log.apply (console, f);
 		};
 
 	return p ? (p.prototype.log = r) : r;
@@ -44,7 +53,6 @@ function isEmpty (obj){
 		return false;
 	return true;
 }
-
 
 var $ = { 
 	extend: (function (){

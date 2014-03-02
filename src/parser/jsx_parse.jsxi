@@ -2,6 +2,8 @@
 // Taken from https://github.com/ariya/esprima
 // Author: Ariya Hidayat
 
+var source, index, lineNumber, lineStart, length, buffer, state, information, options, helpers;
+
 function jsxParse (code, args, callback){
 	source          = String (code);
 	index           = 0;

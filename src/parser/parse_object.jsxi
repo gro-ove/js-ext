@@ -71,6 +71,9 @@
 			if (properties.length)
 				parseOptionalComma (comma);
 
+			if (match ('}'))
+				break;
+
 			property = parseObjectProperty ();
 
 			name = property.key.type === Syntax.Identifier

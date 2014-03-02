@@ -77,16 +77,10 @@ st.format.add ("obj", function (v,params){
 return v [params];
 });
 }) (String.prototype);
-function saveComment (mode,key,value){
-if (! information [mode])
-information [mode] = [];
-information [mode].push ({"key":key,"value":value === undefined ? true : value});
-}
 function skipComment (){
-var ch, start, blockComment, lineComment, lineCommentFrom, temp, matched;
+var ch, start, blockComment, lineComment, lineCommentFrom;
 blockComment = false;
 lineComment = false;
-specialMode = false;
 while (index < length)
 {
 ch = source [index];
@@ -95,24 +89,6 @@ if (lineComment)
 ch = source [index++];
 if (isLineTerminator (ch))
 {
-temp = source.substring (lineCommentFrom, index - 1).trim ();
-if (! specialMode)
-{
-matched = temp.match (/^==([^=]+)==$/);
-if (matched)
-specialMode = matched [1];
-}
-else
-if (temp [0] == "@")
-{
-temp = temp.match (/@([^\s]+)(?:\s+([\s\S]+))?/);
-saveComment (specialMode, temp [1], temp [2]);
-}
-else
-if (temp === "==/" + specialMode + "==")
-{
-specialMode = false;
-}
 lineComment = false;
 if (ch === "\r" && source [index] === "\n")
 ++ index;
@@ -139,11 +115,13 @@ ch = source [index++];
 if (index >= length)
 throwError ({}, Messages.UnexpectedToken, "ILLEGAL");
 if (ch === "*")
+{
 ch = source [index];
 if (ch === "/")
 {
 ++ index;
 blockComment = false;
+}
 }
 }
 }
@@ -215,6 +193,7 @@ return ch === "$" || ch === "_" || ch === "\\" || ch >= "a" && ch <= "z" || ch >
 function isIdentifierPart (ch){
 return ch === "$" || ch === "_" || ch === "\\" || ch >= "a" && ch <= "z" || ch >= "A" && ch <= "Z" || ch >= "0" && ch <= "9" || ch.charCodeAt (0) >= 128 && Regex.NonAsciiIdentifierPart.test (ch);
 }
+var source, index, lineNumber, lineStart, length, buffer, state, information, options, helpers;
 function jsxParse (code,args,callback){
 source = String (code);
 index = 0;
@@ -280,7 +259,7 @@ return true;
 default:return false;
 }
 }
-var Token, PropertyKind, TokenName, Syntax, Messages, Regex, source, index, lineNumber, lineStart, length, buffer, state, information, options, helpers;
+var Token, PropertyKind, TokenName, Syntax, Messages, Regex;
 Token = {"BooleanLiteral":1,"EOF":2,"Identifier":3,"Keyword":4,"NullLiteral":5,"NumericLiteral":6,"Punctuator":7,"StringLiteral":8};
 PropertyKind = {"Data":1,"Get":2,"Set":4};
 TokenName = {};
@@ -299,13 +278,16 @@ function setMark (obj,mark){
 return $.extend (obj, mark);
 }
 function mark (obj){
-return state.parsingComplete && obj ? obj : $.extend (obj === undefined ? {} : obj, {"lineNumber":lineNumber,"lineStart":lineStart,"filename":options.filename,"index":index});
+return $.extend (obj || {}, {"lineNumber":lineNumber,"lineStart":lineStart,"filename":options.filename,"index":index});
+}
+function markIf (obj){
+return obj && (state.inClass || ! state.parsingComplete) ? mark (obj) : obj;
 }
 function literal (value){
 return typeof value === "object" && value !== null ? {"type":Syntax.Literal,"value":value.value} : {"type":Syntax.Literal,"value":value};
 }
 function identifier (arg){
-return typeof arg !== "string" ? arg || null : mark ({"type":Syntax.Identifier,"name":arg});
+return typeof arg === "string" ? markIf ({"type":Syntax.Identifier,"name":arg}) : arg || null;
 }
 function property (key,value,kind){
 if (kind === undefined)
@@ -426,9 +408,9 @@ var tempId = 0;
 function functionExpression (name,params,body){
 if (name instanceof Array)
 {
-name = null;
 body = params;
 params = name;
+name = null;
 }
 return {"type":Syntax.FunctionExpression,"id":identifier (name),"params":params ? params.map (identifier) : [],"defaults":[],"body":blockStatement (body),"rest":null,"generator":false,"expression":false,"number":name + tempId++};
 }
@@ -458,6 +440,16 @@ args.push (parseAssignmentExpression ());
 expect (")");
 return args;
 }
+function parseOptionalComma (state){
+var token = lookahead ();
+if (state.comma === undefined)
+state.comma = token.value === ",";
+else
+if (state.comma !== (token.value === ","))
+throwUnexpected (token);
+if (token.value === ",")
+lex ();
+}
 function parseArrayPerlInitializer (elements){
 expect (".");
 expect (".");
@@ -486,16 +478,6 @@ return arrayExpression (elements);
 }
 helpers.createArray = true;
 return callExpression ("__ca", [from,to]);
-}
-function parseOptionalComma (state){
-var token = lookahead ();
-if (state.comma === undefined)
-state.comma = token.value === ",";
-else
-if (state.comma !== (token.value === ","))
-throwUnexpected (token);
-if (token.value === ",")
-lex ();
 }
 function parseArrayInitialiser (){
 var elements = [], token, comma = {};
@@ -538,7 +520,7 @@ var block, oldPreventSequence;
 if (match ("{"))
 return parseBlock ();
 else
-return blockStatement ([parseSourceElement ()], true);
+return blockStatement ([parseStatement ()], true);
 }
 function parseClassIdentifier (){
 return mark (parseVariableIdentifier ());
@@ -641,8 +623,8 @@ if (matchKeyword ("var"))
 lex ();
 var token = lookahead (), data = parseVariableDeclarationList ();
 consumeSemicolon ();
-for (var _5q3n971_94 = 0; _5q3n971_94 < data.length; _5q3n971_94 ++){
-var entry = data[_5q3n971_94];
+for (var _999lo2u_77 = 0; _999lo2u_77 < data.length; _999lo2u_77 ++){
+var entry = data[_999lo2u_77];
 if (params.interface && ! current.static)
 throwError (token, "Interface couldn't have object fields.");
 if (params.implemented && entry.init)
@@ -766,7 +748,6 @@ var params = parseClassParams ();
 var id = parseClassIdentifier ();
 var dependsOn = parseExtendsImplementsAndUses (params);
 var members = parseClassMembers (params, dependsOn);
-verbose (id, params, dependsOn, members);
 state.classes.push ({"id":id,"params":params,"dependsOn":dependsOn,"members":members});
 return null;
 }
@@ -874,14 +855,14 @@ if (match ("{"))
 expect ("{");
 token = lookahead ();
 attemptTo (function (arg){
-var object = parseObjectContent (), statement = returnStatement (expressionStatement (object));
+var object = objectExpression (parseObjectContent ()), statement = returnStatement (object);
 sourceElements.push (statement);
 consumeSemicolon ();
 }, function (arg){
 state.preventSequence = false;
 while (! match ("}"))
 sourceElements.push (parseStatement ());
-}, token.type !== Syntax.Literal && token.type !== Syntax.Identifier);
+}, token.type !== Token.Literal && token.type !== Token.Identifier);
 expect ("}");
 }
 else
@@ -1185,6 +1166,8 @@ while (! match ("}"))
 {
 if (properties.length)
 parseOptionalComma (comma);
+if (match ("}"))
+break;
 property = parseObjectProperty ();
 name = property.key.type === Syntax.Identifier ? property.key.name : String (property.key.value);
 kind = property.kind === "init" ? PropertyKind.Data : property.kind === "get" ? PropertyKind.Get : PropertyKind.Set;
@@ -1808,7 +1791,14 @@ return "";
 return String.fromCharCode (code);
 }
 function scanIdentifier (){
-var start, id, restore, special;
+var start, id, restore, special, temp;
+if (source [index] === "@")
+{
+try{
+temp = " " + source.substr (index).match (/@([_$a-zA-Z][_$a-zA-Z0-9\.\-]*)/) [0].toUpperCase ();
+}catch (e){}
+throwError ({}, Messages.UnexpectedToken, "AND IT LOOKS LIKE MACROS" + temp);
+}
 if (! isIdentifierStart (source [index]))
 return;
 start = index;
@@ -2182,50 +2172,41 @@ throwError ({}, Messages.InvalidRegExp);
 }
 return {"literal":str,"value":value,"range":[start,index]};
 }
+function ParseError (filename,lineNumber,message){
+var result, name = "ParseError";
+if (arguments [3])
+{
+name = filename;
+filename = lineNumber;
+lineNumber = message;
+message = arguments [3];
+}
+if (typeof filename === "object")
+{
+message = lineNumber;
+this.lineNumber = filename.lineNumber;
+this.filename = filename.filename;
+}
+else
+{
+this.lineNumber = lineNumber;
+this.filename = filename;
+}
+result = new Error(message + " [" + filename + ":" + lineNumber + "]");
+result.name = name;
+return result;
+}
+;
 function throwError (token,messageFormat){
-var error, args = Array.prototype.slice.call (arguments, 2), msg = messageFormat.replace (/%(\d)/g, function (whole,index){
+var args = Array.prototype.slice.call (arguments, 2), msg = messageFormat.replace (/%(\d)/g, function (whole,index){
 return args [index] || "";
-});
-if (typeof token.index === "number")
-{
-error = new Error("Line " + token.lineNumber + " (" + options.filename + "): " + msg);
-error.index = token.index;
-error.lineNumber = token.lineNumber;
-error.column = token.index - token.lineStart + 1;
-}
-else
-if (typeof token.lineNumber === "number")
-{
-error = new Error("Line " + token.lineNumber + " (" + options.filename + "): " + msg);
-error.index = token.range [0];
-error.lineNumber = token.lineNumber;
-error.column = token.range [0] - lineStart + 1;
-}
-else
-{
-error = new Error("Line " + lineNumber + " (" + options.filename + "): " + msg);
-error.index = index;
-error.lineNumber = lineNumber;
-error.column = index - lineStart + 1;
-}
-throw error;
+}), filename = options.filename;
+if (typeof token.filename === "string")
+filename = token.filename;
+throw new ParseError(token && token.filename || options.filename, token ? token.lineNumber : lineNumber, msg);
 }
 function throwUnexpected (token){
-if (token.type === Token.EOF)
-throwError (token, Messages.UnexpectedEOS);
-if (token.type === Token.NumericLiteral)
-throwError (token, Messages.UnexpectedNumber);
-if (token.type === Token.StringLiteral)
-throwError (token, Messages.UnexpectedString);
-if (token.type === Token.Identifier)
-throwError (token, Messages.UnexpectedIdentifier);
-if (token.type === Token.Keyword)
-{
-if (isFutureReservedWord (token.value))
-throwError (token, Messages.UnexpectedReserved);
-throwError (token, Messages.UnexpectedToken, token.value);
-}
-throwError (token, Messages.UnexpectedToken, token.value);
+throwError (token, token.type === Token.EOF ? Messages.UnexpectedEOS : token.type === Token.NumericLiteral ? Messages.UnexpectedNumber : token.type === Token.StringLiteral ? Messages.UnexpectedString : token.type === Token.Identifier ? Messages.UnexpectedIdentifier : token.type === Token.Keyword && isFutureReservedWord (token.value) ? Messages.UnexpectedReserved : Messages.UnexpectedToken, token.value);
 }
 function sliceSource (from,to){
 return source.slice (from, to);
@@ -2289,13 +2270,13 @@ saved = saveAll ();
 try{
 return firstFn ();
 }catch (e){
-if (String (e).indexOf ("Unexpected token") !== - 1)
+if (e instanceof Error && /^Unexpected .+? \[.+?\:\d+\]$/.test (e.message))
 {
 restoreAll (saved);
 return secondFn ();
 }
 else
-throw new Error("AttemptError:", e.message);
+throw e;
 }
 }
 }
@@ -2618,8 +2599,8 @@ if (mode === "default")
 variables.push (variableDeclarator (classEntry.id, constructor));
 if (classEntry.dependsOn.parent)
 resultFunction.push (expressionStatement (callExpression ("__pe", [classEntry.id.name,classEntry.dependsOn.parent.name])));
-for (var _3usglln_88 = 0; _3usglln_88 < objectMethods.length; _3usglln_88 ++){
-var method = objectMethods[_3usglln_88];
+for (var _3s8gr8m_4 = 0; _3s8gr8m_4 < objectMethods.length; _3s8gr8m_4 ++){
+var method = objectMethods[_3s8gr8m_4];
 if (! method.abstract || method.body.body.length > 0)
 {
 var target = memberExpression (memberExpression (classEntry.id, "prototype"), method.id.name), value = functionExpression (method.params, method.body);
@@ -2634,8 +2615,8 @@ constructor.body.body = [ifStatement (binaryExpression (memberExpression (thisEx
 else
 if (mode === "static")
 variables.push (variableDeclarator (classEntry.id, objectExpression ()));
-for (var _1s759em_89 = 0; _1s759em_89 < staticFields.length; _1s759em_89 ++){
-var field = staticFields[_1s759em_89];
+for (var _5j78vp_5 = 0; _5j78vp_5 < staticFields.length; _5j78vp_5 ++){
+var field = staticFields[_5j78vp_5];
 if (field.publicMode !== "private")
 {
 var temp = expressionStatement (assignmentExpression (memberExpression (classEntry.id, field.id), field.init || "undefined"));
@@ -2646,8 +2627,8 @@ resultFunction.push (temp);
 else
 variables.push (field);
 }
-for (var _8sq0f4p_90 = 0; _8sq0f4p_90 < staticMethods.length; _8sq0f4p_90 ++){
-var method = staticMethods[_8sq0f4p_90];
+for (var _2j2ailv_6 = 0; _2j2ailv_6 < staticMethods.length; _2j2ailv_6 ++){
+var method = staticMethods[_2j2ailv_6];
 if (method.publicMode !== "private")
 {
 var temp = expressionStatement (assignmentExpression (memberExpression (classEntry.id, method.id), functionExpression (method.params, method.body)));
@@ -2663,8 +2644,8 @@ classEntry.element = variableDeclarator (classEntry.id.name, callExpression (fun
 }
 }
 function processClasses (){
-for (var _4h0of0i_91 = 0; _4h0of0i_91 < classes.length; _4h0of0i_91 ++){
-var classEntry = classes[_4h0of0i_91];
+for (var _4cuclbg_7 = 0; _4cuclbg_7 < classes.length; _4cuclbg_7 ++){
+var classEntry = classes[_4cuclbg_7];
 processClass (classEntry);
 }
 }
@@ -2690,8 +2671,8 @@ if (typeof obj === "object" && obj !== null)
 {
 if (obj instanceof Array)
 {
-for (var _23l8nh8_71 = 0; _23l8nh8_71 < obj.length; _23l8nh8_71 ++){
-var child = obj[_23l8nh8_71];
+for (var _4244gc6_24 = 0; _4244gc6_24 < obj.length; _4244gc6_24 ++){
+var child = obj[_4244gc6_24];
 lookForExclusions (child, target);
 }
 }
@@ -2714,7 +2695,7 @@ lookForExclusions (value, target);
 }
 }
 function processFunction (obj,parent){
-console.assert (typeof obj === "object" && obj.type === Syntax.FunctionDeclaration, "Wrong argument");
+console.assert (typeof obj === "object" && (obj.type === Syntax.FunctionDeclaration || obj.type === Syntax.FunctionExpression), "Wrong argument: " + obj);
 var oldExclusions = $.extend (true, {}, exclusions), oldCurrentFunction = currentFunction;
 exclusions = {};
 currentFunction = obj;
@@ -2808,7 +2789,7 @@ if (obj.computed)
 process (obj.property, obj);
 }
 function processThisExpression (obj,parent){
-set (obj, getThis ());
+
 }
 function processSuperExpression (obj,parent){
 if (currentFunction !== functionEntry && obj.callee === null)
@@ -2840,8 +2821,8 @@ if (typeof obj === "object" && obj !== null)
 {
 if (obj instanceof Array)
 {
-for (var _93bsi49_72 = 0; _93bsi49_72 < obj.length; _93bsi49_72 ++){
-var child = obj[_93bsi49_72];
+for (var _916rtdp_25 = 0; _916rtdp_25 < obj.length; _916rtdp_25 ++){
+var child = obj[_916rtdp_25];
 process (child, obj);
 }
 }
@@ -2913,13 +2894,13 @@ function processClassMember (classEntry,name,parentMember){
 var newPublicMode = parentMember.publicMode, targetMembers = [parentMember], argument, updatedName;
 function testChilds (currentClass){
 var childMember;
-{ var _97a4a4l_51 = currentClass.childs; for (var _8jv8ide_52 = 0; _8jv8ide_52 < _97a4a4l_51.length; _8jv8ide_52 ++){
-var childClass = _97a4a4l_51[_8jv8ide_52];
+{ var _99pa2qf_6 = currentClass.childs; for (var _98sens7_7 = 0; _98sens7_7 < _99pa2qf_6.length; _98sens7_7 ++){
+var childClass = _99pa2qf_6[_98sens7_7];
 if (childClass.members.hasOwnProperty (name))
 {
 childMember = childClass.members [name];
 if (testBadOverride (parentMember, childMember))
-throwError (childMember.id, "Invalid public mode (" + childMember.publicMode + " instead of " + parentMember.publicMode + ")");
+throwError (childMember.id, "Invalid public mode (\"" + childMember.publicMode + "\" instead of \"" + parentMember.publicMode + "\" for member \"" + name + "\" of class \"" + childClass.id.name + "\" which extends \"" + currentClass.id.name + "\")");
 newPublicMode = morePublicMode (newPublicMode, childMember.publicMode);
 targetMembers.push (childMember);
 }
@@ -2932,23 +2913,23 @@ argument = $.extend ({}, parentMember, {"publicMode":newPublicMode});
 else
 argument = parentMember;
 updatedName = rename (name, argument, classEntry);
-for (var _6d32mk_53 = 0; _6d32mk_53 < targetMembers.length; _6d32mk_53 ++){
-var targetMember = targetMembers[_6d32mk_53];
+for (var _1q6u6mr_8 = 0; _1q6u6mr_8 < targetMembers.length; _1q6u6mr_8 ++){
+var targetMember = targetMembers[_1q6u6mr_8];
 targetMember.id.name = updatedName;
 targetMember.processed = true;
 }
 }
 function processClassMembers (classEntry){
 var replace, childMember;
-{ var _57sp1mq_54 = classEntry.members; for (var name in _57sp1mq_54){
-var member = _57sp1mq_54[name];
+{ var _4solb3e_9 = classEntry.members; for (var name in _4solb3e_9){
+var member = _4solb3e_9[name];
 if (name [0] !== "@" && ! member.processed)
 processClassMember (classEntry, name, member);
 }}
 }
 function processClassesMembers (){
-for (var _5mlkcbs_55 = 0; _5mlkcbs_55 < classes.length; _5mlkcbs_55 ++){
-var classEntry = classes[_5mlkcbs_55];
+for (var _27hcps3_10 = 0; _27hcps3_10 < classes.length; _27hcps3_10 ++){
+var classEntry = classes[_27hcps3_10];
 processClassMembers (classEntry);
 }
 }
@@ -3103,6 +3084,7 @@ default:throw new MacroError(that.name, "Wrong param key (\"" + key + "\")");
 }
 }};
 }
+File.DEBUG_MODE = true;
 function File (root,fullpath){
 console.assert (! fileStorage.exists (fullpath), "File already processed");
 if (fullpath === undefined)
@@ -3161,8 +3143,8 @@ return [temp];
 current = path.dirname (current);
 }
 }
-{ var _97ar7m7_1 = this instanceof File ? [{"root":this.root,"dirname":this.dirname}].concat (lookingAt) : lookingAt; for (var _5cd0aou_2 = 0; _5cd0aou_2 < _97ar7m7_1.length; _5cd0aou_2 ++){
-var entry = _97ar7m7_1[_5cd0aou_2];
+{ var _3o8q67u_61 = this instanceof File ? [{"root":this.root,"dirname":this.dirname}].concat (lookingAt) : lookingAt; for (var _okotl8_62 = 0; _okotl8_62 < _3o8q67u_61.length; _okotl8_62 ++){
+var entry = _3o8q67u_61[_okotl8_62];
 var temp = findInFolder (entry.root, entry.dirname, child);
 if (temp)
 return temp.map (function (arg){
@@ -3214,7 +3196,7 @@ this.helpers = helpers;
 callback ();
 }.bind (this));
 }catch (e){
-console.fatal (3, "Parsing failed:\n" + this.content + "\n\n" + e.stack);
+console.fatal ("Parsing failed (" + this.filename + ")" + (File.DEBUG_MODE ? ("\n" + this.content.trim ()).replace (/\n/g, "\n> ") + "\n" : "") + "\n" + e.stack);
 }
 };
 File.prototype.process = function (callback){
@@ -3423,6 +3405,7 @@ if (index === undefined)
 index = 0;
 this.data = data;
 this.index = index;
+this.debugMode = false;
 this.binded = [];
 }
 LiteParser.EOF = 1;
@@ -3447,9 +3430,16 @@ return delta;
 LiteParser.prototype.substring = function (from,to){
 return this.data.substring (from, to);
 };
+Object.defineProperty (LiteParser.prototype, "lineNumber", {"get":function (){
+var result = 1;
+for (var i = 0, d = this.data, n = Math.min (d.length, this.index); 
+i < n; i++)
+if (d [i] === "\n")
+result++;
+return result;
+}});
 LiteParser.prototype.getPosition = function (data,delta){
-var lines = this.data.substr (0, this.index).split ("\n");
-return {"index":this.index,"lineNumber":lines.length,"lineStart":lines.slice (0, - 1).join ("\n").length};
+return {"index":this.index,"lineNumber":this.lineNumber};
 };
 LiteParser.prototype.update = function (data,index){
 if (typeof data === "string")
@@ -3462,9 +3452,18 @@ this.index = data;
 return this;
 };
 LiteParser.prototype.on = function (){
-for (var i = 0; 
-i < arguments.length - 1; i++)
-this.binded.push ({"match":arguments [i],"react":arguments [arguments.length - 1]});
+var args = [].slice.call (arguments), comment, handler;
+if (typeof args [args.length - 2] === "function")
+comment = args.pop ();
+handler = args.pop ();
+for (var _4qclqnq_89 = 0; _4qclqnq_89 < args.length; _4qclqnq_89 ++){
+var entry = args[_4qclqnq_89];
+this.binded.push ({"match":entry,"handler":handler,"comment":comment});
+}
+return this;
+};
+LiteParser.prototype.debug = function (from,to){
+this.debugMode = true;
 return this;
 };
 LiteParser.prototype.findSimple = function (){
@@ -3522,32 +3521,47 @@ return {"id":id,"index":str.indexOf (what, pos),"value":what};
 else
 console.assert (true, "Invalid argument type");
 }
-var value = {"index":Number.POSITIVE_INFINITY}, oldIndex = this.index, react, result;
-{ var _6afsgcg_24 = this.binded; for (var i = 0; i < _6afsgcg_24.length; i ++){
-var arg = _6afsgcg_24[i];
-var temp = indexOfExt (this.data, arg.match, this.index, i);
+var value = {"index":Number.POSITIVE_INFINITY}, oldIndex = this.index, bindedObj, result, temp;
+{ var _rsfrnh_90 = this.binded; for (var i = 0; i < _rsfrnh_90.length; i ++){
+var arg = _rsfrnh_90[i];
+temp = indexOfExt (this.data, arg.match, this.index, i);
 if (temp.index !== - 1 && temp.index < value.index)
 {
 value = temp;
-react = arg.react;
+bindedObj = arg;
 }
 }}
 for (var i = 0; i < args.length; i ++){
 var arg = args[i];
-var temp = indexOfExt (this.data, arg, this.index, i);
+temp = indexOfExt (this.data, arg, this.index, i);
 if (temp.index !== - 1 && temp.index < value.index)
 {
 value = temp;
-react = null;
+bindedObj = null;
 }
 }
 if (value.index === Number.POSITIVE_INFINITY)
 return null;
 this.moveTo (value);
-if (react)
-result = react.call (this, value) ? this.innerFindNext (args, fixedMode) : null;
-else
+if (! bindedObj)
+{
 result = value;
+}
+else
+if (this.debugMode)
+{
+var from = this.lineNumber, fromIndex = this.index, temp = bindedObj.handler.call (this, value), to = this.lineNumber, toIndex = this.index, log;
+if (bindedObj.comment)
+{
+log = "[LiteParser] " + (typeof bindedObj.comment === "string" ? bindedObj.comment : bindedObj.comment.name) + " at " + from + " (" + fromIndex + ":" + toIndex + "): " + (typeof bindedObj.comment === "string" ? this.data.substring (fromIndex, toIndex) : bindedObj.comment.call (this, fromIndex, toIndex, value)).replace (/[\n\r]+/g, "\\n");
+if (log.length > 100)
+log = log.substr (0, 48) + "..." + log.slice (- 49);
+console.log (log);
+}
+result = temp ? this.innerFindNext (args, fixedMode) : null;
+}
+else
+result = bindedObj.handler.call (this, value) ? this.innerFindNext (args, fixedMode) : null;
 if (fixedMode)
 this.index = oldIndex;
 return result;
@@ -3604,8 +3618,8 @@ Macro.Defaults = {"fs":fs,"path":path,"params":paramsManager,"ReturnType":Macro.
 Macro.globalStorage = {};
 Macro.prototype.defaults = function (context){
 var result = {}, obj = {"name":this.name,"context":context,"macroContext":this.context};
-{ var _78v857t_75 = Macro.Defaults; for (var key in _78v857t_75){
-var value = _78v857t_75[key];
+{ var _1tq4kdc_94 = Macro.Defaults; for (var key in _1tq4kdc_94){
+var value = _1tq4kdc_94[key];
 if (typeof value === "function")
 result [key] = value.call (obj);
 else
@@ -3653,11 +3667,11 @@ variables.push ("macroContext = this.macroContext");
 variables.push ("global = this.global");
 variables.push ("local = this.local");
 variables.push ("require = this.require");
-variables.push ("macro = this.macro.bind (this)");
+variables.push ("defineMacro = this.defineMacro.bind (this)");
 for (var key in Macro.Defaults)
 variables.push (key + " = this.defaults." + key);
-{ var _10o7uj_76 = phase.used; for (var _7poac9n_77 = 0; _7poac9n_77 < _10o7uj_76.length; _7poac9n_77 ++){
-var entry = _10o7uj_76[_7poac9n_77];
+{ var _1880cjo_95 = phase.used; for (var _1fvf0jb_96 = 0; _1fvf0jb_96 < _1880cjo_95.length; _1fvf0jb_96 ++){
+var entry = _1880cjo_95[_1fvf0jb_96];
 queue.add (macroStorage.get, entry.macro, this.level);
 variables.push (entry.name + " = function (){ return this.macros." + entry.macro + ".call (this.context, [].slice.call (arguments)) }.bind (this)");
 }}
@@ -3682,18 +3696,23 @@ console.assert (this.callee, "Macro is not initialized");
 console.assert (args instanceof Array, "Wrong argument");
 console.assert (context instanceof Context, "Context required");
 var that = this, object = {"defaults":this.defaults (context),"macros":this.macros,"macroContext":this.context,"context":context,"global":Macro.globalStorage,"local":this.localStorage,"require":function (arg){
-return require (path.resolve (context.file.dirname, "node_modules", arg));
-},"macro":function (name,arguments,body){
-return macroStorage.add (new Macro(name, that.level, that.context, typeof arguments === "string" ? arguments.split (",").map (Function.prototype.call.bind (String.prototype.trim)) : arguments, body));
+return require (path.resolve (that.context.file.dirname, "node_modules", arg));
+},"defineMacro":function (name,arguments,body){
+if (body === undefined)
+{
+body = arguments;
+arguments = [];
+}
+macroStorage.add (new Macro(name, that.level, that.context, typeof arguments === "string" ? arguments.split (",").map (Function.prototype.call.bind (String.prototype.trim)) : arguments, body));
 }};
 try{
-{ var _6tvu2qq_78 = this.arguments; for (var id = 0; id < _6tvu2qq_78.length; id ++){
-var arg = _6tvu2qq_78[id];
+{ var _6ga9r4q_97 = this.arguments; for (var id = 0; id < _6ga9r4q_97.length; id ++){
+var arg = _6ga9r4q_97[id];
 if (arg.type === "callback" && typeof args [id] !== "function")
 throw new MacroError(this.name, args, "Callback requested");
 }}
 return this.callee.apply (object, args.map (function (value,pos){
-switch (this.arguments [pos].type){
+switch (this.arguments [pos] && this.arguments [pos].type){
 case "boolean":
 return ! ! value;
 case "string":
@@ -3719,13 +3738,13 @@ message = args;
 args = undefined;
 parent = undefined;
 }
-this.name = "MacroError";
-this.message = "Error at @" + name + (args ? " (" + Array.prototype.map.call (args, function (arg){
+var result = new Error("@" + name + (args ? " (" + Array.prototype.map.call (args, function (arg){
 return JSON.stringify (arg);
-}).join (", ") + ")" : "") + (parent ? "\n" + parent.stack : message ? ": " + message : "");
+}).join (", ") + ")" : "") + (parent ? ":\n" + parent.stack : message ? ": " + message : ""));
+result.name = "MacroError";
+return result;
 }
 ;
-MacroError.prototype = Error.prototype;
 function MacroCall (name,arguments,level,context,replacement){
 this.name = name;
 this.arguments = arguments;
@@ -3754,7 +3773,7 @@ MacroCall.waitingForMacro++;
 macroStorage.get (this.name, this.level, function (arg){
 if (arg == null)
 throw new MacroNotFoundError(this.name);
-this.log ("macro found");
+this.log ("macro @" + this.name + " found");
 this.state = MacroCall.STATE_CONNECTED;
 this.macro = arg;
 MacroCall.waitingForMacro--;
@@ -3774,19 +3793,19 @@ callback (data);
 console.fatal (2, "Error at argument preparing:\n" + (value || "< empty string >") + " ⇒ " + (arg || "< empty string >") + "\n\n" + e.stack);
 }
 }
-switch (argument.type){
+switch (argument && argument.type){
 case "raw-nm":
 callback (value);
-return;
+break;
 case "raw":
 macrosProcess (value, this.level, this.context, callback);
-return;
+break;
+default:macrosProcess (value, this.level, this.context, nextStep);
 }
-macrosProcess (value, this.level, this.context, nextStep);
 }
 var queue = new Queue(this, Queue.MODE_PARALLEL).description ("macro call arguments prepare");
-{ var _6sn9mjf_25 = this.arguments; for (var i = 0; i < _6sn9mjf_25.length; i ++){
-var arg = _6sn9mjf_25[i];
+{ var _1ngv09j_80 = this.arguments; for (var i = 0; i < _1ngv09j_80.length; i ++){
+var arg = _1ngv09j_80[i];
 queue.add (cast, this.macro.arguments [i], arg);
 }}
 queue.run (function (arg){
@@ -3805,6 +3824,7 @@ MacroCall.waitingForCallback++;
 var resultHandler = function (answer){
 if (this.result !== undefined)
 throw new Error("Callback already called");
+this.log ("call complete");
 if (answer === undefined)
 answer = "";
 this.state = MacroCall.STATE_CALLED;
@@ -3876,6 +3896,7 @@ result = String (result);
 else
 result = "";
 var resultHandler = function (result){
+this.log ("result processed");
 this.state = MacroCall.STATE_FINISHED;
 this.result = result;
 callback ();
@@ -3902,11 +3923,16 @@ MacroNotFoundError.prototype = Error.prototype;
 var anonymousMacroId = + new Date();
 function macrosParse (source,level,context){
 console.assert (context instanceof Context, "Context required");
+function throwError (position,messageFormat){
+var args = Array.prototype.slice.call (arguments, 2), msg = messageFormat.replace (/%(\d)/g, function (whole,index){
+return args [index] || "";
+});
+throw new ParseError("MacroParseError", context.file.filename, position.lineNumber ? position.lineNumber : liteParser.lineNumber, msg);
+}
 function parseMacroDefine (){
-var name = found.raw [1], position, argument, arguments, blockMode, temp, body, converted, insertCall = false, from;
-try{
-if (name === "macro")
-throwError (liteParser.getPosition (), "This word is reserved");
+var name = found.raw [1], splitted = name.split (":"), position, argument, arguments, blockMode, temp, body, converted, insertCall = false, from;
+if (splitted [0] === "macro")
+throwError ({}, Messages.UnexpectedReserved);
 temp = liteParser.whatNext (/[^\s]/);
 from = liteParser.index;
 if (temp.value === "(")
@@ -3929,11 +3955,13 @@ break;
 }
 else
 if (arguments.length || temp.value === ",")
-throwError (liteParser.getPosition (), "Missing argument");
+throwError ({}, Messages.UnexpectedToken, temp.value);
 position = liteParser.index;
 if (temp.value === ")")
 break;
 }
+if (! temp)
+throwError ({}, Messages.UnexpectedEOS);
 temp = liteParser.whatNext (/[^\s]/);
 }
 else
@@ -3949,7 +3977,7 @@ else
 temp = liteParser.findHere (";", LiteParser.EOF);
 if (! temp || temp.value === LiteParser.EOF)
 {
-throw new Error("End of macro's body not found" + fromfrom);
+throwError ({}, Messages.UnexpectedEOS);
 }
 else
 if (temp.value === "}")
@@ -3962,29 +3990,25 @@ body = liteParser.substring (position, liteParser.index).trim ();
 temp = liteParser.whatNext (/[^\s]/);
 if (temp && temp.value === ";")
 liteParser.moveTo (temp);
-if (! name)
-{
+if (! splitted [0])
+insertCall = true;
 if (insertCall)
+{
 name = "__anonymous_macro_" + ++ anonymousMacroId;
-else
-throwError (liteParser.getPosition (), "Name required");
+liteParser.replace (found.index, liteParser.index, "@" + name);
+liteParser.index = found.index;
+if (splitted [1])
+name += ":" + splitted [1];
 }
+else
 liteParser.replace (found.index, liteParser.index, "/* There was definition of @" + name + " */");
 var macro = new Macro(name, level, context, arguments, body);
 macroStorage.add (macro);
-if (insertCall)
-{
-liteParser.replace (liteParser.index, liteParser.index, "@" + macro.name);
-liteParser.index = found.index;
-}
-}catch (e){
-throw new Error("Macro parsing failed (" + found.raw [0] + "):\n" + e.stack);
-}
 }
 function parseMacroCall (){
 var name = found.raw [1], arguments = [], position, argument, quotesCount, temp;
 if (name === "macro")
-throwError (liteParser.getPosition (), "This word is reserved");
+throwError ({}, Messages.UnexpectedReserved);
 temp = liteParser.whatNext (/[^\s]/);
 if (temp && (temp.value === "{" || temp.value === "("))
 {
@@ -4003,7 +4027,7 @@ temp = liteParser.findSimple (new Array(quotesCount + 1).join ("}"));
 else
 temp = liteParser.findHere (["{"], "}");
 if (! temp)
-throwError (liteParser.getPosition (), "End of argument not found");
+throwError ({}, Messages.UnexpectedEOS);
 argument = liteParser.substring (position, liteParser.index - 1);
 arguments.push (argument);
 }
@@ -4017,14 +4041,14 @@ if (argument.length)
 arguments.push (argument);
 else
 if (arguments.length || temp.value === ",")
-throwError (liteParser.getPosition (), "Missing argument");
+throwError ({}, Messages.UnexpectedToken, temp.value);
 if (temp.value === ")")
 break;
 else
 position = liteParser.index;
 }
 if (! temp)
-throwError (liteParser.getPosition (), "Invalid arguments list");
+throwError ({}, Messages.UnexpectedEOS);
 }
 }
 var replacement = "@__call(" + calls.length + ")";
@@ -4039,22 +4063,25 @@ level = level.replace (/\.[\d_]+$/, "");
 }
 var calls = [], liteParser = new LiteParser(source).on ("//", function (arg){
 return this.findSimple ("\n", "\r", LiteParser.EOF);
-}).on ("/*", function (arg){
+}, "comment").on ("/*", function (arg){
 return this.findSimple ("*/");
-}).on ("/", function (arg){
-for (var temp; 
-temp = liteParser.findSimple ("\\\\", "\\/", "/"); )
-if (temp.value === "/")
-return true;
-return false;
-}).on ("'", "\"", "`", function (arg){
+}, "multiline comment").on ("'", "\"", "`", function (arg){
+var from = liteParser.index;
 for (var temp; 
 temp = liteParser.findSimple ("\\" + arg.value, arg.value); )
 if (temp.value === arg.value)
 return true;
 return false;
+}, "string").on (/(^|function|lambda|return|[=,\(\[\{\:;])\s*\/[^\/\*]/, function (arg){
+for (var temp; 
+temp = liteParser.findSimple ("\\\\", "\\/", "/"); )
+if (temp.value === "/")
+return true;
+return false;
+}, function regExp (from,to,found){
+return this.data.substring (from - 1, to - 1);
 }), found;
-while (found = liteParser.findNext (/@macro\s+([_$a-zA-Z][_$a-zA-Z0-9\.\-]*(?:\:[a-z\-]+)?)?/, /@([_$a-zA-Z][_$a-zA-Z0-9\.\-]*)/, "{", "}"))
+while (found = liteParser.findNext (/@macro\s+((?:[_$a-zA-Z][_$a-zA-Z0-9\.\-]*)?(?:\:[a-z\-]+)?)/, /@([_$a-zA-Z][_$a-zA-Z0-9\.\-]*)/, "{", "}"))
 {
 switch (found.id){
 case 0:
@@ -4083,13 +4110,13 @@ level = "";
 console.assert (context instanceof Context, "Context required");
 console.assert (typeof callback === "function", "Function required");
 var temp = macrosParse (data, level, context), queue = new Queue(Queue.MODE_PARALLEL).description ("macros process");
-{ var _2i6lneh_93 = temp.calls; for (var _3rb3l3n_94 = 0; _3rb3l3n_94 < _2i6lneh_93.length; _3rb3l3n_94 ++){
-var call = _2i6lneh_93[_3rb3l3n_94];
+{ var _63i0aj5_40 = temp.calls; for (var _5mvlscj_41 = 0; _5mvlscj_41 < _63i0aj5_40.length; _5mvlscj_41 ++){
+var call = _63i0aj5_40[_5mvlscj_41];
 queue.add (call, call.process.bind (call));
 }}
 queue.run (function (arg){
-for (var _67e4986_95 = 0; _67e4986_95 < arg.length; _67e4986_95 ++){
-var entry = arg[_67e4986_95];
+for (var _4no8mm4_42 = 0; _4no8mm4_42 < arg.length; _4no8mm4_42 ++){
+var entry = arg[_4no8mm4_42];
 temp.data = temp.data.split (entry.data.replacement).join (entry.result [0]);
 }
 callback (temp.data);
@@ -4235,9 +4262,19 @@ this.callback = callback;
 this.complete ();
 return this;
 };
-console.fatal = function (code){
-console.error.apply (console, Array.prototype.slice.call (arguments, typeof code === "number" ? 1 : 0));
-process.exit (typeof code === "number" ? code : 0);
+process.on ("uncaughtException", function (error){
+console.fatal (error && error.stack ? error.stack : String (error));
+});
+console.fatal = function (){
+console.log ("\n    [ FATAL ERROR ]\n");
+console.log.apply (console, arguments);
+console.log ("");
+console.log = function (arg){
+;
+};
+setTimeout (function (arg){
+return process.exit (1);
+}, 500);
 };
 console.json = function (obj){
 console.log (JSON.stringify (obj, false, 2));
@@ -4246,7 +4283,7 @@ function convert (jsxCode,options){
 try{
 return require ("escodegen").generate (typeof jsxCode === "string" ? jsxParse (jsxCode, typeof options === "string" ? {"filename":options} : options) : jsxCode);
 }catch (e){
-console.fatal (4, "Parsing failed:\n" + jsxCode + "\n\n" + e.stack);
+console.fatal ("Parsing failed (" + options.filename + ")" + ("\n" + jsxCode.trim ()).replace (/\n/g, "\n> ") + "\n\n" + e.stack);
 }
 }
 function addLog (p,key,fn){
@@ -4266,7 +4303,6 @@ if (f [0].length > size)
 f [0] = f [0].substr (0, size - 4) + "...:";
 f [0] += new Array(1 + size - f [0].length).join (" ");
 f.push.apply (f, arguments);
-console.log.apply (console, f);
 };
 return p ? (p.prototype.log = r) : r;
 }
@@ -4333,7 +4369,7 @@ if (fileStorage.has (function (arg){
 return arg.state !== File.STATE_FINISHED && arg.state !== File.STATE_MACRO_WAITING;
 }) && MacroCall.waitingForCallback === 0 && MacroCall.waitingForMacro > 0)
 {
-console.fatal (1, "Macro initialization failed: " + macroStorage.requests.map (function (arg){
+console.fatal ("Macro initialization failed: " + macroStorage.requests.map (function (arg){
 return "@" + arg [0];
 }).join (", "));
 }
@@ -4343,8 +4379,8 @@ Worker.prototype.start = function (callback){
 console.assert (this.state == Worker.STATE_INITIAL, "Wrong state (" + this.state + ")");
 this.state = Worker.STATE_WAITING;
 this.log ("started");
-{ var _5n4mh2p_30 = File.find ("default/*") || []; for (var _10m19mp_31 = 0; _10m19mp_31 < _5n4mh2p_30.length; _10m19mp_31 ++){
-var file = _5n4mh2p_30[_10m19mp_31];
+{ var _2f49i98_75 = File.find ("default/*") || []; for (var _6tc18pc_76 = 0; _6tc18pc_76 < _2f49i98_75.length; _6tc18pc_76 ++){
+var file = _2f49i98_75[_6tc18pc_76];
 file.process ();
 }}
 this.mainFile = new File(this.path);
@@ -4359,8 +4395,8 @@ callback ();
 Worker.prototype.collect = function (callback){
 console.assert (this.state == Worker.STATE_STARTED, "Wrong state (" + this.state + ")");
 this.state = Worker.STATE_WAITING;
-{ var _5fv7ua5_32 = fileStorage.files; for (var _2gok74p_33 = 0; _2gok74p_33 < _5fv7ua5_32.length; _2gok74p_33 ++){
-var file = _5fv7ua5_32[_2gok74p_33];
+{ var _7vsk8ic_77 = fileStorage.files; for (var _29soncd_78 = 0; _29soncd_78 < _7vsk8ic_77.length; _29soncd_78 ++){
+var file = _7vsk8ic_77[_29soncd_78];
 $.extend (this.data.helpers, file.helpers);
 Array.prototype.push.apply (this.data.statements, file.parsed.body);
 Array.prototype.push.apply (this.data.classes, file.parsed.classes);
@@ -4387,7 +4423,6 @@ Worker.prototype.generate = function (callback){
 console.assert (this.state == Worker.STATE_CLASSES, "Wrong state (" + this.state + ")");
 this.state = Worker.STATE_WAITING;
 var elements = doHelpers (this.data.helpers).concat (this.data.statements).concat (this.data.classes).concat (this.data.initializations), ast = program (elements);
-fs.writeFileSync (path.resolve (__dirname, "../stuff/ast-dump.json"), JSON.stringify (ast, null, 4));
 var result = convert (ast);
 this.log ("js generated");
 this.state = Worker.STATE_GENERATED;

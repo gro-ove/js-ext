@@ -30,18 +30,24 @@
 		V new operator instead of "in"
 		F check for order of super constructor call and initialization
 		- convert member expression for static private to identifier
-		- processSuperExpression add static check
+		- processSuperExpression: add check if static method is processing
 		- prevent binded functions processing
 		- prevent functions with "call" or "apply" processing
-		- interfaces
-			- interfaces generator
-		- without "return" in constructors
+		- add interfaces
+		- add implementeds
+			- implementeds generator
+			- save already added helpers
+				? with cool macros
+		- throw error if "return" found in contructor
+		- improve search of call of super method in contructor
+		- improve errors report
 		- anonymous classes
 		- initialization with constructor: for example, "var a = new A (){ objectField = value; for (var i = 0; i < 10; i ++) something ++ }"
 		- processing default fields initializations
 		- partial classes
 		L special access like ['field' + name] support
-		? kind of multiple inheritance 
+		? kind of multiple inheritance
+		? if Js-Ext could use getters, add initialize only on first access
 	V notimplemented operator
 	V strings format
 	V macros
@@ -77,8 +83,8 @@
 	V array initializer operator
 		V with function
 	V convert [].forEach into Array.prototype.forEach and stuff
+	V new loop: for-in-object
 	F default arguments to constuctor
-	F overrided protected functions
 	F import with dot in name
 	F import folders
 	F shit with functions (callable declarations)
@@ -96,7 +102,6 @@
 	L interfaces
 	L override instruction
 	L multifile classes
-	L new loop: for-in-only
 	L inner classes
 	L warnings
 	L ie8 compilation mode

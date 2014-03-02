@@ -27,5 +27,5 @@
 		if (match ('{'))
 			return parseBlock ();
 		else
-			return blockStatement ([ parseSourceElement () ], true);
+			return blockStatement ([ parseStatement () ], true);
 	}

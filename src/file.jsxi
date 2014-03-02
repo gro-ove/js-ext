@@ -1,3 +1,5 @@
+	File.DEBUG_MODE				= true;
+
 	function File (root, fullpath){
 		console.assert (!fileStorage.exists (fullpath), 'File already processed');
 
@@ -133,7 +135,9 @@
 				callback ();
 			}.bind (this));
 		} catch 
-			console.fatal (3, 'Parsing failed:\n' + this.content + '\n\n' + e.stack);
+			console.fatal ('Parsing failed (' + this.filename + ')' 
+				+ (File.DEBUG_MODE ? ('\n' + this.content.trim ()).replace (/\n/g, '\n> ') + '\n' : '')
+				+ '\n' + e.stack);
 	}
 
 	File.prototype.process = function (callback){

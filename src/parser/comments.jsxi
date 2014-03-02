@@ -1,44 +1,23 @@
 	// 7.4 Comments
 
-	function saveComment (mode, key, value){
-		if (!information [mode])
-			information [mode] = [];
-
-		information [mode].push ({ 
-			key: 	key, 
-			value: 	value === undefined ? true : value 
-		});
-	}
-
 	function skipComment (){
-		var ch, start, blockComment, lineComment, lineCommentFrom, temp, matched;
+		var ch, start, blockComment, lineComment, lineCommentFrom;
 
 		blockComment = false;
 		lineComment = false;
-		specialMode = false;
 
 		while (index < length){
 			ch = source [index];
 
 			if (lineComment){
 				ch = source [index ++];
+
 				if (isLineTerminator (ch)){
-					temp = source.substring (lineCommentFrom, index - 1).trim ();
-
-					if (!specialMode){
-						matched = temp.match (/^==([^=]+)==$/);
-						if (matched)
-							specialMode = matched [1];
-					} else if (temp [0] == '@'){
-						temp = temp.match (/@([^\s]+)(?:\s+([\s\S]+))?/);
-						saveComment (specialMode, temp [1], temp [2]);
-					} else if (temp === '==/' + specialMode + '=='){
-						specialMode = false;
-					}
-
 					lineComment = false;
+
 					if (ch === '\r' && source [index] === '\n') 
 						++ index;
+
 					++ lineNumber;
 					lineStart = index;
 				}
@@ -46,24 +25,31 @@
 				if (isLineTerminator (ch)){
 					if (ch === '\r' && source [index + 1] === '\n')
 						++ index;
+
 					++ lineNumber;
 					++ index;
 					lineStart = index;
+
 					if (index >= length)
 						throwError ({}, Messages.UnexpectedToken, 'ILLEGAL');
 				} else {
 					ch = source [index ++];
+
 					if (index >= length)
 						throwError ({}, Messages.UnexpectedToken, 'ILLEGAL');
-					if (ch === '*') 
+
+					if (ch === '*'){
 						ch = source [index];
+
 						if (ch === '/'){
 							++ index;
 							blockComment = false;
 						}
+					}
 				}
 			} else if (ch === '/'){
 				ch = source [index + 1];
+
 				if (ch === '/'){
 					index += 2;
 					lineCommentFrom = index;
@@ -71,6 +57,7 @@
 				} else if (ch === '*'){
 					index += 2;
 					blockComment = true;
+
 					if (index >= length) 
 						throwError ({}, Messages.UnexpectedToken, 'ILLEGAL');
 				} else 
@@ -79,8 +66,10 @@
 				++ index;
 			} else if (isLineTerminator (ch)){
 				++ index;
+
 				if (ch ===  '\r' && source [index] === '\n') 
 					++ index;
+
 				++ lineNumber;
 				lineStart = index;
 			} else 

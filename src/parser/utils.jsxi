@@ -68,11 +68,11 @@
 			try {
 				return firstFn ();
 			} catch {
-				if (String (e).indexOf ('Unexpected token') !== -1){
+				if (e instanceof Error && /^Unexpected .+? \[.+?\:\d+\]$/.test (e.message)){
 					restoreAll (saved);
 					return secondFn ();
 				} else
-					throw new Error ('AttemptError:', e.message);
+					throw e;
 			}
 		}
 
