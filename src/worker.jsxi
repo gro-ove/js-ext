@@ -94,11 +94,8 @@
 							.concat (this.data.statements)
 							.concat (this.data.classes)
 							.concat (this.data.initializations),
-			ast 		= program (elements);
-
-		// fs.writeFileSync (path.resolve (__dirname, '../stuff/ast-dump.json'), JSON.stringify (ast, null, 4));
-
-		var result 		= convert (ast);
+			ast 		= program (elements),
+			result 		= convert (ast, { filename: 'result' });
 
 		this.log ('js generated');
 		this.state 		= Worker.STATE_GENERATED;

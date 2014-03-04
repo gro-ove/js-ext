@@ -2416,12 +2416,12 @@ initializer = updateMember (functionDeclaration ("@initializer"), classEntry);
 initializer.static = true;
 initializer.autocreated = true;
 }
-{ var _27qn5tn_90 = classEntry.members; for (var name in _27qn5tn_90){
-var member = _27qn5tn_90[name];
+{ var _3u7lv9o_21 = classEntry.members; for (var name in _3u7lv9o_21){
+var member = _3u7lv9o_21[name];
 updateMember (member, classEntry);
 }}
 var fields = filter (classEntry.members, function (arg){
-return ! arg.method && ! arg.static;
+return ! arg.method && ! arg.static && arg.init;
 });
 var initialization = fields.map (function (arg){
 return $.extend (expressionStatement (assignmentExpression (memberExpression (thisExpression (), arg.id.name), arg.init || "undefined")), {"comment":arg.id.name,"autocreated":true});
@@ -2671,8 +2671,8 @@ if (typeof obj === "object" && obj !== null)
 {
 if (obj instanceof Array)
 {
-for (var _4244gc6_24 = 0; _4244gc6_24 < obj.length; _4244gc6_24 ++){
-var child = obj[_4244gc6_24];
+for (var _81d9do4_82 = 0; _81d9do4_82 < obj.length; _81d9do4_82 ++){
+var child = obj[_81d9do4_82];
 lookForExclusions (child, target);
 }
 }
@@ -2697,7 +2697,6 @@ lookForExclusions (value, target);
 function processFunction (obj,parent){
 console.assert (typeof obj === "object" && (obj.type === Syntax.FunctionDeclaration || obj.type === Syntax.FunctionExpression), "Wrong argument: " + obj);
 var oldExclusions = $.extend (true, {}, exclusions), oldCurrentFunction = currentFunction;
-exclusions = {};
 currentFunction = obj;
 obj.params.forEach (function (arg){
 return exclusions [arg.name] = true;
@@ -2821,8 +2820,8 @@ if (typeof obj === "object" && obj !== null)
 {
 if (obj instanceof Array)
 {
-for (var _916rtdp_25 = 0; _916rtdp_25 < obj.length; _916rtdp_25 ++){
-var child = obj[_916rtdp_25];
+for (var _2i9pb3c_83 = 0; _2i9pb3c_83 < obj.length; _2i9pb3c_83 ++){
+var child = obj[_2i9pb3c_83];
 process (child, obj);
 }
 }
@@ -3787,7 +3786,7 @@ function cast (argument,value,callback){
 function nextStep (){
 var data;
 try{
-eval ("data = " + convert (arg, "macro arg"));
+eval ("data = " + convert (arg, {"filename":"macro arg"}));
 callback (data);
 }catch (e){
 console.fatal (2, "Error at argument preparing:\n" + (value || "< empty string >") + " ⇒ " + (arg || "< empty string >") + "\n\n" + e.stack);
@@ -3804,8 +3803,8 @@ default:macrosProcess (value, this.level, this.context, nextStep);
 }
 }
 var queue = new Queue(this, Queue.MODE_PARALLEL).description ("macro call arguments prepare");
-{ var _1ngv09j_80 = this.arguments; for (var i = 0; i < _1ngv09j_80.length; i ++){
-var arg = _1ngv09j_80[i];
+{ var _181gjl9_68 = this.arguments; for (var i = 0; i < _181gjl9_68.length; i ++){
+var arg = _181gjl9_68[i];
 queue.add (cast, this.macro.arguments [i], arg);
 }}
 queue.run (function (arg){
@@ -4280,12 +4279,26 @@ console.json = function (obj){
 console.log (JSON.stringify (obj, false, 2));
 };
 function convert (jsxCode,options){
+var parsed;
+if (typeof jsxCode === "string")
+{
 try{
-return require ("escodegen").generate (typeof jsxCode === "string" ? jsxParse (jsxCode, typeof options === "string" ? {"filename":options} : options) : jsxCode);
+parsed = jsxParse (jsxCode, options);
 }catch (e){
 console.fatal ("Parsing failed (" + options.filename + ")" + ("\n" + jsxCode.trim ()).replace (/\n/g, "\n> ") + "\n\n" + e.stack);
 }
 }
+else
+parsed = jsxCode;
+try{
+return require ("escodegen").generate (parsed);
+}catch (e){
+console.fatal ("Generating failed (" + options.filename + ")" + e.stack);
+}
+}
+var previousT = (function (arg){
+return arg [0] * 1000000000 + arg [1];
+}) (process.hrtime ());
 function addLog (p,key,fn){
 if (! p || ! p.prototype)
 {
@@ -4297,12 +4310,21 @@ if (typeof key === "number")
 key = new Array(key + 1).join ("  ");
 else
 key = key + 1;
+function tstr (n){
+var s = String (n / 1000000000 | 0), ms = String ((n % 1000000000) / 1000000 | 0);
+while (s.length < 2)
+s = "0" + s;
+while (ms.length < 3)
+ms = "0" + ms;
+return "[" + s + "." + ms + "]";
+}
 var size = 32, r = function (arg){
-var f = [key + (typeof fn === "function" ? fn.call (this) : fn) + ":"];
+var f = [key + (typeof fn === "function" ? fn.call (this) : fn) + ":"], h = process.hrtime (), t = h [0] * 1000000000 + h [1];
 if (f [0].length > size)
 f [0] = f [0].substr (0, size - 4) + "...:";
 f [0] += new Array(1 + size - f [0].length).join (" ");
 f.push.apply (f, arguments);
+f = [tstr (t - previousT)].concat (f);
 };
 return p ? (p.prototype.log = r) : r;
 }
@@ -4379,8 +4401,8 @@ Worker.prototype.start = function (callback){
 console.assert (this.state == Worker.STATE_INITIAL, "Wrong state (" + this.state + ")");
 this.state = Worker.STATE_WAITING;
 this.log ("started");
-{ var _2f49i98_75 = File.find ("default/*") || []; for (var _6tc18pc_76 = 0; _6tc18pc_76 < _2f49i98_75.length; _6tc18pc_76 ++){
-var file = _2f49i98_75[_6tc18pc_76];
+{ var _rqt43_23 = File.find ("default/*") || []; for (var _4b0iqlk_24 = 0; _4b0iqlk_24 < _rqt43_23.length; _4b0iqlk_24 ++){
+var file = _rqt43_23[_4b0iqlk_24];
 file.process ();
 }}
 this.mainFile = new File(this.path);
@@ -4395,8 +4417,8 @@ callback ();
 Worker.prototype.collect = function (callback){
 console.assert (this.state == Worker.STATE_STARTED, "Wrong state (" + this.state + ")");
 this.state = Worker.STATE_WAITING;
-{ var _7vsk8ic_77 = fileStorage.files; for (var _29soncd_78 = 0; _29soncd_78 < _7vsk8ic_77.length; _29soncd_78 ++){
-var file = _7vsk8ic_77[_29soncd_78];
+{ var _7pqs8ee_25 = fileStorage.files; for (var _8urerce_26 = 0; _8urerce_26 < _7pqs8ee_25.length; _8urerce_26 ++){
+var file = _7pqs8ee_25[_8urerce_26];
 $.extend (this.data.helpers, file.helpers);
 Array.prototype.push.apply (this.data.statements, file.parsed.body);
 Array.prototype.push.apply (this.data.classes, file.parsed.classes);
@@ -4422,8 +4444,7 @@ callback ();
 Worker.prototype.generate = function (callback){
 console.assert (this.state == Worker.STATE_CLASSES, "Wrong state (" + this.state + ")");
 this.state = Worker.STATE_WAITING;
-var elements = doHelpers (this.data.helpers).concat (this.data.statements).concat (this.data.classes).concat (this.data.initializations), ast = program (elements);
-var result = convert (ast);
+var elements = doHelpers (this.data.helpers).concat (this.data.statements).concat (this.data.classes).concat (this.data.initializations), ast = program (elements), result = convert (ast, {"filename":"result"});
 this.log ("js generated");
 this.state = Worker.STATE_GENERATED;
 this.result = result;

@@ -42,6 +42,7 @@
 		- improve search of call of super method in contructor
 		- improve errors report
 		- anonymous classes
+		- "super;" ⇒ "ParentClass.prototype.method.apply (this, arguments)"
 		- initialization with constructor: for example, "var a = new A (){ objectField = value; for (var i = 0; i < 10; i ++) something ++ }"
 		- processing default fields initializations
 		- partial classes

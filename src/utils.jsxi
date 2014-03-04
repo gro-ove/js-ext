@@ -14,13 +14,27 @@ console.json = function (obj){
 	console.log (JSON.stringify (obj, false, 2));
 };
 
-function convert (jsxCode, options)
+function convert (jsxCode, options){
+	var parsed;
+
+	if (typeof jsxCode === 'string'){
+		try {
+			parsed = jsxParse (jsxCode, options);
+		} catch 
+			console.fatal ('Parsing failed (' + options.filename + ')' 
+				+ ('\n' + jsxCode.trim ()).replace (/\n/g, '\n> ') + '\n\n'
+				+ e.stack);
+	} else
+		parsed = jsxCode;
+
 	try {
-		return require ('escodegen').generate (typeof jsxCode === 'string' ? jsxParse (jsxCode, typeof options === 'string' ? { filename: options } : options) : jsxCode);
+		return require ('escodegen').generate (parsed);
 	} catch 
-		console.fatal ('Parsing failed (' + options.filename + ')' 
-			+ ('\n' + jsxCode.trim ()).replace (/\n/g, '\n> ') + '\n\n'
+		console.fatal ('Generating failed (' + options.filename + ')' 
 			+ e.stack);
+}
+
+var previousT = (lambda arg [0] * 1e9 + arg [1])(process.hrtime ());
 
 function addLog (p, key, fn){
 	if (!p || !p.prototype){
@@ -34,13 +48,31 @@ function addLog (p, key, fn){
 	else
 		key = key + 1;
 
+	function tstr (n){
+		var s = String (n / 1e9 | 0),
+			ms = String ((n % 1e9) / 1e6 | 0);
+
+		while (s.length < 2)
+			s = '0' + s;
+
+		while (ms.length < 3)
+			ms = '0' + ms;
+
+		return '[' + s + '.' + ms + ']';
+	}
+
 	var size = 32,
 		r = lambda {
-			var f = [ key + (typeof fn === 'function' ? fn.call (this) : fn) + ':' ];
+			var f = [ key + (typeof fn === 'function' ? fn.call (this) : fn) + ':' ],
+				h = process.hrtime (),
+				t = h [0] * 1e9 + h [1];
+
 			if (f [0].length > size)
 				f [0] = f [0].substr (0, size - 4) + '...:';
 			f [0] += new Array (1 + size - f [0].length).join (' ');
 			f.push.apply (f, arguments);
+
+			f = [ tstr (t - previousT) ].concat (f);
 
 			// console.log.apply (console, f);
 		};

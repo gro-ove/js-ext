@@ -1,11 +1,10 @@
 var A = function () {
-        var A = function () {
-        };
-        A.prototype.a = function (a, b) {
-            console.log(a, b);
+        var A = function (arg) {
+            var __that = this;
+            var temp = function () {
+                arg;
+                __that.__A_other;
+            };
         };
         return A;
     }();
-(function () {
-    new A().a(1, 2);
-}());

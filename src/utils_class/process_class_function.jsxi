@@ -64,7 +64,6 @@
 			var oldExclusions = $.extend (true, {}, exclusions),
 				oldCurrentFunction = currentFunction;
 
-			exclusions = {};
 			currentFunction = obj;
 
 			// Заносим в исключения аргументы функции

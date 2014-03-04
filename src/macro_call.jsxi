@@ -50,7 +50,7 @@
 				var data;
 
 				try {
-					eval ('data = ' + convert (arg, 'macro arg'));
+					eval ('data = ' + convert (arg, { filename: 'macro arg' }));
 					callback (data);
 				} catch 
 					console.fatal (2, 'Error at argument preparing:\n' + (value || '< empty string >') + ' ⇒ ' + (arg || '< empty string >') + '\n\n' + e.stack);

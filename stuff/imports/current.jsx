@@ -1,9 +1,10 @@
 class A {
-	public a (a, b){
-		console.log (a, b);
-	}
-}
+	arg, other;
 
-{
-	new A ().a (1, 2);
+	(arg){
+		var temp = function (){
+			arg;
+			other;
+		}
+	}
 }

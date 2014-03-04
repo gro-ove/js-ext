@@ -27,7 +27,7 @@ function addClass (classEntry){
 		updateMember (member, classEntry);
 
 	// Находим список полей объекта, требующих инициализации
-	var fields = filter (classEntry.members, lambda !arg.method && !arg.static);
+	var fields = filter (classEntry.members, lambda !arg.method && !arg.static && arg.init);
 
 	// Собираем присваивания для инициализации
 	var initialization = fields.map (lambda $.extend (
