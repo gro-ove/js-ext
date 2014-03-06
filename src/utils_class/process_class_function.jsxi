@@ -200,6 +200,11 @@
 						set (obj, callExpression ('__pa', [ member.className.name, obj.object, literal (member.id.name), literal (member.id.name.indexOf (obj.property.name)) ]));
 						helpers.propertyAccess = true;
 						return;
+					} else {
+						obj.computed = true;
+						obj.property = callExpression ('__pn', [ member.className.name, obj.object, literal (member.id.name), literal (member.id.name.indexOf (obj.property.name)) ]);
+						helpers.propertyName = true;
+						return;
 					}
 				}
 			}

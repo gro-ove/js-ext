@@ -168,6 +168,8 @@ function helperById (id,value){
 switch (id){
 case "propertyAccess":
 return functionDeclaration ("__pa", ["c","o","r","u"], [expressionStatement (assignmentExpression ("u", callExpression (memberExpression ("r", "slice"), ["u"]))),returnStatement (memberExpression ("o", conditionalExpression (binaryExpression ("o", "instanceof", "c"), "r", "u"), true))]);
+case "propertyName":
+return functionDeclaration ("__pn", ["c","o","r","u"], [expressionStatement (assignmentExpression ("u", callExpression (memberExpression ("r", "slice"), ["u"]))),returnStatement (conditionalExpression (binaryExpression ("o", "instanceof", "c"), "r", "u"))]);
 case "prototypeExtend":
 return functionDeclaration ("__pe", ["c","p","t"], [expressionStatement (assignmentExpression ("t", functionExpression ())),expressionStatement (assignmentExpression (memberExpression ("t", "prototype"), memberExpression ("p", "prototype"))),expressionStatement (assignmentExpression (memberExpression ("c", "prototype"), newExpression ("t"))),expressionStatement (assignmentExpression (memberExpression (memberExpression ("c", "prototype"), "constructor"), "c"))]);
 case "createArray":
@@ -2680,8 +2682,8 @@ if (typeof obj === "object" && obj !== null)
 {
 if (obj instanceof Array)
 {
-for (var _2t925gr_36 = 0; _2t925gr_36 < obj.length; _2t925gr_36 ++){
-var child = obj[_2t925gr_36];
+for (var _6l6j3m3_99 = 0; _6l6j3m3_99 < obj.length; _6l6j3m3_99 ++){
+var child = obj[_6l6j3m3_99];
 lookForExclusions (child, target);
 }
 }
@@ -2802,6 +2804,13 @@ set (obj, callExpression ("__pa", [member.className.name,obj.object,literal (mem
 helpers.propertyAccess = true;
 return;
 }
+else
+{
+obj.computed = true;
+obj.property = callExpression ("__pn", [member.className.name,obj.object,literal (member.id.name),literal (member.id.name.indexOf (obj.property.name))]);
+helpers.propertyName = true;
+return;
+}
 }
 }
 process (obj.object, obj);
@@ -2841,8 +2850,8 @@ if (typeof obj === "object" && obj !== null)
 {
 if (obj instanceof Array)
 {
-for (var _329p1l7_37 = 0; _329p1l7_37 < obj.length; _329p1l7_37 ++){
-var child = obj[_329p1l7_37];
+for (var _33ooch4_100 = 0; _33ooch4_100 < obj.length; _33ooch4_100 ++){
+var child = obj[_33ooch4_100];
 process (child, obj);
 }
 }
