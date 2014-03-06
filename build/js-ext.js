@@ -2408,6 +2408,10 @@ function addClass (classEntry){
 if (byName (classEntry.id.name))
 throwError (classEntry.id, Messages.ClassAlreadyDefined, classEntry.id.name);
 classEntry.classObject = true;
+{ var _4s1in55_53 = classEntry.members; for (var name in _4s1in55_53){
+var value = _4s1in55_53[name];
+value.className = classEntry.id;
+}}
 var constructor = classEntry.members ["@constructor"];
 if (constructor === undefined)
 {
@@ -2421,8 +2425,8 @@ initializer = updateMember (functionDeclaration ("@initializer"), classEntry);
 initializer.static = true;
 initializer.autocreated = true;
 }
-{ var _3u7lv9o_21 = classEntry.members; for (var name in _3u7lv9o_21){
-var member = _3u7lv9o_21[name];
+{ var _414pddo_54 = classEntry.members; for (var name in _414pddo_54){
+var member = _414pddo_54[name];
 updateMember (member, classEntry);
 }}
 var fields = filter (classEntry.members, function (arg){
@@ -2676,8 +2680,8 @@ if (typeof obj === "object" && obj !== null)
 {
 if (obj instanceof Array)
 {
-for (var _1grnseq_60 = 0; _1grnseq_60 < obj.length; _1grnseq_60 ++){
-var child = obj[_1grnseq_60];
+for (var _2kn889b_55 = 0; _2kn889b_55 < obj.length; _2kn889b_55 ++){
+var child = obj[_2kn889b_55];
 lookForExclusions (child, target);
 }
 }
@@ -2793,7 +2797,7 @@ delete obj.property.value;
 else
 {
 obj.computed = true;
-set (obj, callExpression ("__pa", [classEntry.id.name,obj.object,literal (member.id.name),literal (member.id.name.indexOf (obj.property.name))]));
+set (obj, callExpression ("__pa", [member.className.name,obj.object,literal (member.id.name),literal (member.id.name.indexOf (obj.property.name))]));
 helpers.propertyAccess = true;
 return;
 }
@@ -2836,8 +2840,8 @@ if (typeof obj === "object" && obj !== null)
 {
 if (obj instanceof Array)
 {
-for (var _kbt5ob_61 = 0; _kbt5ob_61 < obj.length; _kbt5ob_61 ++){
-var child = obj[_kbt5ob_61];
+for (var _59c0itg_56 = 0; _59c0itg_56 < obj.length; _59c0itg_56 ++){
+var child = obj[_59c0itg_56];
 process (child, obj);
 }
 }

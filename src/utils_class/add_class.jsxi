@@ -7,6 +7,10 @@ function addClass (classEntry){
 	// Вспомогательный атрибут на будущее
 	classEntry.classObject = true;
 
+	// Проставляем каждому члену имя родительского класса (позже пригодится)
+	for (var name, value in classEntry.members)
+		value.className = classEntry.id;
+
 	// Находим, а если понадобится, то создаём конструктор
 	var constructor = classEntry.members ['@constructor'];
 	if (constructor === undefined){

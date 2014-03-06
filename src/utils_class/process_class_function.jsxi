@@ -197,7 +197,7 @@
 						}
 					} else {
 						obj.computed = true;
-						set (obj, callExpression ('__pa', [ classEntry.id.name, obj.object, literal (member.id.name), literal (member.id.name.indexOf (obj.property.name)) ]));
+						set (obj, callExpression ('__pa', [ member.className.name, obj.object, literal (member.id.name), literal (member.id.name.indexOf (obj.property.name)) ]));
 						helpers.propertyAccess = true;
 						return;
 					}

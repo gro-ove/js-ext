@@ -10,7 +10,7 @@ class B extends A {
 		this.variable = variable;
 
 	public test (a, b){
-		console.log (variable, a.variable, b.variable, new B ().other);
+		console.log (variable, a.variable, b.variable, new A ().other);
 		console.log (B.privateStatic);
 	}
 }
