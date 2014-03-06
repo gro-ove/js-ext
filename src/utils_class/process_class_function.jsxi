@@ -174,8 +174,6 @@
 		}
 
 		function processMemberExpression (obj, parent){
-			var propertyProcess = obj.computed;
-
 			if (obj.computed){
 				if (obj.object.type === Syntax.ThisExpression && obj.property.type !== Syntax.Literal){
 					// TODO
@@ -201,29 +199,17 @@
 						}
 					} else if (obj.object.type === Syntax.ThisExpression){
 						obj.property.name = member.id.name;
-
-						if (obj.property.type === Syntax.Literal){
-							obj.computed = false;
-							obj.property.type = Syntax.Identifier;
-							delete obj.property.value;
-						}
-					} else if (parent.type !== Syntax.AssignmentExpression){
-						obj.computed = true;
-						set (obj, callExpression ('__pa', [ member.className.name, obj.object, literal (member.id.name), literal (member.id.name.indexOf (obj.property.name)) ]));
-						helpers.propertyAccess = true;
-						return;
-					} else {
-						obj.property = callExpression ('__pn', [ member.className.name, obj.object.type === Syntax.Identifier ? obj.object : '__arg', 
-							literal (member.id.name), literal (member.id.name.indexOf (obj.property.name)) ]);
-						helpers.propertyName = true;
-
-						if (obj.object.type === Syntax.Identifier){
+					} else if (member.publicMode !== 'public'){
+						if (parent.type !== Syntax.AssignmentExpression || obj.object.type === Syntax.Identifier){
 							obj.computed = true;
+							obj.property = callExpression ('__pn', [ member.className.name, obj.object, literal (member.id.name), literal (member.id.name.indexOf (obj.property.name)) ]);
 						} else {
-							var assignment = $.extend (true, {}, parent, { left: memberExpression ('__arg', obj.property, true) });
+							var property = callExpression ('__pn', [ member.className.name, '__arg', literal (member.id.name), literal (member.id.name.indexOf (obj.property.name)) ]),
+								assignment = $.extend (true, {}, parent, { left: memberExpression ('__arg', property, true) });
 							set (parent, callExpression (functionExpression ([ '__arg' ], [ returnStatement (assignment) ]), [ obj.object ]));
 						}
 
+						helpers.propertyName = true;
 						return;
 					}
 				}
@@ -233,7 +219,7 @@
 			process (obj.object, obj);
 
 			// ... и, если обращение выполняется через квадратные скобки, заодно и их содержимое
-			if (propertyProcess)
+			if (obj.computed)
 				process (obj.property, obj);
 		}
 

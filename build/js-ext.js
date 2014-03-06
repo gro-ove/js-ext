@@ -2682,8 +2682,8 @@ if (typeof obj === "object" && obj !== null)
 {
 if (obj instanceof Array)
 {
-for (var _63m84bc_39 = 0; _63m84bc_39 < obj.length; _63m84bc_39 ++){
-var child = obj[_63m84bc_39];
+for (var _3skprmn_1 = 0; _3skprmn_1 < obj.length; _3skprmn_1 ++){
+var child = obj[_3skprmn_1];
 lookForExclusions (child, target);
 }
 }
@@ -2777,7 +2777,6 @@ process (obj.right, obj);
 process (obj.left, obj);
 }
 function processMemberExpression (obj,parent){
-var propertyProcess = obj.computed;
 if (obj.computed)
 {
 if (obj.object.type === Syntax.ThisExpression && obj.property.type !== Syntax.Literal)
@@ -2802,40 +2801,27 @@ else
 if (obj.object.type === Syntax.ThisExpression)
 {
 obj.property.name = member.id.name;
-if (obj.property.type === Syntax.Literal)
-{
-obj.computed = false;
-obj.property.type = Syntax.Identifier;
-delete obj.property.value;
-}
 }
 else
-if (parent.type !== Syntax.AssignmentExpression)
+if (member.publicMode !== "public")
+{
+if (parent.type !== Syntax.AssignmentExpression || obj.object.type === Syntax.Identifier)
 {
 obj.computed = true;
-set (obj, callExpression ("__pa", [member.className.name,obj.object,literal (member.id.name),literal (member.id.name.indexOf (obj.property.name))]));
-helpers.propertyAccess = true;
-return;
+obj.property = callExpression ("__pn", [member.className.name,obj.object,literal (member.id.name),literal (member.id.name.indexOf (obj.property.name))]);
 }
 else
 {
-obj.property = callExpression ("__pn", [member.className.name,obj.object.type === Syntax.Identifier ? obj.object : "__arg",literal (member.id.name),literal (member.id.name.indexOf (obj.property.name))]);
-helpers.propertyName = true;
-if (obj.object.type === Syntax.Identifier)
-{
-obj.computed = true;
-}
-else
-{
-var assignment = $.extend (true, {}, parent, {"left":memberExpression ("__arg", obj.property, true)});
+var property = callExpression ("__pn", [member.className.name,"__arg",literal (member.id.name),literal (member.id.name.indexOf (obj.property.name))]), assignment = $.extend (true, {}, parent, {"left":memberExpression ("__arg", property, true)});
 set (parent, callExpression (functionExpression (["__arg"], [returnStatement (assignment)]), [obj.object]));
 }
+helpers.propertyName = true;
 return;
 }
 }
 }
 process (obj.object, obj);
-if (propertyProcess)
+if (obj.computed)
 process (obj.property, obj);
 }
 function processThisExpression (obj,parent){
@@ -2873,8 +2859,8 @@ if (typeof obj === "object" && obj !== null)
 {
 if (obj instanceof Array)
 {
-for (var _3h44f1u_40 = 0; _3h44f1u_40 < obj.length; _3h44f1u_40 ++){
-var child = obj[_3h44f1u_40];
+for (var _72reb3g_2 = 0; _72reb3g_2 < obj.length; _72reb3g_2 ++){
+var child = obj[_72reb3g_2];
 process (child, obj);
 }
 }
