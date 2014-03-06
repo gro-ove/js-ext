@@ -168,6 +168,11 @@
 			}
 		}
 
+		function processAssignmentExpression (obj, parent){
+			process (obj.right, obj);
+			process (obj.left, obj);
+		}
+
 		function processMemberExpression (obj, parent){
 			var propertyProcess = obj.computed;
 
@@ -201,9 +206,17 @@
 						helpers.propertyAccess = true;
 						return;
 					} else {
-						obj.computed = true;
-						obj.property = callExpression ('__pn', [ member.className.name, obj.object, literal (member.id.name), literal (member.id.name.indexOf (obj.property.name)) ]);
+						obj.property = callExpression ('__pn', [ member.className.name, obj.object.type === Syntax.Identifier ? obj.object : '__arg', 
+							literal (member.id.name), literal (member.id.name.indexOf (obj.property.name)) ]);
 						helpers.propertyName = true;
+
+						if (obj.object.type === Syntax.Identifier){
+							obj.computed = true;
+						} else {
+							var assignment = $.extend (true, {}, parent, { left: memberExpression ('__arg', obj.property, true) });
+							set (parent, callExpression (functionExpression ([ '__arg' ], [ returnStatement (assignment) ]), [ obj.object ]));
+						}
+
 						return;
 					}
 				}
@@ -291,6 +304,10 @@
 
 						case Syntax.Identifier:
 							processIdentifier (obj, parent);
+							break;
+
+						case Syntax.AssignmentExpression:
+							processAssignmentExpression (obj, parent);
 							break;
 
 						case Syntax.MemberExpression:

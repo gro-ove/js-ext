@@ -2682,8 +2682,8 @@ if (typeof obj === "object" && obj !== null)
 {
 if (obj instanceof Array)
 {
-for (var _6l6j3m3_99 = 0; _6l6j3m3_99 < obj.length; _6l6j3m3_99 ++){
-var child = obj[_6l6j3m3_99];
+for (var _4euhahl_57 = 0; _4euhahl_57 < obj.length; _4euhahl_57 ++){
+var child = obj[_4euhahl_57];
 lookForExclusions (child, target);
 }
 }
@@ -2772,6 +2772,10 @@ if (result)
 set (obj, result);
 }
 }
+function processAssignmentExpression (obj,parent){
+process (obj.right, obj);
+process (obj.left, obj);
+}
 function processMemberExpression (obj,parent){
 var propertyProcess = obj.computed;
 if (obj.computed)
@@ -2806,9 +2810,17 @@ return;
 }
 else
 {
-obj.computed = true;
-obj.property = callExpression ("__pn", [member.className.name,obj.object,literal (member.id.name),literal (member.id.name.indexOf (obj.property.name))]);
+obj.property = callExpression ("__pn", [member.className.name,obj.object.type === Syntax.Identifier ? obj.object : "__arg",literal (member.id.name),literal (member.id.name.indexOf (obj.property.name))]);
 helpers.propertyName = true;
+if (obj.object.type === Syntax.Identifier)
+{
+obj.computed = true;
+}
+else
+{
+var assignment = $.extend (true, {}, parent, {"left":memberExpression ("__arg", obj.property, true)});
+set (parent, callExpression (functionExpression (["__arg"], [returnStatement (assignment)]), [obj.object]));
+}
 return;
 }
 }
@@ -2850,8 +2862,8 @@ if (typeof obj === "object" && obj !== null)
 {
 if (obj instanceof Array)
 {
-for (var _33ooch4_100 = 0; _33ooch4_100 < obj.length; _33ooch4_100 ++){
-var child = obj[_33ooch4_100];
+for (var _5r7vi2e_58 = 0; _5r7vi2e_58 < obj.length; _5r7vi2e_58 ++){
+var child = obj[_5r7vi2e_58];
 process (child, obj);
 }
 }
@@ -2869,6 +2881,9 @@ processProperty (obj, parent);
 break;
 case Syntax.Identifier:
 processIdentifier (obj, parent);
+break;
+case Syntax.AssignmentExpression:
+processAssignmentExpression (obj, parent);
 break;
 case Syntax.MemberExpression:
 processMemberExpression (obj, parent);

@@ -39,8 +39,11 @@ var A = function () {
                 console.log('[getB]');
                 return b;
             }
-            getA()[__pn(B, getA(), '__B_variable', 4)] += '-changed';
-            getB()[__pn(B, getB(), '__B_variable', 4)] += '-changed';
+            console.log(function (__arg) {
+                return __arg[__pn(B, __arg, '__B_variable', 4)] += '-changed';
+            }(getA()), function (__arg) {
+                return __arg[__pn(B, __arg, '__B_variable', 4)] += '-changed';
+            }(getB()));
             console.log(__pa(B, a, '__B_variable', 4), __pa(B, b, '__B_variable', 4));
         };
         return B;

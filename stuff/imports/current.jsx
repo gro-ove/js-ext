@@ -27,8 +27,7 @@ class B extends A {
 			return b;
 		}
 
-		getA ().variable += '-changed';
-		getB ().variable += '-changed';
+		console.log (getA ().variable += '-changed', getB ().variable += '-changed');
 		console.log (a.variable, b.variable);
 	}
 }
