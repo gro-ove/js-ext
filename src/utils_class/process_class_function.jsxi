@@ -73,7 +73,7 @@
 			lookForExclusions (obj.body.body, exclusions);
 
 			// Обновляем содержимое
-			process (obj.body.body);
+			process (obj.body.body, obj);
 
 			// Если кто-то попросил ссылку на «this», а мы — главная функция, обеспечим ссылку.
 			if (usingThat && functionEntry === obj){
@@ -173,40 +173,50 @@
 			process (obj.left, obj);
 		}
 
-		function processMemberExpression (obj, parent){
-			if (obj.computed){
-				if (obj.object.type === Syntax.ThisExpression && obj.property.type !== Syntax.Literal){
-					// TODO
-					
-					/*
-					set (obj, callExpression ('__fr', [ obj.object, obj.property ]));
+		function processMemberExpression (obj, parent, preparent){
+			var member,
+				propertyNameGetter,
+				temp;
 
-					if (helpers.findReplaced)
-						helpers.findReplaced.push (classEntry);
-					else
-						helpers.findReplaced = [ classEntry ];
-					*/
-				}
-			} else {
-				var name = obj.property.type === Syntax.Identifier ? obj.property.name : obj.property.value,
-					member = classEntry.members.hasOwnProperty (name) ? classEntry.members [name] : null;
+			if (!obj.computed){
+				member = classEntry.members.hasOwnProperty (obj.property.name) ? classEntry.members [obj.property.name] : null;
 
 				if (member){
 					if (member.static){
-						if (obj.object.type === Syntax.Identifier && obj.object.name === member.className.name && member.publicMode === 'private'){
-							set (obj, identifier (member.id.name))
+						if (member.publicMode === 'private' && obj.object.type === Syntax.Identifier && obj.object.name === member.className.name){
+							set (obj, identifier (member.id.name));
 							return;
 						}
 					} else if (obj.object.type === Syntax.ThisExpression){
 						obj.property.name = member.id.name;
-					} else if (member.publicMode !== 'public'){
-						if (parent.type !== Syntax.AssignmentExpression || obj.object.type === Syntax.Identifier){
+					} else if (0 && member.publicMode !== 'public'){
+						if (parent instanceof Array && preparent)
+							parent = preparent;
+
+						if (obj.object.type === Syntax.Identifier){
 							obj.computed = true;
-							obj.property = callExpression ('__pn', [ member.className.name, obj.object, literal (member.id.name), literal (member.id.name.indexOf (obj.property.name)) ]);
+							obj.property = conditionalExpression (binaryExpression (obj.object, 'instanceof', member.className.name), literal (member.id.name), literal (obj.property.name));
+						} else if (parent.type === Syntax.AssignmentExpression){
+							temp = $.extend (true, {}, parent);
+							for (var key, value in parent)
+								if (value === obj)
+									temp [key] = memberExpression ('__', conditionalExpression (
+										binaryExpression ('__', 'instanceof', member.className.name), literal (member.id.name), literal (obj.property.name)), true);
+
+							process (obj.object, obj);
+
+							set (parent, sequenceExpression ([
+								assignmentExpression ('__', obj.object), 
+								temp
+							]));
 						} else {
-							var property = callExpression ('__pn', [ member.className.name, '__arg', literal (member.id.name), literal (member.id.name.indexOf (obj.property.name)) ]),
-								assignment = $.extend (true, {}, parent, { left: memberExpression ('__arg', property, true) });
-							set (parent, callExpression (functionExpression ([ '__arg' ], [ returnStatement (assignment) ]), [ obj.object ]));
+							process (obj.object, obj);
+
+							set (obj, sequenceExpression ([
+								assignmentExpression ('__', obj.object), 
+								memberExpression ('__', conditionalExpression (
+							 			binaryExpression ('__', 'instanceof', member.className.name), literal (member.id.name), literal (obj.property.name)), true)
+							]));
 						}
 
 						helpers.propertyName = true;
@@ -276,14 +286,14 @@
 			obj.arguments = [ that ].concat (obj.arguments);
 		}
 
-		function process (obj, parent){
+		function process (obj, parent, preparent){
 			if (typeof obj === 'object' && obj !== null){
 				// Как-нибудь обойдёмся и без строк, чисел, null'ов и прочей мути
 
 				if (obj instanceof Array){
 					// Массивы пробегаем в ускоренном темпе
 					for (var child in-array obj)
-						process (child, obj);
+						process (child, obj, parent);
 
 				} else if ('type' in obj){
 					// Тут всё и так вполне очевидно
@@ -307,7 +317,7 @@
 							break;
 
 						case Syntax.MemberExpression:
-							processMemberExpression (obj, parent);
+							processMemberExpression (obj, parent, preparent);
 							break;
 
 						case Syntax.ThisExpression:

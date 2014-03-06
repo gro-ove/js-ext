@@ -166,10 +166,8 @@ break;
 }
 function helperById (id,value){
 switch (id){
-case "propertyAccess":
-return functionDeclaration ("__pa", ["c","o","r","u"], [expressionStatement (assignmentExpression ("u", callExpression (memberExpression ("r", "slice"), ["u"]))),returnStatement (memberExpression ("o", conditionalExpression (binaryExpression ("o", "instanceof", "c"), "r", "u"), true))]);
 case "propertyName":
-return functionDeclaration ("__pn", ["c","o","r","u"], [expressionStatement (assignmentExpression ("u", callExpression (memberExpression ("r", "slice"), ["u"]))),returnStatement (conditionalExpression (binaryExpression ("o", "instanceof", "c"), "r", "u"))]);
+return functionDeclaration ("__pn", ["c","o","r","u"], [returnStatement (conditionalExpression (binaryExpression ("o", "instanceof", "c"), "r", "u"))]);
 case "prototypeExtend":
 return functionDeclaration ("__pe", ["c","p","t"], [expressionStatement (assignmentExpression ("t", functionExpression ())),expressionStatement (assignmentExpression (memberExpression ("t", "prototype"), memberExpression ("p", "prototype"))),expressionStatement (assignmentExpression (memberExpression ("c", "prototype"), newExpression ("t"))),expressionStatement (assignmentExpression (memberExpression (memberExpression ("c", "prototype"), "constructor"), "c"))]);
 case "createArray":
@@ -2682,8 +2680,8 @@ if (typeof obj === "object" && obj !== null)
 {
 if (obj instanceof Array)
 {
-for (var _3skprmn_1 = 0; _3skprmn_1 < obj.length; _3skprmn_1 ++){
-var child = obj[_3skprmn_1];
+for (var _7u5mtkt_79 = 0; _7u5mtkt_79 < obj.length; _7u5mtkt_79 ++){
+var child = obj[_7u5mtkt_79];
 lookForExclusions (child, target);
 }
 }
@@ -2713,7 +2711,7 @@ obj.params.forEach (function (arg){
 return exclusions [arg.name] = true;
 });
 lookForExclusions (obj.body.body, exclusions);
-process (obj.body.body);
+process (obj.body.body, obj);
 if (usingThat && functionEntry === obj)
 {
 var temp = [variableDeclarator (thatVariable, thisExpression ())];
@@ -2776,22 +2774,16 @@ function processAssignmentExpression (obj,parent){
 process (obj.right, obj);
 process (obj.left, obj);
 }
-function processMemberExpression (obj,parent){
-if (obj.computed)
+function processMemberExpression (obj,parent,preparent){
+var member, propertyNameGetter, temp;
+if (! obj.computed)
 {
-if (obj.object.type === Syntax.ThisExpression && obj.property.type !== Syntax.Literal)
-{
-
-}
-}
-else
-{
-var name = obj.property.type === Syntax.Identifier ? obj.property.name : obj.property.value, member = classEntry.members.hasOwnProperty (name) ? classEntry.members [name] : null;
+member = classEntry.members.hasOwnProperty (obj.property.name) ? classEntry.members [obj.property.name] : null;
 if (member)
 {
 if (member.static)
 {
-if (obj.object.type === Syntax.Identifier && obj.object.name === member.className.name && member.publicMode === "private")
+if (member.publicMode === "private" && obj.object.type === Syntax.Identifier && obj.object.name === member.className.name)
 {
 set (obj, identifier (member.id.name));
 return;
@@ -2803,17 +2795,31 @@ if (obj.object.type === Syntax.ThisExpression)
 obj.property.name = member.id.name;
 }
 else
-if (member.publicMode !== "public")
+if (0 && member.publicMode !== "public")
 {
-if (parent.type !== Syntax.AssignmentExpression || obj.object.type === Syntax.Identifier)
+if (parent instanceof Array && preparent)
+parent = preparent;
+if (obj.object.type === Syntax.Identifier)
 {
 obj.computed = true;
-obj.property = callExpression ("__pn", [member.className.name,obj.object,literal (member.id.name),literal (member.id.name.indexOf (obj.property.name))]);
+obj.property = conditionalExpression (binaryExpression (obj.object, "instanceof", member.className.name), literal (member.id.name), literal (obj.property.name));
+}
+else
+if (parent.type === Syntax.AssignmentExpression)
+{
+temp = $.extend (true, {}, parent);
+for (var key in parent){
+var value = parent[key];
+if (value === obj)
+temp [key] = memberExpression ("__", conditionalExpression (binaryExpression ("__", "instanceof", member.className.name), literal (member.id.name), literal (obj.property.name)), true);
+}
+process (obj.object, obj);
+set (parent, sequenceExpression ([assignmentExpression ("__", obj.object),temp]));
 }
 else
 {
-var property = callExpression ("__pn", [member.className.name,"__arg",literal (member.id.name),literal (member.id.name.indexOf (obj.property.name))]), assignment = $.extend (true, {}, parent, {"left":memberExpression ("__arg", property, true)});
-set (parent, callExpression (functionExpression (["__arg"], [returnStatement (assignment)]), [obj.object]));
+process (obj.object, obj);
+set (obj, sequenceExpression ([assignmentExpression ("__", obj.object),memberExpression ("__", conditionalExpression (binaryExpression ("__", "instanceof", member.className.name), literal (member.id.name), literal (obj.property.name)), true)]));
 }
 helpers.propertyName = true;
 return;
@@ -2854,14 +2860,14 @@ obj.callee = memberExpression (target, "call");
 var that = getThis ();
 obj.arguments = [that].concat (obj.arguments);
 }
-function process (obj,parent){
+function process (obj,parent,preparent){
 if (typeof obj === "object" && obj !== null)
 {
 if (obj instanceof Array)
 {
-for (var _72reb3g_2 = 0; _72reb3g_2 < obj.length; _72reb3g_2 ++){
-var child = obj[_72reb3g_2];
-process (child, obj);
+for (var _5aa4mcd_80 = 0; _5aa4mcd_80 < obj.length; _5aa4mcd_80 ++){
+var child = obj[_5aa4mcd_80];
+process (child, obj, parent);
 }
 }
 else
@@ -2883,7 +2889,7 @@ case Syntax.AssignmentExpression:
 processAssignmentExpression (obj, parent);
 break;
 case Syntax.MemberExpression:
-processMemberExpression (obj, parent);
+processMemberExpression (obj, parent, preparent);
 break;
 case Syntax.ThisExpression:
 processThisExpression (obj, parent);

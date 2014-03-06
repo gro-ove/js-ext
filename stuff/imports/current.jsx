@@ -22,16 +22,27 @@ class B extends A {
 	public other (a, b){
 		function getA (){
 			console.log ('[getA]');
-			return a;
+			return {
+				get: function (){
+					console.log ('[getA][get]');
+					return a;
+				}
+			};
 		}
 
 		function getB (){
 			console.log ('[getB]');
-			return b;
+			return {
+				get: function (){
+					console.log ('[getB][get]');
+					return b;
+				}
+			};
 		}
 
-		console.log (getA ().variable += '-changed', getB ().variable += '-changed');
-		console.log (a.variable, b.variable);
+		console.log (getA ().get ().variable += '-changed', getB ().get ().variable += '-changed');
+		console.log ('ok');
+		console.log (getA ().get ().variable, getB ().get ().variable);
 	}
 
 	public final (a, b){
@@ -49,6 +60,20 @@ class B extends A {
 		console.log (a.qwerty, b.qwerty);
 	}
 
+	var testObj = {
+		find: function (){
+			return [
+				{
+					variable: 'deep!'
+				}
+			]
+		}
+	}
+
+	public awful (){
+		console.log (testObj.find ()[0].variable);
+	}
+
 	public staticTest (obj){
 		console.log (obj.privateStatic, B.privateStatic);
 	}
@@ -58,5 +83,6 @@ class B extends A {
 	new B ('first').test (new B ('second'), { variable: 'success' });
 	new B ('first').other (new B ('second'), { variable: 'success' });
 	new B ('first').final (new B ('second'), { qwerty: 'qwerty' });
-	new B ('first').staticTest ({ privateStatic: 'arg' });
+	// new B ().awful ();
+	// new B ('first').staticTest ({ privateStatic: 'arg' });
 }
