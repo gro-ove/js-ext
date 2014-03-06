@@ -2923,13 +2923,15 @@ function processClassMember (classEntry,name,parentMember){
 var newPublicMode = parentMember.publicMode, targetMembers = [parentMember], argument, updatedName;
 function testChilds (currentClass){
 var childMember;
-{ var _5i8mh8_5 = currentClass.childs; for (var _2lb9tic_6 = 0; _2lb9tic_6 < _5i8mh8_5.length; _2lb9tic_6 ++){
-var childClass = _5i8mh8_5[_2lb9tic_6];
+{ var _1lcs1c5_90 = currentClass.childs; for (var _7bmpn57_91 = 0; _7bmpn57_91 < _1lcs1c5_90.length; _7bmpn57_91 ++){
+var childClass = _1lcs1c5_90[_7bmpn57_91];
 if (childClass.members.hasOwnProperty (name))
 {
 childMember = childClass.members [name];
 if (testBadOverride (parentMember, childMember))
 throwError (childMember.id, "Invalid public mode (\"" + childMember.publicMode + "\" instead of \"" + parentMember.publicMode + "\" for member \"" + name + "\" of class \"" + childClass.id.name + "\" which extends \"" + currentClass.id.name + "\")");
+if (parentMember.method !== childMember.method)
+throwError (childMember.id, "Invalid override (" + (childMember.method ? "method" : "field") + " instead of " + (parentMember.method ? "method" : "field") + " for member \"" + name + "\" of class \"" + childClass.id.name + "\" which extends \"" + currentClass.id.name + "\")");
 newPublicMode = morePublicMode (newPublicMode, childMember.publicMode);
 targetMembers.push (childMember);
 }
@@ -2942,23 +2944,23 @@ argument = $.extend ({}, parentMember, {"publicMode":newPublicMode});
 else
 argument = parentMember;
 updatedName = rename (name, argument);
-for (var _1gooe49_7 = 0; _1gooe49_7 < targetMembers.length; _1gooe49_7 ++){
-var targetMember = targetMembers[_1gooe49_7];
+for (var _7hcfjjl_92 = 0; _7hcfjjl_92 < targetMembers.length; _7hcfjjl_92 ++){
+var targetMember = targetMembers[_7hcfjjl_92];
 targetMember.id.name = updatedName;
 targetMember.processed = true;
 }
 }
 function processClassMembers (classEntry){
 var replace, childMember;
-{ var _8ejh6pk_8 = classEntry.members; for (var name in _8ejh6pk_8){
-var member = _8ejh6pk_8[name];
+{ var _24vpl2o_93 = classEntry.members; for (var name in _24vpl2o_93){
+var member = _24vpl2o_93[name];
 if (name [0] !== "@" && ! member.processed)
 processClassMember (classEntry, name, member);
 }}
 }
 function processClassesMembers (){
-for (var _347qpke_9 = 0; _347qpke_9 < classes.length; _347qpke_9 ++){
-var classEntry = classes[_347qpke_9];
+for (var _955bfsa_94 = 0; _955bfsa_94 < classes.length; _955bfsa_94 ++){
+var classEntry = classes[_955bfsa_94];
 processClassMembers (classEntry);
 }
 }

@@ -70,6 +70,10 @@ function processClassMember (classEntry, name, parentMember){
 					throwError (childMember.id, 'Invalid public mode ("' + childMember.publicMode + '" instead of "' + parentMember.publicMode 
 						+ '" for member "' + name + '" of class "' + childClass.id.name + '" which extends "' + currentClass.id.name + '")');
 
+				if (parentMember.method !== childMember.method)
+					throwError (childMember.id, 'Invalid override (' + (childMember.method ? 'method' : 'field') + ' instead of ' + (parentMember.method ? 'method' : 'field')
+						+ ' for member "' + name + '" of class "' + childClass.id.name + '" which extends "' + currentClass.id.name + '")');
+
 				newPublicMode = morePublicMode (newPublicMode, childMember.publicMode);
 				targetMembers.push (childMember);
 			}
