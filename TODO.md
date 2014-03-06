@@ -29,7 +29,7 @@
 		V function expression without args
 		V new operator instead of "in"
 		V convert member expression for static private to identifier
-		- processSuperExpression: add check if static method is processing
+		V processSuperExpression: add check if static method is processing
 		- add interfaces
 		- add implementeds
 			- implementeds generator

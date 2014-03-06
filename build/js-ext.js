@@ -2682,8 +2682,8 @@ if (typeof obj === "object" && obj !== null)
 {
 if (obj instanceof Array)
 {
-for (var _10rj5u1_31 = 0; _10rj5u1_31 < obj.length; _10rj5u1_31 ++){
-var child = obj[_10rj5u1_31];
+for (var _63m84bc_39 = 0; _63m84bc_39 < obj.length; _63m84bc_39 ++){
+var child = obj[_63m84bc_39];
 lookForExclusions (child, target);
 }
 }
@@ -2854,6 +2854,8 @@ throwError (obj, Messages.SuperMethodIsNotAvailable);
 }
 var callee = obj.callee ? obj.callee.name : functionEntry.id.name;
 var target;
+if (currentClass.members [callee].static)
+throwError (obj.callee, "Attempt to call static method");
 if (callee && callee [0] !== "@")
 {
 target = memberExpression (memberExpression (currentClass.id, "prototype"), currentClass.members [callee].id.name);
@@ -2871,8 +2873,8 @@ if (typeof obj === "object" && obj !== null)
 {
 if (obj instanceof Array)
 {
-for (var _5ecaa8v_32 = 0; _5ecaa8v_32 < obj.length; _5ecaa8v_32 ++){
-var child = obj[_5ecaa8v_32];
+for (var _3h44f1u_40 = 0; _3h44f1u_40 < obj.length; _3h44f1u_40 ++){
+var child = obj[_3h44f1u_40];
 process (child, obj);
 }
 }

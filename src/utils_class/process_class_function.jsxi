@@ -269,6 +269,9 @@
 			// У кого вызывать метод
 			var target;
 
+			if (currentClass.members [callee].static)
+				throwError (obj.callee, 'Attempt to call static method');
+
 			if (callee && callee [0] !== '@'){
 				// Если имя где-то, но есть, и при этом это не конструктор или деструктор, вызываем метод из прототипа
 				target = memberExpression (memberExpression (currentClass.id, 'prototype'), currentClass.members [callee].id.name);
