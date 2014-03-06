@@ -1,5 +1,5 @@
 // Получаем заменённое имя в зависимости от видимости переменной
-function rename (name, member, classEntry){
+function rename (name, member){
 	// Конструкторам, инициализаторам, скрытым или приватным статическим имя не меняем
 	if (member.static && member.publicMode === 'private' || member.publicMode === 'locked')
 		return name;
@@ -9,7 +9,7 @@ function rename (name, member, classEntry){
 			return '__' + name;
 
 		case 'private':
-			return '__' + classEntry.id.name + '_' + name;
+			return '__' + member.className.name + '_' + name;
 
 		case 'public':
 			return name;
@@ -85,7 +85,7 @@ function processClassMember (classEntry, name, parentMember){
 	else
 		argument = parentMember;
 
-	updatedName = rename (name, argument, classEntry);
+	updatedName = rename (name, argument);
 
 	for (var targetMember in-array targetMembers){
 		targetMember.id.name = updatedName;

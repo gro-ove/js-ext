@@ -1380,6 +1380,12 @@ temp = conditionalExpression (temp, consequent, parseAssignmentExpression ());
 }
 return temp;
 }
+function matchAssign (){
+var token = lookahead (), op = token.value;
+if (token.type !== Token.Punctuator)
+return false;
+return op === "=" || op === "*=" || op === "/=" || op === "%=" || op === "+=" || op === "-=" || op === "<<=" || op === ">>=" || op === ">>>=" || op === "&=" || op === "^=" || op === "|=";
+}
 function parseAssignmentExpression (){
 var token, temp;
 token = lookahead ();
@@ -2366,12 +2372,6 @@ if (result)
 lex ();
 return result;
 }
-function matchAssign (){
-var token = lookahead (), op = token.value;
-if (token.type !== Token.Punctuator)
-return false;
-return op === "=" || op === "*=" || op === "/=" || op === "%=" || op === "+=" || op === "-=" || op === "<<=" || op === ">>=" || op === ">>>=" || op === "&=" || op === "^=" || op === "|=";
-}
 function consumeSemicolon (){
 var token, line;
 if (source [index] === ";")
@@ -2680,8 +2680,8 @@ if (typeof obj === "object" && obj !== null)
 {
 if (obj instanceof Array)
 {
-for (var _2kn889b_55 = 0; _2kn889b_55 < obj.length; _2kn889b_55 ++){
-var child = obj[_2kn889b_55];
+for (var _2t925gr_36 = 0; _2t925gr_36 < obj.length; _2t925gr_36 ++){
+var child = obj[_2t925gr_36];
 lookForExclusions (child, target);
 }
 }
@@ -2795,6 +2795,7 @@ delete obj.property.value;
 }
 }
 else
+if (parent.type !== Syntax.AssignmentExpression)
 {
 obj.computed = true;
 set (obj, callExpression ("__pa", [member.className.name,obj.object,literal (member.id.name),literal (member.id.name.indexOf (obj.property.name))]));
@@ -2840,8 +2841,8 @@ if (typeof obj === "object" && obj !== null)
 {
 if (obj instanceof Array)
 {
-for (var _59c0itg_56 = 0; _59c0itg_56 < obj.length; _59c0itg_56 ++){
-var child = obj[_59c0itg_56];
+for (var _329p1l7_37 = 0; _329p1l7_37 < obj.length; _329p1l7_37 ++){
+var child = obj[_329p1l7_37];
 process (child, obj);
 }
 }
@@ -2879,14 +2880,14 @@ process (value, obj);
 }
 process (functionEntry);
 }
-function rename (name,member,classEntry){
+function rename (name,member){
 if (member.static && member.publicMode === "private" || member.publicMode === "locked")
 return name;
 switch (member.publicMode){
 case "protected":
 return "__" + name;
 case "private":
-return "__" + classEntry.id.name + "_" + name;
+return "__" + member.className.name + "_" + name;
 case "public":
 return name;
 default:console.assert (false, "Unsupported publicMode (" + member.publicMode + ")");
@@ -2913,8 +2914,8 @@ function processClassMember (classEntry,name,parentMember){
 var newPublicMode = parentMember.publicMode, targetMembers = [parentMember], argument, updatedName;
 function testChilds (currentClass){
 var childMember;
-{ var _99pa2qf_6 = currentClass.childs; for (var _98sens7_7 = 0; _98sens7_7 < _99pa2qf_6.length; _98sens7_7 ++){
-var childClass = _99pa2qf_6[_98sens7_7];
+{ var _5i8mh8_5 = currentClass.childs; for (var _2lb9tic_6 = 0; _2lb9tic_6 < _5i8mh8_5.length; _2lb9tic_6 ++){
+var childClass = _5i8mh8_5[_2lb9tic_6];
 if (childClass.members.hasOwnProperty (name))
 {
 childMember = childClass.members [name];
@@ -2931,24 +2932,24 @@ if (newPublicMode !== parentMember.publicMode)
 argument = $.extend ({}, parentMember, {"publicMode":newPublicMode});
 else
 argument = parentMember;
-updatedName = rename (name, argument, classEntry);
-for (var _1q6u6mr_8 = 0; _1q6u6mr_8 < targetMembers.length; _1q6u6mr_8 ++){
-var targetMember = targetMembers[_1q6u6mr_8];
+updatedName = rename (name, argument);
+for (var _1gooe49_7 = 0; _1gooe49_7 < targetMembers.length; _1gooe49_7 ++){
+var targetMember = targetMembers[_1gooe49_7];
 targetMember.id.name = updatedName;
 targetMember.processed = true;
 }
 }
 function processClassMembers (classEntry){
 var replace, childMember;
-{ var _4solb3e_9 = classEntry.members; for (var name in _4solb3e_9){
-var member = _4solb3e_9[name];
+{ var _8ejh6pk_8 = classEntry.members; for (var name in _8ejh6pk_8){
+var member = _8ejh6pk_8[name];
 if (name [0] !== "@" && ! member.processed)
 processClassMember (classEntry, name, member);
 }}
 }
 function processClassesMembers (){
-for (var _27hcps3_10 = 0; _27hcps3_10 < classes.length; _27hcps3_10 ++){
-var classEntry = classes[_27hcps3_10];
+for (var _347qpke_9 = 0; _347qpke_9 < classes.length; _347qpke_9 ++){
+var classEntry = classes[_347qpke_9];
 processClassMembers (classEntry);
 }
 }

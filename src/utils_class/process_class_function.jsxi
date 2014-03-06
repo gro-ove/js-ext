@@ -195,7 +195,7 @@
 							obj.property.type = Syntax.Identifier;
 							delete obj.property.value;
 						}
-					} else {
+					} else if (parent.type !== Syntax.AssignmentExpression){
 						obj.computed = true;
 						set (obj, callExpression ('__pa', [ member.className.name, obj.object, literal (member.id.name), literal (member.id.name.indexOf (obj.property.name)) ]));
 						helpers.propertyAccess = true;

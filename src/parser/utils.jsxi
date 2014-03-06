@@ -188,27 +188,6 @@
 		return result;
 	}
 
-	function matchAssign (){
-		var token = lookahead (),
-			op = token.value;
-
-		if (token.type !== Token.Punctuator)
-			return false;
-
-		return op === '=' ||
-			   op === '*=' ||
-			   op === '/=' ||
-			   op === '%=' ||
-			   op === '+=' ||
-			   op === '-=' ||
-			   op === '<<=' ||
-			   op === '>>=' ||
-			   op === '>>>=' ||
-			   op === '&=' ||
-			   op === '^=' ||
-			   op === '|=';
-	}
-
 	function consumeSemicolon (){
 		var token, line;
 

@@ -21,6 +21,7 @@ var A = function () {
             }, privateStatic = 'success';
         __pe(B, A);
         B.prototype.test = function (a, b) {
+            b.variable += '-changed';
             console.log(this.__B_variable, __pa(B, a, '__B_variable', 4), __pa(B, b, '__B_variable', 4), __pa(A, new A(), '__other', 2));
             console.log(B.privateStatic);
         };
