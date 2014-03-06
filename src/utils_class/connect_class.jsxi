@@ -24,10 +24,7 @@ function connectClass (current, from){
 			return;
 
 		if (!currentConstructor){
-			addMember (
-				current, 
-				functionExpression (
-					parentConstructor.params, 
+			addMember (current, functionExpression (parentConstructor.params, 
 					[ expressionStatement (superExpression (parentConstructor.params)) ]))
 
 		} else if (!currentConstructor.body.body.filter (lambda arg.type === Syntax.ExpressionStatement && 'super' in arg.expression).length){ 	// FIXME: Deep search

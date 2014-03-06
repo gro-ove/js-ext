@@ -169,8 +169,10 @@
 		}
 
 		function processMemberExpression (obj, parent){
-			if (obj.object.type === Syntax.ThisExpression){
-				if (obj.computed && obj.property.type !== Syntax.Literal){
+			var propertyProcess = obj.computed;
+
+			if (obj.computed){
+				if (obj.object.type === Syntax.ThisExpression && obj.property.type !== Syntax.Literal){
 					// TODO
 					
 					// set (obj, callExpression ('__fr', [ obj.object, obj.property ]));
@@ -179,18 +181,25 @@
 					// 	helpers.findReplaced.push (classEntry);
 					// else
 					// 	helpers.findReplaced = [ classEntry ];
-				} else {
-					var name = obj.property.type === Syntax.Identifier ? obj.property.name : obj.property.value,
-						member = classEntry.members.hasOwnProperty (name) ? classEntry.members [name] : null;
+				}
+			} else {
+				var name = obj.property.type === Syntax.Identifier ? obj.property.name : obj.property.value,
+					member = classEntry.members.hasOwnProperty (name) ? classEntry.members [name] : null;
 
-					if (member && !member.static){
-						obj.property.name = classEntry.members [name].id.name;
+				if (member && !member.static){
+					if (obj.object.type === Syntax.ThisExpression){
+						obj.property.name = member.id.name;
 
 						if (obj.property.type === Syntax.Literal){
 							obj.computed = false;
 							obj.property.type = Syntax.Identifier;
 							delete obj.property.value;
 						}
+					} else {
+						obj.computed = true;
+						set (obj, callExpression ('__pa', [ classEntry.id.name, obj.object, literal (member.id.name), literal (member.id.name.indexOf (obj.property.name)) ]));
+						helpers.propertyAccess = true;
+						return;
 					}
 				}
 			}
@@ -199,7 +208,7 @@
 			process (obj.object, obj);
 
 			// ... и, если обращение выполняется через квадратные скобки, заодно и их содержимое
-			if (obj.computed)
+			if (propertyProcess)
 				process (obj.property, obj);
 		}
 

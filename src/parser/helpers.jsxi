@@ -1,5 +1,15 @@
 function helperById (id, value)
 	switch (id){
+		case 'propertyAccess':
+			/*
+			function __pa (c, o, r, u){
+				return o [c instanceof o ? r : u]; 
+			}*/
+			return functionDeclaration ('__pa', [ 'c', 'o', 'r', 'u' ], [
+				expressionStatement (assignmentExpression ('u', callExpression (memberExpression ('r', 'slice'), [ 'u' ]))),
+				returnStatement (memberExpression ('o', conditionalExpression (binaryExpression ('o', 'instanceof', 'c'), 'r', 'u'), true))
+			]);
+
 		case 'prototypeExtend':
 			return functionDeclaration ('__pe', [ 'child', 'parent', 'temp' ], [
 				expressionStatement (assignmentExpression ('temp', functionExpression ())),

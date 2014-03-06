@@ -166,6 +166,8 @@ break;
 }
 function helperById (id,value){
 switch (id){
+case "propertyAccess":
+return functionDeclaration ("__pa", ["c","o","r","u"], [expressionStatement (assignmentExpression ("u", callExpression (memberExpression ("r", "slice"), ["u"]))),returnStatement (memberExpression ("o", conditionalExpression (binaryExpression ("o", "instanceof", "c"), "r", "u"), true))]);
 case "prototypeExtend":
 return functionDeclaration ("__pe", ["child","parent","temp"], [expressionStatement (assignmentExpression ("temp", functionExpression ())),expressionStatement (assignmentExpression (memberExpression ("temp", "prototype"), memberExpression ("parent", "prototype"))),expressionStatement (assignmentExpression (memberExpression ("child", "prototype"), newExpression ("temp"))),expressionStatement (assignmentExpression (memberExpression (memberExpression ("child", "prototype"), "constructor"), "child"))]);
 case "createArray":
@@ -2478,8 +2480,8 @@ var parent = byName (current.dependsOn.parent.name);
 if (! parent)
 throwError (current.dependsOn.parent, Messages.ParentClassNotFound, current.dependsOn.parent.name);
 connectClass (parent, current);
-{ var _26h2rku_62 = parent.members; for (var id in _26h2rku_62){
-var member = _26h2rku_62[id];
+{ var _118gdb0_29 = parent.members; for (var id in _118gdb0_29){
+var member = _118gdb0_29[id];
 if (! current.members.hasOwnProperty (id))
 current.members [id] = $.extend (true, {}, member, {"publicMode":member.publicMode === "private" ? "locked" : member.publicMode});
 }}
@@ -2505,8 +2507,8 @@ else
 throwError (currentConstructor, Messages.SuperConstructorCallNeeded);
 }
 }
-{ var _191e1dn_63 = current.dependsOn.uses; for (var _6c057rr_64 = 0; _6c057rr_64 < _191e1dn_63.length; _6c057rr_64 ++){
-var use = _191e1dn_63[_6c057rr_64];
+{ var _49hot59_30 = current.dependsOn.uses; for (var _79ov39o_31 = 0; _79ov39o_31 < _49hot59_30.length; _79ov39o_31 ++){
+var use = _49hot59_30[_79ov39o_31];
 var used = byName (use.name);
 if (! used)
 throwError (use, Messages.UsingClassNotFound, use.name);
@@ -2514,8 +2516,8 @@ throwError (use, Messages.UsingClassNotFound, use.name);
 current.connected = true;
 }
 function connectClasses (){
-for (var _qbq1ng_65 = 0; _qbq1ng_65 < classes.length; _qbq1ng_65 ++){
-var classEntry = classes[_qbq1ng_65];
+for (var _4nsd0l_32 = 0; _4nsd0l_32 < classes.length; _4nsd0l_32 ++){
+var classEntry = classes[_4nsd0l_32];
 connectClass (classEntry);
 }
 }
@@ -2674,8 +2676,8 @@ if (typeof obj === "object" && obj !== null)
 {
 if (obj instanceof Array)
 {
-for (var _81d9do4_82 = 0; _81d9do4_82 < obj.length; _81d9do4_82 ++){
-var child = obj[_81d9do4_82];
+for (var _1grnseq_60 = 0; _1grnseq_60 < obj.length; _1grnseq_60 ++){
+var child = obj[_1grnseq_60];
 lookForExclusions (child, target);
 }
 }
@@ -2765,18 +2767,22 @@ set (obj, result);
 }
 }
 function processMemberExpression (obj,parent){
-if (obj.object.type === Syntax.ThisExpression)
+var propertyProcess = obj.computed;
+if (obj.computed)
 {
-if (obj.computed && obj.property.type !== Syntax.Literal)
+if (obj.object.type === Syntax.ThisExpression && obj.property.type !== Syntax.Literal)
 {
 
+}
 }
 else
 {
 var name = obj.property.type === Syntax.Identifier ? obj.property.name : obj.property.value, member = classEntry.members.hasOwnProperty (name) ? classEntry.members [name] : null;
 if (member && ! member.static)
 {
-obj.property.name = classEntry.members [name].id.name;
+if (obj.object.type === Syntax.ThisExpression)
+{
+obj.property.name = member.id.name;
 if (obj.property.type === Syntax.Literal)
 {
 obj.computed = false;
@@ -2784,10 +2790,17 @@ obj.property.type = Syntax.Identifier;
 delete obj.property.value;
 }
 }
+else
+{
+obj.computed = true;
+set (obj, callExpression ("__pa", [classEntry.id.name,obj.object,literal (member.id.name),literal (member.id.name.indexOf (obj.property.name))]));
+helpers.propertyAccess = true;
+return;
+}
 }
 }
 process (obj.object, obj);
-if (obj.computed)
+if (propertyProcess)
 process (obj.property, obj);
 }
 function processThisExpression (obj,parent){
@@ -2823,8 +2836,8 @@ if (typeof obj === "object" && obj !== null)
 {
 if (obj instanceof Array)
 {
-for (var _2i9pb3c_83 = 0; _2i9pb3c_83 < obj.length; _2i9pb3c_83 ++){
-var child = obj[_2i9pb3c_83];
+for (var _kbt5ob_61 = 0; _kbt5ob_61 < obj.length; _kbt5ob_61 ++){
+var child = obj[_kbt5ob_61];
 process (child, obj);
 }
 }
