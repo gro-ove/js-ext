@@ -623,8 +623,8 @@ if (matchKeyword ("var"))
 lex ();
 var token = lookahead (), data = parseVariableDeclarationList ();
 consumeSemicolon ();
-for (var _999lo2u_77 = 0; _999lo2u_77 < data.length; _999lo2u_77 ++){
-var entry = data[_999lo2u_77];
+for (var _8vblc3c_79 = 0; _8vblc3c_79 < data.length; _8vblc3c_79 ++){
+var entry = data[_8vblc3c_79];
 if (params.interface && ! current.static)
 throwError (token, "Interface couldn't have object fields.");
 if (params.implemented && entry.init)
@@ -647,6 +647,8 @@ result.id = identifier (current.static ? "@initializer" : "@constructor");
 set (result);
 state.superAvailable = false;
 refresh ();
+if (match (";"))
+lex ();
 }
 state.inClass = true;
 expect ("{");
@@ -866,6 +868,7 @@ sourceElements.push (parseStatement ());
 expect ("}");
 }
 else
+if (! match ("]") && ! match (")") && ! match ("}") && ! match (",") && ! match (";"))
 {
 state.preventSequence = true;
 sourceElements.push (setReturnStatement (parseStatement ()));

@@ -62,7 +62,7 @@
 			);
 
 			expect ('}');
-		} else {
+		} else if (!match (']') && !match (')') && !match ('}') && !match (',') && !match (';')){
 			state.preventSequence = true;
 			sourceElements.push (setReturnStatement (parseStatement ()));
 		}

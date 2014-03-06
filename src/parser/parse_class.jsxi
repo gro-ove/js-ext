@@ -180,6 +180,9 @@
 
 			state.superAvailable = false;
 			refresh ();
+
+			if (match (';'))
+				lex ();
 		}
 
 		state.inClass = true;
