@@ -3,7 +3,7 @@ class A {
 }
 
 class B extends A {
-	static var privateStatic = 'success';
+	static var privateStatic = 'done';
 	var variable;
 
 	(variable)
@@ -13,7 +13,6 @@ class B extends A {
 		a.variable += '-changed';
 		b.variable += '-changed';
 		console.log (variable, a.variable, b.variable, new A ().parent);
-		console.log (B.privateStatic);
 	}
 
 	public other (a, b){
@@ -30,9 +29,14 @@ class B extends A {
 		console.log (getA ().variable += '-changed', getB ().variable += '-changed');
 		console.log (a.variable, b.variable);
 	}
+
+	public staticTest (obj){
+		console.log (obj.privateStatic, B.privateStatic);
+	}
 }
 
 {
 	new B ('first').test (new B ('second'), { variable: 'success' });
 	new B ('first').other (new B ('second'), { variable: 'success' });
+	new B ('first').staticTest ({ privateStatic: 'arg' });
 }

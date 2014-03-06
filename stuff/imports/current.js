@@ -22,13 +22,12 @@ var A = function () {
         var B = function (variable) {
                 A.call(this);
                 return this.__B_variable = variable;
-            }, privateStatic = 'success';
+            }, privateStatic = 'done';
         __pe(B, A);
         B.prototype.test = function (a, b) {
             a[__pn(B, a, '__B_variable', 4)] += '-changed';
             b[__pn(B, b, '__B_variable', 4)] += '-changed';
             console.log(this.__B_variable, __pa(B, a, '__B_variable', 4), __pa(B, b, '__B_variable', 4), __pa(A, new A(), '__parent', 2));
-            console.log(B.privateStatic);
         };
         B.prototype.other = function (a, b) {
             function getA() {
@@ -46,9 +45,13 @@ var A = function () {
             }(getB()));
             console.log(__pa(B, a, '__B_variable', 4), __pa(B, b, '__B_variable', 4));
         };
+        B.prototype.staticTest = function (obj) {
+            console.log(obj.privateStatic, privateStatic);
+        };
         return B;
     }();
 (function () {
     new B('first').test(new B('second'), { variable: 'success' });
     new B('first').other(new B('second'), { variable: 'success' });
+    new B('first').staticTest({ privateStatic: 'arg' });
 }());

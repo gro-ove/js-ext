@@ -28,11 +28,8 @@
 		V static private and object locked conflict
 		V function expression without args
 		V new operator instead of "in"
-		F check for order of super constructor call and initialization
-		- convert member expression for static private to identifier
+		V convert member expression for static private to identifier
 		- processSuperExpression: add check if static method is processing
-		- prevent binded functions processing
-		- prevent functions with "call" or "apply" processing
 		- add interfaces
 		- add implementeds
 			- implementeds generator
@@ -48,7 +45,9 @@
 		- partial classes
 		L special access like ['field' + name] support
 		? kind of multiple inheritance
-		? if Js-Ext could use getters, add initialize only on first access
+		? prevent functions with "call" or "apply" processing
+		? if js-ext could use getters, add initialize only on first access
+		? prevent binded functions processing
 	V notimplemented operator
 	V strings format
 	V macros

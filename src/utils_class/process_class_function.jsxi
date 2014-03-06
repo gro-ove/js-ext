@@ -180,19 +180,26 @@
 				if (obj.object.type === Syntax.ThisExpression && obj.property.type !== Syntax.Literal){
 					// TODO
 					
-					// set (obj, callExpression ('__fr', [ obj.object, obj.property ]));
+					/*
+					set (obj, callExpression ('__fr', [ obj.object, obj.property ]));
 
-					// if (helpers.findReplaced)
-					// 	helpers.findReplaced.push (classEntry);
-					// else
-					// 	helpers.findReplaced = [ classEntry ];
+					if (helpers.findReplaced)
+						helpers.findReplaced.push (classEntry);
+					else
+						helpers.findReplaced = [ classEntry ];
+					*/
 				}
 			} else {
 				var name = obj.property.type === Syntax.Identifier ? obj.property.name : obj.property.value,
 					member = classEntry.members.hasOwnProperty (name) ? classEntry.members [name] : null;
 
-				if (member && !member.static){
-					if (obj.object.type === Syntax.ThisExpression){
+				if (member){
+					if (member.static){
+						if (obj.object.type === Syntax.Identifier && obj.object.name === member.className.name && member.publicMode === 'private'){
+							set (obj, identifier (member.id.name))
+							return;
+						}
+					} else if (obj.object.type === Syntax.ThisExpression){
 						obj.property.name = member.id.name;
 
 						if (obj.property.type === Syntax.Literal){

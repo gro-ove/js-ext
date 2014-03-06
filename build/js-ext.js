@@ -2682,8 +2682,8 @@ if (typeof obj === "object" && obj !== null)
 {
 if (obj instanceof Array)
 {
-for (var _4euhahl_57 = 0; _4euhahl_57 < obj.length; _4euhahl_57 ++){
-var child = obj[_4euhahl_57];
+for (var _10rj5u1_31 = 0; _10rj5u1_31 < obj.length; _10rj5u1_31 ++){
+var child = obj[_10rj5u1_31];
 lookForExclusions (child, target);
 }
 }
@@ -2788,8 +2788,17 @@ if (obj.object.type === Syntax.ThisExpression && obj.property.type !== Syntax.Li
 else
 {
 var name = obj.property.type === Syntax.Identifier ? obj.property.name : obj.property.value, member = classEntry.members.hasOwnProperty (name) ? classEntry.members [name] : null;
-if (member && ! member.static)
+if (member)
 {
+if (member.static)
+{
+if (obj.object.type === Syntax.Identifier && obj.object.name === member.className.name && member.publicMode === "private")
+{
+set (obj, identifier (member.id.name));
+return;
+}
+}
+else
 if (obj.object.type === Syntax.ThisExpression)
 {
 obj.property.name = member.id.name;
@@ -2862,8 +2871,8 @@ if (typeof obj === "object" && obj !== null)
 {
 if (obj instanceof Array)
 {
-for (var _5r7vi2e_58 = 0; _5r7vi2e_58 < obj.length; _5r7vi2e_58 ++){
-var child = obj[_5r7vi2e_58];
+for (var _5ecaa8v_32 = 0; _5ecaa8v_32 < obj.length; _5ecaa8v_32 ++){
+var child = obj[_5ecaa8v_32];
 process (child, obj);
 }
 }
