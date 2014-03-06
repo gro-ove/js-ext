@@ -1,9 +1,9 @@
-function __pe(child, parent, temp) {
-    temp = function () {
+function __pe(c, p, t) {
+    t = function () {
     };
-    temp.prototype = parent.prototype;
-    child.prototype = new temp();
-    child.prototype.constructor = child;
+    t.prototype = p.prototype;
+    c.prototype = new t();
+    c.prototype.constructor = c;
 }
 function __pa(c, o, r, u) {
     u = r.slice(u);

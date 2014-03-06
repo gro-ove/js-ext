@@ -1,24 +1,29 @@
 function helperById (id, value)
 	switch (id){
 		case 'propertyAccess':
-			/*
-			function __pa (c, o, r, u){
-				return o [c instanceof o ? r : u]; 
-			}*/
+			// 	function __pa (c, o, r, u){
+			// 		return o [c instanceof o ? r : u]; 
+			// 	}
 			return functionDeclaration ('__pa', [ 'c', 'o', 'r', 'u' ], [
 				expressionStatement (assignmentExpression ('u', callExpression (memberExpression ('r', 'slice'), [ 'u' ]))),
 				returnStatement (memberExpression ('o', conditionalExpression (binaryExpression ('o', 'instanceof', 'c'), 'r', 'u'), true))
 			]);
 
 		case 'prototypeExtend':
-			return functionDeclaration ('__pe', [ 'child', 'parent', 'temp' ], [
-				expressionStatement (assignmentExpression ('temp', functionExpression ())),
+			// 	function __pe(c, p, t) {
+			// 	    t = function (){};
+			// 	    t.prototype = p.prototype;
+			// 	    c.prototype = new t ();
+			// 	    c.prototype.constructor = c;
+			// 	}
+			return functionDeclaration ('__pe', [ 'c', 'p', 't' ], [
+				expressionStatement (assignmentExpression ('t', functionExpression ())),
 				expressionStatement (assignmentExpression (
-						memberExpression ('temp', 'prototype'), memberExpression ('parent', 'prototype'))),
+						memberExpression ('t', 'prototype'), memberExpression ('p', 'prototype'))),
 				expressionStatement (assignmentExpression (
-						memberExpression ('child', 'prototype'), newExpression ('temp'))),
+						memberExpression ('c', 'prototype'), newExpression ('t'))),
 				expressionStatement (assignmentExpression (
-						memberExpression (memberExpression ('child', 'prototype'), 'constructor'), 'child'))
+						memberExpression (memberExpression ('c', 'prototype'), 'constructor'), 'c'))
 			]);
 
 		case 'createArray':
