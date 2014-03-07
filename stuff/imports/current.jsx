@@ -34,11 +34,27 @@ console.log ([ 1 .. 21 ]);
 console.log ('HELLO THERE!');
 
 
-// console.log (function (){ console.log ('hi'); return ':)' }())
-// console.log ([ 'long-long-long-long-long a-a-a-a-a-argument', 'long-long-long-long-long a-a-a-a-a-argument' ], 
-// 	[ 'long-long-long-long-long a-a-a-a-a-argument', 'long-long-long-long-long a-a-a-a-a-argument' ])
-// console.log ([ 'long-long-long-long-long a-a-a-a-a-argument', 'long-long-long-long-long a-a-a-a-a-argument', 'long-long-long-long-long a-a-a-a-a-argument' ], 
-// 	[ 'long-long-long-long-long a-a-a-a-a-argument', 'long-long-long-long-long a-a-a-a-a-argument', 'long-long-long-long-long a-a-a-a-a-argument' ])
+console.log (function (){ console.log ('hi'); return ':)' }())
+console.log ([ 'long-long-long-long-long a-a-a-a-a-argument', 'long-long-long-long-long a-a-a-a-a-argument' ], 
+	[ 'long-long-long-long-long a-a-a-a-a-argument', 'long-long-long-long-long a-a-a-a-a-argument' ])
+console.log ([ 'long-long-long-long-long a-a-a-a-a-argument', 'long-long-long-long-long a-a-a-a-a-argument', 'long-long-long-long-long a-a-a-a-a-argument' ], 
+	[ 'long-long-long-long-long a-a-a-a-a-argument', 'long-long-long-long-long a-a-a-a-a-argument', 'long-long-long-long-long a-a-a-a-a-argument' ])
+
+class A {
+	protected method (a, b){
+		console.log (a, b);
+		return a + b;
+	}
+}
+
+class B extends A {
+	protected method (a, b)
+		super;
+
+	public test (){
+		return method;
+	}
+}
 
 // class B extends A {
 // 	static var privateStatic = 'done';

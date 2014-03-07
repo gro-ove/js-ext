@@ -105,7 +105,7 @@ function generate (node, params = { lineBreak: '', comment: {}, first: true }){
 
 			delete params.comment.filename;
 			delete params.comment.lineNumber;
-		} else
+		} else 
 			result = '\n';
 
 		if (lineBreak !== false)
@@ -140,7 +140,7 @@ function generate (node, params = { lineBreak: '', comment: {}, first: true }){
 		if (array.length === 0)
 			return '';
 
-		var fn, lineBreak, result, oneline, temp;
+		var fn, lineBreak, result, oneline, temp, backup = $.extend ({}, params.comment);
 
 		if (arrayParams.indent !== false){
 			fn = indent;
@@ -162,6 +162,7 @@ function generate (node, params = { lineBreak: '', comment: {}, first: true }){
 			result = oneline;
 			if (arrayParams.autospaces)
 				result = ' ' + result + ' ';
+			$.extend (params.comment, backup);
 		}
 
 		return result;
@@ -239,19 +240,21 @@ function generate (node, params = { lineBreak: '', comment: {}, first: true }){
 
 		/* Expressions: Calls */
 		case Syntax.CallExpression:
-			var args = array (node.arguments, { join: ', ', array: true }),
+			var name = safe (node.callee),
+				args = array (node.arguments, { join: ', ', array: true }),
 				match = args.match (/\n\t*/);
 			if (match && match [0].length > params.lineBreak.length + 2)
 				args = args.replace (/\n\t/g, '\n');
-			result = safe (node.callee) + '(' + args + ')';
+			result = name + '(' + args + ')';
 			break;
 
 		case Syntax.NewExpression:
-			var args = array (node.arguments, { join: ', ', array: true }),
+			var name = safe (node.callee),
+				args = array (node.arguments, { join: ', ', array: true }),
 				match = args.match (/\n\t*/);
 			if (match && match [0].length > params.lineBreak.length + 2)
 				args = args.replace (/\n\t/g, '\n');
-			result = 'new ' + safe (node.callee) + '(' + args + ')';
+			result = 'new ' + name + '(' + args + ')';
 			break;
 
 		/* Expressions: Operator */

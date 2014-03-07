@@ -3348,7 +3348,7 @@ return result;
 function array (array,arrayParams){
 if (array.length === 0)
 return "";
-var fn, lineBreak, result, oneline, temp;
+var fn, lineBreak, result, oneline, temp, backup = $.extend ({}, params.comment);
 if (arrayParams.indent !== false)
 {
 fn = indent;
@@ -3376,6 +3376,7 @@ else
 result = oneline;
 if (arrayParams.autospaces)
 result = " " + result + " ";
+$.extend (params.comment, backup);
 }
 return result;
 }
@@ -3393,8 +3394,8 @@ console.assert (params.parent, "Not implemented");
 function index (type,operator){
 for (var priority = 0; priority < priorities.length; priority ++){
 var group = priorities[priority];
-for (var _1fq3hnn_33 = 0; _1fq3hnn_33 < group.length; _1fq3hnn_33 ++){
-var entry = group[_1fq3hnn_33];
+for (var _4ggjv8e_51 = 0; _4ggjv8e_51 < group.length; _4ggjv8e_51 ++){
+var entry = group[_4ggjv8e_51];
 if (entry === type || typeof entry === "object" && entry.type === type && entry.operator === operator)
 return priority;
 }
@@ -3429,16 +3430,16 @@ case Syntax.ThisExpression:
 result = "this";
 break;
 case Syntax.CallExpression:
-var args = array (node.arguments, {"join":", ","array":true}), match = args.match (/\n\t*/);
+var name = safe (node.callee), args = array (node.arguments, {"join":", ","array":true}), match = args.match (/\n\t*/);
 if (match && match [0].length > params.lineBreak.length + 2)
 args = args.replace (/\n\t/g, "\n");
-result = safe (node.callee) + "(" + args + ")";
+result = name + "(" + args + ")";
 break;
 case Syntax.NewExpression:
-var args = array (node.arguments, {"join":", ","array":true}), match = args.match (/\n\t*/);
+var name = safe (node.callee), args = array (node.arguments, {"join":", ","array":true}), match = args.match (/\n\t*/);
 if (match && match [0].length > params.lineBreak.length + 2)
 args = args.replace (/\n\t/g, "\n");
-result = "new " + safe (node.callee) + "(" + args + ")";
+result = "new " + name + "(" + args + ")";
 break;
 case Syntax.UnaryExpression:
 if (node.prefix)
@@ -3547,8 +3548,8 @@ result += sub (node.alternate);
 break;
 case Syntax.SwitchStatement:
 result = "switch (" + child (node.discriminant) + "){";
-{ var _1c18020_34 = node.cases; for (var _71gah6o_35 = 0; _71gah6o_35 < _1c18020_34.length; _71gah6o_35 ++){
-var obj = _1c18020_34[_71gah6o_35];
+{ var _71inc0c_52 = node.cases; for (var _7bne6dl_53 = 0; _7bne6dl_53 < _71inc0c_52.length; _7bne6dl_53 ++){
+var obj = _71inc0c_52[_7bne6dl_53];
 result += indent (obj, {"force":true});
 }}
 result += end () + "}";
@@ -3586,8 +3587,8 @@ result = "for (" + child (node.left).replace (/;$/, "") + " in " + child (node.r
 break;
 case Syntax.TryStatement:
 result = "try " + sub (node.block) + " ";
-{ var _7u4oj0_36 = node.handlers; for (var _5oh3ofj_37 = 0; _5oh3ofj_37 < _7u4oj0_36.length; _5oh3ofj_37 ++){
-var handler = _7u4oj0_36[_5oh3ofj_37];
+{ var _85e0kua_54 = node.handlers; for (var _58kqvn8_55 = 0; _58kqvn8_55 < _85e0kua_54.length; _58kqvn8_55 ++){
+var handler = _85e0kua_54[_58kqvn8_55];
 result += child (handler) + " ";
 }}
 if (node.finalizer)

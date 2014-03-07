@@ -91,6 +91,7 @@
 	F import with dot in name
 	F import folders
 	F fix syntax highlight: "options.filename = functionEntry.filename;"
+	F fix bug with "super"
 	С check "[ from .. to ]" (with variables)
 	- optimize for "string = '%0%1' ('', '');"
 	- support for chars in string literals like "\u2020"
