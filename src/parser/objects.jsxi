@@ -12,11 +12,10 @@
 
 	function mark (obj, arg)
 		if (arg !== undefined){
-			arg = mark (arg);
-			obj.filename = arg.filename;
-			obj.lineNumber = arg.lineNumber;
-			obj.lineStart = arg.lineStart;
-			obj.index = arg.index;
+			obj.filename 		= arg.filename || options.filename;
+			obj.lineNumber 		= arg.lineNumber || lineNumber;
+			obj.lineStart 		= arg.lineStart || lineStart;
+			obj.index 			= arg.index || index;
 			return obj;
 		} else if (index > length || obj && obj.filename){
 			return obj || {};

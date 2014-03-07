@@ -296,11 +296,10 @@ return obj;
 function mark (obj,arg){
 if (arg !== undefined)
 {
-arg = mark (arg);
-obj.filename = arg.filename;
-obj.lineNumber = arg.lineNumber;
-obj.lineStart = arg.lineStart;
-obj.index = arg.index;
+obj.filename = arg.filename || options.filename;
+obj.lineNumber = arg.lineNumber || lineNumber;
+obj.lineStart = arg.lineStart || lineStart;
+obj.index = arg.index || index;
 return obj;
 }
 else
@@ -2514,8 +2513,8 @@ return true;
 else
 if (obj && obj.body && obj.body.body)
 {
-{ var _7j7l4nq_47 = obj.body.body; for (var _1r3navh_48 = 0; _1r3navh_48 < _7j7l4nq_47.length; _1r3navh_48 ++){
-var child = _7j7l4nq_47[_1r3navh_48];
+{ var _31okd2r_62 = obj.body.body; for (var _57c1dkr_63 = 0; _57c1dkr_63 < _31okd2r_62.length; _57c1dkr_63 ++){
+var child = _31okd2r_62[_57c1dkr_63];
 if (searchSuperExpression (child))
 return true;
 }}
@@ -2524,7 +2523,7 @@ else
 {
 for (var key in obj){
 var child = obj[key];
-if (child && typeof child === "object" && searchSuperExpression (child))
+if (child && typeof child.type === "string" && searchSuperExpression (child))
 return true;
 }
 }
@@ -2540,8 +2539,8 @@ var parent = byName (current.dependsOn.parent.name);
 if (! parent)
 throwError (current.dependsOn.parent, Messages.ParentClassNotFound, current.dependsOn.parent.name);
 connectClass (parent, current);
-{ var _9cduhi_49 = parent.members; for (var id in _9cduhi_49){
-var member = _9cduhi_49[id];
+{ var _ml8lbp_64 = parent.members; for (var id in _ml8lbp_64){
+var member = _ml8lbp_64[id];
 if (! current.members.hasOwnProperty (id))
 current.members [id] = $.extend (true, {}, member, {"publicMode":member.publicMode === "private" ? "locked" : member.publicMode});
 }}
@@ -2565,8 +2564,8 @@ throwError (currentConstructor, Messages.SuperConstructorCallNeeded);
 }
 }
 }
-{ var _16iv1re_50 = current.dependsOn.uses; for (var _29nt4hm_51 = 0; _29nt4hm_51 < _16iv1re_50.length; _29nt4hm_51 ++){
-var use = _16iv1re_50[_29nt4hm_51];
+{ var _6ge6ffp_65 = current.dependsOn.uses; for (var _98a84lo_66 = 0; _98a84lo_66 < _6ge6ffp_65.length; _98a84lo_66 ++){
+var use = _6ge6ffp_65[_98a84lo_66];
 var used = byName (use.name);
 if (! used)
 throwError (use, Messages.UsingClassNotFound, use.name);
@@ -2574,8 +2573,8 @@ throwError (use, Messages.UsingClassNotFound, use.name);
 current.connected = true;
 }
 function connectClasses (){
-for (var _6ugtepn_52 = 0; _6ugtepn_52 < classes.length; _6ugtepn_52 ++){
-var classEntry = classes[_6ugtepn_52];
+for (var _8f858sd_67 = 0; _8f858sd_67 < classes.length; _8f858sd_67 ++){
+var classEntry = classes[_8f858sd_67];
 connectClass (classEntry);
 }
 }
@@ -2589,8 +2588,8 @@ classes = [];
 classesByNames = {};
 probablyUseOtherMaxValue = 100;
 thatVariable = newIdentifier ("__that");
-for (var _2n8nbbi_41 = 0; _2n8nbbi_41 < rawClasses.length; _2n8nbbi_41 ++){
-var rawClass = rawClasses[_2n8nbbi_41];
+for (var _3dvarjp_63 = 0; _3dvarjp_63 < rawClasses.length; _3dvarjp_63 ++){
+var rawClass = rawClasses[_3dvarjp_63];
 addClass (rawClass);
 }
 if (classes.length > 0)
@@ -3475,8 +3474,8 @@ console.assert (params.parent, "Not implemented");
 function index (type,operator){
 for (var priority = 0; priority < priorities.length; priority ++){
 var group = priorities[priority];
-for (var _5r44ig4_85 = 0; _5r44ig4_85 < group.length; _5r44ig4_85 ++){
-var entry = group[_5r44ig4_85];
+for (var _8f2hig5_10 = 0; _8f2hig5_10 < group.length; _8f2hig5_10 ++){
+var entry = group[_8f2hig5_10];
 if (entry === type || typeof entry === "object" && entry.type === type && entry.operator === operator)
 return priority;
 }
@@ -3629,8 +3628,8 @@ result += sub (node.alternate);
 break;
 case Syntax.SwitchStatement:
 result = "switch (" + child (node.discriminant) + "){";
-{ var _2t5u2sq_86 = node.cases; for (var _6ujnd7f_87 = 0; _6ujnd7f_87 < _2t5u2sq_86.length; _6ujnd7f_87 ++){
-var obj = _2t5u2sq_86[_6ujnd7f_87];
+{ var _mgm1kp_11 = node.cases; for (var _8p893u0_12 = 0; _8p893u0_12 < _mgm1kp_11.length; _8p893u0_12 ++){
+var obj = _mgm1kp_11[_8p893u0_12];
 result += indent (obj, {"force":true});
 }}
 result += end () + "}";
@@ -3668,8 +3667,8 @@ result = "for (" + child (node.left).replace (/;$/, "") + " in " + child (node.r
 break;
 case Syntax.TryStatement:
 result = "try " + sub (node.block) + " ";
-{ var _977sukl_88 = node.handlers; for (var _1oqu0oh_89 = 0; _1oqu0oh_89 < _977sukl_88.length; _1oqu0oh_89 ++){
-var handler = _977sukl_88[_1oqu0oh_89];
+{ var _29ojs91_13 = node.handlers; for (var _7a8c9hr_14 = 0; _7a8c9hr_14 < _29ojs91_13.length; _7a8c9hr_14 ++){
+var handler = _29ojs91_13[_7a8c9hr_14];
 result += child (handler) + " ";
 }}
 if (node.finalizer)

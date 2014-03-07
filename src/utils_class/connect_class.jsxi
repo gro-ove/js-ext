@@ -8,7 +8,7 @@ function searchSuperExpression (obj)
 		}
 	} else {
 		for (var key, child in obj)
-			if (child && typeof child === 'object' && searchSuperExpression (child))
+			if (child && typeof child.type === 'string' && searchSuperExpression (child))
 				return true;
 	}
 
