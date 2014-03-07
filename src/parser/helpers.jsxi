@@ -1,12 +1,26 @@
-function helperById (id, value)
+function HelpersManager (){
+	this.helpers = {};
+}
+
+HelpersManager.prototype.set = function (key, arg){
+	if (!this.helpers.hasOwnProperty (key))
+		this.helpers [key] = typeof arg === 'object' ? $.extend (true, {}, mark (arg)) : true;
+}
+
+function helperById (id, mark)
 	switch (id){
-		case 'propertyName':
-			// 	function __pa (c, o, r, u){
-			// 		return c instanceof o ? r : u; 
-			// 	}
-			return functionDeclaration ('__pn', [ 'c', 'o', 'r', 'u' ], [
-				returnStatement (conditionalExpression (binaryExpression ('o', 'instanceof', 'c'), 'r', 'u'))
-			]);
+		// case 'propertyName':
+		// 	// 	function __pa (c, o, r, u){
+		// 	// 		return c instanceof o ? r : u; 
+		// 	// 	}
+		// 	return functionDeclaration ('__pn', [ 'c', 'o', 'r', 'u' ], [
+		// 		returnStatement (conditionalExpression (binaryExpression ('o', 'instanceof', 'c'), 'r', 'u'))
+		// 	]);
+
+		// case 'findReplaced':
+		// 	return functionDeclaration ('__fr', [ 'obj', 'name' ], [
+		// 		returnStatement ('undefined')
+		// 	]);
 
 		case 'prototypeExtend':
 			// 	function __pe(c, p, t) {
@@ -26,7 +40,7 @@ function helperById (id, value)
 			]);
 
 		case 'createArray':
-			return markAll (functionDeclaration ('__ca', [ 'from', 'to', 'result' ], [
+			return functionDeclaration ('__ca', [ 'from', 'to', 'result' ], [
 				ifStatement (
 					binaryExpression (unaryExpression ('from', 'typeof', true), '===', literal ('string')), 
 					expressionStatement (assignmentExpression ('from', callExpression (memberExpression ('from', 'charCodeAt'), [ literal (0) ])))
@@ -53,7 +67,7 @@ function helperById (id, value)
 					)
 				),
 				returnStatement ('result')
-			]), value);
+			]);
 
 		case 'bindOnce':
 			var bindedTable = memberExpression ('obj', '__bt'),
@@ -72,21 +86,21 @@ function helperById (id, value)
 				returnStatement (placeInTable)
 			]);
 
-		case 'findReplaced':
-			return functionDeclaration ('__fr', [ 'obj', 'name' ], [
-				returnStatement ('undefined')
-			]);
-
 		default:
 			console.assert (false, 'Wrong helper id: ' + id)
 	}
 
 function doHelpers (helpers){
-	var result = [];
+	var result = [],
+		temp;
 
 	for (var id, value in helpers)
-		if (value)
-			result.push (helperById (id, value));
+		if (value && typeof value !== 'function'){
+			temp = helperById (id, value);
+			if (typeof value === 'object')
+				markAll (temp, value);
+			result.push (temp);
+		}
 
 	return result;
 }

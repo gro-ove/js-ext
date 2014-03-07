@@ -9,7 +9,7 @@ function byName (name)
 
 // Обрабатываем все классы
 function doClasses (rawClasses, callback){
-	helpers 					= {};
+	helpers 					= new HelpersManager ();
 	classes 					= [];
 	classesByNames 				= {};
 	probablyUseOtherMaxValue 	= 100;
@@ -26,7 +26,7 @@ function doClasses (rawClasses, callback){
 		processClassesMethods ();
 		processClasses ();
 
-		callback ([ variableDeclaration (classes.map (lambda arg.element)) ], helpers);
+		callback ([ variableDeclaration (classes.map (lambda arg.element)) ], helpers.helpers);
 	} else
 		callback ();
 }

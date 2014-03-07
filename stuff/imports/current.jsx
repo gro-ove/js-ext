@@ -1,3 +1,5 @@
+console.log = lambda;
+
 var temp = function (){ 
 	a = 1; 
 	b = 2; 

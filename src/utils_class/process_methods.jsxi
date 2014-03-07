@@ -116,7 +116,7 @@ function processClassMethod (classEntry, methodEntry){
 
 			// Если обращались к функции и при этом она не вызывается, имеет смысл привязать её к объекту
 			if (member.method && parent.type !== Syntax.CallExpression){
-				helpers.bindOnce = true;
+				helpers.set ('bindOnce', obj);
 				result = callExpression ('__bo', [ that, literal (member.id.name) ]);
 			} else {
 				result = memberExpression (that, member.id.name);

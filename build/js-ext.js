@@ -163,28 +163,36 @@ else
 break;
 }
 }
-function helperById (id,value){
+function HelpersManager (){
+this.helpers = {};
+}
+HelpersManager.prototype.set = function (key,arg){
+if (! this.helpers.hasOwnProperty (key))
+this.helpers [key] = typeof arg === "object" ? $.extend (true, {}, mark (arg)) : true;
+};
+function helperById (id,mark){
 switch (id){
-case "propertyName":
-return functionDeclaration ("__pn", ["c","o","r","u"], [returnStatement (conditionalExpression (binaryExpression ("o", "instanceof", "c"), "r", "u"))]);
 case "prototypeExtend":
 return functionDeclaration ("__pe", ["c","p","t"], [expressionStatement (assignmentExpression ("t", functionExpression ())),expressionStatement (assignmentExpression (memberExpression ("t", "prototype"), memberExpression ("p", "prototype"))),expressionStatement (assignmentExpression (memberExpression ("c", "prototype"), newExpression ("t"))),expressionStatement (assignmentExpression (memberExpression (memberExpression ("c", "prototype"), "constructor"), "c"))]);
 case "createArray":
-return markAll (functionDeclaration ("__ca", ["from","to","result"], [ifStatement (binaryExpression (unaryExpression ("from", "typeof", true), "===", literal ("string")), expressionStatement (assignmentExpression ("from", callExpression (memberExpression ("from", "charCodeAt"), [literal (0)])))),ifStatement (binaryExpression (unaryExpression ("to", "typeof", true), "===", literal ("string")), expressionStatement (assignmentExpression ("to", callExpression (memberExpression ("to", "charCodeAt"), [literal (0)])))),expressionStatement (assignmentExpression ("result", newExpression ("Array", [binaryExpression (callExpression (memberExpression ("Math", "abs"), [binaryExpression ("to", "-", "from")]), "+", literal (1))]))),ifStatement (binaryExpression ("from", "<", "to"), forStatement (variableDeclaration ([variableDeclarator ("i", literal (0))]), binaryExpression ("i", "<", memberExpression ("result", "length")), unaryExpression ("i", "++"), expressionStatement (assignmentExpression (memberExpression ("result", "i", true), binaryExpression ("i", "+", "from")))), forStatement (variableDeclaration ([variableDeclarator ("i", binaryExpression (memberExpression ("result", "length"), "-", literal (1)))]), binaryExpression ("i", ">=", literal (0)), unaryExpression ("i", "--"), expressionStatement (assignmentExpression (memberExpression ("result", "i", true), binaryExpression ("from", "-", "i"))))),returnStatement ("result")]), value);
+return functionDeclaration ("__ca", ["from","to","result"], [ifStatement (binaryExpression (unaryExpression ("from", "typeof", true), "===", literal ("string")), expressionStatement (assignmentExpression ("from", callExpression (memberExpression ("from", "charCodeAt"), [literal (0)])))),ifStatement (binaryExpression (unaryExpression ("to", "typeof", true), "===", literal ("string")), expressionStatement (assignmentExpression ("to", callExpression (memberExpression ("to", "charCodeAt"), [literal (0)])))),expressionStatement (assignmentExpression ("result", newExpression ("Array", [binaryExpression (callExpression (memberExpression ("Math", "abs"), [binaryExpression ("to", "-", "from")]), "+", literal (1))]))),ifStatement (binaryExpression ("from", "<", "to"), forStatement (variableDeclaration ([variableDeclarator ("i", literal (0))]), binaryExpression ("i", "<", memberExpression ("result", "length")), unaryExpression ("i", "++"), expressionStatement (assignmentExpression (memberExpression ("result", "i", true), binaryExpression ("i", "+", "from")))), forStatement (variableDeclaration ([variableDeclarator ("i", binaryExpression (memberExpression ("result", "length"), "-", literal (1)))]), binaryExpression ("i", ">=", literal (0)), unaryExpression ("i", "--"), expressionStatement (assignmentExpression (memberExpression ("result", "i", true), binaryExpression ("from", "-", "i"))))),returnStatement ("result")]);
 case "bindOnce":
 var bindedTable = memberExpression ("obj", "__bt"), objectFunction = memberExpression ("obj", "name", true), placeInTable = memberExpression (bindedTable, "name", true);
 return functionDeclaration ("__bo", ["obj","name"], [ifStatement (unaryExpression (callExpression (memberExpression ("obj", "hasOwnProperty"), [literal ("__bt")]), "!", true), expressionStatement (assignmentExpression (bindedTable, objectExpression ()))),ifStatement (unaryExpression (callExpression (memberExpression (bindedTable, "hasOwnProperty"), ["name"]), "!", true), expressionStatement (assignmentExpression (placeInTable, callExpression (memberExpression (objectFunction, "bind"), ["obj"])))),returnStatement (placeInTable)]);
-case "findReplaced":
-return functionDeclaration ("__fr", ["obj","name"], [returnStatement ("undefined")]);
 default:console.assert (false, "Wrong helper id: " + id);
 }
 }
 function doHelpers (helpers){
-var result = [];
+var result = [], temp;
 for (var id in helpers){
 var value = helpers[id];
-if (value)
-result.push (helperById (id, value));
+if (value && typeof value !== "function")
+{
+temp = helperById (id, value);
+if (typeof value === "object")
+markAll (temp, value);
+result.push (temp);
+}
 }
 return result;
 }
@@ -204,10 +212,10 @@ length = source.length;
 buffer = null;
 state = {"allowIn":true,"inClass":false,"parsingComplete":false,"preventSequence":false,"classes":[]};
 options = args || {"filename":"[ not a file ]","insertReturn":false,"initializationAllowed":false};
-helpers = {};
+helpers = new HelpersManager();
 var result = parseProgram ();
 if (typeof callback === "function")
-callback (result, helpers);
+callback (result, helpers.helpers);
 else
 return result;
 }
@@ -291,7 +299,16 @@ markAll (value, mark);
 return obj;
 }
 function mark (obj,arg){
-return arg === undefined ? $.extend (obj || {}, index < length ? {"filename":options.filename,"lineNumber":lineNumber,"lineStart":lineStart,"index":index} : {}) : $.extend (obj, arg);
+if (arg !== undefined)
+return $.extend (obj, arg);
+else
+if (index > length || obj && obj.filename)
+return obj || {};
+else
+if (obj && obj.lineNumber)
+return $.extend (obj, {"filename":options.filename});
+else
+return $.extend (obj || {}, {"filename":options.filename,"lineNumber":lineNumber,"lineStart":lineStart,"index":index});
 }
 function literal (value){
 return typeof value === "object" && value !== null ? {"type":Syntax.Literal,"value":value.value,"lineNumber":value.lineNumber,"filename":options.filename} : mark ({"type":Syntax.Literal,"value":value});
@@ -486,8 +503,7 @@ elements.push (from);
 return arrayExpression (elements);
 }
 }
-if (! helpers.createArray)
-helpers.createArray = from;
+helpers.set ("createArray", from);
 return callExpression ("__ca", [from,to]);
 }
 function parseArrayInitialiser (){
@@ -596,7 +612,7 @@ if (result.parent || mode.interface || mode.static)
 throwUnexpected (token);
 lex ();
 result.parent = parseClassIdentifier ();
-helpers.prototypeExtend = true;
+helpers.set ("prototypeExtend", token);
 break;
 case "implements":
 
@@ -634,8 +650,8 @@ if (matchKeyword ("var"))
 lex ();
 var token = lookahead (), data = parseVariableDeclarationList ();
 consumeSemicolon ();
-for (var _8vblc3c_79 = 0; _8vblc3c_79 < data.length; _8vblc3c_79 ++){
-var entry = data[_8vblc3c_79];
+for (var _7ltpkau_40 = 0; _7ltpkau_40 < data.length; _7ltpkau_40 ++){
+var entry = data[_7ltpkau_40];
 if (params.interface && ! current.static)
 throwError (token, "Interface couldn't have object fields.");
 if (params.implemented && entry.init)
@@ -2563,13 +2579,13 @@ function byName (name){
 return classesByNames [name];
 }
 function doClasses (rawClasses,callback){
-helpers = {};
+helpers = new HelpersManager();
 classes = [];
 classesByNames = {};
 probablyUseOtherMaxValue = 100;
 thatVariable = newIdentifier ("__that");
-for (var _82qm8fr_29 = 0; _82qm8fr_29 < rawClasses.length; _82qm8fr_29 ++){
-var rawClass = rawClasses[_82qm8fr_29];
+for (var _2n8nbbi_41 = 0; _2n8nbbi_41 < rawClasses.length; _2n8nbbi_41 ++){
+var rawClass = rawClasses[_2n8nbbi_41];
 addClass (rawClass);
 }
 if (classes.length > 0)
@@ -2582,7 +2598,7 @@ processClassesMethods ();
 processClasses ();
 callback ([variableDeclaration (classes.map (function (arg){
 return arg.element;
-}))], helpers);
+}))], helpers.helpers);
 }
 else
 callback ();
@@ -2785,8 +2801,8 @@ if (typeof obj === "object" && obj !== null)
 {
 if (obj instanceof Array)
 {
-for (var _10sophk_8 = 0; _10sophk_8 < obj.length; _10sophk_8 ++){
-var child = obj[_10sophk_8];
+for (var _50ve2ss_42 = 0; _50ve2ss_42 < obj.length; _50ve2ss_42 ++){
+var child = obj[_50ve2ss_42];
 lookForExclusions (child, target);
 }
 }
@@ -2841,7 +2857,7 @@ var that = getThis ();
 var result;
 if (member.method && parent.type !== Syntax.CallExpression)
 {
-helpers.bindOnce = true;
+helpers.set ("bindOnce", obj);
 result = callExpression ("__bo", [that,literal (member.id.name)]);
 }
 else
@@ -2969,8 +2985,8 @@ if (typeof obj === "object" && obj !== null)
 {
 if (obj instanceof Array)
 {
-for (var _mkerb1_9 = 0; _mkerb1_9 < obj.length; _mkerb1_9 ++){
-var child = obj[_mkerb1_9];
+for (var _91453fo_43 = 0; _91453fo_43 < obj.length; _91453fo_43 ++){
+var child = obj[_91453fo_43];
 process (child, obj, parent);
 }
 }
@@ -3010,15 +3026,15 @@ process (methodEntry);
 }
 function processClassMethods (classEntry){
 var replace, childMember;
-{ var _6rlk693_10 = classEntry.members; for (var name in _6rlk693_10){
-var member = _6rlk693_10[name];
+{ var _68epc97_44 = classEntry.members; for (var name in _68epc97_44){
+var member = _68epc97_44[name];
 if (member.method)
 processClassMethod (classEntry, member);
 }}
 }
 function processClassesMethods (){
-for (var _3j395l0_11 = 0; _3j395l0_11 < classes.length; _3j395l0_11 ++){
-var classEntry = classes[_3j395l0_11];
+for (var _12qcp5r_45 = 0; _12qcp5r_45 < classes.length; _12qcp5r_45 ++){
+var classEntry = classes[_12qcp5r_45];
 processClassMethods (classEntry);
 }
 }
@@ -3437,8 +3453,8 @@ console.assert (params.parent, "Not implemented");
 function index (type,operator){
 for (var priority = 0; priority < priorities.length; priority ++){
 var group = priorities[priority];
-for (var _4de2brh_29 = 0; _4de2brh_29 < group.length; _4de2brh_29 ++){
-var entry = group[_4de2brh_29];
+for (var _4o64oc_38 = 0; _4o64oc_38 < group.length; _4o64oc_38 ++){
+var entry = group[_4o64oc_38];
 if (entry === type || typeof entry === "object" && entry.type === type && entry.operator === operator)
 return priority;
 }
@@ -3542,7 +3558,6 @@ result += array (node.body, {"wrap":true});
 result += end ();
 }
 result += "}";
-console.log (result);
 break;
 case Syntax.ExpressionStatement:
 result = child (node.expression);
@@ -3592,8 +3607,8 @@ result += sub (node.alternate);
 break;
 case Syntax.SwitchStatement:
 result = "switch (" + child (node.discriminant) + "){";
-{ var _8i6bgto_30 = node.cases; for (var _36t89bv_31 = 0; _36t89bv_31 < _8i6bgto_30.length; _36t89bv_31 ++){
-var obj = _8i6bgto_30[_36t89bv_31];
+{ var _2sjjvv3_39 = node.cases; for (var _8lt04lb_40 = 0; _8lt04lb_40 < _2sjjvv3_39.length; _8lt04lb_40 ++){
+var obj = _2sjjvv3_39[_8lt04lb_40];
 result += indent (obj, {"force":true});
 }}
 result += end () + "}";
@@ -3631,8 +3646,8 @@ result = "for (" + child (node.left).replace (/;$/, "") + " in " + child (node.r
 break;
 case Syntax.TryStatement:
 result = "try " + sub (node.block) + " ";
-{ var _80a5v7k_32 = node.handlers; for (var _3s1ph8m_33 = 0; _3s1ph8m_33 < _80a5v7k_32.length; _3s1ph8m_33 ++){
-var handler = _80a5v7k_32[_3s1ph8m_33];
+{ var _6vin5me_41 = node.handlers; for (var _87lfri9_42 = 0; _87lfri9_42 < _6vin5me_41.length; _87lfri9_42 ++){
+var handler = _6vin5me_41[_87lfri9_42];
 result += child (handler) + " ";
 }}
 if (node.finalizer)

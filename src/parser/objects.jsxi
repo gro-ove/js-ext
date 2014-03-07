@@ -15,12 +15,19 @@
 	}
 
 	function mark (obj, arg)
-		return arg === undefined ? $.extend (obj || {}, index < length ? {
-			filename:     		options.filename,
-			lineNumber: 	 	lineNumber,
-			lineStart: 	 		lineStart,
-			index: 		 		index
-		} : {}) : $.extend (obj, arg);
+		if (arg !== undefined)
+			return $.extend (obj, arg);
+		else if (index > length || obj && obj.filename)
+			return obj || {};
+		else if (obj && obj.lineNumber)
+			return $.extend (obj, { filename: options.filename });
+		else
+			return $.extend (obj || {}, {
+				filename:     	options.filename,
+				lineNumber: 	lineNumber,
+				lineStart: 	 	lineStart,
+				index: 		 	index
+			});
 
 	function literal (value)
 		return typeof value === 'object' && value !== null ? {

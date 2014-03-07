@@ -92,7 +92,7 @@
 
 					lex ();
 					result.parent = parseClassIdentifier ();
-					helpers.prototypeExtend = true;
+					helpers.set ('prototypeExtend', token);
 					break;
 
 				case 'implements':

@@ -31,8 +31,7 @@
 			}
 		}
 
-		if (!helpers.createArray)
-			helpers.createArray = from;
+		helpers.set ('createArray', from);
 		return callExpression ('__ca', [ from, to ]);
 	}
 	

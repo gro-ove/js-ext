@@ -332,7 +332,6 @@ function generate (node, params = { lineBreak: '', comment: {}, first: true }){
 			}
 
 			result += '}';
-			console.log (result);
 			break;
 
 		case Syntax.ExpressionStatement:
