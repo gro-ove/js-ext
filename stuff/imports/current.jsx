@@ -1,3 +1,23 @@
+var temp = function (){ 
+	a = 1; 
+	b = 2; 
+};
+
+var temp = function (){ 
+	a = 1; 
+	b = 2; 
+}, other = function (){ 
+	a = 1; 
+	b = 2; 
+};
+
+[ 
+	function (){ 
+		a = 1; 
+		b = 2; 
+	} 
+];
+
 [ 1, 2, 3, { long_long_long_long_long_ke_e_e_e_e_e_ey: GLOBAL.long_long_long_long_long_ke_e_e_e_e_e_ey } ];
 
 console.log ('10', 20, [ 
@@ -48,12 +68,20 @@ class A {
 }
 
 class B extends A {
-	protected method (a, b)
+	protected method (a, b){
+		console.log ('method');
 		super;
+	}
 
 	public test (){
+		console.log ('test');
 		return method;
 	}
+}
+
+{
+	console.log ('B:');
+	new B ().test ()(1, 2);
 }
 
 // class B extends A {

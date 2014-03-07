@@ -1,7 +1,7 @@
 // Получаем заменённое имя в зависимости от видимости переменной
 function rename (name, member){
-	// Конструкторам, инициализаторам, скрытым или приватным статическим имя не меняем
-	if (member.static && member.publicMode === 'private' || member.publicMode === 'locked')
+	// Скрытым или приватным и статическим членам имя не меняем
+	if (member.publicMode === 'locked' || member.static && member.publicMode === 'private')
 		return name;
 
 	switch (member.publicMode){
@@ -56,8 +56,6 @@ function processClassMember (classEntry, name, parentMember){
 		targetMembers = [ parentMember ],
 		argument,
 		updatedName;
-
-	// console.log ('member:', classEntry.id.name, parentMember.publicMode, name);
 
 	function testChilds (currentClass){
 		var childMember;

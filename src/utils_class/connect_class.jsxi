@@ -1,3 +1,17 @@
+function searchSuperExpression (obj)
+	if (obj.type === Syntax.CallExpression && 'super' in obj && obj.callee === null){
+		return true;
+	} else if (obj && obj.body && obj.body.body){
+		for (var child in-array obj.body.body){
+			if (searchForSuperExpression (child))
+				return true;
+		}
+	} else {
+		for (var key, child in obj)
+			if (child && typeof child === 'object' && searchForSuperExpression (child))
+				return true;
+	}
+
 function connectClass (current, from){
 	if (from !== undefined)
 		current.childs.push (from);
@@ -20,20 +34,43 @@ function connectClass (current, from){
 		var parentConstructor = parent.members ['@constructor'],
 			currentConstructor = current.members ['@constructor'];
 
-		if (!parentConstructor)
-			return;
+		// У родительского класса есть конструктор, в дочернем должен быть вызов
+		// супер-конструктора
+		if (parentConstructor){
 
-		if (!currentConstructor){
-			addMember (current, functionExpression (parentConstructor.params, 
-					[ expressionStatement (superExpression (parentConstructor.params)) ]))
+			// Если у дочернего класса нет конструктора, создаём
+			// TODO: Эта ветка никогда не выполнится - или переделать,  позволив 
+			// классам обходиться без конструктора, или выкинуть её к чертям
+			// TODO: Вообще, какого чёрта? Конструктор создаётся даже для стати-
+			// ческого класса?
+			if (!currentConstructor){
 
-		} else if (!currentConstructor.body.body.filter (lambda arg.type === Syntax.ExpressionStatement && 'super' in arg.expression).length){ 	// FIXME: Deep search
-			if (currentConstructor.autocreated || parentConstructor.params.length === 0){
-				if (currentConstructor.autocreated)
-					currentConstructor.params = parentConstructor.params;
-				currentConstructor.body.body = [ expressionStatement (superExpression (null, parentConstructor.params)) ].concat (currentConstructor.body.body);
-			} else 
-				throwError (currentConstructor, Messages.SuperConstructorCallNeeded);
+				// Тело нового конструктора - вызов супер-конструктора с нужными
+				// аргументами
+				var body = [ expressionStatement (superExpression (null, parentConstructor.params)) ];
+
+				// Добавляем конструктор классу
+				updateMember (current, functionDeclaration ('@constructor', parentConstructor.params, body));
+
+			// Иначе,  если в конструкторе дочернего класса нет вызова конструк-
+			// тора родительского класса
+			} else if (!searchSuperExpression (currentConstructor)){
+
+				// Если  конструктор  дочернего класса  создан автоматически или
+				// конструктор родительского класса не содержит параметров,  до-
+				// бавим вызов сами
+				if (currentConstructor.autocreated || parentConstructor.params.length === 0){
+
+					if (currentConstructor.autocreated)
+						currentConstructor.params = parentConstructor.params;
+					currentConstructor.body.body = [ 
+						expressionStatement (superExpression (null, parentConstructor.params)) 
+					].concat (currentConstructor.body.body);
+
+				// Иначе сообщаем об ошибке
+				} else 
+					throwError (currentConstructor, Messages.SuperConstructorCallNeeded);
+			}
 		}
 	}
 

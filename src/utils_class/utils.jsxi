@@ -53,3 +53,10 @@ function findByReplacement (members, replacement)
 		lambda arg.id && arg.id.name === replacement, 
 		EachMode.FIRST_HIT_MODE
 	);
+
+function membersOut (classObject){
+	var arg = []; 
+	for (var key,value in classObject.members) 
+		arg.push (key + ':' + value.id); 
+	console.log (classObject.id.name + ': ' + arg.join (', '));
+}

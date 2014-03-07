@@ -7,30 +7,19 @@ function processClass (classEntry){
 
 	console.assert (!('element' in classEntry), 'Already processed');
 
-	// Биндим нужные функции
-	var processClassFunctionBinded 	= processClassFunction.bind (null, classEntry),
-		filterBinded 				= filter.bind (null, classEntry);
-
 	// Находим конструкторы
 	var constructor 				= classEntry.members ['@constructor'],
 		initializer 				= classEntry.members ['@initializer'];
 
 	// И поля с методами
-	var filtered 					= filterBinded (lambda arg.className === classEntry.id && arg.id.name [0] !== '@'),
+	var filtered 					= filter (classEntry, lambda arg.className === classEntry.id && arg.id.name [0] !== '@'),
 		objectMethods 				= filtered.filter (lambda  arg.method && !arg.static),
 		staticMethods 				= filtered.filter (lambda  arg.method &&  arg.static),
 		objectFields 				= filtered.filter (lambda !arg.method && !arg.static),
 		staticFields 				= filtered.filter (lambda !arg.method &&  arg.static);
 
-	if (!classEntry.params.abstract && filterBinded (lambda arg.abstract)[0])
+	if (!classEntry.params.abstract && filter (classEntry, lambda arg.abstract)[0])
 		classEntry.params.abstract = true;
-
-	// Обрабатываем конструктор, инициализатор и методы
-	processClassFunctionBinded (constructor);
-	processClassFunctionBinded (initializer);
-
-	objectMethods.forEach (processClassFunctionBinded);
-	staticMethods.forEach (processClassFunctionBinded);
 
 	// Слегка меняем конструктор и инициализатор
 	$.extend (constructor, { id: null, type: Syntax.FunctionExpression });

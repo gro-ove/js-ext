@@ -23,6 +23,7 @@ function doClasses (rawClasses, callback){
 		connectClasses ();
 		sortClasses ();
 		processClassesMembers ();
+		processClassesMethods ();
 		processClasses ();
 
 		callback ([ variableDeclaration (classes.map (lambda arg.element)) ], helpers);

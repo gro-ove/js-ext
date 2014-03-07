@@ -150,10 +150,17 @@ function generate (node, params = { lineBreak: '', comment: {}, first: true }){
 			lineBreak = params.lineBreak;
 		}
 
-		result = join (array, lambda fn (arg, arrayParams), arrayParams.join || '', lineBreak);
-		oneline = result.replace (/ *\/\/__ [^\n]+\n\t*/g, '');
+		result = join (array, lambda {
+			var result = fn (arg, arrayParams);
+			if (result.indexOf ('\n') !== -1)
+				oneline = false;
+			return result;
+		}, arrayParams.join || '', lineBreak);
 
-		if (oneline.length > 60 || arrayParams.wrap){
+		if (oneline !== false)
+			oneline = result.replace (/ *\/\/__ [^\n]+\n\t*/g, '');
+
+		if (!oneline || oneline.length > 60 || arrayParams.wrap){
 			if (arrayParams.autospaces){
 				temp = end ();
 				result = end (lineBreak) + result + temp;
@@ -306,7 +313,11 @@ function generate (node, params = { lineBreak: '', comment: {}, first: true }){
 			break;
 
 		case Syntax.VariableDeclaration:
-			result = 'var ' + array (node.declarations, { join: ', ' }) + ';';
+			var args = array (node.declarations, { join: ', ' }),
+				match = node.declarations.length === 1 && args.match (/\n\t*/);
+			if (match && match [0].length > params.lineBreak.length + 2)
+				args = args.replace (/\n\t/g, '\n');
+			result = 'var ' + args + ';';
 			break;
 
 		case Syntax.VariableDeclarator:
@@ -316,12 +327,19 @@ function generate (node, params = { lineBreak: '', comment: {}, first: true }){
 
 		/* Statements: Base */
 		case Syntax.BlockStatement:
-			if (node.body.length === 0){
-				result = '{}';
-			} else if (0 && node.body.length === 1){
-				result = '{ ' + child (node.body [0]).replace (/;$/, '') + ' }';
-			} else
-				result = '{' + end () + '\t' + array (node.body, { wrap: true }) + end () + '}';
+			result = '{';
+			if (node.body.length > 0){
+				result += end () + '\t';
+				result += array (node.body, { wrap: true });
+				result += end ();
+			}
+
+			// } else if (0 && node.body.length === 1){
+			// 	result = '{ ' + child (node.body [0]).replace (/;$/, '') + ' }';
+			// }
+
+			result += '}';
+			console.log (result);
 			break;
 
 		case Syntax.ExpressionStatement:

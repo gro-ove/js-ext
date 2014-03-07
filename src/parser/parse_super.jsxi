@@ -1,8 +1,9 @@
 	function parseSuperExpression (){
 		var level = 1, 
-			name, 
+			name = null, 
 			temp, 
-			arguments;
+			arguments,
+			from = mark ();
 
 		expectKeyword ('super');
 
@@ -21,5 +22,5 @@
 			}
 		}
 
-		return superExpression (name, match ('(') ? parseArguments () : [], level);
+		return mark (superExpression (name, match ('(') ? parseArguments () : [], level), from);
 	}
