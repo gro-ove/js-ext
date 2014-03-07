@@ -2689,8 +2689,8 @@ if (typeof obj === "object" && obj !== null)
 {
 if (obj instanceof Array)
 {
-for (var _61p2i0j_51 = 0; _61p2i0j_51 < obj.length; _61p2i0j_51 ++){
-var child = obj[_61p2i0j_51];
+for (var _3rt2vns_33 = 0; _3rt2vns_33 < obj.length; _3rt2vns_33 ++){
+var child = obj[_3rt2vns_33];
 lookForExclusions (child, target);
 }
 }
@@ -2839,9 +2839,6 @@ process (obj.object, obj);
 if (obj.computed)
 process (obj.property, obj);
 }
-function processThisExpression (obj,parent){
-
-}
 function processSuperExpression (obj,parent){
 if (currentFunction !== functionEntry && obj.callee === null)
 throwError (obj, Messages.WtfMan);
@@ -2874,8 +2871,8 @@ if (typeof obj === "object" && obj !== null)
 {
 if (obj instanceof Array)
 {
-for (var _6ifhfig_52 = 0; _6ifhfig_52 < obj.length; _6ifhfig_52 ++){
-var child = obj[_6ifhfig_52];
+for (var _5bofp5p_34 = 0; _5bofp5p_34 < obj.length; _5bofp5p_34 ++){
+var child = obj[_5bofp5p_34];
 process (child, obj, parent);
 }
 }
@@ -2899,9 +2896,6 @@ processAssignmentExpression (obj, parent);
 break;
 case Syntax.MemberExpression:
 processMemberExpression (obj, parent, preparent);
-break;
-case Syntax.ThisExpression:
-processThisExpression (obj, parent);
 break;
 case Syntax.CallExpression:
 if ("super" in obj)

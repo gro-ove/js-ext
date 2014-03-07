@@ -313,10 +313,6 @@
 							processMemberExpression (obj, parent, preparent);
 							break;
 
-						case Syntax.ThisExpression:
-							processThisExpression (obj, parent);
-							break;
-
 						case Syntax.CallExpression:
 							if ('super' in obj)
 								processSuperExpression (obj, parent);
