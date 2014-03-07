@@ -1,6 +1,6 @@
 	// 11.1.4 Array Initialiser
 
-	function parseArrayPerlInitializer (elements){
+	function parseArrayPerlInitializer (elements, from){
 		expect ('.');
 		expect ('.');
 
@@ -19,24 +19,25 @@
 			if (Number.isNaN (nto))
 				nto = String (to.value).charCodeAt (0);
 
-			if (Math.abs (nto - nfrom) < 20){
+			if (Math.abs (nto - nfrom) < 10){
 				from.value = nfrom;
 				if (nto > nfrom)
 					for (nfrom ++; nfrom <= nto; nfrom ++)
-						elements.push (literal (nfrom));
+						elements.push (from);
 				else
 					for (nfrom ++; nfrom >= nto; nfrom --)
-						elements.push (literal (nfrom));
+						elements.push (from);
 				return arrayExpression (elements);
 			}
 		}
 
-		helpers.createArray = true;
+		if (!helpers.createArray)
+			helpers.createArray = from;
 		return callExpression ('__ca', [ from, to ]);
 	}
 	
 	function parseArrayInitialiser (){
-		var elements = [], token, comma = {};
+		var elements = [], token, comma = {}, from = mark ();
 
 		expect ('[');
 
@@ -49,7 +50,7 @@
 				token = lookahead ();
 
 				if (elements.length === 1 && token.value === '.' && source [token.range [0] + 1] === '.')
-					return parseArrayPerlInitializer (elements);
+					return parseArrayPerlInitializer (elements, from);
 
 				if (token.value !== ']')
 					parseOptionalComma (comma);

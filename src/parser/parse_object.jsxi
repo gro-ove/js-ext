@@ -17,19 +17,20 @@
 
 		// Note: This function is called only from parseObjectProperty(), where
 		// EOF and Punctuator tokens are already filtered out.
-		if (token.type === Token.StringLiteral || token.type === Token.NumericLiteral) 
+		if (token.type === Token.StringLiteral || token.type === Token.NumericLiteral)
 			return literal (token);
 
 		return identifier (token.value);
 	}
 
 	function parseObjectProperty (){
-		var token, key, id, param;
+		var token, key, id, param, from;
 
 		token = lookahead ();
 
 		if (token.type === Token.Identifier){
 			id = parseObjectPropertyKey ();
+			from = mark ();
 
 			// Property Assignment: Getter and Setter.
 			if (token.value === 'get' && !match (':')){

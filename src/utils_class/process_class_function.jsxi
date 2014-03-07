@@ -2,6 +2,8 @@
 	function processClassFunction (classEntry, functionEntry){
 		console.assert (classEntry && functionEntry, 'Wrong arguments: ' + classEntry + ', ' + functionEntry);
 
+		options.filename = functionEntry.filename;
+
 		// Для отладки
 		// console.log ('[processClassFunction]', classEntry.id.name + '::' + functionEntry.id.name);
 

@@ -170,7 +170,7 @@ return functionDeclaration ("__pn", ["c","o","r","u"], [returnStatement (conditi
 case "prototypeExtend":
 return functionDeclaration ("__pe", ["c","p","t"], [expressionStatement (assignmentExpression ("t", functionExpression ())),expressionStatement (assignmentExpression (memberExpression ("t", "prototype"), memberExpression ("p", "prototype"))),expressionStatement (assignmentExpression (memberExpression ("c", "prototype"), newExpression ("t"))),expressionStatement (assignmentExpression (memberExpression (memberExpression ("c", "prototype"), "constructor"), "c"))]);
 case "createArray":
-return functionDeclaration ("__ca", ["from","to","result"], [ifStatement (binaryExpression (unaryExpression ("from", "typeof", true), "===", literal ("string")), expressionStatement (assignmentExpression ("from", callExpression (memberExpression ("from", "charCodeAt"), [literal (0)])))),ifStatement (binaryExpression (unaryExpression ("to", "typeof", true), "===", literal ("string")), expressionStatement (assignmentExpression ("to", callExpression (memberExpression ("to", "charCodeAt"), [literal (0)])))),expressionStatement (assignmentExpression ("result", newExpression ("Array", [binaryExpression (callExpression (memberExpression ("Math", "abs"), [binaryExpression ("to", "-", "from")]), "+", literal (1))]))),ifStatement (binaryExpression ("from", "<", "to"), forStatement (variableDeclaration ([variableDeclarator ("i", literal (0))]), binaryExpression ("i", "<", memberExpression ("result", "length")), unaryExpression ("i", "++"), expressionStatement (assignmentExpression (memberExpression ("result", "i", true), binaryExpression ("i", "+", "from")))), forStatement (variableDeclaration ([variableDeclarator ("i", binaryExpression (memberExpression ("result", "length"), "-", literal (1)))]), binaryExpression ("i", ">=", literal (0)), unaryExpression ("i", "--"), expressionStatement (assignmentExpression (memberExpression ("result", "i", true), binaryExpression ("from", "-", "i"))))),returnStatement ("result")]);
+return markAll (functionDeclaration ("__ca", ["from","to","result"], [ifStatement (binaryExpression (unaryExpression ("from", "typeof", true), "===", literal ("string")), expressionStatement (assignmentExpression ("from", callExpression (memberExpression ("from", "charCodeAt"), [literal (0)])))),ifStatement (binaryExpression (unaryExpression ("to", "typeof", true), "===", literal ("string")), expressionStatement (assignmentExpression ("to", callExpression (memberExpression ("to", "charCodeAt"), [literal (0)])))),expressionStatement (assignmentExpression ("result", newExpression ("Array", [binaryExpression (callExpression (memberExpression ("Math", "abs"), [binaryExpression ("to", "-", "from")]), "+", literal (1))]))),ifStatement (binaryExpression ("from", "<", "to"), forStatement (variableDeclaration ([variableDeclarator ("i", literal (0))]), binaryExpression ("i", "<", memberExpression ("result", "length")), unaryExpression ("i", "++"), expressionStatement (assignmentExpression (memberExpression ("result", "i", true), binaryExpression ("i", "+", "from")))), forStatement (variableDeclaration ([variableDeclarator ("i", binaryExpression (memberExpression ("result", "length"), "-", literal (1)))]), binaryExpression ("i", ">=", literal (0)), unaryExpression ("i", "--"), expressionStatement (assignmentExpression (memberExpression ("result", "i", true), binaryExpression ("from", "-", "i"))))),returnStatement ("result")]), value);
 case "bindOnce":
 var bindedTable = memberExpression ("obj", "__bt"), objectFunction = memberExpression ("obj", "name", true), placeInTable = memberExpression (bindedTable, "name", true);
 return functionDeclaration ("__bo", ["obj","name"], [ifStatement (unaryExpression (callExpression (memberExpression ("obj", "hasOwnProperty"), [literal ("__bt")]), "!", true), expressionStatement (assignmentExpression (bindedTable, objectExpression ()))),ifStatement (unaryExpression (callExpression (memberExpression (bindedTable, "hasOwnProperty"), ["name"]), "!", true), expressionStatement (assignmentExpression (placeInTable, callExpression (memberExpression (objectFunction, "bind"), ["obj"])))),returnStatement (placeInTable)]);
@@ -275,20 +275,27 @@ TokenName [Token.StringLiteral] = "String";
 Syntax = {"AssignmentExpression":"AssignmentExpression","ArrayExpression":"ArrayExpression","BlockStatement":"BlockStatement","BinaryExpression":"BinaryExpression","BreakStatement":"BreakStatement","CallExpression":"CallExpression","CatchClause":"CatchClause","ConditionalExpression":"ConditionalExpression","ContinueStatement":"ContinueStatement","DoWhileStatement":"DoWhileStatement","DebuggerStatement":"DebuggerStatement","EmptyStatement":"EmptyStatement","ExpressionStatement":"ExpressionStatement","ForStatement":"ForStatement","ForInStatement":"ForInStatement","FunctionDeclaration":"FunctionDeclaration","FunctionExpression":"FunctionExpression","Identifier":"Identifier","IfStatement":"IfStatement","Literal":"Literal","LabeledStatement":"LabeledStatement","LogicalExpression":"LogicalExpression","MemberExpression":"MemberExpression","NewExpression":"NewExpression","ObjectExpression":"ObjectExpression","Program":"Program","Property":"Property","ReturnStatement":"ReturnStatement","SequenceExpression":"SequenceExpression","SwitchStatement":"SwitchStatement","SwitchCase":"SwitchCase","ThisExpression":"ThisExpression","ThrowStatement":"ThrowStatement","TryStatement":"TryStatement","UnaryExpression":"UnaryExpression","VariableDeclaration":"VariableDeclaration","VariableDeclarator":"VariableDeclarator","WhileStatement":"WhileStatement","WithStatement":"WithStatement"};
 Messages = {"UnexpectedToken":"Unexpected token %0","UnexpectedNumber":"Unexpected number","UnexpectedString":"Unexpected string","UnexpectedIdentifier":"Unexpected identifier","UnexpectedReserved":"Unexpected reserved word","UnexpectedEOS":"Unexpected end of input","NewlineAfterThrow":"Illegal newline after throw","InvalidRegExp":"Invalid regular expression","InvalidIdentifier":"Invalid identifier","UnterminatedRegExp":"Invalid regular expression: missing /","InvalidLHSInAssignment":"Invalid left-hand side in assignment","InvalidLHSInForIn":"Invalid left-hand side in for-in","MultipleDefaultsInSwitch":"More than one default clause in switch statement","NoCatchOrFinally":"Missing catch or finally after try","IllegalContinue":"Illegal continue statement","IllegalBreak":"Illegal break statement","IllegalReturn":"Illegal return statement","AccessorDataProperty":"Object literal may not have data and accessor property with the same name","AccessorGetSet":"Object literal may not have multiple get/set accessors with the same name","CyclicDependencyDetected":"Cyclic dependency detected (%0)","PrivateAccessError":"Attempt to access to private %0","ObjectAccessError":"Attempt to access to object field %0 from static method","SuperMethodIsNotAvailable":"Super methods are not available for this class","ClassAlreadyDefined":"Class with name %0 already defined","ClassMemberAlreadyDefined":"Class member with name %0 already defined","ParentClassNotFound":"Parent class %0 not found","UsingClassNotFound":"Using class %0 not found","SuperConstructorCallNeeded":"Super constructor call is required","WtfMan":"WTF, MAN"};
 Regex = {"NonAsciiIdentifierStart":new RegExp("[ªµºÀ-ÖØ-öø-ˁˆ-ˑˠ-ˤˬˮͰ-ʹͶͷͺ-ͽΆΈ-ΊΌΎ-ΡΣ-ϵϷ-ҁҊ-ԧԱ-Ֆՙա-ևא-תװ-ײؠ-يٮٯٱ-ۓەۥۦۮۯۺ-ۼۿܐܒ-ܯݍ-ޥޱߊ-ߪߴߵߺࠀ-ࠕࠚࠤࠨࡀ-ࡘࢠࢢ-ࢬऄ-हऽॐक़-ॡॱ-ॷॹ-ॿঅ-ঌএঐও-নপ-রলশ-হঽৎড়ঢ়য়-ৡৰৱਅ-ਊਏਐਓ-ਨਪ-ਰਲਲ਼ਵਸ਼ਸਹਖ਼-ੜਫ਼ੲ-ੴઅ-ઍએ-ઑઓ-નપ-રલળવ-હઽૐૠૡଅ-ଌଏଐଓ-ନପ-ରଲଳଵ-ହଽଡ଼ଢ଼ୟ-ୡୱஃஅ-ஊஎ-ஐஒ-கஙசஜஞடணதந-பம-ஹௐఅ-ఌఎ-ఐఒ-నప-ళవ-హఽౘౙౠౡಅ-ಌಎ-ಐಒ-ನಪ-ಳವ-ಹಽೞೠೡೱೲഅ-ഌഎ-ഐഒ-ഺഽൎൠൡൺ-ൿඅ-ඖක-නඳ-රලව-ෆก-ะาำเ-ๆກຂຄງຈຊຍດ-ທນ-ຟມ-ຣລວສຫອ-ະາຳຽເ-ໄໆໜ-ໟༀཀ-ཇཉ-ཬྈ-ྌက-ဪဿၐ-ၕၚ-ၝၡၥၦၮ-ၰၵ-ႁႎႠ-ჅჇჍა-ჺჼ-ቈቊ-ቍቐ-ቖቘቚ-ቝበ-ኈኊ-ኍነ-ኰኲ-ኵኸ-ኾዀዂ-ዅወ-ዖዘ-ጐጒ-ጕጘ-ፚᎀ-ᎏᎠ-Ᏼᐁ-ᙬᙯ-ᙿᚁ-ᚚᚠ-ᛪᛮ-ᛰᜀ-ᜌᜎ-ᜑᜠ-ᜱᝀ-ᝑᝠ-ᝬᝮ-ᝰក-ឳៗៜᠠ-ᡷᢀ-ᢨᢪᢰ-ᣵᤀ-ᤜᥐ-ᥭᥰ-ᥴᦀ-ᦫᧁ-ᧇᨀ-ᨖᨠ-ᩔᪧᬅ-ᬳᭅ-ᭋᮃ-ᮠᮮᮯᮺ-ᯥᰀ-ᰣᱍ-ᱏᱚ-ᱽᳩ-ᳬᳮ-ᳱᳵᳶᴀ-ᶿḀ-ἕἘ-Ἕἠ-ὅὈ-Ὅὐ-ὗὙὛὝὟ-ώᾀ-ᾴᾶ-ᾼιῂ-ῄῆ-ῌῐ-ΐῖ-Ίῠ-Ῥῲ-ῴῶ-ῼⁱⁿₐ-ₜℂℇℊ-ℓℕℙ-ℝℤΩℨK-ℭℯ-ℹℼ-ℿⅅ-ⅉⅎⅠ-ↈⰀ-Ⱞⰰ-ⱞⱠ-ⳤⳫ-ⳮⳲⳳⴀ-ⴥⴧⴭⴰ-ⵧⵯⶀ-ⶖⶠ-ⶦⶨ-ⶮⶰ-ⶶⶸ-ⶾⷀ-ⷆⷈ-ⷎⷐ-ⷖⷘ-ⷞⸯ々-〇〡-〩〱-〵〸-〼ぁ-ゖゝ-ゟァ-ヺー-ヿㄅ-ㄭㄱ-ㆎㆠ-ㆺㇰ-ㇿ㐀-䶵一-鿌ꀀ-ꒌꓐ-ꓽꔀ-ꘌꘐ-ꘟꘪꘫꙀ-ꙮꙿ-ꚗꚠ-ꛯꜗ-ꜟꜢ-ꞈꞋ-ꞎꞐ-ꞓꞠ-Ɦꟸ-ꠁꠃ-ꠅꠇ-ꠊꠌ-ꠢꡀ-ꡳꢂ-ꢳꣲ-ꣷꣻꤊ-ꤥꤰ-ꥆꥠ-ꥼꦄ-ꦲꧏꨀ-ꨨꩀ-ꩂꩄ-ꩋꩠ-ꩶꩺꪀ-ꪯꪱꪵꪶꪹ-ꪽꫀꫂꫛ-ꫝꫠ-ꫪꫲ-ꫴꬁ-ꬆꬉ-ꬎꬑ-ꬖꬠ-ꬦꬨ-ꬮꯀ-ꯢ가-힣ힰ-ퟆퟋ-ퟻ豈-舘並-龎ﬀ-ﬆﬓ-ﬗיִײַ-ﬨשׁ-זּטּ-לּמּנּסּףּפּצּ-ﮱﯓ-ﴽﵐ-ﶏﶒ-ﷇﷰ-ﷻﹰ-ﹴﹶ-ﻼＡ-Ｚａ-ｚｦ-ﾾￂ-ￇￊ-ￏￒ-ￗￚ-ￜ]"),"NonAsciiIdentifierPart":new RegExp("[ªµºÀ-ÖØ-öø-ˁˆ-ˑˠ-ˤˬˮ̀-ʹͶͷͺ-ͽΆΈ-ΊΌΎ-ΡΣ-ϵϷ-ҁ҃-҇Ҋ-ԧԱ-Ֆՙա-և֑-ׇֽֿׁׂׅׄא-תװ-ײؐ-ؚؠ-٩ٮ-ۓە-ۜ۟-۪ۨ-ۼۿܐ-݊ݍ-ޱ߀-ߵߺࠀ-࠭ࡀ-࡛ࢠࢢ-ࢬࣤ-ࣾऀ-ॣ०-९ॱ-ॷॹ-ॿঁ-ঃঅ-ঌএঐও-নপ-রলশ-হ়-ৄেৈো-ৎৗড়ঢ়য়-ৣ০-ৱਁ-ਃਅ-ਊਏਐਓ-ਨਪ-ਰਲਲ਼ਵਸ਼ਸਹ਼ਾ-ੂੇੈੋ-੍ੑਖ਼-ੜਫ਼੦-ੵઁ-ઃઅ-ઍએ-ઑઓ-નપ-રલળવ-હ઼-ૅે-ૉો-્ૐૠ-ૣ૦-૯ଁ-ଃଅ-ଌଏଐଓ-ନପ-ରଲଳଵ-ହ଼-ୄେୈୋ-୍ୖୗଡ଼ଢ଼ୟ-ୣ୦-୯ୱஂஃஅ-ஊஎ-ஐஒ-கஙசஜஞடணதந-பம-ஹா-ூெ-ைொ-்ௐௗ௦-௯ఁ-ఃఅ-ఌఎ-ఐఒ-నప-ళవ-హఽ-ౄె-ైొ-్ౕౖౘౙౠ-ౣ౦-౯ಂಃಅ-ಌಎ-ಐಒ-ನಪ-ಳವ-ಹ಼-ೄೆ-ೈೊ-್ೕೖೞೠ-ೣ೦-೯ೱೲംഃഅ-ഌഎ-ഐഒ-ഺഽ-ൄെ-ൈൊ-ൎൗൠ-ൣ൦-൯ൺ-ൿංඃඅ-ඖක-නඳ-රලව-ෆ්ා-ුූෘ-ෟෲෳก-ฺเ-๎๐-๙ກຂຄງຈຊຍດ-ທນ-ຟມ-ຣລວສຫອ-ູົ-ຽເ-ໄໆ່-ໍ໐-໙ໜ-ໟༀ༘༙༠-༩༹༵༷༾-ཇཉ-ཬཱ-྄྆-ྗྙ-ྼ࿆က-၉ၐ-ႝႠ-ჅჇჍა-ჺჼ-ቈቊ-ቍቐ-ቖቘቚ-ቝበ-ኈኊ-ኍነ-ኰኲ-ኵኸ-ኾዀዂ-ዅወ-ዖዘ-ጐጒ-ጕጘ-ፚ፝-፟ᎀ-ᎏᎠ-Ᏼᐁ-ᙬᙯ-ᙿᚁ-ᚚᚠ-ᛪᛮ-ᛰᜀ-ᜌᜎ-᜔ᜠ-᜴ᝀ-ᝓᝠ-ᝬᝮ-ᝰᝲᝳក-៓ៗៜ៝០-៩᠋-᠍᠐-᠙ᠠ-ᡷᢀ-ᢪᢰ-ᣵᤀ-ᤜᤠ-ᤫᤰ-᤻᥆-ᥭᥰ-ᥴᦀ-ᦫᦰ-ᧉ᧐-᧙ᨀ-ᨛᨠ-ᩞ᩠-᩿᩼-᪉᪐-᪙ᪧᬀ-ᭋ᭐-᭙᭫-᭳ᮀ-᯳ᰀ-᰷᱀-᱉ᱍ-ᱽ᳐-᳔᳒-ᳶᴀ-ᷦ᷼-ἕἘ-Ἕἠ-ὅὈ-Ὅὐ-ὗὙὛὝὟ-ώᾀ-ᾴᾶ-ᾼιῂ-ῄῆ-ῌῐ-ΐῖ-Ίῠ-Ῥῲ-ῴῶ-ῼ‌‍‿⁀⁔ⁱⁿₐ-ₜ⃐-⃥⃜⃡-⃰ℂℇℊ-ℓℕℙ-ℝℤΩℨK-ℭℯ-ℹℼ-ℿⅅ-ⅉⅎⅠ-ↈⰀ-Ⱞⰰ-ⱞⱠ-ⳤⳫ-ⳳⴀ-ⴥⴧⴭⴰ-ⵧⵯ⵿-ⶖⶠ-ⶦⶨ-ⶮⶰ-ⶶⶸ-ⶾⷀ-ⷆⷈ-ⷎⷐ-ⷖⷘ-ⷞⷠ-ⷿⸯ々-〇〡-〯〱-〵〸-〼ぁ-ゖ゙゚ゝ-ゟァ-ヺー-ヿㄅ-ㄭㄱ-ㆎㆠ-ㆺㇰ-ㇿ㐀-䶵一-鿌ꀀ-ꒌꓐ-ꓽꔀ-ꘌꘐ-ꘫꙀ-꙯ꙴ-꙽ꙿ-ꚗꚟ-꛱ꜗ-ꜟꜢ-ꞈꞋ-ꞎꞐ-ꞓꞠ-Ɦꟸ-ꠧꡀ-ꡳꢀ-꣄꣐-꣙꣠-ꣷꣻ꤀-꤭ꤰ-꥓ꥠ-ꥼꦀ-꧀ꧏ-꧙ꨀ-ꨶꩀ-ꩍ꩐-꩙ꩠ-ꩶꩺꩻꪀ-ꫂꫛ-ꫝꫠ-ꫯꫲ-꫶ꬁ-ꬆꬉ-ꬎꬑ-ꬖꬠ-ꬦꬨ-ꬮꯀ-ꯪ꯬꯭꯰-꯹가-힣ힰ-ퟆퟋ-ퟻ豈-舘並-龎ﬀ-ﬆﬓ-ﬗיִ-ﬨשׁ-זּטּ-לּמּנּסּףּפּצּ-ﮱﯓ-ﴽﵐ-ﶏﶒ-ﷇﷰ-ﷻ︀-️︠-︦︳︴﹍-﹏ﹰ-ﹴﹶ-ﻼ０-９Ａ-Ｚ＿ａ-ｚｦ-ﾾￂ-ￇￊ-ￏￒ-ￗￚ-ￜ]")};
-function setMark (obj,mark){
-return $.extend (obj, mark);
+function markAll (obj,mark){
+if (obj.lineNumber)
+{
+obj.lineNumber = mark.lineNumber;
+obj.filename = mark.filename;
 }
-function mark (obj){
-return $.extend (obj || {}, {"lineNumber":lineNumber,"lineStart":lineStart,"filename":options.filename,"index":index});
+for (var key in obj){
+var value = obj[key];
+if (value !== null && typeof value === "object")
+markAll (value, mark);
 }
-function markIf (obj){
-return obj && (state.inClass || ! state.parsingComplete) ? mark (obj) : obj;
+return obj;
+}
+function mark (obj,arg){
+return arg === undefined ? $.extend (obj || {}, index < length ? {"lineNumber":lineNumber,"filename":options.filename} : {}) : $.extend (obj, arg);
 }
 function literal (value){
-return typeof value === "object" && value !== null ? {"type":Syntax.Literal,"value":value.value} : {"type":Syntax.Literal,"value":value};
+return typeof value === "object" && value !== null ? {"type":Syntax.Literal,"value":value.value,"lineNumber":value.lineNumber,"filename":options.filename} : {"type":Syntax.Literal,"value":value};
 }
 function identifier (arg){
-return typeof arg === "string" ? markIf ({"type":Syntax.Identifier,"name":arg}) : arg || null;
+return typeof arg === "string" ? mark ({"type":Syntax.Identifier,"name":arg}) : arg || null;
 }
 function property (key,value,kind){
 if (kind === undefined)
@@ -356,54 +363,54 @@ return {"type":Syntax.UnaryExpression,"operator":operator,"argument":identifier 
 function blockStatement (body,single){
 if (body === undefined)
 body = [];
-return body instanceof Array ? mark ({"type":Syntax.BlockStatement,"body":body,"single":single}) : body;
+return body instanceof Array ? {"type":Syntax.BlockStatement,"body":body,"single":single} : body;
 }
 function expressionStatement (expression){
-return mark ({"type":Syntax.ExpressionStatement,"expression":expression});
+return {"type":Syntax.ExpressionStatement,"expression":expression};
 }
 function ifStatement (test,trueStatement,falseStatement){
 if (falseStatement === undefined)
 falseStatement = null;
-return mark ({"type":Syntax.IfStatement,"test":identifier (test),"consequent":trueStatement,"alternate":falseStatement});
+return {"type":Syntax.IfStatement,"test":identifier (test),"consequent":trueStatement,"alternate":falseStatement};
 }
 function whileStatement (test,body){
-return mark ({"type":Syntax.WhileStatement,"test":test,"body":body});
+return {"type":Syntax.WhileStatement,"test":test,"body":body};
 }
 function doWhileStatement (body,test){
-return mark ({"type":Syntax.DoWhileStatement,"body":body,"test":test});
+return {"type":Syntax.DoWhileStatement,"body":body,"test":test};
 }
 function doWhileStatement (body,test){
-return mark ({"type":Syntax.DoWhileStatement,"body":body,"test":test});
+return {"type":Syntax.DoWhileStatement,"body":body,"test":test};
 }
 function forStatement (left,test,update,body){
-return mark ({"type":Syntax.ForStatement,"init":left,"test":test,"update":update,"body":blockStatement (body)});
+return {"type":Syntax.ForStatement,"init":left,"test":test,"update":update,"body":blockStatement (body)};
 }
 function forInStatement (left,right,body){
-return mark ({"type":Syntax.ForInStatement,"left":left,"right":right,"body":body,"each":false});
+return {"type":Syntax.ForInStatement,"left":left,"right":right,"body":body,"each":false};
 }
 function labeledStatement (label,statement){
-return mark ({"type":Syntax.LabeledStatement,"label":identifier (label),"body":statement});
+return {"type":Syntax.LabeledStatement,"label":identifier (label),"body":statement};
 }
 function catchClause (param,body){
 return {"type":Syntax.CatchClause,"param":identifier (param),"body":body};
 }
 function tryStatement (block,handlers,finalizer){
-return mark ({"type":Syntax.TryStatement,"block":block,"guardedHandlers":[],"handlers":handlers,"finalizer":finalizer});
+return {"type":Syntax.TryStatement,"block":block,"guardedHandlers":[],"handlers":handlers,"finalizer":finalizer};
 }
 function returnStatement (arg){
-return mark ({"type":Syntax.ReturnStatement,"argument":identifier (arg)});
+return {"type":Syntax.ReturnStatement,"argument":identifier (arg)};
 }
 function throwStatement (arg){
-return mark ({"type":Syntax.ThrowStatement,"argument":identifier (arg)});
+return {"type":Syntax.ThrowStatement,"argument":identifier (arg)};
 }
 function breakStatement (arg){
-return mark ({"type":Syntax.BreakStatement,"label":identifier (arg)});
+return {"type":Syntax.BreakStatement,"label":identifier (arg)};
 }
 function continueStatement (arg){
-return mark ({"type":Syntax.ContinueStatement,"label":identifier (arg)});
+return {"type":Syntax.ContinueStatement,"label":identifier (arg)};
 }
 function debuggerStatement (){
-return mark ({"type":Syntax.DebuggerStatement});
+return {"type":Syntax.DebuggerStatement};
 }
 var tempId = 0;
 function functionExpression (name,params,body){
@@ -418,13 +425,13 @@ return {"type":Syntax.FunctionExpression,"id":identifier (name),"params":params 
 function functionDeclaration (name,params,body){
 if (params === undefined)
 params = [];
-return mark ({"type":Syntax.FunctionDeclaration,"id":identifier (name),"params":params.map (identifier),"defaults":[],"body":blockStatement (body),"rest":null,"generator":false,"expression":false,"number":name + tempId++});
+return {"type":Syntax.FunctionDeclaration,"id":identifier (name),"params":params.map (identifier),"defaults":[],"body":blockStatement (body),"rest":null,"generator":false,"expression":false,"number":name + tempId++};
 }
 function variableDeclarator (name,value){
 return {"type":Syntax.VariableDeclarator,"id":identifier (name),"init":identifier (value)};
 }
 function variableDeclaration (variables){
-return mark ({"type":Syntax.VariableDeclaration,"declarations":variables,"kind":"var"});
+return {"type":Syntax.VariableDeclaration,"declarations":variables,"kind":"var"};
 }
 function program (elements,classes,initializations){
 return {"type":Syntax.Program,"body":elements,"classes":classes,"initializations":initializations};
@@ -451,7 +458,7 @@ throwUnexpected (token);
 if (token.value === ",")
 lex ();
 }
-function parseArrayPerlInitializer (elements){
+function parseArrayPerlInitializer (elements,from){
 expect (".");
 expect (".");
 var from = elements [0], to = parseAssignmentExpression ();
@@ -463,25 +470,26 @@ if (Number.isNaN (nfrom))
 nfrom = String (from.value).charCodeAt (0);
 if (Number.isNaN (nto))
 nto = String (to.value).charCodeAt (0);
-if (Math.abs (nto - nfrom) < 20)
+if (Math.abs (nto - nfrom) < 10)
 {
 from.value = nfrom;
 if (nto > nfrom)
 for (nfrom++; 
 nfrom <= nto; nfrom++)
-elements.push (literal (nfrom));
+elements.push (from);
 else
 for (nfrom++; 
 nfrom >= nto; nfrom--)
-elements.push (literal (nfrom));
+elements.push (from);
 return arrayExpression (elements);
 }
 }
-helpers.createArray = true;
+if (! helpers.createArray)
+helpers.createArray = from;
 return callExpression ("__ca", [from,to]);
 }
 function parseArrayInitialiser (){
-var elements = [], token, comma = {};
+var elements = [], token, comma = {}, from = mark ();
 expect ("[");
 while (! match ("]"))
 if (match (","))
@@ -494,7 +502,7 @@ else
 elements.push (parseAssignmentExpression ());
 token = lookahead ();
 if (elements.length === 1 && token.value === "." && source [token.range [0] + 1] === ".")
-return parseArrayPerlInitializer (elements);
+return parseArrayPerlInitializer (elements, from);
 if (token.value !== "]")
 parseOptionalComma (comma);
 }
@@ -880,7 +888,7 @@ return blockStatement (sourceElements);
 function parseFunction (options){
 if (options === undefined)
 options = {};
-var id = null, params, defaults = [], body = null;
+var id = null, params, defaults = [], body = null, pos = mark ();
 if (options.keyword !== null)
 expectKeyword (options.keyword || "function");
 if (options.name === true || options.name !== false && lookahead ().type === Token.Identifier)
@@ -890,7 +898,7 @@ if (options.empty)
 consumeSemicolon ();
 else
 body = parseFunctionSourceElements (defaults);
-return (options.declaration ? functionDeclaration : functionExpression) (id, params, body);
+return $.extend ((options.declaration ? functionDeclaration : functionExpression) (id, params, body), pos);
 }
 function parseFunctionExpression (){
 return parseFunction ();
@@ -1115,11 +1123,12 @@ return literal (token);
 return identifier (token.value);
 }
 function parseObjectProperty (){
-var token, key, id, param;
+var token, key, id, param, from;
 token = lookahead ();
 if (token.type === Token.Identifier)
 {
 id = parseObjectPropertyKey ();
+from = mark ();
 if (token.value === "get" && ! match (":"))
 {
 key = parseObjectPropertyKey ();
@@ -1448,8 +1457,8 @@ if (type === Token.Identifier)
 return identifier (lex ().value);
 if (type === Token.StringLiteral || type === Token.NumericLiteral)
 {
-temp = lex ().value;
-return match ("(") ? parseComplexString (temp) : literal (temp);
+temp = lex ();
+return match ("(") ? parseComplexString (temp.value) : literal (temp);
 }
 if (type === Token.Keyword)
 {
@@ -2659,6 +2668,7 @@ processClass (classEntry);
 }
 function processClassFunction (classEntry,functionEntry){
 console.assert (classEntry && functionEntry, "Wrong arguments: " + classEntry + ", " + functionEntry);
+options.filename = functionEntry.filename;
 var exclusions = {};
 var currentFunction;
 var usingThat = false;
@@ -2679,8 +2689,8 @@ if (typeof obj === "object" && obj !== null)
 {
 if (obj instanceof Array)
 {
-for (var _7u5mtkt_79 = 0; _7u5mtkt_79 < obj.length; _7u5mtkt_79 ++){
-var child = obj[_7u5mtkt_79];
+for (var _61p2i0j_51 = 0; _61p2i0j_51 < obj.length; _61p2i0j_51 ++){
+var child = obj[_61p2i0j_51];
 lookForExclusions (child, target);
 }
 }
@@ -2864,8 +2874,8 @@ if (typeof obj === "object" && obj !== null)
 {
 if (obj instanceof Array)
 {
-for (var _5aa4mcd_80 = 0; _5aa4mcd_80 < obj.length; _5aa4mcd_80 ++){
-var child = obj[_5aa4mcd_80];
+for (var _6ifhfig_52 = 0; _6ifhfig_52 < obj.length; _6ifhfig_52 ++){
+var child = obj[_6ifhfig_52];
 process (child, obj, parent);
 }
 }
@@ -3289,45 +3299,84 @@ return ! this.has (function (arg){
 return arg !== File.STATE_FINISHED;
 });
 };
-var priorities = [[Syntax.MemberExpression,Syntax.NewExpression],[Syntax.CallExpression],[{"type":Syntax.UnaryExpression,"operator":"++"},{"type":Syntax.UnaryExpression,"operator":"--"}],[{"type":Syntax.UnaryExpression,"operator":"!"},{"type":Syntax.UnaryExpression,"operator":"~"},{"type":Syntax.UnaryExpression,"operator":"+"},{"type":Syntax.UnaryExpression,"operator":"-"},{"type":Syntax.UnaryExpression,"operator":"typeof"},{"type":Syntax.UnaryExpression,"operator":"void"},{"type":Syntax.UnaryExpression,"operator":"delete"}],[{"type":Syntax.BinaryExpression,"operator":"*"},{"type":Syntax.BinaryExpression,"operator":"/"},{"type":Syntax.BinaryExpression,"operator":"%"}],[{"type":Syntax.BinaryExpression,"operator":"+"},{"type":Syntax.BinaryExpression,"operator":"-"}],[{"type":Syntax.BinaryExpression,"operator":"<<"},{"type":Syntax.BinaryExpression,"operator":">>"},{"type":Syntax.BinaryExpression,"operator":">>>"}],[{"type":Syntax.BinaryExpression,"operator":"<"},{"type":Syntax.BinaryExpression,"operator":"<="},{"type":Syntax.BinaryExpression,"operator":">"},{"type":Syntax.BinaryExpression,"operator":">="},{"type":Syntax.BinaryExpression,"operator":"in"},{"type":Syntax.BinaryExpression,"operator":"instanceof"}],[{"type":Syntax.BinaryExpression,"operator":"=="},{"type":Syntax.BinaryExpression,"operator":"!="},{"type":Syntax.BinaryExpression,"operator":"==="},{"type":Syntax.BinaryExpression,"operator":"!=="}],[{"type":Syntax.BinaryExpression,"operator":"&"}],[{"type":Syntax.BinaryExpression,"operator":"^"}],[{"type":Syntax.BinaryExpression,"operator":"|"}],[{"type":Syntax.LogicalExpression,"operator":"&&"}],[{"type":Syntax.LogicalExpression,"operator":"||"}],[Syntax.ConditionalExpression],[Syntax.AssignmentExpression],[Syntax.SequenceExpression]];
+var priorities = [[Syntax.MemberExpression,Syntax.NewExpression],[Syntax.CallExpression],[{"type":Syntax.UnaryExpression,"operator":"++"},{"type":Syntax.UnaryExpression,"operator":"--"}],[{"type":Syntax.UnaryExpression,"operator":"!"},{"type":Syntax.UnaryExpression,"operator":"~"},{"type":Syntax.UnaryExpression,"operator":"+"},{"type":Syntax.UnaryExpression,"operator":"-"},{"type":Syntax.UnaryExpression,"operator":"typeof"},{"type":Syntax.UnaryExpression,"operator":"void"},{"type":Syntax.UnaryExpression,"operator":"delete"}],[{"type":Syntax.BinaryExpression,"operator":"*"},{"type":Syntax.BinaryExpression,"operator":"/"},{"type":Syntax.BinaryExpression,"operator":"%"}],[{"type":Syntax.BinaryExpression,"operator":"+"},{"type":Syntax.BinaryExpression,"operator":"-"}],[{"type":Syntax.BinaryExpression,"operator":"<<"},{"type":Syntax.BinaryExpression,"operator":">>"},{"type":Syntax.BinaryExpression,"operator":">>>"}],[{"type":Syntax.BinaryExpression,"operator":"<"},{"type":Syntax.BinaryExpression,"operator":"<="},{"type":Syntax.BinaryExpression,"operator":">"},{"type":Syntax.BinaryExpression,"operator":">="},{"type":Syntax.BinaryExpression,"operator":"in"},{"type":Syntax.BinaryExpression,"operator":"instanceof"}],[{"type":Syntax.BinaryExpression,"operator":"=="},{"type":Syntax.BinaryExpression,"operator":"!="},{"type":Syntax.BinaryExpression,"operator":"==="},{"type":Syntax.BinaryExpression,"operator":"!=="}],[{"type":Syntax.BinaryExpression,"operator":"&"}],[{"type":Syntax.BinaryExpression,"operator":"^"}],[{"type":Syntax.BinaryExpression,"operator":"|"}],[{"type":Syntax.LogicalExpression,"operator":"&&"}],[{"type":Syntax.LogicalExpression,"operator":"||"}],[Syntax.ConditionalExpression],[Syntax.AssignmentExpression],[Syntax.SequenceExpression]], alotofspaces = function (i,s){
+i = 0;
+s = "";
+while (i++ < 150)
+s += " ";
+return s;
+} ();
 function generate (node,params){
 if (params === undefined)
-params = {"lineBreak":"\n"};
+params = {"lineBreak":"","comment":{},"first":true};
+console.assert (node, "Bad node (" + node + "), parent:\n" + JSON.stringify (params.parent, false, 4));
+if (node.lineNumber && ! params.lineNumber)
+$.extend (params.comment, {"filename":node.filename,"lineNumber":node.lineNumber});
+function end (lineBreak){
+var result = "";
+if (params.comment.lineNumber)
+{
+result = " //__ " + params.comment.filename + ":" + params.comment.lineNumber + "\n";
+delete params.comment.filename;
+delete params.comment.lineNumber;
+}
+else
+result = "\n";
+if (lineBreak !== false)
+result += typeof lineBreak === "string" ? lineBreak : params.lineBreak;
+return result;
+}
 function child (obj,newParams){
-return generate (obj, $.extend ({"parent":node,"lineBreak":params.lineBreak,"parentParams":params}, newParams));
+return generate (obj, $.extend ({"parent":node,"lineBreak":params.lineBreak,"parentParams":params,"comment":params.comment}, newParams));
 }
 function indent (obj,newParams){
 if (newParams === undefined)
 newParams = {};
 var lineBreak = params.lineBreak + "\t";
-return (newParams.force ? lineBreak : "") + generate (obj, $.extend ({"parent":node,"lineBreak":lineBreak,"parentParams":params}, newParams));
+return (newParams.force ? end (lineBreak) : "") + generate (obj, $.extend ({"parent":node,"lineBreak":lineBreak,"parentParams":params,"comment":params.comment}, newParams));
 }
-function array (obj,arrayParams){
-var data, lineBreak, result;
+function join (array,fn,by,lineBreak){
+var result = "";
+for (var index = 0; index < array.length; index ++){
+var entry = array[index];
+if (index > 0)
+result += by + (lineBreak ? end (lineBreak) : "");
+result += fn (entry, index, array);
+}
+return result;
+}
+function array (array,arrayParams){
+if (array.length === 0)
+return "";
+var fn, lineBreak, result, oneline, temp;
 if (arrayParams.indent !== false)
 {
-data = obj.map (function (arg){
-return indent (arg, {"array":true});
-});
+fn = indent;
 lineBreak = params.lineBreak + "\t";
 }
 else
 {
-data = obj.map (function (arg){
-return child (arg, {"array":true});
-});
+fn = child;
 lineBreak = params.lineBreak;
 }
-result = data.join (arrayParams.join || "");
-if (result.length > 120 && obj.length > 1 || arrayParams.wrap)
+result = join (array, function (arg){
+return fn (arg, arrayParams);
+}, arrayParams.join || "", lineBreak);
+oneline = result.replace (/ *\/\/__ [^\n]+\n\t*/g, "");
+if (oneline.length > 60 || arrayParams.wrap)
 {
-result = data.join ((arrayParams.join || "") + lineBreak);
 if (arrayParams.autospaces)
-result = lineBreak + result + (arrayParams.indent === false ? params.lineBreak.slice (0, - 1) : params.lineBreak);
+{
+temp = end ();
+result = end (lineBreak) + result + temp;
+}
 }
 else
+{
+result = oneline;
 if (arrayParams.autospaces)
 result = " " + result + " ";
+}
 return result;
 }
 function sub (obj,newParams){
@@ -3344,8 +3393,8 @@ console.assert (params.parent, "Not implemented");
 function index (type,operator){
 for (var priority = 0; priority < priorities.length; priority ++){
 var group = priorities[priority];
-for (var _5h7qnd9_31 = 0; _5h7qnd9_31 < group.length; _5h7qnd9_31 ++){
-var entry = group[_5h7qnd9_31];
+for (var _1fq3hnn_33 = 0; _1fq3hnn_33 < group.length; _1fq3hnn_33 ++){
+var entry = group[_1fq3hnn_33];
 if (entry === type || typeof entry === "object" && entry.type === type && entry.operator === operator)
 return priority;
 }
@@ -3359,107 +3408,128 @@ return "(" + string + ")";
 else
 return string;
 }
+var result;
 switch (node.type){
 case Syntax.Identifier:
-return node.name;
+result = node.name;
+break;
 case Syntax.Literal:
 if (typeof node.value === "string")
-return "'" + JSON.stringify (node.value).slice (1, - 1).replace (/'/g, "\\'") + "'";
+result = "'" + JSON.stringify (node.value).slice (1, - 1).replace (/'/g, "\\'") + "'";
 else
-return String (node.value);
+result = String (node.value);
+break;
 case Syntax.Property:
-return child (node.key) + ": " + child (node.value);
+result = child (node.key) + ": " + child (node.value);
+break;
 case Syntax.MemberExpression:
-return child (node.object) + (node.computed ? "[" + child (node.property) + "]" : "." + child (node.property));
+result = child (node.object) + (node.computed ? "[" + child (node.property) + "]" : "." + child (node.property));
+break;
 case Syntax.ThisExpression:
-return "this";
+result = "this";
+break;
 case Syntax.CallExpression:
-var args = array (node.arguments, {"join":", "}), match = args.match (/\n\t*/);
-if (match && match [0].length > params.lineBreak.length + 1)
+var args = array (node.arguments, {"join":", ","array":true}), match = args.match (/\n\t*/);
+if (match && match [0].length > params.lineBreak.length + 2)
 args = args.replace (/\n\t/g, "\n");
-return safe (node.callee) + "(" + args + ")";
+result = safe (node.callee) + "(" + args + ")";
+break;
 case Syntax.NewExpression:
-var args = array (node.arguments, {"join":", "}), match = args.match (/\n\t*/);
-if (match && match [0].length > params.lineBreak.length + 1)
+var args = array (node.arguments, {"join":", ","array":true}), match = args.match (/\n\t*/);
+if (match && match [0].length > params.lineBreak.length + 2)
 args = args.replace (/\n\t/g, "\n");
-return "new " + safe (node.callee) + "(" + args + ")";
+result = "new " + safe (node.callee) + "(" + args + ")";
+break;
 case Syntax.UnaryExpression:
 if (node.prefix)
 {
-var result = node.operator;
-if (result !== "!")
-result += " ";
-result += child (node.argument);
-return brackets (result);
+result = node.operator + (node.operator === "!" ? "" : " ") + child (node.argument);
 }
 else
-return brackets (child (node.argument) + " " + node.operator);
+result = child (node.argument) + " " + node.operator;
+result = brackets (result);
+break;
 case Syntax.AssignmentExpression:
 
 case Syntax.BinaryExpression:
 
 case Syntax.LogicalExpression:
-return brackets (child (node.left) + " " + node.operator + " " + child (node.right));
+result = brackets (child (node.left) + " " + node.operator + " " + child (node.right));
+break;
 case Syntax.SequenceExpression:
-return brackets (array (node.expressions, {"join":", "}));
+result = brackets (array (node.expressions, {"join":", "}));
+break;
 case Syntax.ConditionalExpression:
-return brackets (child (node.test) + " ? " + child (node.consequent) + " : " + child (node.alternate));
+result = brackets (child (node.test) + " ? " + child (node.consequent) + " : " + child (node.alternate));
+break;
 case Syntax.ArrayExpression:
 if (node.elements.length === 0)
-return "[]";
+result = "[]";
 else
-return "[" + array (node.elements, {"join":", ","autospaces":true}) + "]";
+result = "[" + array (node.elements, {"join":", ","autospaces":true}) + "]";
+break;
 case Syntax.ObjectExpression:
 if (node.properties.length === 0)
-return "{}";
+result = "{}";
 else
-return "{" + array (node.properties, {"join":", ","autospaces":true}) + "}";
+result = "{" + array (node.properties, {"join":", ","autospaces":true}) + "}";
+break;
 case Syntax.FunctionExpression:
-return "function " + safe (node.id) + "(" + array (node.params, {"join":", "}) + ")" + child (node.body);
+result = "function " + safe (node.id) + "(" + array (node.params, {"join":", "}) + ")" + child (node.body);
+break;
 case Syntax.FunctionDeclaration:
-return "function " + child (node.id) + " (" + array (node.params, {"join":", "}) + ")" + child (node.body);
+result = "function " + child (node.id) + " (" + array (node.params, {"join":", "}) + ")" + child (node.body);
+break;
 case Syntax.VariableDeclaration:
-return "var " + array (node.declarations, {"join":", "}) + ";";
+result = "var " + array (node.declarations, {"join":", "}) + ";";
+break;
 case Syntax.VariableDeclarator:
-return node.init ? child (node.id) + " = " + child (node.init) : child (node.id);
+result = node.init ? child (node.id) + " = " + child (node.init) : child (node.id);
+break;
 case Syntax.BlockStatement:
 if (node.body.length === 0)
 {
-return "{}";
+result = "{}";
 }
 else
 if (0 && node.body.length === 1)
 {
-return "{ " + child (node.body [0]).replace (/;$/, "") + " }";
+result = "{ " + child (node.body [0]).replace (/;$/, "") + " }";
 }
 else
-return "{" + params.lineBreak + "\t" + array (node.body, {"wrap":true}) + params.lineBreak + "}";
+result = "{" + end () + "\t" + array (node.body, {"wrap":true}) + end () + "}";
+break;
 case Syntax.ExpressionStatement:
-var result = child (node.expression);
+result = child (node.expression);
 if (/^function\s*\(/.test (result))
-return "(" + result + ");";
+result = "(" + result + ");";
 else
-return result + ";";
+result = result + ";";
+break;
 case Syntax.LabeledStatement:
-return child (node.label) + ": " + child (node.body);
+result = child (node.label) + ": " + child (node.body);
+break;
 case Syntax.ReturnStatement:
-return "return" + (node.argument ? " " + child (node.argument) : "") + ";";
+result = "return" + (node.argument ? " " + child (node.argument) : "") + ";";
+break;
 case Syntax.BreakStatement:
 if (node.label)
-return "break " + child (node.label) + ";";
+result = "break " + child (node.label) + ";";
 else
-return "break;";
+result = "break;";
+break;
 case Syntax.ContinueStatement:
 if (node.label)
-return "continue " + child (node.label) + ";";
+result = "continue " + child (node.label) + ";";
 else
-return "continue;";
+result = "continue;";
+break;
 case Syntax.IfStatement:
-var result = "if (" + child (node.test) + ")" + sub (node.consequent);
+result = "if (" + child (node.test) + ")" + sub (node.consequent);
 if (node.alternate)
 {
 if (node.consequent.type !== Syntax.BlockStatement)
-result += params.lineBreak;
+result += end ();
 else
 result += " ";
 result += "else";
@@ -3474,35 +3544,32 @@ result += " ";
 result += sub (node.alternate);
 }
 }
-return result;
+break;
 case Syntax.SwitchStatement:
-var result = "switch (" + child (node.discriminant) + "){";
-{ var _4inehbt_32 = node.cases; for (var _6ag0mmt_33 = 0; _6ag0mmt_33 < _4inehbt_32.length; _6ag0mmt_33 ++){
-var obj = _4inehbt_32[_6ag0mmt_33];
+result = "switch (" + child (node.discriminant) + "){";
+{ var _1c18020_34 = node.cases; for (var _71gah6o_35 = 0; _71gah6o_35 < _1c18020_34.length; _71gah6o_35 ++){
+var obj = _1c18020_34[_71gah6o_35];
 result += indent (obj, {"force":true});
 }}
-result += params.lineBreak + "}";
-return result;
+result += end () + "}";
+break;
 case Syntax.SwitchCase:
-var result = "";
-if (node.test)
-result += "case " + child (node.test);
-else
-result += "default";
-result += ":" + params.lineBreak + "\t" + array (node.consequent, {"wrap":true});
-return result;
+result = (node.test ? "case " + child (node.test) : "default") + ":" + end ();
+result += "\t" + array (node.consequent, {"wrap":true});
+break;
 case Syntax.WhileStatement:
-return "while (" + child (node.test) + ")" + sub (node.body);
+result = "while (" + child (node.test) + ")" + sub (node.body);
+break;
 case Syntax.DoWhileStatement:
-var result = "do";
+result = "do";
 if (node.body.type !== Syntax.BlockStatement)
-result += sub (node.body) + params.lineBreak;
+result += sub (node.body) + end ();
 else
 result += " " + sub (node.body) + " ";
 result += "while (" + child (node.test) + ");";
-return result;
+break;
 case Syntax.ForStatement:
-var result = "for (";
+result = "for (";
 if (node.init)
 result += child (node.init);
 if (result [result.length - 1] !== ";")
@@ -3513,28 +3580,59 @@ result += ";";
 if (node.update)
 result += " " + child (node.update);
 result += ")" + sub (node.body);
-return result;
+break;
 case Syntax.ForInStatement:
-return "for (" + child (node.left).replace (/;$/, "") + " in " + child (node.right) + ")" + sub (node.body);
+result = "for (" + child (node.left).replace (/;$/, "") + " in " + child (node.right) + ")" + sub (node.body);
+break;
 case Syntax.TryStatement:
-var result = "try " + sub (node.block) + " ";
-{ var _5guguq1_34 = node.handlers; for (var _454fn8g_35 = 0; _454fn8g_35 < _5guguq1_34.length; _454fn8g_35 ++){
-var handler = _5guguq1_34[_454fn8g_35];
+result = "try " + sub (node.block) + " ";
+{ var _7u4oj0_36 = node.handlers; for (var _5oh3ofj_37 = 0; _5oh3ofj_37 < _7u4oj0_36.length; _5oh3ofj_37 ++){
+var handler = _7u4oj0_36[_5oh3ofj_37];
 result += child (handler) + " ";
 }}
 if (node.finalizer)
 result += "finally " + sub (node.finalizer);
-return result;
+break;
 case Syntax.CatchClause:
-return "catch (" + child (node.param) + ")" + sub (node.body);
+result = "catch (" + child (node.param) + ")" + sub (node.body);
+break;
 case Syntax.ThrowStatement:
-return "throw " + child (node.argument) + ";";
+result = "throw " + child (node.argument) + ";";
+break;
 case Syntax.DebuggerStatement:
-return "debugger;";
+result = "debugger;";
+break;
 case Syntax.Program:
-return node.body.map (child).join ("\n");
+result = node.body.map (child).join ("\n") + end ();
+break;
 default:throw new Error("Unsupported type: " + node.type + " (" + JSON.stringify (params.parent, false, 4) + ")");
 }
+if (params.first)
+{
+var max = - 1, maxAllowed = 80, indent, begins = [], previous, index = 0;
+result = result.replace (/([^\n]*?)[ \t]*( \/\/__ )([^\n]+)/g, function (match,begin,keyword,found){
+var length = begin.replace (/\t/g, "    ").length;
+if (length > maxAllowed)
+{
+return begin;
+}
+else
+{
+if (previous !== found)
+previous = found;
+else
+found = "...";
+begins.push (length);
+if (length > max)
+max = length;
+return begin + keyword + found;
+}
+});
+result = result.replace (/ \/\/__ /g, function (arg){
+return alotofspaces.substr (0, max - begins [index++]) + "   // ";
+});
+}
+return result;
 }
 function getParams (data){
 var all = data.match (/(?:^|[\r\n])[ \t]*\/\/[ \t]*==([a-zA-Z]+)==[\s\S]+?[\r\n][ \t]*\/\/[ \t]*==\/\1==/g), result = {"jsx":{}};
@@ -4428,7 +4526,7 @@ return process.exit (1);
 }, 500);
 };
 console.json = function (obj){
-console.log (JSON.stringify (obj, false, 2));
+console.log (JSON.stringify (obj, false, 4));
 };
 function convert (jsxCode,options){
 var parsed;

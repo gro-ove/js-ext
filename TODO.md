@@ -90,6 +90,10 @@
 		- with line number comments support
 	F import with dot in name
 	F import folders
+	F fix syntax highlight: "options.filename = functionEntry.filename;"
+	С check "[ from .. to ]" (with variables)
+	- optimize for "string = '%0%1' ('', '');"
+	- support for chars in string literals like "\u2020"
 	- syntax like "function name (){ ... }()" support
 	- command line arguments
 	- uglifyjs

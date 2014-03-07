@@ -29,8 +29,8 @@
 			return identifier (lex ().value);
 
 		if (type === Token.StringLiteral || type === Token.NumericLiteral){
-			temp = lex ().value;
-			return match ('(') ? parseComplexString (temp) : literal (temp);
+			temp = lex ();
+			return match ('(') ? parseComplexString (temp.value) : literal (temp);
 		}
 
 		if (type === Token.Keyword){

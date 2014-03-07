@@ -26,7 +26,7 @@ function helperById (id, value)
 			]);
 
 		case 'createArray':
-			return functionDeclaration ('__ca', [ 'from', 'to', 'result' ], [
+			return markAll (functionDeclaration ('__ca', [ 'from', 'to', 'result' ], [
 				ifStatement (
 					binaryExpression (unaryExpression ('from', 'typeof', true), '===', literal ('string')), 
 					expressionStatement (assignmentExpression ('from', callExpression (memberExpression ('from', 'charCodeAt'), [ literal (0) ])))
@@ -53,7 +53,7 @@ function helperById (id, value)
 					)
 				),
 				returnStatement ('result')
-			]);
+			]), value);
 
 		case 'bindOnce':
 			var bindedTable = memberExpression ('obj', '__bt'),

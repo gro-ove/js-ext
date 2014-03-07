@@ -80,7 +80,8 @@
 		var id = null, 
 			params, 
 			defaults = [], 
-			body = null;
+			body = null,
+			pos = mark ();
 
 		if (options.keyword !== null)
 			expectKeyword (options.keyword || 'function');
@@ -95,7 +96,7 @@
 		else
 			body = parseFunctionSourceElements (defaults);
 
-		return (options.declaration ? functionDeclaration : functionExpression)(id, params, body);
+		return $.extend ((options.declaration ? functionDeclaration : functionExpression)(id, params, body), pos);
 	}
 
 	function parseFunctionExpression ()

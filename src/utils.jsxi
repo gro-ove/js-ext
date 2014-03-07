@@ -11,7 +11,7 @@ console.fatal = function (){
 };
 
 console.json = function (obj){
-	console.log (JSON.stringify (obj, false, 2));
+	console.log (JSON.stringify (obj, false, 4));
 };
 
 function convert (jsxCode, options){

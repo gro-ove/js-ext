@@ -88,37 +88,81 @@ var priorities = [
 	[
 		Syntax.SequenceExpression
 	]
-];
+], alotofspaces = lambda (i, s){ i = 0; s = ''; while (i ++ < 150) s += ' '; return s }();
 
-function generate (node, params = { lineBreak: '\n' }){
+// TODO: Check if generator broke strings, regexps or something like that
+function generate (node, params = { lineBreak: '', comment: {}, first: true }){
+	console.assert (node, 'Bad node (' + node + '), parent:\n' + JSON.stringify (params.parent, false, 4));
+
+	if (node.lineNumber && !params.lineNumber)
+		$.extend (params.comment, { filename: node.filename, lineNumber: node.lineNumber });
+
+	function end (lineBreak){
+		var result = '';
+
+		if (params.comment.lineNumber){
+			result = ' //__ ' + params.comment.filename + ':' + params.comment.lineNumber + '\n';
+
+			delete params.comment.filename;
+			delete params.comment.lineNumber;
+		} else
+			result = '\n';
+
+		if (lineBreak !== false)
+			result += typeof lineBreak === 'string' ? lineBreak : params.lineBreak;
+
+		return result; 
+	}
+
 	function child (obj, newParams){
-		return generate (obj, $.extend ({ parent: node, lineBreak: params.lineBreak, parentParams: params }, newParams));
+		return generate (obj, $.extend ({ parent: node, lineBreak: params.lineBreak, parentParams: params, comment: params.comment }, newParams));
 	}
 
 	function indent (obj, newParams = {}){
 		var lineBreak = params.lineBreak + '\t';
-		return (newParams.force ? lineBreak : '') + generate (obj, $.extend ({ parent: node, lineBreak: lineBreak, parentParams: params }, newParams));
+		return (newParams.force ? end (lineBreak) : '') + generate (obj, $.extend ({ parent: node, lineBreak: lineBreak, parentParams: params, comment: params.comment }, newParams));
 	}
 
-	function array (obj, arrayParams){
-		var data, lineBreak, result;
+	function join (array, fn, by, lineBreak){
+		var result = '';
+
+		for (var index, entry in-array array){
+			if (index > 0)
+				result += by + (lineBreak ? end (lineBreak) : '');
+
+			result += fn (entry, index, array);
+		}
+
+		return result;
+	}
+
+	function array (array, arrayParams){
+		if (array.length === 0)
+			return '';
+
+		var fn, lineBreak, result, oneline, temp;
 
 		if (arrayParams.indent !== false){
-			data = obj.map (lambda indent (arg, { array: true }));
+			fn = indent;
 			lineBreak = params.lineBreak + '\t';
 		} else {
-			data = obj.map (lambda child (arg, { array: true }));
+			fn = child;
 			lineBreak = params.lineBreak;
 		}
 
-		result = data.join (arrayParams.join || '');
+		result = join (array, lambda fn (arg, arrayParams), arrayParams.join || '', lineBreak);
+		oneline = result.replace (/ *\/\/__ [^\n]+\n\t*/g, '');
 
-		if (result.length > 120 && obj.length > 1 || arrayParams.wrap){
-			result = data.join ((arrayParams.join || '') + lineBreak);
+		if (oneline.length > 60 || arrayParams.wrap){
+			if (arrayParams.autospaces){
+				temp = end ();
+				result = end (lineBreak) + result + temp;
+			}
+		} else {
+			result = oneline;
 			if (arrayParams.autospaces)
-				result = lineBreak + result + (arrayParams.indent === false ? params.lineBreak.slice (0, -1) : params.lineBreak);
-		} else if (arrayParams.autospaces)
-			result = ' ' + result + ' ';
+				result = ' ' + result + ' ';
+		}
 
 		return result;
 	}
@@ -149,7 +193,7 @@ function generate (node, params = { lineBreak: '\n' }){
 
 						return priority;
 			return -1;
-		} // result += currentFileName + ' [' + arg.lineNumber + ':' + (arg.index - arg.lineStart) + ']';
+		}
 
 		var that = index (node.type, node.operator),
 			parent = index (params.parent.type, params.parent.operator);
@@ -162,138 +206,159 @@ function generate (node, params = { lineBreak: '\n' }){
 			return string;
 	}
 
+	// if (params.first)
+	// 	console.json (node);
+
+	var result;
 	switch (node.type){
 		/* Base */
 		case Syntax.Identifier:
-			return node.name;
+			result = node.name;
+			break;
 
 		case Syntax.Literal:
 			if (typeof node.value === 'string')
-				return '\'' + JSON.stringify (node.value).slice (1, -1).replace (/'/g, '\\\'') + '\'';
+				result = '\'' + JSON.stringify (node.value).slice (1, -1).replace (/'/g, '\\\'') + '\'';
 			else
-				return String (node.value);
+				result = String (node.value);
+			break;
 
 		case Syntax.Property:
-			return child (node.key) + ': ' + child (node.value);
+			result = child (node.key) + ': ' + child (node.value);
+			break;
 
 
 		/* Expressions: Access */
 		case Syntax.MemberExpression:
-			return child (node.object) + (node.computed ? '[' + child (node.property) + ']' : '.' + child (node.property));
+			result = child (node.object) + (node.computed ? '[' + child (node.property) + ']' : '.' + child (node.property));
+			break;
 
 		case Syntax.ThisExpression:
-			return 'this';
+			result = 'this';
+			break;
 
 		/* Expressions: Calls */
 		case Syntax.CallExpression:
-			var args = array (node.arguments, { join: ', ' }),
+			var args = array (node.arguments, { join: ', ', array: true }),
 				match = args.match (/\n\t*/);
-			if (match && match [0].length > params.lineBreak.length + 1)
+			if (match && match [0].length > params.lineBreak.length + 2)
 				args = args.replace (/\n\t/g, '\n');
-			return safe (node.callee) + '(' + args + ')';
+			result = safe (node.callee) + '(' + args + ')';
+			break;
 
 		case Syntax.NewExpression:
-			var args = array (node.arguments, { join: ', ' }),
+			var args = array (node.arguments, { join: ', ', array: true }),
 				match = args.match (/\n\t*/);
-			if (match && match [0].length > params.lineBreak.length + 1)
+			if (match && match [0].length > params.lineBreak.length + 2)
 				args = args.replace (/\n\t/g, '\n');
-			return 'new ' + safe (node.callee) + '(' + args + ')';
+			result = 'new ' + safe (node.callee) + '(' + args + ')';
+			break;
 
 		/* Expressions: Operator */
 		case Syntax.UnaryExpression:
 			if (node.prefix){
-				var result = node.operator;
-
-				if (result !== '!')
-					result += ' ';
-
-				result += child (node.argument);
-
-				return brackets (result);
+				result = node.operator + (node.operator === '!' ? '' : ' ') + child (node.argument);
 			} else
-				return brackets (child (node.argument) + ' ' + node.operator);
+				result = child (node.argument) + ' ' + node.operator;
+			result = brackets (result);
+			break;
 
 		case Syntax.AssignmentExpression:
 		case Syntax.BinaryExpression:
 		case Syntax.LogicalExpression:
-			return brackets (child (node.left) + ' ' + node.operator + ' ' + child (node.right));
+			result = brackets (child (node.left) + ' ' + node.operator + ' ' + child (node.right));
+			break;
 
 		case Syntax.SequenceExpression:
-			return brackets (array (node.expressions, { join: ', ' }));
+			result = brackets (array (node.expressions, { join: ', ' }));
+			break;
 
 		case Syntax.ConditionalExpression:
-			return brackets (child (node.test) + ' ? ' + child (node.consequent) + ' : ' + child (node.alternate));
+			result = brackets (child (node.test) + ' ? ' + child (node.consequent) + ' : ' + child (node.alternate));
+			break;
 
 		/* Expressions: Creating */
 		case Syntax.ArrayExpression:
 			if (node.elements.length === 0)
-				return '[]';
+				result = '[]';
 			else
-				return '[' + array (node.elements, { join: ', ', autospaces: true }) + ']';
+				result = '[' + array (node.elements, { join: ', ', autospaces: true }) + ']';
+			break;
 
 		case Syntax.ObjectExpression:
 			if (node.properties.length === 0)
-				return '{}';
+				result = '{}';
 			else
-				return '{' + array (node.properties, { join: ', ', autospaces: true }) + '}';
+				result = '{' + array (node.properties, { join: ', ', autospaces: true }) + '}';
+			break;
 
 		case Syntax.FunctionExpression:
-			return 'function ' + safe (node.id) + '(' + array (node.params, { join: ', ' }) + ')' + child (node.body);
+			result = 'function ' + safe (node.id) + '(' + array (node.params, { join: ', ' }) + ')' + child (node.body);
+			break;
 
 
 		/* Declarations */
 		case Syntax.FunctionDeclaration:
-			return 'function ' + child (node.id) + ' (' + array (node.params, { join: ', ' }) + ')' + child (node.body);
+			result = 'function ' + child (node.id) + ' (' + array (node.params, { join: ', ' }) + ')' + child (node.body);
+			break;
 
 		case Syntax.VariableDeclaration:
-			return 'var ' + array (node.declarations, { join: ', ' }) + ';';
+			result = 'var ' + array (node.declarations, { join: ', ' }) + ';';
+			break;
 
 		case Syntax.VariableDeclarator:
-			return node.init ? child (node.id) + ' = ' + child (node.init) : child (node.id);
+			result = node.init ? child (node.id) + ' = ' + child (node.init) : child (node.id);
+			break;
 
 
 		/* Statements: Base */
 		case Syntax.BlockStatement:
 			if (node.body.length === 0){
-				return '{}';
+				result = '{}';
 			} else if (0 && node.body.length === 1){
-				return '{ ' + child (node.body [0]).replace (/;$/, '') + ' }';
+				result = '{ ' + child (node.body [0]).replace (/;$/, '') + ' }';
 			} else
-				return '{' + params.lineBreak + '\t' + array (node.body, { wrap: true }) + params.lineBreak + '}';
+				result = '{' + end () + '\t' + array (node.body, { wrap: true }) + end () + '}';
+			break;
 
 		case Syntax.ExpressionStatement:
-			var result = child (node.expression);
+			result = child (node.expression);
 			if (/^function\s*\(/.test (result))
-				return '(' + result + ');';
+				result = '(' + result + ');';
 			else
-				return result + ';';
+				result = result + ';';
+			break;
 
 		case Syntax.LabeledStatement:
-			return child (node.label) + ': ' + child (node.body);
+			result = child (node.label) + ': ' + child (node.body);
+			break;
 
 		/* Statements: Control */
 		case Syntax.ReturnStatement:
-			return 'return' + (node.argument ? ' ' + child (node.argument) : '') + ';';
+			result = 'return' + (node.argument ? ' ' + child (node.argument) : '') + ';';
+			break;
 
 		case Syntax.BreakStatement:
 			if (node.label)
-				return 'break ' + child (node.label) + ';';
+				result = 'break ' + child (node.label) + ';';
 			else
-				return 'break;'
+				result = 'break;';
+			break;
 
 		case Syntax.ContinueStatement:
 			if (node.label)
-				return 'continue ' + child (node.label) + ';';
+				result = 'continue ' + child (node.label) + ';';
 			else
-				return 'continue;'
+				result = 'continue;';
+			break;
 
 		/* Statements: Conditional */
 		case Syntax.IfStatement:
-			var result = 'if (' + child (node.test) + ')' + sub (node.consequent);
+			result = 'if (' + child (node.test) + ')' + sub (node.consequent);
 
 			if (node.alternate){
 				if (node.consequent.type !== Syntax.BlockStatement)
-					result += params.lineBreak;
+					result += end ();
 				else
 					result += ' ';
 
@@ -307,46 +372,36 @@ function generate (node, params = { lineBreak: '\n' }){
 					result += sub (node.alternate);
 				}
 			}
-
-			return result;
+			break;
 
 		case Syntax.SwitchStatement:
-			var result = 'switch (' + child (node.discriminant) + '){';
-
+			result = 'switch (' + child (node.discriminant) + '){';
 			for (var obj in-array node.cases)
 				result += indent (obj, { force: true });
-
-			result += params.lineBreak + '}';
-
-			return result;
+			result += end () + '}';
+			break;
 
 		case Syntax.SwitchCase:
-			var result = '';
-
-			if (node.test)
-				result += 'case ' + child (node.test);
-			else
-				result += 'default';
-
-			result += ':' + params.lineBreak + '\t' + array (node.consequent, { wrap: true });
-
-			return result;
+			result = (node.test ? 'case ' + child (node.test) : 'default') + ':' + end ();
+			result += '\t' + array (node.consequent, { wrap: true });
+			break;
 
 		/* Statements: Loops */
 		case Syntax.WhileStatement:
-			return 'while (' + child (node.test) + ')' + sub (node.body);
+			result = 'while (' + child (node.test) + ')' + sub (node.body);
+			break;
 
 		case Syntax.DoWhileStatement:
-			var result = 'do';
+			result = 'do';
 			if (node.body.type !== Syntax.BlockStatement)
-				result += sub (node.body) + params.lineBreak;
+				result += sub (node.body) + end ();
 			else
 				result += ' ' + sub (node.body) + ' ';
 			result += 'while (' + child (node.test) + ');';
-			return result;
+			break;
 
 		case Syntax.ForStatement:
-			var result = 'for (';
+			result = 'for (';
 
 			if (node.init)
 				result += child (node.init);
@@ -360,39 +415,64 @@ function generate (node, params = { lineBreak: '\n' }){
 			if (node.update)
 				result += ' ' + child (node.update);
 			result += ')' + sub (node.body);
-
-			return result;
+			break;
 
 		case Syntax.ForInStatement:
-			return 'for (' + child (node.left).replace (/;$/, '') + ' in ' + child (node.right) + ')' + sub (node.body);
+			result = 'for (' + child (node.left).replace (/;$/, '') + ' in ' + child (node.right) + ')' + sub (node.body);
+			break;
 
 		/* Statements: Errors, debugging */
 		case Syntax.TryStatement:
-			var result = 'try ' + sub (node.block) + ' ';
-
+			result = 'try ' + sub (node.block) + ' ';
 			for (var handler in-array node.handlers)
 				result += child (handler) + ' ';
-
 			if (node.finalizer)
 				result += 'finally ' + sub (node.finalizer);
-
-			return result;
+			break;
 
 		case Syntax.CatchClause:
-			return 'catch (' + child (node.param) + ')' + sub (node.body);
+			result = 'catch (' + child (node.param) + ')' + sub (node.body);
+			break;
 
 		case Syntax.ThrowStatement:
-			return 'throw ' + child (node.argument) + ';';
+			result = 'throw ' + child (node.argument) + ';';
+			break;
 
 		case Syntax.DebuggerStatement:
-			return 'debugger;';
-
+			result = 'debugger;';
+			break;
 
 		/* Stuff */
 		case Syntax.Program:
-			return node.body.map (child).join ('\n');
+			result = node.body.map (child).join ('\n') + end ();
+			break;
 
 		default:
 			throw new Error ('Unsupported type: ' + node.type + ' (' + JSON.stringify (params.parent, false, 4) + ')');
 	}
+
+	if (params.first){
+		var max = -1, maxAllowed = 80, indent, begins = [], previous, index = 0;
+
+		result = result.replace (/([^\n]*?)[ \t]*( \/\/__ )([^\n]+)/g, lambda (match, begin, keyword, found){
+			var length = begin.replace (/\t/g, '    ').length;
+
+			if (length > maxAllowed){
+				return begin;
+			} else {
+				if (previous !== found)
+					previous = found;
+				else
+					found = '...';
+
+				begins.push (length);
+				if (length > max)
+					max = length;
+				return begin + keyword + found;
+			}
+		});
+
+		result = result.replace (/ \/\/__ /g, lambda alotofspaces.substr (0, max - begins [index ++]) + '   // ');
+	}
+	return result;
 }
