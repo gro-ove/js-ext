@@ -87,10 +87,10 @@
 	V syntax highlight and stuff support for sumlime text
 	V default arguments to constuctor
 	V new generator 
-		- with line number comments support
+		V with line number comments support
+	V fix syntax highlight: "options.filename = functionEntry.filename;"
 	F import with dot in name
 	F import folders
-	F fix syntax highlight: "options.filename = functionEntry.filename;"
 	F fix bug with "super"
 	С check "[ from .. to ]" (with variables)
 	- optimize for "string = '%0%1' ('', '');"
@@ -107,6 +107,7 @@
 		- for files without macro calls
 		X for everything
 	L npm
+		L push sublime text file with rules for syntax highlight and stuff on github
 	L warnings
 	? ie8 compilation mode
 	? types check
