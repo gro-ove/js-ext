@@ -2803,8 +2803,8 @@ if (typeof obj === "object" && obj !== null)
 {
 if (obj instanceof Array)
 {
-for (var _328d9hi_95 = 0; _328d9hi_95 < obj.length; _328d9hi_95 ++){
-var child = obj[_328d9hi_95];
+for (var _6dmf8vt_21 = 0; _6dmf8vt_21 < obj.length; _6dmf8vt_21 ++){
+var child = obj[_6dmf8vt_21];
 lookForExclusions (child, target);
 }
 }
@@ -3004,8 +3004,8 @@ if (typeof obj === "object" && obj !== null)
 {
 if (obj instanceof Array)
 {
-for (var _5nvo3ng_96 = 0; _5nvo3ng_96 < obj.length; _5nvo3ng_96 ++){
-var child = obj[_5nvo3ng_96];
+for (var _95vnjta_22 = 0; _95vnjta_22 < obj.length; _95vnjta_22 ++){
+var child = obj[_95vnjta_22];
 process (child, obj, parent);
 }
 }
@@ -3045,15 +3045,16 @@ process (methodEntry);
 }
 function processClassMethods (classEntry){
 var replace, childMember;
-{ var _29n6p24_97 = classEntry.members; for (var name in _29n6p24_97){
-var member = _29n6p24_97[name];
-if (member.method)
+{ var _2m67gr4_23 = classEntry.members; for (var name in _2m67gr4_23){
+var member = _2m67gr4_23[name];
+if (member.method && member.className === classEntry.id)
 processClassMethod (classEntry, member);
 }}
 }
 function processClassesMethods (){
-for (var _930lr63_98 = 0; _930lr63_98 < classes.length; _930lr63_98 ++){
-var classEntry = classes[_930lr63_98];
+for (var _41cft95_24 = 0; _41cft95_24 < classes.length; _41cft95_24 ++){
+var classEntry = classes[_41cft95_24];
+membersOut (classEntry);
 processClassMethods (classEntry);
 }
 }
