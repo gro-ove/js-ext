@@ -296,6 +296,7 @@ return obj;
 function mark (obj,arg){
 if (arg !== undefined)
 {
+arg = mark (arg);
 obj.filename = arg.filename;
 obj.lineNumber = arg.lineNumber;
 obj.lineStart = arg.lineStart;
@@ -313,7 +314,9 @@ if (obj && obj.lineNumber)
 return $.extend (obj, {"filename":options.filename});
 }
 else
+{
 return $.extend (obj || {}, {"filename":options.filename,"lineNumber":lineNumber,"lineStart":lineStart,"index":index});
+}
 }
 function literal (value){
 return typeof value === "object" && value !== null ? {"type":Syntax.Literal,"value":value.value,"lineNumber":value.lineNumber,"filename":options.filename} : mark ({"type":Syntax.Literal,"value":value});
@@ -654,8 +657,8 @@ if (matchKeyword ("var"))
 lex ();
 var token = lookahead (), data = parseVariableDeclarationList ();
 consumeSemicolon ();
-for (var _7ltpkau_40 = 0; _7ltpkau_40 < data.length; _7ltpkau_40 ++){
-var entry = data[_7ltpkau_40];
+for (var _3e2gklt_31 = 0; _3e2gklt_31 < data.length; _3e2gklt_31 ++){
+var entry = data[_3e2gklt_31];
 if (params.interface && ! current.static)
 throwError (token, "Interface couldn't have object fields.");
 if (params.implemented && entry.init)
@@ -910,7 +913,7 @@ return blockStatement (sourceElements);
 function parseFunction (options){
 if (options === undefined)
 options = {};
-var id = null, params, defaults = [], body = null, pos = mark ();
+var id = null, params, defaults = [], body = null, pos = lookahead ();
 if (options.keyword !== null)
 expectKeyword (options.keyword || "function");
 if (options.name === true || options.name !== false && lookahead ().type === Token.Identifier)
@@ -920,7 +923,7 @@ if (options.empty)
 consumeSemicolon ();
 else
 body = parseFunctionSourceElements (defaults);
-return $.extend ((options.declaration ? functionDeclaration : functionExpression) (id, params, body), pos);
+return mark ((options.declaration ? functionDeclaration : functionExpression) (id, params, body), pos);
 }
 function parseFunctionExpression (){
 return parseFunction ();
@@ -2652,14 +2655,14 @@ else
 var variables = [], resultFunction = [variableDeclaration (variables)];
 if (mode === "default")
 {
-variables.push (variableDeclarator (classEntry.id, constructor));
+variables.push (variableDeclarator (classEntry.id.name, constructor));
 if (classEntry.dependsOn.parent)
 resultFunction.push (expressionStatement (callExpression ("__pe", [classEntry.id.name,classEntry.dependsOn.parent.name])));
-for (var _48fdg1v_76 = 0; _48fdg1v_76 < objectMethods.length; _48fdg1v_76 ++){
-var method = objectMethods[_48fdg1v_76];
+for (var _m8h1os_79 = 0; _m8h1os_79 < objectMethods.length; _m8h1os_79 ++){
+var method = objectMethods[_m8h1os_79];
 if (! method.abstract || method.body.body.length > 0)
 {
-var target = memberExpression (memberExpression (classEntry.id, "prototype"), method.id.name), value = functionExpression (method.params, method.body);
+var target = memberExpression (memberExpression (classEntry.id.name, "prototype"), method.id.name), value = functionExpression (method.params, method.body);
 resultFunction.push (expressionStatement (assignmentExpression (target, value)));
 }
 else
@@ -2670,12 +2673,12 @@ constructor.body.body = [ifStatement (binaryExpression (memberExpression (thisEx
 }
 else
 if (mode === "static")
-variables.push (variableDeclarator (classEntry.id, objectExpression ()));
-for (var _8lsip15_77 = 0; _8lsip15_77 < staticFields.length; _8lsip15_77 ++){
-var field = staticFields[_8lsip15_77];
+variables.push (variableDeclarator (classEntry.id.name, objectExpression ()));
+for (var _1s8ufbq_80 = 0; _1s8ufbq_80 < staticFields.length; _1s8ufbq_80 ++){
+var field = staticFields[_1s8ufbq_80];
 if (field.publicMode !== "private")
 {
-var temp = expressionStatement (assignmentExpression (memberExpression (classEntry.id, field.id), field.init || "undefined"));
+var temp = expressionStatement (assignmentExpression (memberExpression (classEntry.id.name, field.id), field.init || "undefined"));
 if (findByReplacement (classEntry, field.id.name).publicMode === "protected")
 temp.comment = field.id.name;
 resultFunction.push (temp);
@@ -2683,11 +2686,11 @@ resultFunction.push (temp);
 else
 variables.push (field);
 }
-for (var _8shtdcv_78 = 0; _8shtdcv_78 < staticMethods.length; _8shtdcv_78 ++){
-var method = staticMethods[_8shtdcv_78];
+for (var _6e3h5ed_81 = 0; _6e3h5ed_81 < staticMethods.length; _6e3h5ed_81 ++){
+var method = staticMethods[_6e3h5ed_81];
 if (method.publicMode !== "private")
 {
-var temp = expressionStatement (assignmentExpression (memberExpression (classEntry.id, method.id), functionExpression (method.params, method.body)));
+var temp = expressionStatement (assignmentExpression (memberExpression (classEntry.id.name, method.id), functionExpression (method.params, method.body)));
 resultFunction.push (temp);
 }
 else
@@ -2695,13 +2698,13 @@ resultFunction.push (method);
 }
 if (initializer && initializer.body.body.length > 0)
 resultFunction.push (expressionStatement (callExpression (initializer)));
-resultFunction.push (returnStatement (classEntry.id));
-classEntry.element = variableDeclarator (classEntry.id.name, callExpression (functionExpression ([], resultFunction)));
+resultFunction.push (returnStatement (classEntry.id.name));
+classEntry.element = variableDeclarator (classEntry.id, callExpression (functionExpression ([], resultFunction)));
 }
 }
 function processClasses (){
-for (var _7djq5cs_79 = 0; _7djq5cs_79 < classes.length; _7djq5cs_79 ++){
-var classEntry = classes[_7djq5cs_79];
+for (var _541h4i3_82 = 0; _541h4i3_82 < classes.length; _541h4i3_82 ++){
+var classEntry = classes[_541h4i3_82];
 processClass (classEntry);
 }
 }
@@ -2803,8 +2806,8 @@ if (typeof obj === "object" && obj !== null)
 {
 if (obj instanceof Array)
 {
-for (var _6dmf8vt_21 = 0; _6dmf8vt_21 < obj.length; _6dmf8vt_21 ++){
-var child = obj[_6dmf8vt_21];
+for (var _5scrcqd_26 = 0; _5scrcqd_26 < obj.length; _5scrcqd_26 ++){
+var child = obj[_5scrcqd_26];
 lookForExclusions (child, target);
 }
 }
@@ -3004,8 +3007,8 @@ if (typeof obj === "object" && obj !== null)
 {
 if (obj instanceof Array)
 {
-for (var _95vnjta_22 = 0; _95vnjta_22 < obj.length; _95vnjta_22 ++){
-var child = obj[_95vnjta_22];
+for (var _69i3ko3_27 = 0; _69i3ko3_27 < obj.length; _69i3ko3_27 ++){
+var child = obj[_69i3ko3_27];
 process (child, obj, parent);
 }
 }
@@ -3045,16 +3048,15 @@ process (methodEntry);
 }
 function processClassMethods (classEntry){
 var replace, childMember;
-{ var _2m67gr4_23 = classEntry.members; for (var name in _2m67gr4_23){
-var member = _2m67gr4_23[name];
+{ var _95q0cif_28 = classEntry.members; for (var name in _95q0cif_28){
+var member = _95q0cif_28[name];
 if (member.method && member.className === classEntry.id)
 processClassMethod (classEntry, member);
 }}
 }
 function processClassesMethods (){
-for (var _41cft95_24 = 0; _41cft95_24 < classes.length; _41cft95_24 ++){
-var classEntry = classes[_41cft95_24];
-membersOut (classEntry);
+for (var _109408f_29 = 0; _109408f_29 < classes.length; _109408f_29 ++){
+var classEntry = classes[_109408f_29];
 processClassMethods (classEntry);
 }
 }
@@ -3473,8 +3475,8 @@ console.assert (params.parent, "Not implemented");
 function index (type,operator){
 for (var priority = 0; priority < priorities.length; priority ++){
 var group = priorities[priority];
-for (var _12v6jk0_70 = 0; _12v6jk0_70 < group.length; _12v6jk0_70 ++){
-var entry = group[_12v6jk0_70];
+for (var _5r44ig4_85 = 0; _5r44ig4_85 < group.length; _5r44ig4_85 ++){
+var entry = group[_5r44ig4_85];
 if (entry === type || typeof entry === "object" && entry.type === type && entry.operator === operator)
 return priority;
 }
@@ -3627,8 +3629,8 @@ result += sub (node.alternate);
 break;
 case Syntax.SwitchStatement:
 result = "switch (" + child (node.discriminant) + "){";
-{ var _48gdq6f_71 = node.cases; for (var _7d79gk8_72 = 0; _7d79gk8_72 < _48gdq6f_71.length; _7d79gk8_72 ++){
-var obj = _48gdq6f_71[_7d79gk8_72];
+{ var _2t5u2sq_86 = node.cases; for (var _6ujnd7f_87 = 0; _6ujnd7f_87 < _2t5u2sq_86.length; _6ujnd7f_87 ++){
+var obj = _2t5u2sq_86[_6ujnd7f_87];
 result += indent (obj, {"force":true});
 }}
 result += end () + "}";
@@ -3666,8 +3668,8 @@ result = "for (" + child (node.left).replace (/;$/, "") + " in " + child (node.r
 break;
 case Syntax.TryStatement:
 result = "try " + sub (node.block) + " ";
-{ var _66j60c1_73 = node.handlers; for (var _4chp4t0_74 = 0; _4chp4t0_74 < _66j60c1_73.length; _4chp4t0_74 ++){
-var handler = _66j60c1_73[_4chp4t0_74];
+{ var _977sukl_88 = node.handlers; for (var _1oqu0oh_89 = 0; _1oqu0oh_89 < _977sukl_88.length; _1oqu0oh_89 ++){
+var handler = _977sukl_88[_1oqu0oh_89];
 result += child (handler) + " ";
 }}
 if (node.finalizer)

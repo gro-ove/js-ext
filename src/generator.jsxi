@@ -487,5 +487,6 @@ function generate (node, params = { lineBreak: '', comment: {}, first: true }){
 
 		result = result.replace (/ \/\/__ /g, lambda alotofspaces.substr (0, max - begins [index ++]) + '   // ');
 	}
+
 	return result;
 }

@@ -61,7 +61,7 @@ function processClass (classEntry){
 
 		if (mode === 'default'){
 			// Добавляем конструктор как основную фунцию
-			variables.push (variableDeclarator (classEntry.id, constructor));
+			variables.push (variableDeclarator (classEntry.id.name, constructor));
 
 			// Лепим муть, нужную для наследования
 			if (classEntry.dependsOn.parent)
@@ -70,7 +70,7 @@ function processClass (classEntry){
 			// Цепляем к прототипу методы объекта
 			for (var method in-array objectMethods)
 				if (!method.abstract || method.body.body.length > 0){
-					var target = memberExpression (memberExpression (classEntry.id, 'prototype'), method.id.name),
+					var target = memberExpression (memberExpression (classEntry.id.name, 'prototype'), method.id.name),
 						value = functionExpression (method.params, method.body);
 
 					resultFunction.push (expressionStatement (assignmentExpression (target, value)));
@@ -87,13 +87,13 @@ function processClass (classEntry){
 				].concat (constructor.body.body);
 		} else if (mode === 'static')
 			// Вместо функции добавляем пустой объект
-			variables.push (variableDeclarator (classEntry.id, objectExpression ()));
+			variables.push (variableDeclarator (classEntry.id.name, objectExpression ()));
 
 		// Добавляем статические поля ...
 		for (var field in-array staticFields)
 			if (field.publicMode !== 'private'){
 				var temp = expressionStatement (assignmentExpression (
-					memberExpression (classEntry.id, field.id), field.init || 'undefined'));
+					memberExpression (classEntry.id.name, field.id), field.init || 'undefined'));
 
 				if (findByReplacement (classEntry, field.id.name).publicMode === 'protected')
 					temp.comment = field.id.name;
@@ -106,7 +106,7 @@ function processClass (classEntry){
 		for (var method in-array staticMethods){
 			if (method.publicMode !== 'private'){
 				var temp = expressionStatement (assignmentExpression (
-					memberExpression (classEntry.id, method.id), functionExpression (method.params, method.body)))
+					memberExpression (classEntry.id.name, method.id), functionExpression (method.params, method.body)))
 				resultFunction.push (temp);
 			} else
 				resultFunction.push (method);
@@ -117,10 +117,10 @@ function processClass (classEntry){
 			resultFunction.push (expressionStatement (callExpression (initializer)));
 
 		// ... и оператор «return»
-		resultFunction.push (returnStatement (classEntry.id));
+		resultFunction.push (returnStatement (classEntry.id.name));
 
 		// И втыкаем куда-нибудь получившийся кусок AST, чтобы после забрать
-		classEntry.element = variableDeclarator (classEntry.id.name, callExpression (functionExpression ([], resultFunction)));
+		classEntry.element = variableDeclarator (classEntry.id, callExpression (functionExpression ([], resultFunction)));
 	}
 }
 

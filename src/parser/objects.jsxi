@@ -12,6 +12,7 @@
 
 	function mark (obj, arg)
 		if (arg !== undefined){
+			arg = mark (arg);
 			obj.filename = arg.filename;
 			obj.lineNumber = arg.lineNumber;
 			obj.lineStart = arg.lineStart;
@@ -21,13 +22,14 @@
 			return obj || {};
 		} else if (obj && obj.lineNumber){
 			return $.extend (obj, { filename: options.filename });
-		} else
+		} else {
 			return $.extend (obj || {}, {
 				filename:     	options.filename,
 				lineNumber: 	lineNumber,
 				lineStart: 	 	lineStart,
 				index: 		 	index
 			});
+		}
 
 	function literal (value)
 		return typeof value === 'object' && value !== null ? {

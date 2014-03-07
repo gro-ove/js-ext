@@ -364,7 +364,7 @@ function processClassMethods (classEntry){
 
 function processClassesMethods (){
 	for (var classEntry in-array classes){
-		membersOut (classEntry);
+		// membersOut (classEntry);
 		processClassMethods (classEntry);
 	}
 }
