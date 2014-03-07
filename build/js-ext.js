@@ -2511,9 +2511,9 @@ return true;
 else
 if (obj && obj.body && obj.body.body)
 {
-{ var _73ao775_94 = obj.body.body; for (var _686a4ir_95 = 0; _686a4ir_95 < _73ao775_94.length; _686a4ir_95 ++){
-var child = _73ao775_94[_686a4ir_95];
-if (searchForSuperExpression (child))
+{ var _7j7l4nq_47 = obj.body.body; for (var _1r3navh_48 = 0; _1r3navh_48 < _7j7l4nq_47.length; _1r3navh_48 ++){
+var child = _7j7l4nq_47[_1r3navh_48];
+if (searchSuperExpression (child))
 return true;
 }}
 }
@@ -2521,7 +2521,7 @@ else
 {
 for (var key in obj){
 var child = obj[key];
-if (child && typeof child === "object" && searchForSuperExpression (child))
+if (child && typeof child === "object" && searchSuperExpression (child))
 return true;
 }
 }
@@ -2537,8 +2537,8 @@ var parent = byName (current.dependsOn.parent.name);
 if (! parent)
 throwError (current.dependsOn.parent, Messages.ParentClassNotFound, current.dependsOn.parent.name);
 connectClass (parent, current);
-{ var _3fplmkg_96 = parent.members; for (var id in _3fplmkg_96){
-var member = _3fplmkg_96[id];
+{ var _9cduhi_49 = parent.members; for (var id in _9cduhi_49){
+var member = _9cduhi_49[id];
 if (! current.members.hasOwnProperty (id))
 current.members [id] = $.extend (true, {}, member, {"publicMode":member.publicMode === "private" ? "locked" : member.publicMode});
 }}
@@ -2562,8 +2562,8 @@ throwError (currentConstructor, Messages.SuperConstructorCallNeeded);
 }
 }
 }
-{ var _70425aa_97 = current.dependsOn.uses; for (var _6gm5dpe_98 = 0; _6gm5dpe_98 < _70425aa_97.length; _6gm5dpe_98 ++){
-var use = _70425aa_97[_6gm5dpe_98];
+{ var _16iv1re_50 = current.dependsOn.uses; for (var _29nt4hm_51 = 0; _29nt4hm_51 < _16iv1re_50.length; _29nt4hm_51 ++){
+var use = _16iv1re_50[_29nt4hm_51];
 var used = byName (use.name);
 if (! used)
 throwError (use, Messages.UsingClassNotFound, use.name);
@@ -2571,8 +2571,8 @@ throwError (use, Messages.UsingClassNotFound, use.name);
 current.connected = true;
 }
 function connectClasses (){
-for (var _7dfpoi2_99 = 0; _7dfpoi2_99 < classes.length; _7dfpoi2_99 ++){
-var classEntry = classes[_7dfpoi2_99];
+for (var _6ugtepn_52 = 0; _6ugtepn_52 < classes.length; _6ugtepn_52 ++){
+var classEntry = classes[_6ugtepn_52];
 connectClass (classEntry);
 }
 }
@@ -2803,8 +2803,8 @@ if (typeof obj === "object" && obj !== null)
 {
 if (obj instanceof Array)
 {
-for (var _5d3rssn_9 = 0; _5d3rssn_9 < obj.length; _5d3rssn_9 ++){
-var child = obj[_5d3rssn_9];
+for (var _328d9hi_95 = 0; _328d9hi_95 < obj.length; _328d9hi_95 ++){
+var child = obj[_328d9hi_95];
 lookForExclusions (child, target);
 }
 }
@@ -2898,7 +2898,7 @@ process (obj.right, obj);
 process (obj.left, obj);
 }
 function processMemberExpression (obj,parent,preparent){
-var member, propertyNameGetter, temp;
+var member, propertyNameGetter, second, temp;
 if (! obj.computed)
 {
 member = classEntry.members.hasOwnProperty (obj.property.name) ? classEntry.members [obj.property.name] : null;
@@ -2918,7 +2918,7 @@ if (obj.object.type === Syntax.ThisExpression)
 obj.property.name = member.id.name;
 }
 else
-if (0 && member.publicMode !== "public")
+if (member.publicMode !== "public")
 {
 if (parent instanceof Array && preparent)
 parent = preparent;
@@ -2930,21 +2930,32 @@ obj.property = conditionalExpression (binaryExpression (obj.object, "instanceof"
 else
 if (parent.type === Syntax.AssignmentExpression)
 {
-temp = $.extend (true, {}, parent);
+second = $.extend (true, {}, parent);
 for (var key in parent){
 var value = parent[key];
 if (value === obj)
-temp [key] = memberExpression ("__", conditionalExpression (binaryExpression ("__", "instanceof", member.className.name), literal (member.id.name), literal (obj.property.name)), true);
+second [key] = memberExpression ("__", conditionalExpression (binaryExpression ("__", "instanceof", member.className.name), literal (member.id.name), literal (obj.property.name)), true);
 }
 process (obj.object, obj);
-set (parent, sequenceExpression ([assignmentExpression ("__", obj.object),temp]));
+set (parent, sequenceExpression ([assignmentExpression ("__", obj.object),second]));
+temp = true;
 }
 else
 {
 process (obj.object, obj);
 set (obj, sequenceExpression ([assignmentExpression ("__", obj.object),memberExpression ("__", conditionalExpression (binaryExpression ("__", "instanceof", member.className.name), literal (member.id.name), literal (obj.property.name)), true)]));
+if (parent.type === Syntax.CallExpression && obj === parent.callee)
+{
+parent.callee = memberExpression (parent.callee, "call");
+parent.arguments = [identifier ("__")].concat (parent.arguments);
 }
-helpers.propertyName = true;
+temp = true;
+}
+if (temp && ! currentFunction.hasTempVariable)
+{
+currentFunction.body.body = [variableDeclaration ([variableDeclarator ("__")])].concat (currentFunction.body.body);
+currentFunction.hasTempVariable = true;
+}
 return;
 }
 }
@@ -2993,8 +3004,8 @@ if (typeof obj === "object" && obj !== null)
 {
 if (obj instanceof Array)
 {
-for (var _82ul3vm_10 = 0; _82ul3vm_10 < obj.length; _82ul3vm_10 ++){
-var child = obj[_82ul3vm_10];
+for (var _5nvo3ng_96 = 0; _5nvo3ng_96 < obj.length; _5nvo3ng_96 ++){
+var child = obj[_5nvo3ng_96];
 process (child, obj, parent);
 }
 }
@@ -3034,15 +3045,15 @@ process (methodEntry);
 }
 function processClassMethods (classEntry){
 var replace, childMember;
-{ var _7mghdbf_11 = classEntry.members; for (var name in _7mghdbf_11){
-var member = _7mghdbf_11[name];
+{ var _29n6p24_97 = classEntry.members; for (var name in _29n6p24_97){
+var member = _29n6p24_97[name];
 if (member.method)
 processClassMethod (classEntry, member);
 }}
 }
 function processClassesMethods (){
-for (var _37pvl6v_12 = 0; _37pvl6v_12 < classes.length; _37pvl6v_12 ++){
-var classEntry = classes[_37pvl6v_12];
+for (var _930lr63_98 = 0; _930lr63_98 < classes.length; _930lr63_98 ++){
+var classEntry = classes[_930lr63_98];
 processClassMethods (classEntry);
 }
 }

@@ -33,6 +33,7 @@
 		V convert member expression for static private to identifier
 		V processSuperExpression: add check if static method is processing
 		V "super;" ⇒ "ParentClass.prototype.method.apply (this, arguments)"
+		V add access like "other.privateMethod"
 		C if default fields initializations
 		- add interfaces
 		- add implementeds
@@ -45,7 +46,6 @@
 		- initialization with constructor: for example, "var a = new A (){ objectField = value; for (var i = 0; i < 10; i ++) something ++ }"
 		- partial classes
 		L inner classes
-		? add access like "other.privateMethod"
 		? kind of multiple inheritance
 		? add class initialize only on first access (getters needed)
 		X add access like ['field' + name] support

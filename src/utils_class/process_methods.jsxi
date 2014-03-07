@@ -175,6 +175,7 @@ function processClassMethod (classEntry, methodEntry){
 	function processMemberExpression (obj, parent, preparent){
 		var member,
 			propertyNameGetter,
+			second,
 			temp;
 
 		if (!obj.computed){
@@ -188,7 +189,7 @@ function processClassMethod (classEntry, methodEntry){
 					}
 				} else if (obj.object.type === Syntax.ThisExpression){
 					obj.property.name = member.id.name;
-				} else if (0 && member.publicMode !== 'public'){
+				} else if (member.publicMode !== 'public'){
 					if (parent instanceof Array && preparent)
 						parent = preparent;
 
@@ -196,18 +197,20 @@ function processClassMethod (classEntry, methodEntry){
 						obj.computed = true;
 						obj.property = conditionalExpression (binaryExpression (obj.object, 'instanceof', member.className.name), literal (member.id.name), literal (obj.property.name));
 					} else if (parent.type === Syntax.AssignmentExpression){
-						temp = $.extend (true, {}, parent);
+						second = $.extend (true, {}, parent);
 						for (var key, value in parent)
 							if (value === obj)
-								temp [key] = memberExpression ('__', conditionalExpression (
+								second [key] = memberExpression ('__', conditionalExpression (
 									binaryExpression ('__', 'instanceof', member.className.name), literal (member.id.name), literal (obj.property.name)), true);
 
 						process (obj.object, obj);
 
 						set (parent, sequenceExpression ([
 							assignmentExpression ('__', obj.object), 
-							temp
+							second
 						]));
+
+						temp = true;
 					} else {
 						process (obj.object, obj);
 
@@ -216,9 +219,20 @@ function processClassMethod (classEntry, methodEntry){
 							memberExpression ('__', conditionalExpression (
 						 			binaryExpression ('__', 'instanceof', member.className.name), literal (member.id.name), literal (obj.property.name)), true)
 						]));
+
+						if (parent.type === Syntax.CallExpression && obj === parent.callee){
+							parent.callee = memberExpression (parent.callee, 'call');
+							parent.arguments = [ identifier ('__') ].concat (parent.arguments);
+						}
+
+						temp = true;
 					}
 
-					helpers.propertyName = true;
+					if (temp && !currentFunction.hasTempVariable){
+						currentFunction.body.body = [ variableDeclaration ([ variableDeclarator ('__') ]) ].concat (currentFunction.body.body);
+						currentFunction.hasTempVariable = true;
+					}
+
 					return;
 				}
 			}

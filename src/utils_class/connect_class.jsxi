@@ -3,12 +3,12 @@ function searchSuperExpression (obj)
 		return true;
 	} else if (obj && obj.body && obj.body.body){
 		for (var child in-array obj.body.body){
-			if (searchForSuperExpression (child))
+			if (searchSuperExpression (child))
 				return true;
 		}
 	} else {
 		for (var key, child in obj)
-			if (child && typeof child === 'object' && searchForSuperExpression (child))
+			if (child && typeof child === 'object' && searchSuperExpression (child))
 				return true;
 	}
 
