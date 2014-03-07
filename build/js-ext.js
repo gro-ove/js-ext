@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-(function (){ var s = {}, root = GLOBAL; function G (i) { if (s [i]) return s [i]; throw "Not found: " + i; } function I (i) { var m = G (i); if (!m._d){ m._a = 1; if (m.g) m.g ().forEach (function (other){ if ("@" != other [0]) { if (G (other)._a) throw "Cycle: " + i + ", " + other; if (!G (other)._d) I (other); } }); if (m.v) m.v (); if (m.i) m.i (); m._d = 1; delete m._a; } } root.__m = function (i, m) { if (m){ s [i] = m (); } else { for (i in s) if (G (i).g) G (i).s (G (i).g ().map (function (i){ return G ("@" == i [0] ? i.slice (1) : i).e || {} })); for (i in s) I (i); delete root.__m } } })();
 (function (st){
 st.format = function (){
 if (arguments.length == 0)
@@ -3290,150 +3289,253 @@ return ! this.has (function (arg){
 return arg !== File.STATE_FINISHED;
 });
 };
-__m ("Generator", function (){
-var currentFileName, tabs, tab;
-function _ (s){
-return s [s.length - 1] === "\n" ? s.slice (0, - 1) : s.slice (- tab.length) === tab ? s.slice (0, - tab.length) : s;
+var priorities = [[Syntax.MemberExpression,Syntax.NewExpression],[Syntax.CallExpression],[{"type":Syntax.UnaryExpression,"operator":"++"},{"type":Syntax.UnaryExpression,"operator":"--"}],[{"type":Syntax.UnaryExpression,"operator":"!"},{"type":Syntax.UnaryExpression,"operator":"~"},{"type":Syntax.UnaryExpression,"operator":"+"},{"type":Syntax.UnaryExpression,"operator":"-"},{"type":Syntax.UnaryExpression,"operator":"typeof"},{"type":Syntax.UnaryExpression,"operator":"void"},{"type":Syntax.UnaryExpression,"operator":"delete"}],[{"type":Syntax.BinaryExpression,"operator":"*"},{"type":Syntax.BinaryExpression,"operator":"/"},{"type":Syntax.BinaryExpression,"operator":"%"}],[{"type":Syntax.BinaryExpression,"operator":"+"},{"type":Syntax.BinaryExpression,"operator":"-"}],[{"type":Syntax.BinaryExpression,"operator":"<<"},{"type":Syntax.BinaryExpression,"operator":">>"},{"type":Syntax.BinaryExpression,"operator":">>>"}],[{"type":Syntax.BinaryExpression,"operator":"<"},{"type":Syntax.BinaryExpression,"operator":"<="},{"type":Syntax.BinaryExpression,"operator":">"},{"type":Syntax.BinaryExpression,"operator":">="},{"type":Syntax.BinaryExpression,"operator":"in"},{"type":Syntax.BinaryExpression,"operator":"instanceof"}],[{"type":Syntax.BinaryExpression,"operator":"=="},{"type":Syntax.BinaryExpression,"operator":"!="},{"type":Syntax.BinaryExpression,"operator":"==="},{"type":Syntax.BinaryExpression,"operator":"!=="}],[{"type":Syntax.BinaryExpression,"operator":"&"}],[{"type":Syntax.BinaryExpression,"operator":"^"}],[{"type":Syntax.BinaryExpression,"operator":"|"}],[{"type":Syntax.LogicalExpression,"operator":"&&"}],[{"type":Syntax.LogicalExpression,"operator":"||"}],[Syntax.ConditionalExpression],[Syntax.AssignmentExpression],[Syntax.SequenceExpression]];
+function generate (node,params){
+if (params === undefined)
+params = {"lineBreak":"\n"};
+function child (obj,newParams){
+return generate (obj, $.extend ({"parent":node,"lineBreak":params.lineBreak,"parentParams":params}, newParams));
 }
-function t (s,full){
-return s.replace (full ? (/(\/\/[\s\S]+)?[\n\s]+$/g) : (/[\n\s]+$/g), "");
+function indent (obj,newParams){
+if (newParams === undefined)
+newParams = {};
+var lineBreak = params.lineBreak + "\t";
+return (newParams.force ? lineBreak : "") + generate (obj, $.extend ({"parent":node,"lineBreak":lineBreak,"parentParams":params}, newParams));
 }
-function n (n,s){
-if (n === 1)
+function array (obj,arrayParams){
+var data, lineBreak, result;
+if (arrayParams.indent !== false)
 {
-tabs += tab;
-}
-else
-if (n === - 1)
-{
-tabs = _ (tabs);
-console.assert (tabs.length, "Too much tabs have been removed!");
-}
-return tabs;
-}
-function x (b,s){
-return b.type === "BlockStatement" ? f (b, s) : n (1) + t (f (b)) + n (- 1);
-}
-function $ (arg,mn){
-if (mn)
-n (- 1);
-if (! arg.comment && ! arg.lineNumber)
-return ";" + tabs;
-var result = "; // ";
-if (arg.lineNumber)
-result += currentFileName + " [" + arg.lineNumber + ":" + (arg.index - arg.lineStart) + "]";
-if (arg.comment)
-if (arg.lineNumber)
-result += " (" + arg.comment + ")";
-else
-result += arg.comment;
-return result + tabs;
-}
-function c (a,j,b){
-if (j === undefined)
-j = "";
-return a.map (function (arg){
-return f (arg, b);
-}).join (j);
-}
-function f (element,arg){
-if (! fn [element.type])
-{
-console.log (element);
-return "[ " + element.type.toUpperCase () + " ]" + $ (element);
+data = obj.map (function (arg){
+return indent (arg, {"array":true});
+});
+lineBreak = params.lineBreak + "\t";
 }
 else
 {
-var oldTabs = tabs, result = fn [element.type] (element, arg);
-tabs = oldTabs;
+data = obj.map (function (arg){
+return child (arg, {"array":true});
+});
+lineBreak = params.lineBreak;
+}
+result = data.join (arrayParams.join || "");
+if (result.length > 120 && obj.length > 1 || arrayParams.wrap)
+{
+result = data.join ((arrayParams.join || "") + lineBreak);
+if (arrayParams.autospaces)
+result = lineBreak + result + (arrayParams.indent === false ? params.lineBreak.slice (0, - 1) : params.lineBreak);
+}
+else
+if (arrayParams.autospaces)
+result = " " + result + " ";
 return result;
 }
+function sub (obj,newParams){
+return obj.type === Syntax.BlockStatement ? child (obj) : indent (obj, $.extend ({"force":true}, newParams));
 }
-var fn;
-function work (element,fileName){
-currentFileName = fileName;
-tabs = "\n";
-return f (element);
+function safe (obj,newParams){
+if (! obj)
+return "";
+var result = child (obj, newParams);
+return result + (/[_$a-zA-Z\d]$/.test (result) ? " " : "");
 }
-return {"e":{"work":work},"v":function (){
-tab = "    ";
-fn = {"Identifier":function (arg){
-return arg.name;
-},"Literal":function (arg){
-return typeof arg.value === "string" ? "\"" + arg.value + "\"" : "" + arg.value;
-},"Property":function (arg){
-return f (arg.key) + ": " + f (arg.value);
-},"BlockStatement":function (arg){
-return arg.body.length ? "{" + n (1) + _ (c (arg.body)) + "}" + (arguments [1] ? " " : n (- 1)) : "{}";
-},"ExpressionStatement":function (arg){
-return f (arg.expression) + $ (arg);
-},"ReturnStatement":function (arg){
-return "return" + (arg.argument ? " " + f (arg.argument) : "") + $ (arg);
-},"IfStatement":function (arg){
-return "if (" + f (arg.test) + ")" + x (arg.consequent, arg.alternate) + (arg.alternate ? "else " + x (arg.alternate) : "");
-},"WhileStatement":function (arg){
-return "while (" + f (arg.test) + ")" + x (arg.body);
-},"DoWhileStatement":function (arg){
-return "do " + x (arg.body, true) + "while (" + f (arg.test) + ")" + $ (arg);
-},"ForStatement":function (arg){
-return "for (" + (arg.init ? f (arg.init, true) : "") + ";" + (arg.test ? " " + f (arg.test) : "") + ";" + (arg.update ? " " + f (arg.update) : "") + ")" + x (arg.body);
-},"ForInStatement":function (arg){
-return "for (" + f (arg.left, true) + " in " + f (arg.right) + ")" + x (arg.body);
-},"TryStatement":function (arg){
-return "try " + f (arg.block, true) + c (arg.handlers, "", arg.finalizer) + (arg.finalizer ? "finally " + f (arg.finalizer) : "") + tabs;
-},"CatchClause":function (arg){
-return "catch (" + f (arg.param) + ")" + f (arg.body, arguments [1]);
-},"LabeledStatement":function (arg){
-return f (arg.label) + ": " + f (arg.body);
-},"BreakStatement":function (arg){
-return "break" + (arg.label ? " " + f (arg.label) : "") + $ (arg);
-},"ContinueStatement":function (arg){
-return "continue" + (arg.label ? " " + f (arg.label) : "") + $ (arg);
-},"ThrowStatement":function (arg){
-return "throw " + f (arg.argument) + $ (arg);
-},"DebuggerStatement":function (arg){
-return "debugger" + $ (arg);
-},"SwitchStatement":function (arg){
-return "switch (" + f (arg.discriminant) + "){" + n (1) + _ (c (arg.cases)) + "}";
-},"SwitchCase":function (arg){
-return (arg.test ? "case " + f (arg.test) : "default") + ":" + n (1) + _ (c (arg.consequent));
-},"NewExpression":function (arg){
-return "new " + f (arg.callee) + " (" + c (arg.arguments, ", ") + ")";
-},"ThisExpression":function (arg){
+function brackets (string){
+console.assert (params.parent, "Not implemented");
+function index (type,operator){
+for (var priority = 0; priority < priorities.length; priority ++){
+var group = priorities[priority];
+for (var _5h7qnd9_31 = 0; _5h7qnd9_31 < group.length; _5h7qnd9_31 ++){
+var entry = group[_5h7qnd9_31];
+if (entry === type || typeof entry === "object" && entry.type === type && entry.operator === operator)
+return priority;
+}
+}
+return - 1;
+}
+var that = index (node.type, node.operator), parent = index (params.parent.type, params.parent.operator);
+console.assert (that !== - 1, "Priority not defined (" + node.type + ", \"" + node.operator + "\")");
+if ((! params.array || node.type === Syntax.SequenceExpression) && parent !== - 1 && that > parent)
+return "(" + string + ")";
+else
+return string;
+}
+switch (node.type){
+case Syntax.Identifier:
+return node.name;
+case Syntax.Literal:
+if (typeof node.value === "string")
+return "'" + JSON.stringify (node.value).slice (1, - 1).replace (/'/g, "\\'") + "'";
+else
+return String (node.value);
+case Syntax.Property:
+return child (node.key) + ": " + child (node.value);
+case Syntax.MemberExpression:
+return child (node.object) + (node.computed ? "[" + child (node.property) + "]" : "." + child (node.property));
+case Syntax.ThisExpression:
 return "this";
-},"CallExpression":function (arg){
-return f (arg.callee) + " (" + c (arg.arguments, ", ") + ")";
-},"ArrayExpression":function (arg){
-return arg.elements.length ? "[" + n (1) + c (arg.elements, "," + tabs) + n (- 1) + "]" : "[]";
-},"ObjectExpression":function (arg){
-return arg.properties.length ? "{" + n (1) + c (arg.properties, "," + tabs) + n (- 1) + "}" : "{}";
-},"MemberExpression":function (arg){
-return f (arg.object) + (arg.computed ? "[" + f (arg.property) + "]" : "." + f (arg.property));
-},"FunctionExpression":function (arg){
-return "(function " + (arg.id ? f (arg.id) + " " : "") + "(" + c (arg.params, ", ") + ")" + f (arg.body) + ")";
-},"BinaryExpression":function (arg){
-return f (arg.left) + " " + arg.operator + " " + f (arg.right);
-},"LogicalExpression":function (arg){
-return f (arg.left) + " " + arg.operator + " " + f (arg.right);
-},"AssignmentExpression":function (arg){
-return "(" + (f (arg.left) + " " + arg.operator + " " + f (arg.right)) + ")";
-},"UnaryExpression":function (arg){
-return "(" + (arg.prefix ? (arg.operator.length == 1 ? arg.operator : arg.operator + " ") + f (arg.argument) : f (arg.argument) + " " + arg.operator) + ")";
-},"SequenceExpression":function (arg){
-return "(" + (n (1) && c (arg.expressions, "," + tabs)) + ")";
-},"ConditionalExpression":function (arg){
-return f (arg.test) + " ? " + f (arg.consequent) + " : " + f (arg.alternate);
-},"VariableDeclaration":function (arg){
-return n (1) && arg.kind + " " + arg.declarations.map (f).join ("," + tabs) + (arguments [1] ? "" : $ (arg, true));
-},"VariableDeclarator":function (arg){
-return arg.init ? f (arg.id) + " = " + f (arg.init) : f (arg.id);
-},"FunctionDeclaration":function (arg){
-return "function " + f (arg.id) + " (" + c (arg.params, ", ") + ")" + f (arg.body) + tabs;
-},"Program":function (arg){
-return c (arg.body);
-}};
-}};
-});
+case Syntax.CallExpression:
+var args = array (node.arguments, {"join":", "}), match = args.match (/\n\t*/);
+if (match && match [0].length > params.lineBreak.length + 1)
+args = args.replace (/\n\t/g, "\n");
+return safe (node.callee) + "(" + args + ")";
+case Syntax.NewExpression:
+var args = array (node.arguments, {"join":", "}), match = args.match (/\n\t*/);
+if (match && match [0].length > params.lineBreak.length + 1)
+args = args.replace (/\n\t/g, "\n");
+return "new " + safe (node.callee) + "(" + args + ")";
+case Syntax.UnaryExpression:
+if (node.prefix)
+{
+var result = node.operator;
+if (result !== "!")
+result += " ";
+result += child (node.argument);
+return brackets (result);
+}
+else
+return brackets (child (node.argument) + " " + node.operator);
+case Syntax.AssignmentExpression:
+
+case Syntax.BinaryExpression:
+
+case Syntax.LogicalExpression:
+return brackets (child (node.left) + " " + node.operator + " " + child (node.right));
+case Syntax.SequenceExpression:
+return brackets (array (node.expressions, {"join":", "}));
+case Syntax.ConditionalExpression:
+return brackets (child (node.test) + " ? " + child (node.consequent) + " : " + child (node.alternate));
+case Syntax.ArrayExpression:
+if (node.elements.length === 0)
+return "[]";
+else
+return "[" + array (node.elements, {"join":", ","autospaces":true}) + "]";
+case Syntax.ObjectExpression:
+if (node.properties.length === 0)
+return "{}";
+else
+return "{" + array (node.properties, {"join":", ","autospaces":true}) + "}";
+case Syntax.FunctionExpression:
+return "function " + safe (node.id) + "(" + array (node.params, {"join":", "}) + ")" + child (node.body);
+case Syntax.FunctionDeclaration:
+return "function " + child (node.id) + " (" + array (node.params, {"join":", "}) + ")" + child (node.body);
+case Syntax.VariableDeclaration:
+return "var " + array (node.declarations, {"join":", "}) + ";";
+case Syntax.VariableDeclarator:
+return node.init ? child (node.id) + " = " + child (node.init) : child (node.id);
+case Syntax.BlockStatement:
+if (node.body.length === 0)
+{
+return "{}";
+}
+else
+if (0 && node.body.length === 1)
+{
+return "{ " + child (node.body [0]).replace (/;$/, "") + " }";
+}
+else
+return "{" + params.lineBreak + "\t" + array (node.body, {"wrap":true}) + params.lineBreak + "}";
+case Syntax.ExpressionStatement:
+var result = child (node.expression);
+if (/^function\s*\(/.test (result))
+return "(" + result + ");";
+else
+return result + ";";
+case Syntax.LabeledStatement:
+return child (node.label) + ": " + child (node.body);
+case Syntax.ReturnStatement:
+return "return" + (node.argument ? " " + child (node.argument) : "") + ";";
+case Syntax.BreakStatement:
+if (node.label)
+return "break " + child (node.label) + ";";
+else
+return "break;";
+case Syntax.ContinueStatement:
+if (node.label)
+return "continue " + child (node.label) + ";";
+else
+return "continue;";
+case Syntax.IfStatement:
+var result = "if (" + child (node.test) + ")" + sub (node.consequent);
+if (node.alternate)
+{
+if (node.consequent.type !== Syntax.BlockStatement)
+result += params.lineBreak;
+else
+result += " ";
+result += "else";
+if (node.alternate.type === Syntax.IfStatement)
+{
+result += " " + child (node.alternate);
+}
+else
+{
+if (node.alternate.type === Syntax.BlockStatement)
+result += " ";
+result += sub (node.alternate);
+}
+}
+return result;
+case Syntax.SwitchStatement:
+var result = "switch (" + child (node.discriminant) + "){";
+{ var _4inehbt_32 = node.cases; for (var _6ag0mmt_33 = 0; _6ag0mmt_33 < _4inehbt_32.length; _6ag0mmt_33 ++){
+var obj = _4inehbt_32[_6ag0mmt_33];
+result += indent (obj, {"force":true});
+}}
+result += params.lineBreak + "}";
+return result;
+case Syntax.SwitchCase:
+var result = "";
+if (node.test)
+result += "case " + child (node.test);
+else
+result += "default";
+result += ":" + params.lineBreak + "\t" + array (node.consequent, {"wrap":true});
+return result;
+case Syntax.WhileStatement:
+return "while (" + child (node.test) + ")" + sub (node.body);
+case Syntax.DoWhileStatement:
+var result = "do";
+if (node.body.type !== Syntax.BlockStatement)
+result += sub (node.body) + params.lineBreak;
+else
+result += " " + sub (node.body) + " ";
+result += "while (" + child (node.test) + ");";
+return result;
+case Syntax.ForStatement:
+var result = "for (";
+if (node.init)
+result += child (node.init);
+if (result [result.length - 1] !== ";")
+result += ";";
+if (node.test)
+result += " " + child (node.test);
+result += ";";
+if (node.update)
+result += " " + child (node.update);
+result += ")" + sub (node.body);
+return result;
+case Syntax.ForInStatement:
+return "for (" + child (node.left).replace (/;$/, "") + " in " + child (node.right) + ")" + sub (node.body);
+case Syntax.TryStatement:
+var result = "try " + sub (node.block) + " ";
+{ var _5guguq1_34 = node.handlers; for (var _454fn8g_35 = 0; _454fn8g_35 < _5guguq1_34.length; _454fn8g_35 ++){
+var handler = _5guguq1_34[_454fn8g_35];
+result += child (handler) + " ";
+}}
+if (node.finalizer)
+result += "finally " + sub (node.finalizer);
+return result;
+case Syntax.CatchClause:
+return "catch (" + child (node.param) + ")" + sub (node.body);
+case Syntax.ThrowStatement:
+return "throw " + child (node.argument) + ";";
+case Syntax.DebuggerStatement:
+return "debugger;";
+case Syntax.Program:
+return node.body.map (child).join ("\n");
+default:throw new Error("Unsupported type: " + node.type + " (" + JSON.stringify (params.parent, false, 4) + ")");
+}
+}
 function getParams (data){
 var all = data.match (/(?:^|[\r\n])[ \t]*\/\/[ \t]*==([a-zA-Z]+)==[\s\S]+?[\r\n][ \t]*\/\/[ \t]*==\/\1==/g), result = {"jsx":{}};
 if (all)
@@ -4341,9 +4443,9 @@ console.fatal ("Parsing failed (" + options.filename + ")" + ("\n" + jsxCode.tri
 else
 parsed = jsxCode;
 try{
-return require ("escodegen").generate (parsed);
+return generate (parsed);
 }catch (e){
-console.fatal ("Generating failed (" + options.filename + ")" + e.stack);
+console.fatal ("Generating failed (" + options.filename + ")\n" + e.stack);
 }
 }
 var previousT = (function (arg){
@@ -4429,6 +4531,7 @@ Worker.STATE_GENERATED = 4;
 Worker.STATE_FINISHED = 5;
 addLog (Worker, 0, "app");
 Worker.params = {};
+Worker.storage = {"macros":{}};
 Worker.prototype.waitForFinish = function (callback){
 var interval = setInterval (function (arg){
 if (fileStorage.everythingFinished ())
@@ -4451,8 +4554,8 @@ Worker.prototype.start = function (callback){
 console.assert (this.state == Worker.STATE_INITIAL, "Wrong state (" + this.state + ")");
 this.state = Worker.STATE_WAITING;
 this.log ("started");
-{ var _rqt43_23 = File.find ("default/*") || []; for (var _4b0iqlk_24 = 0; _4b0iqlk_24 < _rqt43_23.length; _4b0iqlk_24 ++){
-var file = _rqt43_23[_4b0iqlk_24];
+{ var _6hhck09_50 = File.find ("default/*") || []; for (var _4b7tlig_51 = 0; _4b7tlig_51 < _6hhck09_50.length; _4b7tlig_51 ++){
+var file = _6hhck09_50[_4b7tlig_51];
 file.process ();
 }}
 this.mainFile = new File(this.path);
@@ -4467,8 +4570,8 @@ callback ();
 Worker.prototype.collect = function (callback){
 console.assert (this.state == Worker.STATE_STARTED, "Wrong state (" + this.state + ")");
 this.state = Worker.STATE_WAITING;
-{ var _7pqs8ee_25 = fileStorage.files; for (var _8urerce_26 = 0; _8urerce_26 < _7pqs8ee_25.length; _8urerce_26 ++){
-var file = _7pqs8ee_25[_8urerce_26];
+{ var _6fd508p_52 = fileStorage.files; for (var _3dldck6_53 = 0; _3dldck6_53 < _6fd508p_52.length; _3dldck6_53 ++){
+var file = _6fd508p_52[_3dldck6_53];
 $.extend (this.data.helpers, file.helpers);
 Array.prototype.push.apply (this.data.statements, file.parsed.body);
 Array.prototype.push.apply (this.data.classes, file.parsed.classes);
@@ -4519,5 +4622,3 @@ if (callback !== undefined)
 callback (this);
 });
 };
-
-__m()

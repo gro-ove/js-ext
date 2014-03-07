@@ -28,9 +28,9 @@ function convert (jsxCode, options){
 		parsed = jsxCode;
 
 	try {
-		return require ('escodegen').generate (parsed);
+		return generate (parsed);
 	} catch 
-		console.fatal ('Generating failed (' + options.filename + ')' 
+		console.fatal ('Generating failed (' + options.filename + ')\n' 
 			+ e.stack);
 }
 

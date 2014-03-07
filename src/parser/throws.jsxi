@@ -36,25 +36,6 @@
 			filename = token.filename;
 
 		throw new ParseError (token && token.filename || options.filename, token ? token.lineNumber : lineNumber, msg);
-
-		// if (typeof token.index === 'number'){
-		// 	error 				= new Error ('Line ' + token.lineNumber + ' (' + filename + '): ' + msg);
-		// 	error.index 		= token.index;
-		// 	error.lineNumber 	= token.lineNumber;
-		// 	error.column 		= token.index - token.lineStart + 1;
-		// } else if (typeof token.lineNumber === 'number'){
-		// 	error 				= new Error ('Line ' + token.lineNumber + ' (' + filename + '): ' + msg);
-		// 	error.index 		= token.range [0];
-		// 	error.lineNumber 	= token.lineNumber;
-		// 	error.column 		= token.range [0] - lineStart + 1;
-		// } else {
-		// 	error 				= new Error ('Line ' + lineNumber + ' (' + filename + '): ' + msg);
-		// 	error.index 		= index;
-		// 	error.lineNumber 	= lineNumber;
-		// 	error.column 		= index - lineStart + 1;
-		// }
-
-		// throw error;
 	}
 
 	function throwUnexpected (token)
