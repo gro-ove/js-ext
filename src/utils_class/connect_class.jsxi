@@ -34,9 +34,9 @@ function connectClass (current, from){
 		var parentConstructor = parent.members ['@constructor'],
 			currentConstructor = current.members ['@constructor'];
 
-		// У родительского класса есть конструктор, в дочернем должен быть вызов
-		// супер-конструктора
-		if (parentConstructor){
+		// Если у родительского класса есть непустой конструктор, в дочернем до-
+		// лжен быть вызов супер-конструктора
+		if (parentConstructor && parentConstructor.body.body.length > 0){
 
 			// Если у дочернего класса нет конструктора, создаём
 			// TODO: Эта ветка никогда не выполнится - или переделать,  позволив 
@@ -45,12 +45,11 @@ function connectClass (current, from){
 			// ческого класса?
 			if (!currentConstructor){
 
-				// Тело нового конструктора - вызов супер-конструктора с нужными
-				// аргументами
-				var body = [ expressionStatement (superExpression (null, parentConstructor.params)) ];
+				// Тело нового конструктора - вызов супер-конструктора
+				var body = [ expressionStatement (superExpression (null)) ];
 
 				// Добавляем конструктор классу
-				updateMember (current, functionDeclaration ('@constructor', parentConstructor.params, body));
+				updateMember (current, functionDeclaration ('@constructor', [], body));
 
 			// Иначе,  если в конструкторе дочернего класса нет вызова конструк-
 			// тора родительского класса
@@ -61,10 +60,8 @@ function connectClass (current, from){
 				// бавим вызов сами
 				if (currentConstructor.autocreated || parentConstructor.params.length === 0){
 
-					if (currentConstructor.autocreated)
-						currentConstructor.params = parentConstructor.params;
 					currentConstructor.body.body = [ 
-						expressionStatement (superExpression (null, parentConstructor.params)) 
+						expressionStatement (superExpression (null)) 
 					].concat (currentConstructor.body.body);
 
 				// Иначе сообщаем об ошибке

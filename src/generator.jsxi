@@ -158,7 +158,7 @@ function generate (node, params = { lineBreak: '', comment: {}, first: true }){
 		}, arrayParams.join || '', lineBreak);
 
 		if (oneline !== false)
-			oneline = result.replace (/ *\/\/__ [^\n]+\n\t*/g, '');
+			oneline = result.replace (/( *\/\/__ [^\n]+)?\n\t*/g, '');
 
 		if (!oneline || oneline.length > 60 || arrayParams.wrap){
 			if (arrayParams.autospaces){

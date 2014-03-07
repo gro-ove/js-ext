@@ -10,7 +10,8 @@
 	}
 
 	function parseBlock (){
-		var block, oldPreventSequence = state.preventSequence;
+		var block, 
+			oldPreventSequence = state.preventSequence;
 		state.preventSequence = false;
 
 		expect ('{');
@@ -22,8 +23,6 @@
 	}
 
 	function parseBlockOrNotBlock (){
-		var block, oldPreventSequence;
-
 		if (match ('{'))
 			return parseBlock ();
 		else

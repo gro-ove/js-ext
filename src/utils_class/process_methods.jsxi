@@ -272,8 +272,12 @@ function processClassMethod (classEntry, methodEntry){
 			target = currentClass.id;
 		}
 
-		// Вызываемая функция
-		obj.callee = memberExpression (target, 'call');
+		// Если вызов без скобок, подставляем все аргументы
+		if (obj.arguments === null){
+			obj.callee = memberExpression (target, 'apply');
+			obj.arguments = identifier ('arguments');
+		} else 
+			obj.callee = memberExpression (target, 'call');
 
 		// Получаем ссылку на «this»
 		var that = getThis ();

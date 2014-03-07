@@ -1,27 +1,27 @@
-	function markAll (obj, mark){
-		if (obj.lineNumber){
-			obj.filename = mark.filename;
-			obj.lineNumber = mark.lineNumber;
-			obj.lineStart = mark.lineStart;
-			obj.index = mark.index;
-		}
+	function markAll (obj, arg){
+		if (obj.lineNumber)
+			mark (obj, arg);
 
 		for (var key, value in obj){
 			if (value !== null && typeof value === 'object')
-				markAll (value, mark);
+				markAll (value, arg);
 		}
 
 		return obj;
 	}
 
 	function mark (obj, arg)
-		if (arg !== undefined)
-			return $.extend (obj, arg);
-		else if (index > length || obj && obj.filename)
+		if (arg !== undefined){
+			obj.filename = arg.filename;
+			obj.lineNumber = arg.lineNumber;
+			obj.lineStart = arg.lineStart;
+			obj.index = arg.index;
+			return obj;
+		} else if (index > length || obj && obj.filename){
 			return obj || {};
-		else if (obj && obj.lineNumber)
+		} else if (obj && obj.lineNumber){
 			return $.extend (obj, { filename: options.filename });
-		else
+		} else
 			return $.extend (obj || {}, {
 				filename:     	options.filename,
 				lineNumber: 	lineNumber,
@@ -92,11 +92,11 @@
 		})
 	}
 
-	function superExpression (name, arguments, level)
+	function superExpression (name, args, level)
 		return {
 			type: 				Syntax.CallExpression,
 			callee: 			identifier (name),
-			arguments: 			arguments || [],
+			arguments: 			args || null,
 			'super': 			level || 1
 		}
 
@@ -124,11 +124,11 @@
 			right: 				identifier (right)
 		})
 
-	function newExpression (callee, arguments = [])
+	function newExpression (callee, args = [])
 		return mark ({
 			type: 				Syntax.NewExpression,
 			callee: 			identifier (callee),
-			arguments: 			arguments.map (identifier)
+			arguments: 			args.map (identifier)
 		})
 
 	function sequenceExpression (expressions)
@@ -170,11 +170,11 @@
 		})
 
 	function blockStatement (body = [], single)
-		return body instanceof Array ? mark ({
+		return body instanceof Array ? {
 			type: 				Syntax.BlockStatement,
 			body: 				body,
 			single:         	single
-		}) : body
+		} : body
 
 	function expressionStatement (expression)
 		return mark ({

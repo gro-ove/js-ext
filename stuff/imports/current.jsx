@@ -52,8 +52,16 @@ hi ();
 console.log ([ 1 .. 20 ]);
 
 console.log ([ 1 .. 21 ]);
-
+{
 console.log ('HELLO THERE!');
+}
+
+function TEST (){
+	{
+		console.log ('test');
+	}
+}
+
 
 
 console.log (function (){ console.log ('hi'); return ':)' }())

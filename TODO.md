@@ -32,6 +32,7 @@
 		V new operator instead of "in"
 		V convert member expression for static private to identifier
 		V processSuperExpression: add check if static method is processing
+		V "super;" ⇒ "ParentClass.prototype.method.apply (this, arguments)"
 		C if default fields initializations
 		- add interfaces
 		- add implementeds
@@ -41,7 +42,6 @@
 		- throw error if "return" found in contructor
 		- improve search for super method call in contructor
 		- anonymous classes
-		- "super;" ⇒ "ParentClass.prototype.method.apply (this, arguments)"
 		- initialization with constructor: for example, "var a = new A (){ objectField = value; for (var i = 0; i < 10; i ++) something ++ }"
 		- partial classes
 		L inner classes
