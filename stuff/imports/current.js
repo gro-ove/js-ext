@@ -12,18 +12,21 @@ function __ca (from, to, result){                       // current.jsx:50
 			result[i] = from - i;                       // ...
 	return result;                                      // ...
 }
-function __pe (c, p, t){                                // undefined:85
-	t = function (){};                                  // ...
-	t.prototype = p.prototype;                          // ...
-	c.prototype = new t ();                             // ...
-	c.prototype.constructor = c;                        // ...
+function __pe (c, 
+	p, 
+	t){
+	t = function (){};
+	t.prototype = p.prototype;
+	c.prototype = new t ();
+	c.prototype.constructor = c;
 }
-function __bo (obj, name){                              // ...
-	if (!obj.hasOwnProperty ('__bt'))                   // ...
-		obj.__bt = {};                                  // ...
-	if (!obj.__bt.hasOwnProperty (name))                // ...
-		obj.__bt[name] = obj[name].bind (obj);          // ...
-	return obj.__bt[name];                              // ...
+function __bo (obj, 
+	name){
+	if (!obj.hasOwnProperty ('__bt'))
+		obj.__bt = {};
+	if (!obj.__bt.hasOwnProperty (name))
+		obj.__bt[name] = obj[name].bind (obj);
+	return obj.__bt[name];
 }
 var temp = function (){                                 // current.jsx:4
 	a = 1;                                              // current.jsx:2
@@ -109,7 +112,7 @@ console.log ([
 	'long-long-long-long-long a-a-a-a-a-argument',      // ...
 	'long-long-long-long-long a-a-a-a-a-argument'       // ...
 ]);
-var A = function (){                                    // undefined:85
+var A = function (){
 		var A = function (){};                          // current.jsx:85
 		A.prototype.__method = function (a, b){         // current.jsx:67
 			console.log (a, b);                         // current.jsx:65
@@ -117,11 +120,12 @@ var A = function (){                                    // undefined:85
 		};
 		return A;                                       // current.jsx:63
 	}(), 
-	B = function (){                                    // undefined:85
+	B = function (){
 		var B = function (){                            // current.jsx:85
-			A.call (this);                              // ...
+			A.call (this);                              // current.jsx:63
 		};
-		__pe (B, A);                                    // undefined:85
+		__pe (B, 
+			A);
 		B.prototype.__method = function (a, b){         // current.jsx:74
 			console.log ('method');                     // current.jsx:72
 			A.prototype.__method.call (this);           // current.jsx:85

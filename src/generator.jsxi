@@ -94,7 +94,7 @@ var priorities = [
 function generate (node, params = { lineBreak: '', comment: {}, first: true }){
 	console.assert (node, 'Bad node (' + node + '), parent:\n' + JSON.stringify (params.parent, false, 4));
 
-	if (node.lineNumber && !params.lineNumber)
+	if (node.filename && !params.lineNumber)
 		$.extend (params.comment, { filename: node.filename, lineNumber: node.lineNumber });
 
 	function end (lineBreak){
@@ -214,9 +214,6 @@ function generate (node, params = { lineBreak: '', comment: {}, first: true }){
 			return string;
 	}
 
-	// if (params.first)
-	// 	console.json (node);
-
 	var result;
 	switch (node.type){
 		/* Base */
@@ -333,10 +330,6 @@ function generate (node, params = { lineBreak: '', comment: {}, first: true }){
 				result += array (node.body, { wrap: true });
 				result += end ();
 			}
-
-			// } else if (0 && node.body.length === 1){
-			// 	result = '{ ' + child (node.body [0]).replace (/;$/, '') + ' }';
-			// }
 
 			result += '}';
 			console.log (result);

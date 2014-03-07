@@ -3349,7 +3349,7 @@ function generate (node,params){
 if (params === undefined)
 params = {"lineBreak":"","comment":{},"first":true};
 console.assert (node, "Bad node (" + node + "), parent:\n" + JSON.stringify (params.parent, false, 4));
-if (node.lineNumber && ! params.lineNumber)
+if (node.filename && ! params.lineNumber)
 $.extend (params.comment, {"filename":node.filename,"lineNumber":node.lineNumber});
 function end (lineBreak){
 var result = "";
@@ -3437,8 +3437,8 @@ console.assert (params.parent, "Not implemented");
 function index (type,operator){
 for (var priority = 0; priority < priorities.length; priority ++){
 var group = priorities[priority];
-for (var _jhpfl2_75 = 0; _jhpfl2_75 < group.length; _jhpfl2_75 ++){
-var entry = group[_jhpfl2_75];
+for (var _4de2brh_29 = 0; _4de2brh_29 < group.length; _4de2brh_29 ++){
+var entry = group[_4de2brh_29];
 if (entry === type || typeof entry === "object" && entry.type === type && entry.operator === operator)
 return priority;
 }
@@ -3592,8 +3592,8 @@ result += sub (node.alternate);
 break;
 case Syntax.SwitchStatement:
 result = "switch (" + child (node.discriminant) + "){";
-{ var _mk6qaq_76 = node.cases; for (var _4pkfl3g_77 = 0; _4pkfl3g_77 < _mk6qaq_76.length; _4pkfl3g_77 ++){
-var obj = _mk6qaq_76[_4pkfl3g_77];
+{ var _8i6bgto_30 = node.cases; for (var _36t89bv_31 = 0; _36t89bv_31 < _8i6bgto_30.length; _36t89bv_31 ++){
+var obj = _8i6bgto_30[_36t89bv_31];
 result += indent (obj, {"force":true});
 }}
 result += end () + "}";
@@ -3631,8 +3631,8 @@ result = "for (" + child (node.left).replace (/;$/, "") + " in " + child (node.r
 break;
 case Syntax.TryStatement:
 result = "try " + sub (node.block) + " ";
-{ var _stv9vu_78 = node.handlers; for (var _r23ibj_79 = 0; _r23ibj_79 < _stv9vu_78.length; _r23ibj_79 ++){
-var handler = _stv9vu_78[_r23ibj_79];
+{ var _80a5v7k_32 = node.handlers; for (var _3s1ph8m_33 = 0; _3s1ph8m_33 < _80a5v7k_32.length; _3s1ph8m_33 ++){
+var handler = _80a5v7k_32[_3s1ph8m_33];
 result += child (handler) + " ";
 }}
 if (node.finalizer)
