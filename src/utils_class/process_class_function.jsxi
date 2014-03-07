@@ -4,9 +4,6 @@
 
 		options.filename = functionEntry.filename;
 
-		// Для отладки
-		// console.log ('[processClassFunction]', classEntry.id.name + '::' + functionEntry.id.name);
-
 		// Тут будут лежать имена локальных переменных — им не нужно будет подставлять «this»
 		var exclusions = {};
 
@@ -233,12 +230,6 @@
 			// ... и, если обращение выполняется через квадратные скобки, заодно и их содержимое
 			if (obj.computed)
 				process (obj.property, obj);
-		}
-
-		function processThisExpression (obj, parent){
-			// Если нужно, заменяем «this» на что-то ещё
-			// if (!functionEntry.static)
-			// 	set (obj, getThis ());
 		}
 
 		function processSuperExpression (obj, parent){
