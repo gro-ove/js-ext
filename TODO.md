@@ -89,10 +89,10 @@
 	V new generator 
 		V with line number comments support
 	V fix syntax highlight: "options.filename = functionEntry.filename;"
+	V check "[ from .. to ]" (with variables)
+	V fix bug with "super"
 	F import with dot in name
 	F import folders
-	F fix bug with "super"
-	С check "[ from .. to ]" (with variables)
 	- fix "object [(condition ? 'true' : 'false')]" priorities and check others
 	- optimize for "string = '%0%1' ('', '');"
 	- support for chars in string literals like "\u2020"
