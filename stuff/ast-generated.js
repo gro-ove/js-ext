@@ -12,29 +12,29 @@ function __ca (from, to, result){                                               
 	result = new Array (Math.abs (to - from) + 1);                                 // ...
 	if (from < to)                                                                 // ...
 		for (var i = 0; i < result.length; i ++)                                   // ...
-			result[i] = i + from;                                                  // ...
+			result [i] = i + from;                                                 // ...
 	else
 		for (var i = result.length - 1; i >= 0; i --)                              // ...
-			result[i] = from - i;                                                  // ...
+			result [i] = from - i;                                                 // ...
 	return result;                                                                 // ...
 }
 function __bo (obj, name){                                                         // storage.jsxi:12
 	if (!obj.hasOwnProperty ('__bt'))                                              // ...
 		obj.__bt = {};                                                             // ...
 	if (!obj.__bt.hasOwnProperty (name))                                           // ...
-		obj.__bt[name] = obj[name].bind (obj);                                     // ...
-	return obj.__bt[name];                                                         // ...
+		obj.__bt [name] = obj [name].bind (obj);                                   // ...
+	return obj.__bt [name];                                                        // ...
 }
-Number.prototype.postfix = function (){                                            // numbers.jsxi:1
+Number.prototype.postfix = function (){                                            // numbers.jsxi:7
 	if (Math.round (this) != this)                                                 // numbers.jsxi:2
-		return arguments[1];                                                       // numbers.jsxi:3
-	return arguments[(this == Number.POSITIVE_INFINITY || this % 10 > 4 && this % 10 <= 9 || this % 10 == 0 || this % 100 > 10 && this % 100 < 20 ? 2 : this % 10 > 1 ? 1 : 0)];
+		return arguments [1];                                                      // numbers.jsxi:3
+	return arguments [(this == Number.POSITIVE_INFINITY || this % 10 > 4 && this % 10 <= 9 || this % 10 == 0 || this % 100 > 10 && this % 100 < 20 ? 2 : this % 10 > 1 ? 1 : 0)];
 };
-Number.prototype.toLongString = function (g, r){                                   // numbers.jsxi:7
-	var e = [ '', 'а', 'ов' ],                                                     // numbers.jsxi:8
+Number.prototype.toLongString = function (g, r){                                   // numbers.jsxi:29
+	var e = [ '', 'а', 'ов' ],                                                     // numbers.jsxi:10
 		f = [
-			{ s: 'тысяч', g: 2, e: [ 'а', 'и', '' ] },                             // numbers.jsxi:9
-			'миллион',                                                             // numbers.jsxi:10
+			{ s: 'тысяч', g: 2, e: [ 'а', 'и', '' ] },                             // ...
+			'миллион',                                                             // ...
 			'миллиард',                                                            // ...
 			'триллион',                                                            // ...
 			'квадриллион',                                                         // ...
@@ -66,8 +66,8 @@ Number.prototype.toLongString = function (g, r){                                
 			'тригинтиллион',                                                       // ...
 			'антригинтиллион'                                                      // ...
 		];
-	for (var i = f.length; i >= 0; i --){                                          // numbers.jsxi:12
-		var n = Math.pow (1000, i + 1), c = f[i];                                  // numbers.jsxi:13
+	for (var i = f.length; i >= 0; i --){                                          // numbers.jsxi:19
+		var n = Math.pow (1000, i + 1), c = f [i];                                 // numbers.jsxi:13
 		if (n <= this){                                                            // numbers.jsxi:14
 			if (!c)                                                                // numbers.jsxi:15
 				return '<ОЧЕНЬ БОЛЬШОЕ ЧИСЛО>';                                    // ...
@@ -78,8 +78,8 @@ Number.prototype.toLongString = function (g, r){                                
 	g = g || 0;                                                                    // numbers.jsxi:21
 	var n = this | 0;                                                              // numbers.jsxi:22
 	var d2 = [
-			'',                                                                    // numbers.jsxi:23
-			'сто',                                                                 // ...
+			'',                                                                    // numbers.jsxi:25
+			'сто',                                                                 // numbers.jsxi:23
 			'двести',                                                              // ...
 			'триста',                                                              // ...
 			'четыреста',                                                           // ...
@@ -125,11 +125,11 @@ Number.prototype.toLongString = function (g, r){                                
 		'девять'                                                                   // ...
 	];
 	if (n % 100 > 10 && n % 100 < 20)                                              // numbers.jsxi:27
-		return (d2[(n / 100 | 0)] + ' ' + dd[(n % 100 - 11)] + 'надцать').trim ();
+		return (d2 [(n / 100 | 0)] + ' ' + dd [(n % 100 - 11)] + 'надцать').trim ();
 	return [
-		d2[(n / 100 | 0)],                                                         // numbers.jsxi:28
-		d1[(n % 100 / 10 | 0)],                                                    // ...
-		n == 0 && !r || n % 10 != 0 ? d0[(n % 10)] : ''                            // ...
+		d2 [(n / 100 | 0)],                                                        // numbers.jsxi:28
+		d1 [(n % 100 / 10 | 0)],                                                   // ...
+		n == 0 && !r || n % 10 != 0 ? d0 [(n % 10)] : ''                           // ...
 	].filter (function (a){                                                        // ...
 		return a.length;                                                           // ...
 	}).join (' ');                                                                 // ...
@@ -137,53 +137,53 @@ Number.prototype.toLongString = function (g, r){                                
 function nextTick (fn){                                                            // utils.jsxi:3
 	return setTimeout (fn, 1);                                                     // utils.jsxi:4
 }
-$.extend ($.fn,                                                                    // zepto.jsxi:1
+$.extend ($.fn,                                                                    // zepto.jsxi:76
 	{
-		timeout: function (fn, ms){                                                // zepto.jsxi:2
+		timeout: function (fn, ms){                                                // ...
 			setTimeout (fn.bind (this), ms || 1);                                  // zepto.jsxi:3
 			return this;                                                           // zepto.jsxi:4
 		}, 
-		draggable: function (right, bottom){                                       // zepto.jsxi:6
+		draggable: function (right, bottom){                                       // zepto.jsxi:73
 			function style (element, rule){                                        // zepto.jsxi:7
 				if (document.defaultView && document.defaultView.getComputedStyle)
 					return document.defaultView.getComputedStyle (element, '').getPropertyValue (rule);
 				else if (element.currentStyle)                                     // zepto.jsxi:10
-					return element.currentStyle[$.camelCase (rule)];               // zepto.jsxi:11
+					return element.currentStyle [$.camelCase (rule)];              // zepto.jsxi:11
 			}
-			var xRule = right ? 'right' : 'left',                                  // zepto.jsxi:13
+			var xRule = right ? 'right' : 'left',                                  // zepto.jsxi:15
 				yRule = bottom ? 'bottom' : 'top',                                 // zepto.jsxi:14
 				moving;                                                            // zepto.jsxi:15
-			$ (this).on ('mousedown', mousedown);                                  // zepto.jsxi:17
+			$(this).on ('mousedown', mousedown);                                   // zepto.jsxi:17
 			return this;                                                           // zepto.jsxi:18
 			function mousedown (event){                                            // zepto.jsxi:20
-				if (event.which === 1 && (event.target.hasAttribute ('data-draggable') || $ (event.target).closest ('[data-draggable]').length)){
+				if (event.which === 1 && (event.target.hasAttribute ('data-draggable') || $(event.target).closest ('[data-draggable]').length)){
 					var position = style (this, 'position');                       // zepto.jsxi:22
 					if (position !== 'fixed' && position !== 'absolute')           // zepto.jsxi:24
 						return;                                                    // zepto.jsxi:25
 					event.preventDefault ();                                       // zepto.jsxi:27
 					event.stopPropagation ();                                      // zepto.jsxi:28
 					moving = {
-						element: $ (this),                                         // zepto.jsxi:31
-						beforeX: parseInt (this.style[xRule]),                     // zepto.jsxi:32
-						beforeY: parseInt (this.style[yRule]),                     // zepto.jsxi:33
+						element: $(this),                                          // zepto.jsxi:37
+						beforeX: parseInt (this.style [xRule]),                    // zepto.jsxi:32
+						beforeY: parseInt (this.style [yRule]),                    // zepto.jsxi:33
 						fromX: event.pageX,                                        // zepto.jsxi:34
 						fromY: event.pageY,                                        // zepto.jsxi:35
 						noclick: false                                             // zepto.jsxi:36
 					};
-					$ (document).mousemove (mousemove).mouseup (mouseup);          // zepto.jsxi:41
+					$(document).mousemove (mousemove).mouseup (mouseup);           // zepto.jsxi:41
 					moving.element.click (click);                                  // zepto.jsxi:43
 				}
 			}
 			function mousemove (event){                                            // zepto.jsxi:46
-				var dx = (event.pageX - moving.fromX) * (right ? - 1 : 1),         // zepto.jsxi:47
-					dy = (event.pageY - moving.fromY) * (bottom ? - 1 : 1);        // zepto.jsxi:48
+				var dx = (event.pageX - moving.fromX) * (right ? - 1 : 1),         // zepto.jsxi:48
+					dy = (event.pageY - moving.fromY) * (bottom ? - 1 : 1);        // ...
 				if (Math.abs (dx) > 5 || Math.abs (dy) > 5)                        // zepto.jsxi:50
 					moving.noclick = true;                                         // zepto.jsxi:51
 				moving.element.css (xRule, moving.beforeX + dx).css (yRule, moving.beforeY + dy);
 			}
 			function mouseup (){                                                   // zepto.jsxi:58
-				$ (document).off ('mousemove', mousemove).off ('mouseup', mouseup);
-				nextTick (function (arg){                                          // zepto.jsxi:62
+				$(document).off ('mousemove', mousemove).off ('mouseup', mouseup);
+				nextTick (function (arg){                                          // zepto.jsxi:65
 					moving.element.off ('click', click);                           // zepto.jsxi:63
 					moving = null;                                                 // zepto.jsxi:64
 				});
@@ -195,13 +195,13 @@ $.extend ($.fn,                                                                 
 				}
 			}
 		}, 
-		findId: function (id){                                                     // zepto.jsxi:74
-			return $ (this).find ('[data-id=\"' + id + '\"]');                     // zepto.jsxi:75
+		findId: function (id){                                                     // zepto.jsxi:76
+			return $(this).find ('[data-id=\"' + id + '\"]');                      // ...
 		}
 	});
 if (!window.Mustache)                                                              // default.jsx:37
 	window.Mustache = {};
-Mustache.footer = function (){                                                     // default.jsx:38
+Mustache.footer = function (){                                                     // ...
 	return '<div><div data-element=sections-list></div><center><a href=\"#\">Вверх</a></center><div data-element=status></div><div class=ponyaba-bottom><a href=\"/\">Поняба</a></div><a name=bottom></a></div>';
 };
 Mustache.staticContent = function (){                                              // default.jsx:39
@@ -306,10 +306,10 @@ Mustache.preferencesWindowCommon = function (){                                 
 Mustache.preferencesWindowKeyboard = function (){                                  // default.jsx:72
 	return '<label class=block><input data-setting=keyboard-shortcuts type=checkbox> Включить клавиатурные сокращения </label><div wip class=preferences-depend><label class=block><input class=input-key type=text size=26 value=\"Ctrl + ←\"> Предыдущая страница </label><label class=block><input class=input-key type=text size=26 value=\"Ctrl + →\"> Следующая страница </label><label class=block><input class=input-key type=text size=26 value=\"H\"> Скрыть текущий пост/тред </label><label class=block><input class=input-key type=text size=26 value=\"R\"> Быстрый ответ (или создать тред) </label><label class=block><input class=input-key type=text size=26 value=\"Ctrl + Enter\"> Отправить сообщение </label><label class=block><input class=input-key type=text size=26 value=\"J\"> Следующий тред (в разделе) </label><label class=block><input class=input-key type=text size=26 value=\"K\"> Предыдущий тред (в разделе) </label><label class=block><input class=input-key type=text size=26 value=\"N\"> Следующее сообщение </label><label class=block><input class=input-key type=text size=26 value=\"M\"> Предыдущее сообщение </label><label class=block><input class=input-key type=text size=26 value=\"V\"> Открыть тред </label><label class=block><input class=input-key type=text size=26 value=\"Alt + S\"> Настройки </label><label class=block><input class=input-key type=text size=26 value=\"Alt + F\"> Избранное </label><label class=block><input class=input-key type=text size=26 value=\"Alt + H\"> Скрытые сообщения </label><label class=block><input class=input-key type=text size=26 value=\"P\"> Панель </label><label class=block><input class=input-key type=text size=26 value=\"B\"> Маскировка изображений </label><label class=block><input class=input-key type=text size=26 value=\"U\"> Обновить тред </label><label class=block><input class=input-key type=text size=26 value=\"I\"> Раскрыть изображение текущего поста </label><label class=block><input class=input-key type=text size=26 value=\"Alt + B\"> Жирный </label><label class=block><input class=input-key type=text size=26 value=\"Alt + I\"> Курсив </label><label class=block><input class=input-key type=text size=26 value=\"Alt + T\"> Зачеркнутый </label><label class=block><input class=input-key type=text size=26 value=\"Alt + P\"> Спойлер </label><label class=block><input class=input-key type=text size=26 value=\"Alt + C\"> Код </label></div>';
 };
-(function (){                                                                      // default.jsx:74
+(function (){                                                                      // default.jsx:517
 	var entityMap = {
-			'&': '&amp;',                                                          // default.jsx:75
-			'<': '&lt;',                                                           // ...
+			'&': '&amp;',                                                          // default.jsx:80
+			'<': '&lt;',                                                           // default.jsx:75
 			'>': '&gt;',                                                           // ...
 			'\"': '&quot;',                                                        // ...
 			'\'': '&#39;',                                                         // ...
@@ -327,28 +327,28 @@ Mustache.preferencesWindowKeyboard = function (){                               
 			contextsSize ++;                                                       // default.jsx:89
 			if (target instanceof Array){                                          // default.jsx:91
 				result = '';                                                       // default.jsx:92
-				for (var i = 0, n = target.length; i < n; i ++){                   // default.jsx:94
+				for (var i = 0, n = target.length; i < n; i ++){                   // default.jsx:100
 					pos = i;                                                       // default.jsx:95
 					size = n;                                                      // default.jsx:96
-					contexts[current] = target[i];                                 // default.jsx:98
-					result += typeof fn === 'string' ? fn : fn ();                 // default.jsx:99
+					contexts [current] = target [i];                               // default.jsx:98
+					result += typeof fn === 'string' ? fn : fn ();                 // default.jsx:100
 				}
 			} else {
-				contexts[current] = target;                                        // default.jsx:102
+				contexts [current] = target;                                       // default.jsx:102
 				result = typeof fn === 'string' ? fn : fn ();                      // default.jsx:103
 			}
 			contextsSize --;                                                       // default.jsx:106
-			return result;                                                         // default.jsx:107
+			return result;                                                         // default.jsx:108
 		} else
-			return '';                                                             // default.jsx:109
+			return '';                                                             // default.jsx:110
 	}
 	function empty (value, extended){                                              // default.jsx:112
 		return value === undefined || value === null || extended && (value === false || value instanceof Array && value.length === 0);
 	}
 	function string (value, raw){                                                  // default.jsx:115
-		return raw ? value : empty (value) ? '' : String (value);                  // default.jsx:116
+		return raw ? value : empty (value) ? '' : String (value);                  // default.jsx:118
 	}
-	function yes (key, fn, other){                                                 // default.jsx:118
+	function yes (key, fn, other){                                                 // ...
 		var temp = get (key, true);                                                // default.jsx:119
 		if (!empty (temp, true))                                                   // default.jsx:120
 			return fn ? typeof fn === 'string' ? fn : fn () : '';                  // default.jsx:121
@@ -359,7 +359,7 @@ Mustache.preferencesWindowKeyboard = function (){                               
 		return yes (key, other, fn);                                               // default.jsx:127
 	}
 	function get (key, raw){                                                       // default.jsx:129
-		if (key[0] === '%')                                                        // default.jsx:130
+		if (key [0] === '%')                                                       // default.jsx:130
 			switch (key){                                                          // default.jsx:131
 				case '%first':                                                     // default.jsx:132
 					return string (pos === 0, raw);                                // default.jsx:133
@@ -369,39 +369,39 @@ Mustache.preferencesWindowKeyboard = function (){                               
 					return string (pos === size - 1, raw);                         // default.jsx:137
 			}
 		if (key instanceof Array){                                                 // default.jsx:140
-			var temp = get (key[0], true);                                         // default.jsx:141
-			for (var i = 1; i < key.length && temp; i ++)                          // default.jsx:142
-				temp = temp[key[i]];                                               // default.jsx:143
+			var temp = get (key [0], true);                                        // default.jsx:141
+			for (var i = 1; i < key.length && temp; i ++)                          // default.jsx:143
+				temp = temp [key [i]];                                             // ...
 			return string (temp, raw);                                             // default.jsx:144
 		} else if (key === '.'){                                                   // default.jsx:145
-			return string (contexts[(contextsSize - 1)], raw);                     // default.jsx:146
+			return string (contexts [(contextsSize - 1)], raw);                    // default.jsx:147
 		} else {
-			for (var i = contextsSize - 1; i >= 0; i --)                           // default.jsx:148
-				if (contexts[i] && contexts[i][key] !== undefined)                 // default.jsx:149
-					return string (contexts[i][key], raw);                         // default.jsx:150
-			return raw ? undefined : '';                                           // default.jsx:151
+			for (var i = contextsSize - 1; i >= 0; i --)                           // default.jsx:150
+				if (contexts [i] && contexts [i][key] !== undefined)               // default.jsx:149
+					return string (contexts [i][key], raw);                        // default.jsx:150
+			return raw ? undefined : '';                                           // default.jsx:152
 		}
 	}
 	function html (key){                                                           // default.jsx:155
-		return get (key).replace (escapeRegExp,                                    // default.jsx:156
-			function (arg){                                                        // ...
-				return entityMap[arg];                                             // ...
+		return get (key).replace (escapeRegExp,                                    // default.jsx:157
+			function (arg){                                                        // default.jsx:156
+				return entityMap [arg];                                            // ...
 			});
 	}
-	Mustache.header = function (){                                                 // default.jsx:157
+	Mustache.header = function (){                                                 // default.jsx:165
 		contextsSize = 0;                                                          // default.jsx:158
-		for (var i = 0; i < arguments.length; i ++)                                // default.jsx:159
-			if (arguments[i] !== undefined){                                       // default.jsx:160
-				contexts[contextsSize] = arguments[i];                             // default.jsx:161
+		for (var i = 0; i < arguments.length; i ++)                                // default.jsx:163
+			if (arguments [i] !== undefined){                                      // default.jsx:160
+				contexts [contextsSize] = arguments [i];                           // default.jsx:161
 				contextsSize ++;                                                   // default.jsx:162
 			}
 		return '<div class=header><div data-element=sections-list></div><div class=header-content data-id=content>' + get ('title') + '</div><hr></div>';
 	};
-	Mustache.headerContent = function (){                                          // default.jsx:166
+	Mustache.headerContent = function (){                                          // default.jsx:174
 		contextsSize = 0;                                                          // default.jsx:167
-		for (var i = 0; i < arguments.length; i ++)                                // default.jsx:168
-			if (arguments[i] !== undefined){                                       // default.jsx:169
-				contexts[contextsSize] = arguments[i];                             // default.jsx:170
+		for (var i = 0; i < arguments.length; i ++)                                // default.jsx:172
+			if (arguments [i] !== undefined){                                      // default.jsx:169
+				contexts [contextsSize] = arguments [i];                           // default.jsx:170
 				contextsSize ++;                                                   // default.jsx:171
 			}
 		return '<a href=\"' + get ('url') + '\">' + get ('description') + '</a>' + yes ('logo',
@@ -410,24 +410,24 @@ Mustache.preferencesWindowKeyboard = function (){                               
 			}, 
 			'<div class=header-margin></div>');                                    // ...
 	};
-	Mustache.postsList = function (){                                              // default.jsx:175
+	Mustache.postsList = function (){                                              // default.jsx:183
 		contextsSize = 0;                                                          // default.jsx:176
-		for (var i = 0; i < arguments.length; i ++)                                // default.jsx:177
-			if (arguments[i] !== undefined){                                       // default.jsx:178
-				contexts[contextsSize] = arguments[i];                             // default.jsx:179
+		for (var i = 0; i < arguments.length; i ++)                                // default.jsx:181
+			if (arguments [i] !== undefined){                                      // default.jsx:178
+				contexts [contextsSize] = arguments [i];                           // default.jsx:179
 				contextsSize ++;                                                   // default.jsx:180
 			}
 		return '<div class=reply-block><div> [<a href=\"#\" data-button=reply data-reply-mode=send-post>Ответить</a>] </div><hr></div><div>' + get ('posts') + '</div><div class=reply-block><div> [<a href=\"#\" data-button=reply data-reply-mode=send-post>Ответить</a>] </div><hr></div>';
 	};
-	Mustache.sectionsList = function (){                                           // default.jsx:184
+	Mustache.sectionsList = function (){                                           // default.jsx:192
 		contextsSize = 0;                                                          // default.jsx:185
-		for (var i = 0; i < arguments.length; i ++)                                // default.jsx:186
-			if (arguments[i] !== undefined){                                       // default.jsx:187
-				contexts[contextsSize] = arguments[i];                             // default.jsx:188
+		for (var i = 0; i < arguments.length; i ++)                                // default.jsx:190
+			if (arguments [i] !== undefined){                                      // default.jsx:187
+				contexts [contextsSize] = arguments [i];                           // default.jsx:188
 				contextsSize ++;                                                   // default.jsx:189
 			}
-		return '<div>' + sub ('error',                                             // default.jsx:191
-			function (){                                                           // ...
+		return '<div>' + sub ('error',                                             // default.jsx:192
+			function (){                                                           // default.jsx:191
 				return ' [ <a href=\"#\" data-message-type=error data-message=\"' + html ('error') + '\">Ошибка при загрузке</a> ] ';
 			}) + no ('error',                                                      // ...
 			function (){                                                           // ...
@@ -443,24 +443,24 @@ Mustache.preferencesWindowKeyboard = function (){                               
 					}) + no ('menu', ' [ <div class=loading></div> ] ');           // ...
 			}) + '</div>';                                                         // ...
 	};
-	Mustache.status = function (){                                                 // default.jsx:193
+	Mustache.status = function (){                                                 // default.jsx:201
 		contextsSize = 0;                                                          // default.jsx:194
-		for (var i = 0; i < arguments.length; i ++)                                // default.jsx:195
-			if (arguments[i] !== undefined){                                       // default.jsx:196
-				contexts[contextsSize] = arguments[i];                             // default.jsx:197
+		for (var i = 0; i < arguments.length; i ++)                                // default.jsx:199
+			if (arguments [i] !== undefined){                                      // default.jsx:196
+				contexts [contextsSize] = arguments [i];                           // default.jsx:197
 				contextsSize ++;                                                   // default.jsx:198
 			}
-		return '<div class=status>' + no ('online',                                // default.jsx:200
+		return '<div class=status>' + no ('online',                                // default.jsx:201
 			'<center>Скорость /b/: <div class=loading></div></center><center>На сайте: <div class=loading></div></center>') + sub ('online',
-			function (){                                                           // ...
+			function (){                                                           // default.jsx:200
 				return '<center>Скорость /b/: ' + html ('speed') + ' пост' + html ('speedPostfix') + ' в час</center><center>На сайте: ' + html ('online') + ' пони</center>';
 			}) + '</div>';                                                         // ...
 	};
-	Mustache.threadsList = function (){                                            // default.jsx:202
+	Mustache.threadsList = function (){                                            // default.jsx:210
 		contextsSize = 0;                                                          // default.jsx:203
-		for (var i = 0; i < arguments.length; i ++)                                // default.jsx:204
-			if (arguments[i] !== undefined){                                       // default.jsx:205
-				contexts[contextsSize] = arguments[i];                             // default.jsx:206
+		for (var i = 0; i < arguments.length; i ++)                                // default.jsx:208
+			if (arguments [i] !== undefined){                                      // default.jsx:205
+				contexts [contextsSize] = arguments [i];                           // default.jsx:206
 				contextsSize ++;                                                   // default.jsx:207
 			}
 		return '<div class=create-thread><div> [<a href=\"#\" data-button=reply data-reply-mode=create-thread>Создать тред</a>] </div><hr></div><div>' + get ('threads') + '</div>' + sub ('pages',
@@ -483,69 +483,69 @@ Mustache.preferencesWindowKeyboard = function (){                               
 					}) + no ('nextPage', '<span>Вперёд</span>') + '</div>';        // ...
 			});
 	};
-	Mustache.embedYoutube = function (){                                           // default.jsx:211
+	Mustache.embedYoutube = function (){                                           // default.jsx:219
 		contextsSize = 0;                                                          // default.jsx:212
-		for (var i = 0; i < arguments.length; i ++)                                // default.jsx:213
-			if (arguments[i] !== undefined){                                       // default.jsx:214
-				contexts[contextsSize] = arguments[i];                             // default.jsx:215
+		for (var i = 0; i < arguments.length; i ++)                                // default.jsx:217
+			if (arguments [i] !== undefined){                                      // default.jsx:214
+				contexts [contextsSize] = arguments [i];                           // default.jsx:215
 				contextsSize ++;                                                   // default.jsx:216
 			}
 		return '<div class=embed data-value=\"' + get ('href') + '\"><a data-button=\"embed-player:youtube:' + get ('id') + '\" href=\"' + get ('href') + '\" target=\"_blank\"><div class=embed-thumbinal style=\"background-image:url(//img.youtube.com/vi/' + get ('id') + '/hqdefault.jpg)\"></div></a></div>';
 	};
-	Mustache.embedYoutubePlayer = function (){                                     // default.jsx:220
+	Mustache.embedYoutubePlayer = function (){                                     // default.jsx:228
 		contextsSize = 0;                                                          // default.jsx:221
-		for (var i = 0; i < arguments.length; i ++)                                // default.jsx:222
-			if (arguments[i] !== undefined){                                       // default.jsx:223
-				contexts[contextsSize] = arguments[i];                             // default.jsx:224
+		for (var i = 0; i < arguments.length; i ++)                                // default.jsx:226
+			if (arguments [i] !== undefined){                                      // default.jsx:223
+				contexts [contextsSize] = arguments [i];                           // default.jsx:224
 				contextsSize ++;                                                   // default.jsx:225
 			}
 		return '<iframe src=\"//www.youtube.com/embed/' + get ('id') + '?autoplay=1\" frameborder=0 webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>';
 	};
-	Mustache.embedVimeo = function (){                                             // default.jsx:229
+	Mustache.embedVimeo = function (){                                             // default.jsx:237
 		contextsSize = 0;                                                          // default.jsx:230
-		for (var i = 0; i < arguments.length; i ++)                                // default.jsx:231
-			if (arguments[i] !== undefined){                                       // default.jsx:232
-				contexts[contextsSize] = arguments[i];                             // default.jsx:233
+		for (var i = 0; i < arguments.length; i ++)                                // default.jsx:235
+			if (arguments [i] !== undefined){                                      // default.jsx:232
+				contexts [contextsSize] = arguments [i];                           // default.jsx:233
 				contextsSize ++;                                                   // default.jsx:234
 			}
 		return '<div class=embed data-value=\"' + get ('href') + '\"><a data-button=\"embed-player:vimeo:' + get ('id') + '\" href=\"' + get ('href') + '\" target=\"_blank\"><div class=embed-thumbinal data-embed=vimeo-thumbinal data-embed-param=\"' + get ('id') + '\"></div></a></div>';
 	};
-	Mustache.embedVimeoPlayer = function (){                                       // default.jsx:238
+	Mustache.embedVimeoPlayer = function (){                                       // default.jsx:246
 		contextsSize = 0;                                                          // default.jsx:239
-		for (var i = 0; i < arguments.length; i ++)                                // default.jsx:240
-			if (arguments[i] !== undefined){                                       // default.jsx:241
-				contexts[contextsSize] = arguments[i];                             // default.jsx:242
+		for (var i = 0; i < arguments.length; i ++)                                // default.jsx:244
+			if (arguments [i] !== undefined){                                      // default.jsx:241
+				contexts [contextsSize] = arguments [i];                           // default.jsx:242
 				contextsSize ++;                                                   // default.jsx:243
 			}
 		return '<iframe src=\"//player.vimeo.com/video/' + get ('id') + '?autoplay=1\" frameborder=0 webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>';
 	};
-	Mustache.embedCoub = function (){                                              // default.jsx:247
+	Mustache.embedCoub = function (){                                              // default.jsx:255
 		contextsSize = 0;                                                          // default.jsx:248
-		for (var i = 0; i < arguments.length; i ++)                                // default.jsx:249
-			if (arguments[i] !== undefined){                                       // default.jsx:250
-				contexts[contextsSize] = arguments[i];                             // default.jsx:251
+		for (var i = 0; i < arguments.length; i ++)                                // default.jsx:253
+			if (arguments [i] !== undefined){                                      // default.jsx:250
+				contexts [contextsSize] = arguments [i];                           // default.jsx:251
 				contextsSize ++;                                                   // default.jsx:252
 			}
 		return '<div class=embed data-value=\"' + get ('href') + '\"><a data-button=\"embed-player:coub:' + get ('id') + '\" href=\"' + get ('href') + '\" target=\"_blank\"><div class=embed-thumbinal data-embed=coub-thumbinal data-embed-param=\"' + get ('id') + '\"></div></a></div>';
 	};
-	Mustache.embedCoubPlayer = function (){                                        // default.jsx:256
+	Mustache.embedCoubPlayer = function (){                                        // default.jsx:264
 		contextsSize = 0;                                                          // default.jsx:257
-		for (var i = 0; i < arguments.length; i ++)                                // default.jsx:258
-			if (arguments[i] !== undefined){                                       // default.jsx:259
-				contexts[contextsSize] = arguments[i];                             // default.jsx:260
+		for (var i = 0; i < arguments.length; i ++)                                // default.jsx:262
+			if (arguments [i] !== undefined){                                      // default.jsx:259
+				contexts [contextsSize] = arguments [i];                           // default.jsx:260
 				contextsSize ++;                                                   // default.jsx:261
 			}
 		return '<iframe src=\"//coub.com/embed/' + get ('id') + '?autostart=true\" frameborder=0 webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>';
 	};
-	Mustache.menu = function (){                                                   // default.jsx:265
+	Mustache.menu = function (){                                                   // default.jsx:273
 		contextsSize = 0;                                                          // default.jsx:266
-		for (var i = 0; i < arguments.length; i ++)                                // default.jsx:267
-			if (arguments[i] !== undefined){                                       // default.jsx:268
-				contexts[contextsSize] = arguments[i];                             // default.jsx:269
+		for (var i = 0; i < arguments.length; i ++)                                // default.jsx:271
+			if (arguments [i] !== undefined){                                      // default.jsx:268
+				contexts [contextsSize] = arguments [i];                           // default.jsx:269
 				contextsSize ++;                                                   // default.jsx:270
 			}
-		return '<div class=\"popup-menu fading reply popup\" ' + yes ('param',     // default.jsx:272
-			function (){                                                           // ...
+		return '<div class=\"popup-menu fading reply popup\" ' + yes ('param',     // default.jsx:273
+			function (){                                                           // default.jsx:272
 				return ' data-param=\"' + get ('param') + '\"';                    // ...
 			}) + yes ('context',                                                   // ...
 			function (){                                                           // ...
@@ -558,53 +558,53 @@ Mustache.preferencesWindowKeyboard = function (){                               
 					}) + get ('label') + '</div>';                                 // ...
 			}) + '</div>';                                                         // ...
 	};
-	Mustache.form = function (){                                                   // default.jsx:274
+	Mustache.form = function (){                                                   // default.jsx:282
 		contextsSize = 0;                                                          // default.jsx:275
-		for (var i = 0; i < arguments.length; i ++)                                // default.jsx:276
-			if (arguments[i] !== undefined){                                       // default.jsx:277
-				contexts[contextsSize] = arguments[i];                             // default.jsx:278
+		for (var i = 0; i < arguments.length; i ++)                                // default.jsx:280
+			if (arguments [i] !== undefined){                                      // default.jsx:277
+				contexts [contextsSize] = arguments [i];                           // default.jsx:278
 				contextsSize ++;                                                   // default.jsx:279
 			}
 		return '<div class=\"form reply fading\" data-id=form><table class=postform><tr class=form-popup-only data-draggable><td class=postblock></td><td><span data-button=form-close class=form-close>×</span></td></tr><tr><td class=postblock>Имя</td><td><input type=text data-id=name size=30 maxlength=75>  <span class=sage-button data-id=sage><span class=state-off>(no sage)</span><span class=state-on><span data-icon=sage></span>SAGE</span></span></td></tr><tr class=email-field><td class=postblock>E-mail</td><td><input type=text data-id=email size=30 maxlength=75></td></tr><tr><td class=postblock>Тема</td><td><input type=text data-id=subject size=30 maxlength=75>  <input type=submit data-id=submit value=\"Ответ\"><span data-id=style class=style>' + get ('buttons') + '</span></td></tr><tr><td class=postblock>Пост</td><td><textarea data-id=message cols=60 rows=7></textarea></td></tr><tr><td class=postblock>Подтверждение</td><td><div>Вам не нужно вводить капчу.</div></td></tr><tr><td class=postblock>Файл</td><td><form data-id=file-form><input class=hidden-file-input type=file data-id=file-input ><button class=file-button>Выберите файл</button>  <span class=file-name data-id=file-name></span>  <span data-id=file-info><output data-id=file-details></output>  <button data-id=file-clear>Очистить</button>  <!--select data-id=file-spolier><option value=\"\"></option><option value=\"10\">Спойлер</option><option value=\"9\">Хитрота</option></select-->  <span class=error data-id=file-error></span></span></form></td></tr></table></div>';
 	};
-	Mustache.formButtonsSimple = function (){                                      // default.jsx:283
+	Mustache.formButtonsSimple = function (){                                      // default.jsx:291
 		contextsSize = 0;                                                          // default.jsx:284
-		for (var i = 0; i < arguments.length; i ++)                                // default.jsx:285
-			if (arguments[i] !== undefined){                                       // default.jsx:286
-				contexts[contextsSize] = arguments[i];                             // default.jsx:287
+		for (var i = 0; i < arguments.length; i ++)                                // default.jsx:289
+			if (arguments [i] !== undefined){                                      // default.jsx:286
+				contexts [contextsSize] = arguments [i];                           // default.jsx:287
 				contextsSize ++;                                                   // default.jsx:288
 			}
-		return '[ ' + sub ('.',                                                    // default.jsx:290
-			function (){                                                           // ...
+		return '[ ' + sub ('.',                                                    // default.jsx:291
+			function (){                                                           // default.jsx:290
 				return yes ('%second', ' / ') + '<a href=\"#\" class=style-link title=\"' + get ('title') + '\" data-tag=\"' + get ('tag') + '\">' + get ('label') + '</a>';
 			}) + ' ]';                                                             // ...
 	};
-	Mustache.formButtonsDefault = function (){                                     // default.jsx:292
+	Mustache.formButtonsDefault = function (){                                     // default.jsx:300
 		contextsSize = 0;                                                          // default.jsx:293
-		for (var i = 0; i < arguments.length; i ++)                                // default.jsx:294
-			if (arguments[i] !== undefined){                                       // default.jsx:295
-				contexts[contextsSize] = arguments[i];                             // default.jsx:296
+		for (var i = 0; i < arguments.length; i ++)                                // default.jsx:298
+			if (arguments [i] !== undefined){                                      // default.jsx:295
+				contexts [contextsSize] = arguments [i];                           // default.jsx:296
 				contextsSize ++;                                                   // default.jsx:297
 			}
-		return sub ('.',                                                           // default.jsx:299
-			function (){                                                           // ...
+		return sub ('.',                                                           // default.jsx:300
+			function (){                                                           // default.jsx:299
 				return '<input type=button title=\"' + get ('title') + '\" data-tag=\"' + get ('tag') + '\" value=\"' + get ('label') + '\"></input>';
 			});
 	};
-	Mustache.message = function (){                                                // default.jsx:301
+	Mustache.message = function (){                                                // default.jsx:309
 		contextsSize = 0;                                                          // default.jsx:302
-		for (var i = 0; i < arguments.length; i ++)                                // default.jsx:303
-			if (arguments[i] !== undefined){                                       // default.jsx:304
-				contexts[contextsSize] = arguments[i];                             // default.jsx:305
+		for (var i = 0; i < arguments.length; i ++)                                // default.jsx:307
+			if (arguments [i] !== undefined){                                      // default.jsx:304
+				contexts [contextsSize] = arguments [i];                           // default.jsx:305
 				contextsSize ++;                                                   // default.jsx:306
 			}
 		return '<div class=message><div class=\"reply popup\"><div class=\"icon ' + html ('type') + '\"></div><p>' + html ('message') + '</p></div></div>';
 	};
-	Mustache.panelSection = function (){                                           // default.jsx:310
+	Mustache.panelSection = function (){                                           // default.jsx:318
 		contextsSize = 0;                                                          // default.jsx:311
-		for (var i = 0; i < arguments.length; i ++)                                // default.jsx:312
-			if (arguments[i] !== undefined){                                       // default.jsx:313
-				contexts[contextsSize] = arguments[i];                             // default.jsx:314
+		for (var i = 0; i < arguments.length; i ++)                                // default.jsx:316
+			if (arguments [i] !== undefined){                                      // default.jsx:313
+				contexts [contextsSize] = arguments [i];                           // default.jsx:314
 				contextsSize ++;                                                   // default.jsx:315
 			}
 		return '<span><a data-button=preferences class=\"panel-icon icon-preferences\" title=\"Настройки\" href=\"#\"></a></span><span><a data-button=hiddens class=\"panel-icon icon-hidden\" title=\"Скрытое\" href=\"#\"></a></span><span><a data-button=favorites class=\"panel-icon icon-favorites\" title=\"Избранное\" href=\"#\"></a></span><span><a data-button=refresh class=\"panel-icon icon-refresh\" title=\"Обновить\" href=\"#\"></a></span>' + sub ('backUrl',
@@ -615,11 +615,11 @@ Mustache.preferencesWindowKeyboard = function (){                               
 				return '<span><a class=\"panel-icon icon-next\" title=\"Вперёд\" href=\"' + html ('forwardUrl') + '\"></a></span>';
 			}) + '<span><a data-button=scrollup class=\"panel-icon icon-scrollup\" title=\"Наверх\" href=\"#\"></a></span><span><a data-button=scrolldown class=\"panel-icon icon-scrolldown\" title=\"В конец\" href=\"#\"></a></span><!--span><a data-button=expand-images class=\"panel-icon icon-expand-images\" title=\"Раскрыть картинки\" href=\"#\"></a></span><span><a data-button=download-images class=\"panel-icon icon-download-images\" title=\"Предзагрузка картинок\" href=\"#\"></a></span--><span><a data-button=mask-images class=\"panel-icon icon-mask-images\" title=\"Маскировать картинки\" href=\"#\"></a></span>';
 	};
-	Mustache.panelThread = function (){                                            // default.jsx:319
+	Mustache.panelThread = function (){                                            // default.jsx:327
 		contextsSize = 0;                                                          // default.jsx:320
-		for (var i = 0; i < arguments.length; i ++)                                // default.jsx:321
-			if (arguments[i] !== undefined){                                       // default.jsx:322
-				contexts[contextsSize] = arguments[i];                             // default.jsx:323
+		for (var i = 0; i < arguments.length; i ++)                                // default.jsx:325
+			if (arguments [i] !== undefined){                                      // default.jsx:322
+				contexts [contextsSize] = arguments [i];                           // default.jsx:323
 				contextsSize ++;                                                   // default.jsx:324
 			}
 		return '<span><a data-button=preferences class=\"panel-icon icon-preferences\" title=\"Настройки\" href=\"#\"></a></span><span><a data-button=hiddens class=\"panel-icon icon-hidden\" title=\"Скрытое\" href=\"#\"></a></span><span><a data-button=favorites class=\"panel-icon icon-favorites\" title=\"Избранное\" href=\"#\"></a></span><span><a data-button=refresh class=\"panel-icon icon-refresh\" title=\"Обновить\" href=\"#\"></a></span><span><a class=\"panel-icon icon-back\" title=\"Назад\" href=\"' + html ('backUrl') + '\"></a></span><span><a data-button=scrollup class=\"panel-icon icon-scrollup\" title=\"Наверх\" href=\"#\"></a></span><span><a data-button=scrolldown class=\"panel-icon icon-scrolldown\" title=\"В конец\" href=\"#\"></a></span><!--span><a data-button=expand-images class=\"panel-icon icon-expand-images\" title=\"Раскрыть картинки\" href=\"#\"></a></span><span><a data-button=download-images class=\"panel-icon icon-download-images\" title=\"Предзагрузка картинок\" href=\"#\"></a></span--><span><a data-button=mask-images class=\"panel-icon icon-mask-images\" title=\"Маскировать картинки\" href=\"#\"></a></span><span><a data-button=autoupdate class=\"panel-icon icon-autoupdate\" title=\"Автообновление\" href=\"#\"></a></span><!--span><a data-button=audio class=\"panel-icon icon-audio\" title=\"Звуковые уведомления\" href=\"#\"></a></span><span><a data-button=download-all class=\"panel-icon icon-download-all\" title=\"Сохранить изображения из треда\" href=\"#\"></a></span-->' + sub ('postsCount',
@@ -627,11 +627,11 @@ Mustache.preferencesWindowKeyboard = function (){                               
 				return '<div class=information><span title=\"Число постов и изображений в треде\" data-id=information>' + html ('postsCount') + '/' + html ('imagesCount') + '</span></div>';
 			});
 	};
-	Mustache.post = function (){                                                   // default.jsx:328
+	Mustache.post = function (){                                                   // default.jsx:336
 		contextsSize = 0;                                                          // default.jsx:329
-		for (var i = 0; i < arguments.length; i ++)                                // default.jsx:330
-			if (arguments[i] !== undefined){                                       // default.jsx:331
-				contexts[contextsSize] = arguments[i];                             // default.jsx:332
+		for (var i = 0; i < arguments.length; i ++)                                // default.jsx:334
+			if (arguments [i] !== undefined){                                      // default.jsx:331
+				contexts [contextsSize] = arguments [i];                           // default.jsx:332
 				contextsSize ++;                                                   // default.jsx:333
 			}
 		return '<div class=\"' + yes ('threadMode', 'thread', 'post') + yes ('deleted', ' deleted') + yes ('hidden',
@@ -709,71 +709,71 @@ Mustache.preferencesWindowKeyboard = function (){                               
 					}) + get ('childs') + '</div>';                                // ...
 			}) + '</div>' + yes ('threadMode', '<br clear=left><hr>') + '</div>';
 	};
-	Mustache.postChilds = function (){                                             // default.jsx:337
+	Mustache.postChilds = function (){                                             // default.jsx:345
 		contextsSize = 0;                                                          // default.jsx:338
-		for (var i = 0; i < arguments.length; i ++)                                // default.jsx:339
-			if (arguments[i] !== undefined){                                       // default.jsx:340
-				contexts[contextsSize] = arguments[i];                             // default.jsx:341
+		for (var i = 0; i < arguments.length; i ++)                                // default.jsx:343
+			if (arguments [i] !== undefined){                                      // default.jsx:340
+				contexts [contextsSize] = arguments [i];                           // default.jsx:341
 				contextsSize ++;                                                   // default.jsx:342
 			}
-		return yes ('omitted',                                                     // default.jsx:344
-			function (){                                                           // ...
+		return yes ('omitted',                                                     // default.jsx:345
+			function (){                                                           // default.jsx:344
 				return '<span class=omittedposts>' + html ('omitted') + '</span>';
 			}) + '<div data-id=childs>' + get ('childs') + '</div>';               // ...
 	};
-	Mustache.postAnswers = function (){                                            // default.jsx:346
+	Mustache.postAnswers = function (){                                            // default.jsx:354
 		contextsSize = 0;                                                          // default.jsx:347
-		for (var i = 0; i < arguments.length; i ++)                                // default.jsx:348
-			if (arguments[i] !== undefined){                                       // default.jsx:349
-				contexts[contextsSize] = arguments[i];                             // default.jsx:350
+		for (var i = 0; i < arguments.length; i ++)                                // default.jsx:352
+			if (arguments [i] !== undefined){                                      // default.jsx:349
+				contexts [contextsSize] = arguments [i];                           // default.jsx:350
 				contextsSize ++;                                                   // default.jsx:351
 			}
-		return '<div class=refmap> Ответы: ' + sub ('next',                        // default.jsx:353
-			function (){                                                           // ...
+		return '<div class=refmap> Ответы: ' + sub ('next',                        // default.jsx:354
+			function (){                                                           // default.jsx:353
 				return '<a data-link=\"' + get ('section') + '/' + get ('id') + '\" href=\"/' + get ('section') + '/res/' + get ('thread') + '.html#' + get ('id') + '\">&gt;&gt;' + get ('id') + '</a>' + no ('%last', ', ');
 			}) + '</div>';                                                         // ...
 	};
-	Mustache.postError = function (){                                              // default.jsx:355
+	Mustache.postError = function (){                                              // default.jsx:363
 		contextsSize = 0;                                                          // default.jsx:356
-		for (var i = 0; i < arguments.length; i ++)                                // default.jsx:357
-			if (arguments[i] !== undefined){                                       // default.jsx:358
-				contexts[contextsSize] = arguments[i];                             // default.jsx:359
+		for (var i = 0; i < arguments.length; i ++)                                // default.jsx:361
+			if (arguments [i] !== undefined){                                      // default.jsx:358
+				contexts [contextsSize] = arguments [i];                           // default.jsx:359
 				contextsSize ++;                                                   // default.jsx:360
 			}
 		return '<div class=reply><blockquote><p>Не удалось загрузить сообщение</p><div class=details> Подробная информация: <p style=\"margin-top:0\"><i>Ошибка #' + html ('errorCode') + ': ' + html ('errorDescription') + '</i></p></div></blockquote></div>';
 	};
-	Mustache.postImagelinkThumbinal = function (){                                 // default.jsx:364
+	Mustache.postImagelinkThumbinal = function (){                                 // default.jsx:372
 		contextsSize = 0;                                                          // default.jsx:365
-		for (var i = 0; i < arguments.length; i ++)                                // default.jsx:366
-			if (arguments[i] !== undefined){                                       // default.jsx:367
-				contexts[contextsSize] = arguments[i];                             // default.jsx:368
+		for (var i = 0; i < arguments.length; i ++)                                // default.jsx:370
+			if (arguments [i] !== undefined){                                      // default.jsx:367
+				contexts [contextsSize] = arguments [i];                           // default.jsx:368
 				contextsSize ++;                                                   // default.jsx:369
 			}
 		return '<a href=\"' + get ('url') + '\" target=\"_blank\"><img class=image-preview ' + no ('enabled', 'data-') + 'src=\"' + get ('proxyUrl') + '\"></a>';
 	};
-	Mustache.postAudiolinkThumbinal = function (){                                 // default.jsx:373
+	Mustache.postAudiolinkThumbinal = function (){                                 // default.jsx:381
 		contextsSize = 0;                                                          // default.jsx:374
-		for (var i = 0; i < arguments.length; i ++)                                // default.jsx:375
-			if (arguments[i] !== undefined){                                       // default.jsx:376
-				contexts[contextsSize] = arguments[i];                             // default.jsx:377
+		for (var i = 0; i < arguments.length; i ++)                                // default.jsx:379
+			if (arguments [i] !== undefined){                                      // default.jsx:376
+				contexts [contextsSize] = arguments [i];                           // default.jsx:377
 				contextsSize ++;                                                   // default.jsx:378
 			}
 		return '<audio class=audio-preview controls><source ' + no ('enabled', 'data-') + 'src=\"' + get ('url') + '\" type=\"audio/' + get ('type') + '\"></audio>';
 	};
-	Mustache.abstractPage = function (){                                           // default.jsx:382
+	Mustache.abstractPage = function (){                                           // default.jsx:390
 		contextsSize = 0;                                                          // default.jsx:383
-		for (var i = 0; i < arguments.length; i ++)                                // default.jsx:384
-			if (arguments[i] !== undefined){                                       // default.jsx:385
-				contexts[contextsSize] = arguments[i];                             // default.jsx:386
+		for (var i = 0; i < arguments.length; i ++)                                // default.jsx:388
+			if (arguments [i] !== undefined){                                      // default.jsx:385
+				contexts [contextsSize] = arguments [i];                           // default.jsx:386
 				contextsSize ++;                                                   // default.jsx:387
 			}
-		return '<div class=\"page fading\">' + get ('html') + '</div>';            // default.jsx:389
+		return '<div class=\"page fading\">' + get ('html') + '</div>';            // default.jsx:390
 	};
-	Mustache.abstractPageFailed = function (){                                     // default.jsx:391
+	Mustache.abstractPageFailed = function (){                                     // default.jsx:399
 		contextsSize = 0;                                                          // default.jsx:392
-		for (var i = 0; i < arguments.length; i ++)                                // default.jsx:393
-			if (arguments[i] !== undefined){                                       // default.jsx:394
-				contexts[contextsSize] = arguments[i];                             // default.jsx:395
+		for (var i = 0; i < arguments.length; i ++)                                // default.jsx:397
+			if (arguments [i] !== undefined){                                      // default.jsx:394
+				contexts [contextsSize] = arguments [i];                           // default.jsx:395
 				contextsSize ++;                                                   // default.jsx:396
 			}
 		return '<div class=page-failed><h1>' + html ('caption') + '</h1><div class=\"block reply\"><p>' + get ('description') + '</p>' + sub ('errorCode',
@@ -781,69 +781,69 @@ Mustache.preferencesWindowKeyboard = function (){                               
 				return '<div class=details> Подробная информация: <p class=italic> Ошибка #' + html ('errorCode') + ': ' + html ('errorDescription') + '</p></div>';
 			}) + '</div><p data-element=sections-list data-loaded=true></p></div>';
 	};
-	Mustache.authorizePage = function (){                                          // default.jsx:400
+	Mustache.authorizePage = function (){                                          // default.jsx:408
 		contextsSize = 0;                                                          // default.jsx:401
-		for (var i = 0; i < arguments.length; i ++)                                // default.jsx:402
-			if (arguments[i] !== undefined){                                       // default.jsx:403
-				contexts[contextsSize] = arguments[i];                             // default.jsx:404
+		for (var i = 0; i < arguments.length; i ++)                                // default.jsx:406
+			if (arguments [i] !== undefined){                                      // default.jsx:403
+				contexts [contextsSize] = arguments [i];                           // default.jsx:404
 				contextsSize ++;                                                   // default.jsx:405
 			}
 		return '<div class=page-autorize><h1>Авторизация</h1><div class=\"block reply\"><div class=\"sub-main fading\" data-id=form><p><span class=what>Логин:</span><input class=autorize-input type=text></p><p><span class=what>Пароль:</span><input class=autorize-input type=password></p><p><span class=what></span><span class=wrapper><span class=loading></span><input class=\"autorize-input fading visible\" type=button value=\"Войти\"></span></p></div><div class=\"sub fading visible\" data-id=loading><div class=loading></div></div><div class=\"sub fading\" data-id=done></div><p class=italic>' + html ('phrase') + '</p></div><p data-element=sections-list data-loaded=true></p></div>';
 	};
-	Mustache.authorizePageSuccess = function (){                                   // default.jsx:409
+	Mustache.authorizePageSuccess = function (){                                   // default.jsx:417
 		contextsSize = 0;                                                          // default.jsx:410
-		for (var i = 0; i < arguments.length; i ++)                                // default.jsx:411
-			if (arguments[i] !== undefined){                                       // default.jsx:412
-				contexts[contextsSize] = arguments[i];                             // default.jsx:413
+		for (var i = 0; i < arguments.length; i ++)                                // default.jsx:415
+			if (arguments [i] !== undefined){                                      // default.jsx:412
+				contexts [contextsSize] = arguments [i];                           // default.jsx:413
 				contextsSize ++;                                                   // default.jsx:414
 			}
 		return '<div class=success><p class=success-icon> Вы ' + sub ('already', 'уже') + ' вошли как ' + html ('login') + '</p><span class=wrapper><span class=loading></span><input class=\"autorize-input fading visible\" type=button value=\"Выйти\"></span></div>';
 	};
-	Mustache.indexPage = function (){                                              // default.jsx:418
+	Mustache.indexPage = function (){                                              // default.jsx:426
 		contextsSize = 0;                                                          // default.jsx:419
-		for (var i = 0; i < arguments.length; i ++)                                // default.jsx:420
-			if (arguments[i] !== undefined){                                       // default.jsx:421
-				contexts[contextsSize] = arguments[i];                             // default.jsx:422
+		for (var i = 0; i < arguments.length; i ++)                                // default.jsx:424
+			if (arguments [i] !== undefined){                                      // default.jsx:421
+				contexts [contextsSize] = arguments [i];                           // default.jsx:422
 				contextsSize ++;                                                   // default.jsx:423
 			}
 		return '<div class=page-index><h1>Поня.ч <span class=new-mark>[НОВЫЙ]</span></h1><div class=\"block reply\"><p> Добро пожаловать на <a href=\"/\">' + html ('host') + '</a> с новым экспериментальным интерфейсом. Он называется «Clin» и должен быть максимально похож на привычный интерфейс имиджборд. Надеемся, он вам понравится. </p><p class=italic> Enjoy your friendship. :) </p></div><p data-element=sections-list data-loaded=true></p></div>';
 	};
-	Mustache.sectionPage = function (){                                            // default.jsx:427
+	Mustache.sectionPage = function (){                                            // default.jsx:435
 		contextsSize = 0;                                                          // default.jsx:428
-		for (var i = 0; i < arguments.length; i ++)                                // default.jsx:429
-			if (arguments[i] !== undefined){                                       // default.jsx:430
-				contexts[contextsSize] = arguments[i];                             // default.jsx:431
+		for (var i = 0; i < arguments.length; i ++)                                // default.jsx:433
+			if (arguments [i] !== undefined){                                      // default.jsx:430
+				contexts [contextsSize] = arguments [i];                           // default.jsx:431
 				contextsSize ++;                                                   // default.jsx:432
 			}
 		return '<div class=page-section><div data-element=header data-set-title=true data-section=\"' + html ('section') + '\" ></div><div class=section-content data-element=threads-list data-section=\"' + html ('section') + '\" data-page-number=\"' + html ('pageNumber') + '\" ></div><div data-element=footer ></div></div>';
 	};
-	Mustache.staticPage = function (){                                             // default.jsx:436
+	Mustache.staticPage = function (){                                             // default.jsx:444
 		contextsSize = 0;                                                          // default.jsx:437
-		for (var i = 0; i < arguments.length; i ++)                                // default.jsx:438
-			if (arguments[i] !== undefined){                                       // default.jsx:439
-				contexts[contextsSize] = arguments[i];                             // default.jsx:440
+		for (var i = 0; i < arguments.length; i ++)                                // default.jsx:442
+			if (arguments [i] !== undefined){                                      // default.jsx:439
+				contexts [contextsSize] = arguments [i];                           // default.jsx:440
 				contextsSize ++;                                                   // default.jsx:441
 			}
 		return '<div class=page-static><div data-element=header data-set-title=true data-section=\"' + html ('path') + '\" ></div><div data-element=static-content data-path=\"' + html ('path') + '\" ></div><div data-element=sections-list ></p></div>';
 	};
-	Mustache.threadPage = function (){                                             // default.jsx:445
+	Mustache.threadPage = function (){                                             // default.jsx:453
 		contextsSize = 0;                                                          // default.jsx:446
-		for (var i = 0; i < arguments.length; i ++)                                // default.jsx:447
-			if (arguments[i] !== undefined){                                       // default.jsx:448
-				contexts[contextsSize] = arguments[i];                             // default.jsx:449
+		for (var i = 0; i < arguments.length; i ++)                                // default.jsx:451
+			if (arguments [i] !== undefined){                                      // default.jsx:448
+				contexts [contextsSize] = arguments [i];                           // default.jsx:449
 				contextsSize ++;                                                   // default.jsx:450
 			}
 		return '<div class=page-section><div data-element=header data-section=\"' + html ('section') + '\" ></div><div data-element=posts-list data-section=\"' + html ('section') + '\" data-thread=\"' + html ('thread') + '\" data-set-title=true ></div><div data-element=footer ></div></div>';
 	};
-	Mustache.hiddensWindowPosts = function (){                                     // default.jsx:454
+	Mustache.hiddensWindowPosts = function (){                                     // default.jsx:462
 		contextsSize = 0;                                                          // default.jsx:455
-		for (var i = 0; i < arguments.length; i ++)                                // default.jsx:456
-			if (arguments[i] !== undefined){                                       // default.jsx:457
-				contexts[contextsSize] = arguments[i];                             // default.jsx:458
+		for (var i = 0; i < arguments.length; i ++)                                // default.jsx:460
+			if (arguments [i] !== undefined){                                      // default.jsx:457
+				contexts [contextsSize] = arguments [i];                           // default.jsx:458
 				contextsSize ++;                                                   // default.jsx:459
 			}
-		return yes ('posts',                                                       // default.jsx:461
-			function (){                                                           // ...
+		return yes ('posts',                                                       // default.jsx:462
+			function (){                                                           // default.jsx:461
 				return '<div class=window-block>' + sub ('posts',                  // ...
 					function (){                                                   // ...
 						return '<div class=\"post' + yes ('deleted', ' deleted') + yes ('hidden',
@@ -869,15 +869,15 @@ Mustache.preferencesWindowKeyboard = function (){                               
 			}, 
 			'<p>На этой странице нет скрытых постов.</p>');                        // ...
 	};
-	Mustache.hiddensWindowThreads = function (){                                   // default.jsx:463
+	Mustache.hiddensWindowThreads = function (){                                   // default.jsx:471
 		contextsSize = 0;                                                          // default.jsx:464
-		for (var i = 0; i < arguments.length; i ++)                                // default.jsx:465
-			if (arguments[i] !== undefined){                                       // default.jsx:466
-				contexts[contextsSize] = arguments[i];                             // default.jsx:467
+		for (var i = 0; i < arguments.length; i ++)                                // default.jsx:469
+			if (arguments [i] !== undefined){                                      // default.jsx:466
+				contexts [contextsSize] = arguments [i];                           // default.jsx:467
 				contextsSize ++;                                                   // default.jsx:468
 			}
-		return yes ('threads',                                                     // default.jsx:470
-			function (){                                                           // ...
+		return yes ('threads',                                                     // default.jsx:471
+			function (){                                                           // default.jsx:470
 				return '<div class=window-block>' + sub ('threads',                // ...
 					function (){                                                   // ...
 						return '<div data-id=group><div class=window-entry><input type=checkbox data-checkbox=section><b>/' + get ('section') + '/</b></div>' + sub ('entries',
@@ -888,15 +888,15 @@ Mustache.preferencesWindowKeyboard = function (){                               
 			}, 
 			'<p>Скрытых тредов нет.</p>');                                         // ...
 	};
-	Mustache.favoritesWindowBody = function (){                                    // default.jsx:472
+	Mustache.favoritesWindowBody = function (){                                    // default.jsx:480
 		contextsSize = 0;                                                          // default.jsx:473
-		for (var i = 0; i < arguments.length; i ++)                                // default.jsx:474
-			if (arguments[i] !== undefined){                                       // default.jsx:475
-				contexts[contextsSize] = arguments[i];                             // default.jsx:476
+		for (var i = 0; i < arguments.length; i ++)                                // default.jsx:478
+			if (arguments [i] !== undefined){                                      // default.jsx:475
+				contexts [contextsSize] = arguments [i];                           // default.jsx:476
 				contextsSize ++;                                                   // default.jsx:477
 			}
-		return yes ('threads',                                                     // default.jsx:479
-			function (){                                                           // ...
+		return yes ('threads',                                                     // default.jsx:480
+			function (){                                                           // default.jsx:479
 				return '<div class=window-block>' + sub ('threads',                // ...
 					function (){                                                   // ...
 						return '<div data-id=group><div class=window-entry><input type=checkbox data-checkbox=section><b>/' + get ('section') + '/</b></div>' + sub ('entries',
@@ -907,85 +907,85 @@ Mustache.preferencesWindowKeyboard = function (){                               
 			}, 
 			'<p>Избранных тредов нет.</p>');                                       // ...
 	};
-	Mustache.preferencesWindowInfo = function (){                                  // default.jsx:481
+	Mustache.preferencesWindowInfo = function (){                                  // default.jsx:489
 		contextsSize = 0;                                                          // default.jsx:482
-		for (var i = 0; i < arguments.length; i ++)                                // default.jsx:483
-			if (arguments[i] !== undefined){                                       // default.jsx:484
-				contexts[contextsSize] = arguments[i];                             // default.jsx:485
+		for (var i = 0; i < arguments.length; i ++)                                // default.jsx:487
+			if (arguments [i] !== undefined){                                      // default.jsx:484
+				contexts [contextsSize] = arguments [i];                           // default.jsx:485
 				contextsSize ++;                                                   // default.jsx:486
 			}
 		return '<div style=\"padding-bottom:10px\" title=\"На всякий случай: это не Dollchan Extension Tools, а выглядит похоже лишь потому что интерфейс задуман максимально классическим. Всё написано с нуля и всё такое.\"><a href=\"https://bitbucket.org/99b/ponyaba/wiki/Versions\" target=\"_blank\">' + get ('version') + '</a> &nbsp;|&nbsp; <a href=\"/\">Поняч</a> &nbsp;|&nbsp; <a href=\"https://bitbucket.org/99b/ponyaba/\" target=\"_blank\">Bitbucket</a></div><div><div style=\"display:inline-block;vertical-align:top;width:186px;height:235px\" data-id=statistics></div><!--div style=\"display:inline-block;padding-left:7px;height:235px;border-left:1px solid grey\"> Init: 5ms <br> Read config: 5ms <br> Parse delform: 18ms <br> Add panel: 3ms <br> YouTube links: 4ms <br> Reflinks map: 6ms <br> Apply CSS: 55ms <br> Apply spells: 7ms <br> Всего: 103ms </div--></div><!--input type=button value=\"Отладка\" title=\"Информация для отладки\"-->';
 	};
-	Mustache.preferencesWindowStatistics = function (){                            // default.jsx:490
+	Mustache.preferencesWindowStatistics = function (){                            // default.jsx:498
 		contextsSize = 0;                                                          // default.jsx:491
-		for (var i = 0; i < arguments.length; i ++)                                // default.jsx:492
-			if (arguments[i] !== undefined){                                       // default.jsx:493
-				contexts[contextsSize] = arguments[i];                             // default.jsx:494
+		for (var i = 0; i < arguments.length; i ++)                                // default.jsx:496
+			if (arguments [i] !== undefined){                                      // default.jsx:493
+				contexts [contextsSize] = arguments [i];                           // default.jsx:494
 				contextsSize ++;                                                   // default.jsx:495
 			}
 		return '<span> Тредов просмотрено: ' + get ('threadsVisited') + '<br> Тредов создано: ' + get ('threadsCreated') + '<br> Сообщений: ' + get ('messagesSended') + '</span>';
 	};
-	Mustache.preferencesWindowThemeSelect = function (){                           // default.jsx:499
+	Mustache.preferencesWindowThemeSelect = function (){                           // default.jsx:507
 		contextsSize = 0;                                                          // default.jsx:500
-		for (var i = 0; i < arguments.length; i ++)                                // default.jsx:501
-			if (arguments[i] !== undefined){                                       // default.jsx:502
-				contexts[contextsSize] = arguments[i];                             // default.jsx:503
+		for (var i = 0; i < arguments.length; i ++)                                // default.jsx:505
+			if (arguments [i] !== undefined){                                      // default.jsx:502
+				contexts [contextsSize] = arguments [i];                           // default.jsx:503
 				contextsSize ++;                                                   // default.jsx:504
 			}
-		return sub ('.',                                                           // default.jsx:506
-			function (){                                                           // ...
+		return sub ('.',                                                           // default.jsx:507
+			function (){                                                           // default.jsx:506
 				return '<optgroup label=\"' + get ('group') + '\">' + sub ('styles',
 					function (){                                                   // ...
 						return '<option value=\"' + get ('url') + '\">' + get ('name') + '</option>';
 					}) + '</optgroup>';                                            // ...
 			});
 	};
-	Mustache.window = function (){                                                 // default.jsx:508
+	Mustache.window = function (){                                                 // default.jsx:516
 		contextsSize = 0;                                                          // default.jsx:509
-		for (var i = 0; i < arguments.length; i ++)                                // default.jsx:510
-			if (arguments[i] !== undefined){                                       // default.jsx:511
-				contexts[contextsSize] = arguments[i];                             // default.jsx:512
+		for (var i = 0; i < arguments.length; i ++)                                // default.jsx:514
+			if (arguments [i] !== undefined){                                      // default.jsx:511
+				contexts [contextsSize] = arguments [i];                           // default.jsx:512
 				contextsSize ++;                                                   // default.jsx:513
 			}
-		return '<div class=\"window fading' + yes ('className',                    // default.jsx:515
-			function (){                                                           // ...
+		return '<div class=\"window fading' + yes ('className',                    // default.jsx:516
+			function (){                                                           // default.jsx:515
 				return ' ' + html ('className');                                   // ...
 			}) + '\" data-window=\"' + html ('className') + '\"><div class=window-header><span data-id=window-caption></span><span data-button=window-close class=window-close>×</span></div><div data-id=window-bar class=window-bar></div><div data-id=window-body class=\"window-body reply\"></div><div data-id=window-footer class=\"window-footer reply\"></div></div>';
 	};
 }());
 var Storage = function (){                                                         // storage.jsxi:1
 		var Storage = function (id, callback){                                     // storage.jsxi:7
-			this.__Storage_timeout = false;                                        // storage.jsxi:4
-			this.__Storage_callback = null;                                        // storage.jsxi:5
+			this.__Storage_timeout = false;                                        // zepto.jsxi:76
+			this.__Storage_callback = null;                                        // ...
 			this.__Storage_id = id;                                                // storage.jsxi:8
 			this.__Storage_callback = callback;                                    // storage.jsxi:9
 			if (typeof callback === 'function')                                    // storage.jsxi:11
-				$ (window).on ('storage', __bo (this, '__Storage_storage'));       // storage.jsxi:12
+				$(window).on ('storage', __bo (this, '__Storage_storage'));        // storage.jsxi:12
 		};
-		Storage.prototype.__Storage_storage = function (event){                    // storage.jsxi:15
-			if (event.key === this.__Storage_id){                                  // storage.jsxi:76
+		Storage.prototype.__Storage_storage = function (event){
+			if (event.key === this.__Storage_id){                                  // storage.jsxi:16
 				try {                                                              // storage.jsxi:20
 					this.__Storage_data = JSON.parse (event.newValue);             // storage.jsxi:18
 				} catch (e){                                                       // storage.jsxi:20
 					this.__Storage_data = {};                                      // ...
 				} 
-				this.__Storage_callback (this.__Storage_data);                     // storage.jsxi:76
+				this.__Storage_callback (this.__Storage_data);                     // storage.jsxi:21
 			}
 		};
 		Storage.prototype.load = function (){
 			try {                                                                  // storage.jsxi:28
-				this.__Storage_data = JSON.parse (localStorage[this.__Storage_id]);
+				this.__Storage_data = JSON.parse (localStorage [this.__Storage_id]);
 			} catch (e){                                                           // ...
 				this.__Storage_data = {};                                          // ...
 			} 
-			return this.__Storage_data;                                            // storage.jsxi:76
+			return this.__Storage_data;                                            // storage.jsxi:29
 		};
 		Storage.prototype.save = function (){
-			var __that = this;                                                     // ...
+			var __that = this;                                                     // storage.jsxi:76
 			if (this.__Storage_timeout !== false)                                  // storage.jsxi:33
 				clearTimeout (this.__Storage_timeout);                             // storage.jsxi:34
-			this.__Storage_timeout = setTimeout (function (arg){                   // storage.jsxi:36
-				localStorage[__that.__Storage_id] = JSON.stringify (__that.__Storage_data);
+			this.__Storage_timeout = setTimeout (function (arg){                   // storage.jsxi:39
+				localStorage [__that.__Storage_id] = JSON.stringify (__that.__Storage_data);
 				__that.__Storage_timeout = false;                                  // storage.jsxi:38
 			}, 
 			100);                                                                  // storage.jsxi:39
@@ -996,12 +996,12 @@ var Storage = function (){                                                      
 		var Exif = function (file){                                                // exif.jsxi:4
 			this.__Exif_file = file;                                               // exif.jsxi:5
 		};
-		Exif.prototype.__Exif_processData = function (arraybuffer){                // exif.jsxi:8
+		Exif.prototype.__Exif_processData = function (arraybuffer){
 			var data = new Uint8Array (arraybuffer), pos = 0, bigEndian;           // exif.jsxi:11
 			function check (what){                                                 // exif.jsxi:13
-				for (var i = 0; i < what.length; i ++){                            // exif.jsxi:14
-					var n = what[i];                                               // exif.jsxi:16
-					if (data[(pos + i)] !== n)                                     // exif.jsxi:15
+				for (var i = 0; i < what.length; i ++){                            // exif.jsxi:16
+					var n = what [i];                                              // ...
+					if (data [(pos + i)] !== n)                                    // exif.jsxi:15
 						return false;                                              // exif.jsxi:16
 				}
 				pos += what.length;                                                // exif.jsxi:17
@@ -1009,19 +1009,19 @@ var Storage = function (){                                                      
 			}
 			function readAt (bytes, offset, clear){                                // exif.jsxi:21
 				var result = 0;                                                    // exif.jsxi:22
-				for (var i = 0; i < bytes; i ++){                                  // exif.jsxi:23
-					result = 256 * result + data[(offset + i)];                    // exif.jsxi:24
+				for (var i = 0; i < bytes; i ++){                                  // exif.jsxi:28
+					result = 256 * result + data [(offset + i)];                   // exif.jsxi:24
 					if (clear)                                                     // exif.jsxi:26
-						data[(offset + i)] = 0;                                    // exif.jsxi:27
+						data [(offset + i)] = 0;                                   // exif.jsxi:27
 				}
 				return result;                                                     // exif.jsxi:29
 			}
 			function readStringAt (bytes, offset, clear){                          // exif.jsxi:32
 				var result = '';                                                   // exif.jsxi:33
-				for (var i = 0; i < bytes; i ++){                                  // exif.jsxi:34
-					result += String.fromCharCode (data[(offset + i)]);            // exif.jsxi:35
+				for (var i = 0; i < bytes; i ++){                                  // exif.jsxi:39
+					result += String.fromCharCode (data [(offset + i)]);           // exif.jsxi:35
 					if (clear)                                                     // exif.jsxi:37
-						data[(offset + i)] = 0;                                    // exif.jsxi:38
+						data [(offset + i)] = 0;                                   // exif.jsxi:38
 				}
 				return result;                                                     // exif.jsxi:40
 			}
@@ -1035,7 +1035,7 @@ var Storage = function (){                                                      
 			if (!check ([ 255, 216 ]))                                             // exif.jsxi:54
 				return undefined;                                                  // exif.jsxi:55
 			var formats = [
-				{ name: 'unsigned byte', size: 1 },                                // exif.jsxi:58
+				{ name: 'unsigned byte', size: 1 },                                // exif.jsxi:70
 				{ name: 'ascii strings', size: 1 },                                // exif.jsxi:59
 				{ name: 'unsigned short', size: 2 },                               // exif.jsxi:60
 				{ name: 'unsigned long', size: 4 },                                // exif.jsxi:61
@@ -1053,7 +1053,7 @@ var Storage = function (){                                                      
 				console.log (bigEndian.toString (16), readAt (1, start + 1).toString (16));
 			}
 			function readIfd (start){                                              // exif.jsxi:77
-				var count = read (2),                                              // exif.jsxi:78
+				var count = read (2),                                              // exif.jsxi:85
 					tag,                                                           // exif.jsxi:79
 					format,                                                        // exif.jsxi:80
 					components,                                                    // exif.jsxi:81
@@ -1061,11 +1061,11 @@ var Storage = function (){                                                      
 					address,                                                       // exif.jsxi:83
 					total,                                                         // exif.jsxi:84
 					next;                                                          // exif.jsxi:85
-				for (var i = 0; i < count; i ++){                                  // exif.jsxi:87
+				for (var i = 0; i < count; i ++){                                  // exif.jsxi:103
 					tag = read (2);                                                // exif.jsxi:88
 					format = read (2);                                             // exif.jsxi:89
 					components = read (4);                                         // exif.jsxi:90
-					total = components * formats[(format - 1)].size;               // exif.jsxi:91
+					total = components * formats [(format - 1)].size;              // exif.jsxi:91
 					if (total <= 4){                                               // exif.jsxi:93
 						address = pos;                                             // exif.jsxi:94
 						pos += 4;                                                  // exif.jsxi:95
@@ -1079,7 +1079,7 @@ var Storage = function (){                                                      
 				if (next !== 0)                                                    // exif.jsxi:107
 					console.warn ('Not implemented at 108 line of exif.jsxi');     // exif.jsxi:108
 			}
-			for (pos = 0; pos < 1000; pos ++){                                     // exif.jsxi:113
+			for (pos = 0; pos < 1000; pos ++){                                     // exif.jsxi:149
 				if (check ([ 255, 225 ])){                                         // exif.jsxi:116
 					var size = read (2), offset, start;                            // exif.jsxi:120
 					if (check ([ 69, 120, 105, 102, 0, 0 ])){                      // exif.jsxi:123
@@ -1103,15 +1103,15 @@ var Storage = function (){                                                      
 			}
 			return undefined;                                                      // exif.jsxi:151
 		};
-		Exif.prototype.clear = function (callback){                                // exif.jsxi:154
+		Exif.prototype.clear = function (callback){
 			var __that = this;                                                     // exif.jsxi:76
 			if (this.__Exif_file instanceof ArrayBuffer){                          // exif.jsxi:155
 				var result = this.__Exif_processData (this.__Exif_file);           // exif.jsxi:156
 				callback (result);                                                 // exif.jsxi:157
 			} else {
 				fileReader = new FileReader ();                                    // exif.jsxi:159
-				fileReader.onload = function (arg){                                // exif.jsxi:160
-					if (!__that.__Exif_cancelled)                                  // exif.jsxi:76
+				fileReader.onload = function (arg){                                // exif.jsxi:162
+					if (!__that.__Exif_cancelled)                                  // exif.jsxi:160
 						return callback (__that.__Exif_processData (arg.target.result));
 				};
 				fileReader.readAsArrayBuffer (this.__Exif_file);                   // exif.jsxi:162
@@ -1149,7 +1149,7 @@ var Storage = function (){                                                      
 			};
 		Errors.description = function (error){                                     // errors.jsxi:4
 			if ([object Object].test (error))                                      // errors.jsxi:5
-				return descriptionByNumber[String (error)] || 'Неизвестная ошибка';
+				return descriptionByNumber [String (error)] || 'Неизвестная ошибка';
 			else
 				return String (error);                                             // errors.jsxi:8
 		};
@@ -1157,18 +1157,18 @@ var Storage = function (){                                                      
 	}(), 
 	Dispatcher = function (){                                                      // dispatcher.jsxi:1
 		var Dispatcher = function (){
-			this.__Dispatcher_handlers = [];                                       // dispatcher.jsxi:2
+			this.__Dispatcher_handlers = [];                                       // zepto.jsxi:76
 		};
-		Dispatcher.prototype.__add = function (type, handler){                     // dispatcher.jsxi:4
+		Dispatcher.prototype.__add = function (type, handler){
 			console.assert ((typeof type === 'string' || type === null) && typeof handler === 'function',
 				'Wrong arguments: ' + type + ', ' + handler);                      // dispatcher.jsxi:5
 			this.__Dispatcher_handlers.push ({ type: type, handler: handler });    // dispatcher.jsxi:6
 		};
-		Dispatcher.prototype.on = function (type, handler){                        // dispatcher.jsxi:9
+		Dispatcher.prototype.on = function (type, handler){
 			console.assert (typeof handler === 'function' || typeof type === 'function',
 				'Wrong arguments');                                                // dispatcher.jsxi:10
 			if (typeof type === 'function'){                                       // dispatcher.jsxi:11
-				this.__add (null, type);                                           // dispatcher.jsxi:76
+				this.__add (null, type);                                           // dispatcher.jsxi:12
 			} else {
 				if (typeof type === 'string' && type.indexOf (' ') !== - 1)        // dispatcher.jsxi:14
 					type = type.split (' ').map (function (arg){                   // dispatcher.jsxi:15
@@ -1176,28 +1176,28 @@ var Storage = function (){                                                      
 					});
 				if (type instanceof Array){                                        // dispatcher.jsxi:17
 					for (var _s = 0; _s < type.length; _s ++){                     // dispatcher.jsxi:22
-						var arg = type[_s];                                        // ...
+						var arg = type [_s];                                       // ...
 						arg = arg.trim ();                                         // dispatcher.jsxi:19
 						if (arg)                                                   // dispatcher.jsxi:20
-							this.__add (arg, handler);                             // dispatcher.jsxi:76
+							this.__add (arg, handler);                             // dispatcher.jsxi:21
 					}
 				} else
-					this.__add (type, handler);                                    // ...
+					this.__add (type, handler);                                    // dispatcher.jsxi:24
 			}
 		};
-		Dispatcher.prototype.off = function (handler){                             // dispatcher.jsxi:28
+		Dispatcher.prototype.off = function (handler){
 			console.assert (typeof handler === 'function', 'Wrong arguments');     // dispatcher.jsxi:29
 			this.__Dispatcher_handlers = this.__Dispatcher_handlers.filter (function (arg){
 				return arg.handler !== handler;                                    // dispatcher.jsxi:30
 			});
 		};
-		Dispatcher.prototype.call = function (type, arg){                          // dispatcher.jsxi:33
+		Dispatcher.prototype.call = function (type, arg){
 			if (typeof type !== 'string'){                                         // dispatcher.jsxi:34
 				arg = type;                                                        // dispatcher.jsxi:35
 				type = null;                                                       // dispatcher.jsxi:36
 			}
 			for (var _t = 0; _t < this.__Dispatcher_handlers.length; _t ++){       // dispatcher.jsxi:41
-				var entry = this.__Dispatcher_handlers[_t];                        // ...
+				var entry = this.__Dispatcher_handlers [_t];                       // ...
 				if (entry.type === null || entry.type === type)                    // dispatcher.jsxi:40
 					entry.handler.call (null, arg, type);                          // dispatcher.jsxi:41
 			}
@@ -1208,17 +1208,17 @@ var Storage = function (){                                                      
 		var ImageSearch = function (){};
 		ImageSearch.items = [
 			{
-				label: 'Искать в ' + 'Google',                                     // imageSearch.jsxi:4
+				label: 'Искать в ' + 'Google',                                     // imageSearch.jsxi:2
 				icon: 'http://google.com/favicon.ico',                             // imageSearch.jsxi:5
 				action: 'image-search:google'                                      // imageSearch.jsxi:6
 			}, 
 			{
-				label: 'Искать в ' + 'TinEye',                                     // imageSearch.jsxi:9
+				label: 'Искать в ' + 'TinEye',                                     // imageSearch.jsxi:12
 				icon: 'http://tineye.com/favicon.ico',                             // imageSearch.jsxi:10
 				action: 'image-search:tineye'                                      // imageSearch.jsxi:11
 			}, 
 			{
-				label: 'Искать в ' + 'Derpibooru',                                 // imageSearch.jsxi:14
+				label: 'Искать в ' + 'Derpibooru',                                 // imageSearch.jsxi:17
 				icon: 'http://g.etfv.co/http://derpibooru.org/',                   // imageSearch.jsxi:15
 				action: 'image-search:derpibooru'                                  // imageSearch.jsxi:16
 			}
@@ -1234,10 +1234,10 @@ var Storage = function (){                                                      
 						'_blank');                                                 // imageSearch.jsxi:26
 					break;                                                         // imageSearch.jsxi:27
 				case 'derpibooru':                                                 // imageSearch.jsxi:28
-					$ ('<form method=\"post\" action=\"https://derpibooru.org/search/reverse\" target=\"_blank\" enctype=\"multipart/form-data\" hidden>' + '<input id=\"url\" name=\"url\" type=\"text\" value=\"' + location.origin + '/' + href + '\">' + '<input id=\"fuzziness\" name=\"fuzziness\" type=\"text\" value=\"0.25\">' + '</form>').appendTo ('body').submit ().remove ();
+					$('<form method=\"post\" action=\"https://derpibooru.org/search/reverse\" target=\"_blank\" enctype=\"multipart/form-data\" hidden>' + '<input id=\"url\" name=\"url\" type=\"text\" value=\"' + location.origin + '/' + href + '\">' + '<input id=\"fuzziness\" name=\"fuzziness\" type=\"text\" value=\"0.25\">' + '</form>').appendTo ('body').submit ().remove ();
 					break;                                                         // imageSearch.jsxi:33
 				default:
-					console.assert (true, 'Wrond target \"' + target + '\"');      // imageSearch.jsxi:35
+					console.assert (true, 'Wrond target \"' + target + '\"');      // imageSearch.jsxi:36
 			}
 		};
 		return ImageSearch;
@@ -1249,25 +1249,25 @@ var Storage = function (){                                                      
 		};
 		AbstractPage.prototype.run = function (){
 			var __that = this;                                                     // abstractPage.jsxi:76
-			document[(document instanceof AbstractPage ? '__title' : 'title')] = this.__title ();
+			document [(document instanceof AbstractPage ? '__title' : 'title')] = this.__title ();
 			var html = Mustache.abstractPage ({ html: this.build () });            // abstractPage.jsxi:12
-			this.__page = $ (html).appendTo (document.body);                       // abstractPage.jsxi:13
+			this.__page = $(html).appendTo (document.body);                        // abstractPage.jsxi:13
 			this.__elements = AbstractElement.process (this.__page);               // abstractPage.jsxi:14
-			if (this.__AbstractPage_check ()){                                     // abstractPage.jsxi:76
+			if (this.__AbstractPage_check ()){                                     // abstractPage.jsxi:16
 				Page.anchor ();                                                    // abstractPage.jsxi:17
 				this.__page.timeout (function (arg){                               // abstractPage.jsxi:18
 					return __that.__page.addClass ('visible');                     // ...
 				});
 			} else {
-				this.__loading = $ (Mustache.abstractPageLoading ()).appendTo ('body');
+				this.__loading = $(Mustache.abstractPageLoading ()).appendTo ('body');
 				for (var _l = 0; _l < this.__elements.length; _l ++){              // abstractPage.jsxi:30
-					var element = this.__elements[_l];                             // ...
-					element.on (function (arg, errorCode){                         // abstractPage.jsxi:23
+					var element = this.__elements [_l];                            // ...
+					element.on (function (arg, errorCode){                         // ...
 						if (__that.__AbstractPage_check (errorCode) && !__that.__isFailed){
 							__that.__page.addClass ('visible');                    // abstractPage.jsxi:25
 							Page.anchor ();                                        // abstractPage.jsxi:26
 							__that.__loading.addClass ('hidden').timeout (function (arg){
-								return $ (this).remove ();                         // abstractPage.jsxi:28
+								return $(this).remove ();                          // abstractPage.jsxi:28
 							}, 
 							300);                                                  // ...
 							__that.__loading = undefined;                          // abstractPage.jsxi:29
@@ -1276,127 +1276,127 @@ var Storage = function (){                                                      
 				}
 			}
 		};
-		AbstractPage.prototype.__AbstractPage_failed = function (errorCode){       // abstractPage.jsxi:34
+		AbstractPage.prototype.__AbstractPage_failed = function (errorCode){
 			this.__isFailed = true;                                                // abstractPage.jsxi:35
 			for (var _m = 0; _m < this.__elements.length; _m ++){                  // abstractPage.jsxi:38
-				var element = this.__elements[_m];                                 // ...
+				var element = this.__elements [_m];                                // ...
 				element.destroy ();                                                // ...
 			}
 			if (this.__loading){                                                   // abstractPage.jsxi:76
 				this.__loading.addClass ('hidden').timeout (function (arg){        // abstractPage.jsxi:41
-					return $ (this).remove ();                                     // ...
+					return $(this).remove ();                                      // ...
 				}, 
 				300);                                                              // ...
 				this.__loading = undefined;                                        // abstractPage.jsxi:42
 			}
-			document[(document instanceof AbstractPage ? '__title' : 'title')] = 'Поня.ч – Ошибка';
+			document [(document instanceof AbstractPage ? '__title' : 'title')] = 'Поня.ч – Ошибка';
 			this.__page.addClass ('visible');                                      // abstractPage.jsxi:47
 			var data;                                                              // abstractPage.jsxi:49
 			switch (errorCode){                                                    // abstractPage.jsxi:51
 				case 1002:                                                         // abstractPage.jsxi:52
-					data = Mustache.abstractPageVersionsMismatch ();               // abstractPage.jsxi:53
-					break;                                                         // abstractPage.jsxi:54
+					data = Mustache.abstractPageVersionsMismatch ();               // abstractPage.jsxi:54
+					break;                                                         // ...
 				case 1003:                                                         // abstractPage.jsxi:55
-					data = Mustache.abstractPageEverythingIsBad ();                // abstractPage.jsxi:56
-					break;                                                         // abstractPage.jsxi:57
+					data = Mustache.abstractPageEverythingIsBad ();                // abstractPage.jsxi:57
+					break;                                                         // ...
 				case 1001:                                                         // abstractPage.jsxi:58
-					data = Mustache.abstractPagePreprocessingFailed ();            // abstractPage.jsxi:59
-					break;                                                         // abstractPage.jsxi:60
+					data = Mustache.abstractPagePreprocessingFailed ();            // abstractPage.jsxi:60
+					break;                                                         // ...
 				case 1404:                                                         // abstractPage.jsxi:61
-					data = Mustache.abstractPageNotFound ();                       // abstractPage.jsxi:62
-					break;                                                         // abstractPage.jsxi:63
+					data = Mustache.abstractPageNotFound ();                       // abstractPage.jsxi:63
+					break;                                                         // ...
 				case 1004:                                                         // abstractPage.jsxi:64
-					data = Mustache.abstractPageUnsupported ();                    // abstractPage.jsxi:65
-					break;                                                         // abstractPage.jsxi:66
+					data = Mustache.abstractPageUnsupported ();                    // abstractPage.jsxi:66
+					break;                                                         // ...
 				default:
-					data = Mustache.abstractPageDefaultError ();                   // abstractPage.jsxi:68
+					data = Mustache.abstractPageDefaultError ();                   // abstractPage.jsxi:69
 			}
 			data = data.match ([object Object]);                                   // abstractPage.jsxi:71
 			this.__page.html (Mustache.abstractPageFailed ({
-				caption: data[1],                                                  // abstractPage.jsxi:75
-				description: data[2],                                              // abstractPage.jsxi:76
+				caption: data [1],                                                 // abstractPage.jsxi:80
+				description: data [2],                                             // abstractPage.jsxi:76
 				errorCode: errorCode,                                              // abstractPage.jsxi:77
 				errorDescription: Errors.description (errorCode)                   // abstractPage.jsxi:78
 			}));
 		};
-		AbstractPage.prototype.__AbstractPage_check = function (errorCode){        // abstractPage.jsxi:83
+		AbstractPage.prototype.__AbstractPage_check = function (errorCode){
 			if (this.__isFailed)                                                   // abstractPage.jsxi:76
 				return true;                                                       // abstractPage.jsxi:85
 			if (errorCode !== undefined){                                          // abstractPage.jsxi:87
-				this.__AbstractPage_failed (errorCode);                            // abstractPage.jsxi:76
+				this.__AbstractPage_failed (errorCode);                            // abstractPage.jsxi:88
 				return true;                                                       // abstractPage.jsxi:89
 			}
 			for (var _n = 0; _n < this.__elements.length; _n ++){                  // abstractPage.jsxi:97
-				var element = this.__elements[_n];                                 // ...
-				if (element[(element instanceof AbstractPage ? '__isFailed' : 'isFailed')]){
-					this.__AbstractPage_failed ();                                 // abstractPage.jsxi:76
+				var element = this.__elements [_n];                                // ...
+				if (element [(element instanceof AbstractPage ? '__isFailed' : 'isFailed')]){
+					this.__AbstractPage_failed ();                                 // abstractPage.jsxi:94
 					return true;                                                   // abstractPage.jsxi:95
-				} else if (!element.isLoaded && !element[(element instanceof AbstractPage ? '__isFailed' : 'isFailed')])
+				} else if (!element.isLoaded && !element [(element instanceof AbstractPage ? '__isFailed' : 'isFailed')])
 					return false;                                                  // abstractPage.jsxi:97
 			}
 			return true;                                                           // abstractPage.jsxi:99
 		};
-		AbstractPage.prototype.elementByNode = function (node){                    // abstractPage.jsxi:102
+		AbstractPage.prototype.elementByNode = function (node){
 			for (var _o = 0; _o < this.__elements.length; _o ++){                  // abstractPage.jsxi:105
-				var element = this.__elements[_o];                                 // ...
-				if (element.host[0] === node)                                      // abstractPage.jsxi:104
+				var element = this.__elements [_o];                                // ...
+				if (element.host [0] === node)                                     // abstractPage.jsxi:104
 					return element;                                                // abstractPage.jsxi:105
 			}
 		};
 		AbstractPage.prototype.__title = function (){
-			return 'Поня.ч – Загрузка...';                                         // abstractPage.jsxi:108
+			return 'Поня.ч – Загрузка...';                                         // abstractPage.jsxi:110
 		};
 		AbstractPage.prototype.destroy = function (){
 			if (this.__page)                                                       // abstractPage.jsxi:76
 				this.__page.removeClass ('visible').timeout (function (arg){       // abstractPage.jsxi:114
-					return $ (this).remove ();                                     // ...
+					return $(this).remove ();                                      // ...
 				}, 
 				300);                                                              // ...
 			for (var _p = 0; _p < this.__elements.length; _p ++){                  // abstractPage.jsxi:117
-				var element = this.__elements[_p];                                 // ...
+				var element = this.__elements [_p];                                // ...
 				element.destroy ();                                                // ...
 			}
 		};
 		return AbstractPage;
 	}(), 
 	Crossdomain = function (){                                                     // crossdomain.jsxi:1
-		var Crossdomain = function (){}, callbacks = {};                           // crossdomain.jsxi:2
+		var Crossdomain = function (){}, callbacks = {};
 		Crossdomain.request = function (url, arraybuffer, callback){               // crossdomain.jsxi:4
 			if (typeof arraybuffer === 'function'){                                // crossdomain.jsxi:5
 				callback = arraybuffer;                                            // crossdomain.jsxi:6
 				arraybuffer = false;                                               // crossdomain.jsxi:7
 			}
 			if (callbacks.hasOwnProperty (url)){                                   // crossdomain.jsxi:10
-				callbacks[url].push (callback);                                    // crossdomain.jsxi:11
+				callbacks [url].push (callback);                                   // crossdomain.jsxi:11
 			} else {
-				callbacks[url] = [ callback ];                                     // crossdomain.jsxi:13
+				callbacks [url] = [ callback ];                                    // crossdomain.jsxi:13
 				if (arraybuffer){                                                  // crossdomain.jsxi:15
 					var xhr = new XMLHttpRequest ();                               // crossdomain.jsxi:16
 					xhr.open ('GET', Crossdomain.proxyUrl (url), true);            // crossdomain.jsxi:17
 					xhr.responseType = 'arraybuffer';                              // crossdomain.jsxi:18
-					xhr.onreadystatechange = function (arg){                       // crossdomain.jsxi:19
-						if (this.readyState === 4){                                // ...
+					xhr.onreadystatechange = function (arg){                       // crossdomain.jsxi:22
+						if (this.readyState === 4){                                // crossdomain.jsxi:19
 							handler (this.status >= 200 && this.status < 400 ? this.response : null);
 						}
 					};
 					xhr.send ();                                                   // crossdomain.jsxi:22
 				} else
 					$.ajax ({
-						url: Crossdomain.proxyUrl (url),                           // crossdomain.jsxi:76
+						url: Crossdomain.proxyUrl (url),                           // crossdomain.jsxi:28
 						success: handler,                                          // crossdomain.jsxi:26
 						error: handler.bind (null, null)                           // crossdomain.jsxi:27
 					});
 			}
 			function handler (arg){                                                // crossdomain.jsxi:31
 				{
-					var _9 = callbacks[url];                                       // crossdomain.jsxi:33
+					var _9 = callbacks [url];                                      // crossdomain.jsxi:33
 					for (var _8 = 0; _8 < _9.length; _8 ++){                       // ...
-						var callback = _9[_8];                                     // ...
+						var callback = _9 [_8];                                    // ...
 						callback (arg);                                            // ...
 					}
 					_9 = undefined;                                                // ...
 				}
-				delete callbacks[url];                                             // crossdomain.jsxi:34
+				delete callbacks [url];                                            // crossdomain.jsxi:34
 			}
 		};
 		Crossdomain.proxyUrl = function (url){                                     // crossdomain.jsxi:38
@@ -1407,7 +1407,7 @@ var Storage = function (){                                                      
 	Message = function (){                                                         // message.jsxi:1
 		var Message = function (type, message, removable){                         // message.jsxi:8
 				var html = type === 'loading' ? Mustache.messageLoading () : Mustache.message ({ type: type, message: message });
-				this.__Message_element = $ (html);                                 // message.jsxi:16
+				this.__Message_element = $(html);                                  // message.jsxi:16
 				if (removable)                                                     // message.jsxi:18
 					this.__Message_element.addClass ('removable').on ('click', __bo (this, 'hide'));
 				if (typeof removable === 'number')                                 // message.jsxi:20
@@ -1416,16 +1416,16 @@ var Storage = function (){                                                      
 			host;                                                                  // message.jsxi:5
 		Message.prototype.show = function (){
 			if (!host)                                                             // message.jsxi:25
-				host = $ (Mustache.messageHost ()).appendTo (document.body);       // message.jsxi:26
+				host = $(Mustache.messageHost ()).appendTo (document.body);        // message.jsxi:26
 			this.__Message_element.appendTo (host).timeout (function (arg){        // message.jsxi:28
-				return $ (this).addClass ('visible');                              // ...
+				return $(this).addClass ('visible');                               // ...
 			});
 			host.find ('[data-state=\"removing\"]').remove ();                     // message.jsxi:29
 			return this;                                                           // message.jsxi:31
 		};
 		Message.prototype.hide = function (){
 			this.__Message_element.removeClass ('visible').data ('state', 'removing').timeout (function (arg){
-				return $ (this).remove ();                                         // message.jsxi:35
+				return $(this).remove ();                                          // message.jsxi:35
 			}, 
 			300);                                                                  // ...
 			return this;                                                           // message.jsxi:36
@@ -1436,13 +1436,13 @@ var Storage = function (){                                                      
 		var AbstractRequest = function (mode, params, postArgs){                   // abstractRequest.jsxi:8
 				if (this.constructor === AbstractRequest)
 					throw new Error ('Trying to instantiate abstract class AbstractRequest');
-				console.assert (mode, 'Mode required');                            // abstractRequest.jsxi:9
-				this.__AbstractRequest_jsonArgs = { mode: mode };                  // abstractRequest.jsxi:11
+				console.assert (mode, 'Mode required');                            // abstractRequest.jsxi:11
+				this.__AbstractRequest_jsonArgs = { mode: mode };                  // ...
 				if (params)                                                        // abstractRequest.jsxi:13
-					for (var key in params){                                       // abstractRequest.jsxi:14
-						var value = params[key];                                   // abstractRequest.jsxi:16
+					for (var key in params){                                       // abstractRequest.jsxi:16
+						var value = params [key];                                  // ...
 						if (value !== undefined && value !== null)                 // abstractRequest.jsxi:15
-							this.__AbstractRequest_jsonArgs[key] = String (value);
+							this.__AbstractRequest_jsonArgs [key] = String (value);
 					}
 				this.__AbstractRequest_postArgs = postArgs;                        // abstractRequest.jsxi:18
 			}, 
@@ -1453,13 +1453,13 @@ var Storage = function (){                                                      
 		AbstractRequest.prototype.__AbstractRequest_process = function (){
 			var __that = this;                                                     // abstractRequest.jsxi:76
 			var json = [], entries = [], data = new FormData ();                   // abstractRequest.jsxi:26
-			for (var key in active){                                               // abstractRequest.jsxi:28
-				var value = active[key];                                           // abstractRequest.jsxi:31
+			for (var key in active){                                               // abstractRequest.jsxi:31
+				var value = active [key];                                          // ...
 				json.push (key);                                                   // abstractRequest.jsxi:29
 				entries.push (value);                                              // abstractRequest.jsxi:30
 			}
-			for (var key in additional){                                           // abstractRequest.jsxi:33
-				var value = additional[key];                                       // abstractRequest.jsxi:39
+			for (var key in additional){                                           // abstractRequest.jsxi:39
+				var value = additional [key];                                      // ...
 				if (value !== undefined){                                          // abstractRequest.jsxi:34
 					if (typeof value === 'object' && value.data)                   // abstractRequest.jsxi:35
 						data.append (key,                                          // abstractRequest.jsxi:36
@@ -1471,7 +1471,7 @@ var Storage = function (){                                                      
 			}
 			data.append ('data', '[' + json.join (',') + ']');                     // abstractRequest.jsxi:41
 			$.ajax ({
-				type: 'POST',                                                      // abstractRequest.jsxi:44
+				type: 'POST',                                                      // abstractRequest.jsxi:51
 				url: '/api.php',                                                   // abstractRequest.jsxi:45
 				contentType: false,                                                // abstractRequest.jsxi:46
 				processData: false,                                                // abstractRequest.jsxi:47
@@ -1500,13 +1500,13 @@ var Storage = function (){                                                      
 					var preprocessed = new Array (data.data.length);               // abstractRequest.jsxi:80
 					{
 						var _12 = data.data;                                       // abstractRequest.jsxi:89
-						for (var i = 0; i < _12.length; i ++){                     // abstractRequest.jsxi:82
-							var response = _12[i];                                 // abstractRequest.jsxi:89
-							var result = entries[i].request.__preprocess (response, data.timestamp);
+						for (var i = 0; i < _12.length; i ++){                     // ...
+							var response = _12 [i];                                // ...
+							var result = entries [i].request.__preprocess (response, data.timestamp);
 							if (result && typeof result === 'object')              // abstractRequest.jsxi:85
 								console.assert (!result.hasOwnProperty ('error') || typeof result.error === 'number',
 									'Error must be number');                       // abstractRequest.jsxi:86
-							preprocessed[i] = result;                              // abstractRequest.jsxi:88
+							preprocessed [i] = result;                             // abstractRequest.jsxi:88
 						}
 						_12 = undefined;                                           // abstractRequest.jsxi:89
 					}
@@ -1523,11 +1523,11 @@ var Storage = function (){                                                      
 				} 
 				__dt (false, 'loaded data preprocessing');                         // abstractRequest.jsxi:102
 				__dt (true, 'request callbacks');                                  // ...
-				for (var i = 0; i < preprocessed.length; i ++){                    // abstractRequest.jsxi:104
-					var response = preprocessed[i];                                // abstractRequest.jsxi:110
-					var _14 = entries[i].callbacks;                                // ...
+				for (var i = 0; i < preprocessed.length; i ++){                    // abstractRequest.jsxi:110
+					var response = preprocessed [i];                               // ...
+					var _14 = entries [i].callbacks;                               // ...
 					for (var _13 = 0; _13 < _14.length; _13 ++){                   // ...
-						var callback = _14[_13];                                   // ...
+						var callback = _14 [_13];                                  // ...
 						if (response && response.error)                            // abstractRequest.jsxi:106
 							callback (null, response.error);                       // abstractRequest.jsxi:107
 						else
@@ -1545,28 +1545,28 @@ var Storage = function (){                                                      
 				if (__that.__AbstractRequest_cancelled)                            // abstractRequest.jsxi:76
 					return;                                                        // abstractRequest.jsxi:122
 				for (var _17 = 0; _17 < entries.length; _17 ++){                   // abstractRequest.jsxi:126
-					var entry = entries[_17];                                      // ...
+					var entry = entries [_17];                                     // ...
 					var _16 = entry.callbacks;                                     // ...
 					for (var _15 = 0; _15 < _16.length; _15 ++){                   // ...
-						var callback = _16[_15];                                   // ...
+						var callback = _16 [_15];                                  // ...
 						callback (null, arg.status);                               // ...
 					}
 					_16 = undefined;                                               // ...
 				}
 			}
 		};
-		AbstractRequest.prototype.send = function (callback){                      // abstractRequest.jsxi:130
+		AbstractRequest.prototype.send = function (callback){
 			console.assert (typeof callback === 'function', 'Wrong argument');     // abstractRequest.jsxi:131
 			var serialized = JSON.stringify (this.__AbstractRequest_jsonArgs);     // abstractRequest.jsxi:133
 			if (this.__AbstractRequest_postArgs)                                   // abstractRequest.jsxi:76
-				for (var key in this.__AbstractRequest_postArgs){                  // ...
-					var value = this.__AbstractRequest_postArgs[key];              // abstractRequest.jsxi:137
-					additional[key] = value;                                       // ...
+				for (var key in this.__AbstractRequest_postArgs){                  // abstractRequest.jsxi:137
+					var value = this.__AbstractRequest_postArgs [key];             // ...
+					additional [key] = value;                                      // ...
 				}
 			if (active.hasOwnProperty (serialized)){                               // abstractRequest.jsxi:139
-				active[serialized].callbacks.push (callback);                      // abstractRequest.jsxi:140
+				active [serialized].callbacks.push (callback);                     // abstractRequest.jsxi:140
 			} else {
-				active[serialized] = { request: this, callbacks: [ callback ] };   // abstractRequest.jsxi:142
+				active [serialized] = { request: this, callbacks: [ callback ] };
 				if (!wait){                                                        // abstractRequest.jsxi:144
 					wait = true;                                                   // abstractRequest.jsxi:145
 					setTimeout (__bo (this, '__AbstractRequest_process'), 10);     // abstractRequest.jsxi:146
@@ -1584,43 +1584,43 @@ var Storage = function (){                                                      
 		var AbstractElement = function (host){                                     // abstractElement.jsxi:8
 			if (this.constructor === AbstractElement)
 				throw new Error ('Trying to instantiate abstract class AbstractElement');
-			this.isFailed = false;                                                 // abstractElement.jsxi:5
-			this.__AbstractElement_callbacks = [];                                 // abstractElement.jsxi:6
-			this.host = $ (host);                                                  // abstractElement.jsxi:9
-			this.isLoaded = !!this.__param ('loaded');                             // abstractElement.jsxi:76
-			this.__AbstractElement_fadable = this.isLoaded;                        // ...
+			this.isFailed = false;                                                 // zepto.jsxi:76
+			this.__AbstractElement_callbacks = [];                                 // ...
+			this.host = $(host);                                                   // abstractElement.jsxi:9
+			this.isLoaded = !!this.__param ('loaded');                             // abstractElement.jsxi:10
+			this.__AbstractElement_fadable = this.isLoaded;                        // abstractElement.jsxi:11
 		};
-		AbstractElement.prototype.on = function (fn){                              // abstractElement.jsxi:16
-			if (!this.isLoaded)                                                    // abstractElement.jsxi:76
+		AbstractElement.prototype.on = function (fn){
+			if (!this.isLoaded)                                                    // abstractElement.jsxi:17
 				this.__AbstractElement_callbacks.push (fn);                        // abstractElement.jsxi:18
 		};
 		AbstractElement.prototype.__loaded = function (){
-			if (!this.isLoaded && !this.isFailed){                                 // abstractElement.jsxi:76
+			if (!this.isLoaded && !this.isFailed){                                 // abstractElement.jsxi:22
 				this.isLoaded = true;                                              // abstractElement.jsxi:23
 				for (var _2 = 0; _2 < this.__AbstractElement_callbacks.length; _2 ++){
-					var callback = this.__AbstractElement_callbacks[_2];           // abstractElement.jsxi:25
+					var callback = this.__AbstractElement_callbacks [_2];          // abstractElement.jsxi:25
 					callback ();                                                   // ...
 				}
 				this.__AbstractElement_callbacks = undefined;                      // abstractElement.jsxi:26
 			}
 		};
-		AbstractElement.prototype.__failed = function (error){                     // abstractElement.jsxi:29
-			if (!this.isLoaded && !this.isFailed){                                 // abstractElement.jsxi:76
+		AbstractElement.prototype.__failed = function (error){
+			if (!this.isLoaded && !this.isFailed){                                 // abstractElement.jsxi:30
 				this.isFailed = true;                                              // abstractElement.jsxi:31
 				for (var _3 = 0; _3 < this.__AbstractElement_callbacks.length; _3 ++){
-					var callback = this.__AbstractElement_callbacks[_3];           // abstractElement.jsxi:33
+					var callback = this.__AbstractElement_callbacks [_3];          // abstractElement.jsxi:33
 					callback (null, error);                                        // ...
 				}
 				this.__AbstractElement_callbacks = undefined;                      // abstractElement.jsxi:34
 			}
 		};
-		AbstractElement.prototype.__param = function (key, required){              // abstractElement.jsxi:37
+		AbstractElement.prototype.__param = function (key, required){
 			var result = this.host.attr ('data-' + key);                           // abstractElement.jsxi:38
 			if (required)                                                          // abstractElement.jsxi:39
 				console.assert (result, 'Param \"' + key + '\" required');         // abstractElement.jsxi:40
 			return result;                                                         // abstractElement.jsxi:41
 		};
-		AbstractElement.prototype.__set = function (id, html){                     // abstractElement.jsxi:44
+		AbstractElement.prototype.__set = function (id, html){
 			if (typeof html !== 'string'){                                         // abstractElement.jsxi:45
 				html = id;                                                         // abstractElement.jsxi:46
 				id = undefined;                                                    // abstractElement.jsxi:47
@@ -1631,16 +1631,16 @@ var Storage = function (){                                                      
 				} else {
 					if (this.__AbstractElement_fadable){                           // abstractElement.jsxi:76
 						this.host.children ().css ('opacity', 0).timeout (function (arg){
-							return $ (this).remove ();                             // abstractElement.jsxi:59
+							return $(this).remove ();                              // abstractElement.jsxi:59
 						}, 
 						300);                                                      // ...
 					} else {
 						this.host.empty ();                                        // abstractElement.jsxi:61
 					}
-					this.host[0].insertAdjacentHTML ('beforeend', html);           // abstractElement.jsxi:64
+					this.host [0].insertAdjacentHTML ('beforeend', html);          // abstractElement.jsxi:64
 					if (this.__AbstractElement_fadable)                            // abstractElement.jsxi:76
 						this.host.children ().addClass ('fading').timeout (function (arg){
-							return $ (this).addClass ('visible');                  // abstractElement.jsxi:69
+							return $(this).addClass ('visible');                   // abstractElement.jsxi:69
 						});
 				}
 			}
@@ -1650,12 +1650,12 @@ var Storage = function (){                                                      
 			if (element === undefined)                                             // ...
 				element = document.body;                                           // ...
 			var result = [];                                                       // abstractElement.jsxi:77
-			$ (element).find ('[data-element]').each (function (arg){              // abstractElement.jsxi:79
-				var host = $ (this), temp = host.attr ('data-element');            // abstractElement.jsxi:81
+			$(element).find ('[data-element]').each (function (arg){               // abstractElement.jsxi:87
+				var host = $(this), temp = host.attr ('data-element');             // abstractElement.jsxi:81
 				host.removeAttr ('data-element').addClass ('host');                // abstractElement.jsxi:83
-				console.assert (AbstractElement.__types[temp],                     // abstractElement.jsxi:85
+				console.assert (AbstractElement.__types [temp],                    // abstractElement.jsxi:85
 					'Element type \"' + temp + '\" not found');                    // ...
-				result.push (new AbstractElement.__types[temp](host));             // abstractElement.jsxi:86
+				result.push (new AbstractElement.__types [temp](host));            // abstractElement.jsxi:86
 			});
 			if (result.length)                                                     // abstractElement.jsxi:89
 				result = result.concat (AbstractElement.process (element));        // abstractElement.jsxi:90
@@ -1697,45 +1697,45 @@ var Storage = function (){                                                      
 	}(), 
 	Footer = function (){                                                          // footer.jsxi:1
 		var Footer = function (host){                                              // footer.jsxi:7
-			AbstractElement.call (this, host);                                     // footer.jsxi:76
-			this.__set (Mustache.footer (), true);                                 // ...
-			this.__loaded ();                                                      // ...
+			AbstractElement.call (this, host);                                     // footer.jsxi:8
+			this.__set (Mustache.footer (), true);                                 // footer.jsxi:9
+			this.__loaded ();                                                      // footer.jsxi:10
 		};
 		__pe (Footer, AbstractElement);
 		Footer.prototype.destroy = function (){};
 		(function (arg){                                                           // footer.jsxi:5
-			AbstractElement.__types['footer'] = Footer;                            // ...
+			AbstractElement.__types ['footer'] = Footer;                           // ...
 		}());
 		return Footer;
 	}(), 
 	Header = function (){                                                          // header.jsxi:1
 		var Header = function (host){                                              // header.jsxi:12
-			AbstractElement.call (this, host);                                     // header.jsxi:76
-			this.__Header_section = this.__param ('section', true);                // ...
-			this.__Header_documentTitle = this.__param ('set-title');              // ...
-			this.__set (Mustache.header ());                                       // ...
+			AbstractElement.call (this, host);                                     // header.jsxi:13
+			this.__Header_section = this.__param ('section', true);                // header.jsxi:15
+			this.__Header_documentTitle = this.__param ('set-title');              // header.jsxi:16
+			this.__set (Mustache.header ());                                       // header.jsxi:18
 			this.__Header_request = new SectionsRequest ().send (__bo (this, '__Header_build'));
 		};
 		__pe (Header, AbstractElement);
-		Header.prototype.__Header_updateTitle = function (value){                  // header.jsxi:23
+		Header.prototype.__Header_updateTitle = function (value){
 			return document.title = value ? this.__Header_description : 'Поня.ч – ' + this.__Header_description;
 		};
-		Header.prototype.__Header_build = function (data, errorCode){              // header.jsxi:26
+		Header.prototype.__Header_build = function (data, errorCode){
 			var __that = this;                                                     // header.jsxi:76
 			if (data === null){                                                    // header.jsxi:27
-				this.__failed (errorCode);                                         // header.jsxi:76
+				this.__failed (errorCode);                                         // header.jsxi:28
 			} else {
-				var entry = data[0].filter (function (arg){                        // header.jsxi:30
-						return arg.name === __that.__Header_section;               // header.jsxi:76
-					})[0],                                                         // header.jsxi:30
+				var entry = data [0].filter (function (arg){                       // header.jsxi:31
+						return arg.name === __that.__Header_section;               // header.jsxi:30
+					})[0],                                                         // ...
 					url;                                                           // header.jsxi:31
 				if (entry){                                                        // header.jsxi:33
-					this.__Header_description = entry[(entry instanceof Header ? '__Header_description' : 'description')] || '/' + this.__Header_section + '/';
+					this.__Header_description = entry [(entry instanceof Header ? '__Header_description' : 'description')] || '/' + this.__Header_section + '/';
 					url = '/' + this.__Header_section + '/';                       // header.jsxi:35
 				} else {
-					entry = data[1].filter (function (arg){                        // header.jsxi:37
-						return arg.url === '/' + __that.__Header_section;          // header.jsxi:76
-					})[0];                                                         // header.jsxi:37
+					entry = data [1].filter (function (arg){                       // header.jsxi:37
+						return arg.url === '/' + __that.__Header_section;          // ...
+					})[0];                                                         // ...
 					if (entry){                                                    // header.jsxi:39
 						this.__Header_description = entry.name;                    // header.jsxi:40
 						url = entry.url;                                           // header.jsxi:41
@@ -1746,8 +1746,8 @@ var Storage = function (){                                                      
 				this.__set ('content',                                             // header.jsxi:47
 					Mustache.headerContent (entry, { url: url, description: this.__Header_description }),
 					true);                                                         // ...
-				this.__loaded ();                                                  // header.jsxi:76
-				if (this.__Header_documentTitle)                                   // ...
+				this.__loaded ();                                                  // header.jsxi:49
+				if (this.__Header_documentTitle)                                   // header.jsxi:76
 					Preferences.on ('old-style-title', __bo (this, '__Header_updateTitle'));
 			}
 		};
@@ -1756,7 +1756,7 @@ var Storage = function (){                                                      
 			this.__Header_request.cancel ();                                       // header.jsxi:57
 		};
 		(function (arg){                                                           // header.jsxi:5
-			AbstractElement.__types['header'] = Header;                            // ...
+			AbstractElement.__types ['header'] = Header;                           // ...
 		}());
 		return Header;
 	}(), 
@@ -1766,10 +1766,10 @@ var Storage = function (){                                                      
 			this.__ThreadPage_thread = thread;                                     // threadPage.jsxi:9
 		};
 		__pe (ThreadPage, AbstractPage);
-		ThreadPage.prototype.build = function (data, error){                       // threadPage.jsxi:12
+		ThreadPage.prototype.build = function (data, error){
 			return Mustache.threadPage ({
-				section: this.__ThreadPage_section,                                // threadPage.jsxi:76
-				thread: this.__ThreadPage_thread                                   // ...
+				section: this.__ThreadPage_section,                                // threadPage.jsxi:16
+				thread: this.__ThreadPage_thread                                   // threadPage.jsxi:15
 			});
 		};
 		return ThreadPage;
@@ -1780,21 +1780,21 @@ var Storage = function (){                                                      
 		};
 		__pe (StaticPage, AbstractPage);
 		StaticPage.prototype.__title = function (){
-			return 'Поня.ч';                                                       // staticPage.jsxi:12
+			return 'Поня.ч';                                                       // staticPage.jsxi:14
 		};
-		StaticPage.prototype.build = function (data){                              // staticPage.jsxi:14
+		StaticPage.prototype.build = function (data){
 			return Mustache.staticPage ({ host: location.host, path: this.__StaticPage_path });
 		};
 		return StaticPage;
 	}(), 
 	PostsList = function (){                                                       // postsList.jsxi:1
 		var PostsList = function (host){                                           // postsList.jsxi:33
-				this.__PostsList_faviconSwitched = false;                          // postsList.jsxi:26
-				this.__PostsList_unread = 0;                                       // postsList.jsxi:29
-				AbstractElement.call (this, host);                                 // postsList.jsxi:76
-				this.__PostsList_section = this.__param ('section');               // ...
-				this.__PostsList_thread = this.__param ('thread');                 // ...
-				this.__PostsList_documentTitle = this.__param ('set-title');       // ...
+				this.__PostsList_faviconSwitched = false;                          // zepto.jsxi:76
+				this.__PostsList_unread = 0;                                       // ...
+				AbstractElement.call (this, host);                                 // postsList.jsxi:34
+				this.__PostsList_section = this.__param ('section');               // postsList.jsxi:36
+				this.__PostsList_thread = this.__param ('thread');                 // postsList.jsxi:37
+				this.__PostsList_documentTitle = this.__param ('set-title');       // postsList.jsxi:38
 				this.__PostsList_request = new PostsRequest (this.__PostsList_section, this.__PostsList_thread).send (__bo (this, '__PostsList_build'));
 				Autoupdate.on (__bo (this, '__PostsList_update'));                 // postsList.jsxi:42
 				Preferences.on ('autoupdate-mark-new form-position',               // postsList.jsxi:43
@@ -1809,10 +1809,10 @@ var Storage = function (){                                                      
 			onblur,                                                                // postsList.jsxi:7
 			faviconLink;                                                           // postsList.jsxi:8
 		__pe (PostsList, AbstractElement);
-		PostsList.prototype.__PostsList_preferences = function (value, key){       // postsList.jsxi:51
+		PostsList.prototype.__PostsList_preferences = function (value, key){
 			switch (key){                                                          // postsList.jsxi:52
 				case 'old-style-title':                                            // postsList.jsxi:53
-					this.__PostsList_updateTitle ();                               // postsList.jsxi:76
+					this.__PostsList_updateTitle ();                               // postsList.jsxi:54
 					break;                                                         // postsList.jsxi:55
 				case 'autoupdate-mark-new':                                        // postsList.jsxi:56
 					this.host.find ('.post .content.new').removeClass ('new');     // postsList.jsxi:57
@@ -1821,7 +1821,7 @@ var Storage = function (){                                                      
 					this.__PostsList_formPosition = value;                         // postsList.jsxi:60
 					var buttons = this.host.find ('[data-reply-mode=\"send-post\"]'),
 						forms = buttons.parent ().next ();                         // postsList.jsxi:63
-					$ (document.body).toggleClass ('form-popup-in-thread', value === 'popup');
+					$(document.body).toggleClass ('form-popup-in-thread', value === 'popup');
 					if (buttons.length)                                            // postsList.jsxi:67
 						switch (value){                                            // postsList.jsxi:68
 							case 'popup':                                          // postsList.jsxi:69
@@ -1836,7 +1836,7 @@ var Storage = function (){                                                      
 							case 'bottom':                                         // postsList.jsxi:76
 								var id = value === 'top' ? 0 : 1;                  // postsList.jsxi:77
 								if (!forms.eq (id).hasClass ('form'))              // postsList.jsxi:78
-									buttons[id].click ();                          // postsList.jsxi:79
+									buttons [id].click ();                         // postsList.jsxi:79
 								break;                                             // postsList.jsxi:80
 						}
 					break;                                                         // postsList.jsxi:83
@@ -1844,7 +1844,7 @@ var Storage = function (){                                                      
 		};
 		PostsList.prototype.__PostsList_faviconBlink = function (){
 			if (this.__PostsList_unread > 0 && Preferences.get ('autoupdate-favicon-blink') || this.__PostsList_faviconSwitched){
-				var old = $ ('link[rel=\"shortcut icon\"]'), href;                 // postsList.jsxi:89
+				var old = $('link[rel=\"shortcut icon\"]'), href;                  // postsList.jsxi:89
 				if (!faviconLink)                                                  // postsList.jsxi:91
 					faviconLink = old.attr ('href');                               // postsList.jsxi:92
 				this.__PostsList_faviconSwitched = this.__PostsList_unread > 0 && !this.__PostsList_faviconSwitched;
@@ -1853,7 +1853,7 @@ var Storage = function (){                                                      
 				else
 					href = faviconLink;                                            // postsList.jsxi:98
 				old.remove ();                                                     // postsList.jsxi:100
-				$ ('<link rel=\"shortcut icon\" href=\"' + href + '\">').appendTo (document.head);
+				$('<link rel=\"shortcut icon\" href=\"' + href + '\">').appendTo (document.head);
 			}
 		};
 		PostsList.prototype.__PostsList_opMessage = function (){
@@ -1864,63 +1864,63 @@ var Storage = function (){                                                      
 		};
 		PostsList.prototype.__PostsList_updateTitle = function (){
 			if (this.isLoaded){                                                    // postsList.jsxi:76
-				this.__PostsList_pageTitle ();                                     // ...
+				this.__PostsList_pageTitle ();                                     // postsList.jsxi:114
 				var result = Preferences.get ('old-style-title') ? this.__PostsList_title : 'Поня.ч – ' + this.__PostsList_title;
 				if (this.__PostsList_unread > 0)                                   // postsList.jsxi:117
 					result = '[' + this.__PostsList_unread + '] ' + result;        // postsList.jsxi:118
-				document[(document instanceof PostsList ? '__PostsList_title' : 'title')] = result;
+				document [(document instanceof PostsList ? '__PostsList_title' : 'title')] = result;
 			}
 		};
 		PostsList.prototype.__PostsList_pageTitle = function (){
 			if (this.__PostsList_title)                                            // postsList.jsxi:76
-				return this.__PostsList_title;                                     // ...
+				return this.__PostsList_title;                                     // postsList.jsxi:125
 			var post = Posts.get (this.__PostsList_section, this.__PostsList_thread),
 				text = post.subjectForced;                                         // postsList.jsxi:128
 			return this.__PostsList_title = '/' + this.__PostsList_section + ' – ' + text;
 		};
-		PostsList.prototype.__PostsList_build = function (data, errorCode){        // postsList.jsxi:133
+		PostsList.prototype.__PostsList_build = function (data, errorCode){
 			var __that = this;                                                     // postsList.jsxi:76
 			if (data === null){                                                    // postsList.jsxi:134
-				this.__failed (errorCode);                                         // postsList.jsxi:76
+				this.__failed (errorCode);                                         // postsList.jsxi:135
 			} else {
 				__dt (true, 'posts list: html build');                             // postsList.jsxi:137
-				var childs = '',                                                   // postsList.jsxi:139
+				var childs = '',                                                   // postsList.jsxi:142
 					posts,                                                         // postsList.jsxi:140
 					wrapper,                                                       // postsList.jsxi:141
 					max = Preferences.get ('all-posts-at-a-time') ? 10000000000 : 25;
-				if (data[0].hidden)                                                // postsList.jsxi:144
+				if (data [0].hidden)                                               // postsList.jsxi:144
 					Hiddens.show (this.__PostsList_section + '/' + this.__PostsList_thread);
-				for (var i = 1; i < data.length && i < max; i ++)                  // postsList.jsxi:147
-					childs += Post.buildHtml (data[i]);                            // postsList.jsxi:148
-				posts = Post.buildHtml (data[0], { childs: childs });              // postsList.jsxi:150
+				for (var i = 1; i < data.length && i < max; i ++)                  // postsList.jsxi:148
+					childs += Post.buildHtml (data [i]);                           // ...
+				posts = Post.buildHtml (data [0], { childs: childs });             // postsList.jsxi:150
 				__dt (false, 'posts list: html build');                            // postsList.jsxi:152
 				__dt (true, 'posts list: html set');                               // ...
-				this.__set (Mustache.postsList ({ posts: posts }));                // postsList.jsxi:76
-				var delayed = function (arg){                                      // postsList.jsxi:156
+				this.__set (Mustache.postsList ({ posts: posts }));                // postsList.jsxi:154
+				var delayed = function (arg){                                      // postsList.jsxi:190
 					if (i < data.length){                                          // postsList.jsxi:157
 						for (var k = 0, childs = ''; i < data.length && k < max; i ++, k ++)
-							childs += Post.buildHtml (data[i]);                    // postsList.jsxi:159
+							childs += Post.buildHtml (data [i]);                   // postsList.jsxi:159
 						if (!wrapper)                                              // postsList.jsxi:160
 							wrapper = __that.host.findId ('childs')[0];            // postsList.jsxi:161
 						wrapper.insertAdjacentHTML ('beforeend', childs);          // postsList.jsxi:162
 						nextTick (delayed);                                        // postsList.jsxi:163
 					} else {
 						__dt (false, 'posts list: html set');                      // postsList.jsxi:165
-						onfocus = function (arg){                                  // postsList.jsxi:167
-							if (__that.__PostsList_unread > 0){                    // ...
-								__that.__PostsList_faviconBlink ();                // postsList.jsxi:76
+						onfocus = function (arg){                                  // postsList.jsxi:173
+							if (__that.__PostsList_unread > 0){                    // postsList.jsxi:167
+								__that.__PostsList_faviconBlink ();                // postsList.jsxi:168
 								__that.__PostsList_unread = 0;                     // postsList.jsxi:169
 								if (__that.__PostsList_documentTitle)              // postsList.jsxi:76
-									__that.__PostsList_updateTitle ();             // ...
+									__that.__PostsList_updateTitle ();             // postsList.jsxi:172
 							}
 						};
-						onblur = __bo (__that, '__PostsList_resetNew');            // ...
-						__that.__loaded ();                                        // ...
+						onblur = __bo (__that, '__PostsList_resetNew');            // postsList.jsxi:175
+						__that.__loaded ();                                        // postsList.jsxi:176
 						if (__that.__PostsList_formPosition === 'top' || __that.__PostsList_formPosition === 'bottom')
 							__that.host.find ('[data-reply-mode=\"send-post\"]')[(__that.__PostsList_formPosition === 'top' ? 0 : 1)].click ();
-						nextTick (function (arg){                                  // postsList.jsxi:181
+						nextTick (function (arg){                                  // postsList.jsxi:187
 							if (__that.__PostsList_documentTitle)                  // postsList.jsxi:76
-								__that.__PostsList_updateTitle ();                 // ...
+								__that.__PostsList_updateTitle ();                 // postsList.jsxi:183
 							Embed.process (__that.host);                           // postsList.jsxi:185
 							Statistics.threadVisited (__that.__PostsList_section, __that.__PostsList_thread);
 						});
@@ -1937,21 +1937,21 @@ var Storage = function (){                                                      
 				} else if (data.length > 0){                                       // postsList.jsxi:197
 					var html = '';                                                 // postsList.jsxi:198
 					for (var _u = 0; _u < data.length; _u ++){                     // postsList.jsxi:208
-						var post = data[_u];                                       // ...
-						html += Post.buildHtml (post,                              // postsList.jsxi:202
+						var post = data [_u];                                      // ...
+						html += Post.buildHtml (post,                              // ...
 							!focus && Preferences.get ('autoupdate-mark-new') ? { newPost: true } : undefined);
 					}
-					if (!focus){                                                   // postsList.jsxi:208
+					if (!focus){                                                   // ...
 						__that.__PostsList_unread += data.length;                  // postsList.jsxi:209
 						if (__that.__PostsList_documentTitle)                      // postsList.jsxi:76
-							__that.__PostsList_updateTitle ();                     // ...
+							__that.__PostsList_updateTitle ();                     // postsList.jsxi:211
 						if (Preferences.get ('autoupdate-desktop-notifications')){
-							if (__that.__PostsList_notification)                   // ...
+							if (__that.__PostsList_notification)                   // postsList.jsxi:76
 								__that.__PostsList_notification.close ();          // postsList.jsxi:215
 							var icon;                                              // postsList.jsxi:217
-							for (var i = data.length - 1; i >= 0; i --)            // postsList.jsxi:219
-								if (data[i].file){                                 // postsList.jsxi:220
-									icon = data[i].file.thumbinal;                 // postsList.jsxi:221
+							for (var i = data.length - 1; i >= 0; i --)            // postsList.jsxi:223
+								if (data [i].file){                                // postsList.jsxi:220
+									icon = data [i].file.thumbinal;                // postsList.jsxi:221
 									break;                                         // postsList.jsxi:222
 								}
 							__that.__PostsList_notification = new Notification (__that.__PostsList_pageTitle (),
@@ -1959,7 +1959,7 @@ var Storage = function (){                                                      
 									body: __that.__PostsList_unread + ' нов' + __that.__PostsList_unread.postfix ('ое', 'ых', 'ых') + ' сообщени' + __that.__PostsList_unread.postfix ('е', 'я', 'й'),
 									icon: icon                                     // postsList.jsxi:227
 								});
-							$ (__that.__PostsList_notification).click (function (arg){
+							$(__that.__PostsList_notification).click (function (arg){
 								window.focus ();                                   // postsList.jsxi:232
 							}).on ('show',                                         // postsList.jsxi:234
 								function (arg){                                    // ...
@@ -1976,7 +1976,7 @@ var Storage = function (){                                                      
 		};
 		PostsList.prototype.__PostsList_sended = function (){
 			if (Preferences.get ('scroll-after-send'))                             // postsList.jsxi:250
-				setTimeout (function (arg){                                        // postsList.jsxi:251
+				setTimeout (function (arg){                                        // postsList.jsxi:253
 					Application.scrollTo (10000000000);                            // postsList.jsxi:252
 				}, 
 				300);                                                              // postsList.jsxi:253
@@ -1989,14 +1989,14 @@ var Storage = function (){                                                      
 			if (this.__PostsList_notification)                                     // postsList.jsxi:76
 				this.__PostsList_notification.close ();                            // postsList.jsxi:263
 			clearInterval (this.__PostsList_blinkId);                              // postsList.jsxi:265
-			$ (document.body).removeClass ('form-popup-in-thread');                // postsList.jsxi:266
+			$(document.body).removeClass ('form-popup-in-thread');                 // postsList.jsxi:266
 			onblur = null;                                                         // postsList.jsxi:269
 			onfocus = null;                                                        // postsList.jsxi:270
 		};
 		(function (arg){                                                           // postsList.jsxi:10
-			AbstractElement.__types['posts-list'] = PostsList;                     // postsList.jsxi:11
-			$ (window).on ('blur focus',                                           // postsList.jsxi:13
-				function (arg){                                                    // ...
+			AbstractElement.__types ['posts-list'] = PostsList;                    // postsList.jsxi:11
+			$(window).on ('blur focus',                                            // postsList.jsxi:19
+				function (arg){                                                    // postsList.jsxi:13
 					focus = arg.type === 'focus';                                  // postsList.jsxi:14
 					if (focus && typeof onfocus === 'function')                    // postsList.jsxi:15
 						onfocus ();                                                // postsList.jsxi:16
@@ -2012,10 +2012,10 @@ var Storage = function (){                                                      
 			this.__SectionPage_pageNumber = pageNumber;                            // sectionPage.jsxi:9
 		};
 		__pe (SectionPage, AbstractPage);
-		SectionPage.prototype.build = function (data, error){                      // sectionPage.jsxi:12
+		SectionPage.prototype.build = function (data, error){
 			return Mustache.sectionPage ({
-				section: this.__SectionPage_section,                               // sectionPage.jsxi:76
-				pageNumber: this.__SectionPage_pageNumber                          // ...
+				section: this.__SectionPage_section,                               // sectionPage.jsxi:16
+				pageNumber: this.__SectionPage_pageNumber                          // sectionPage.jsxi:15
 			});
 		};
 		return SectionPage;
@@ -2033,19 +2033,19 @@ var Storage = function (){                                                      
 		};
 		function initialize (section){                                             // posts.jsxi:12
 			if (!posts.hasOwnProperty (section)){                                  // posts.jsxi:13
-				posts[section] = {};                                               // posts.jsxi:14
-				threads[section] = {};                                             // posts.jsxi:15
+				posts [section] = {};                                              // posts.jsxi:14
+				threads [section] = {};                                            // posts.jsxi:15
 			}
 		}
 		Posts.add = function (data){                                               // posts.jsxi:18
 			initialize (data.section);                                             // posts.jsxi:19
-			var sectionPosts = posts[data.section],                                // posts.jsxi:21
-				sectionThreads = threads[data.section];                            // posts.jsxi:22
-			sectionPosts[data.id] = data;                                          // posts.jsxi:24
+			var sectionPosts = posts [data.section],                               // posts.jsxi:22
+				sectionThreads = threads [data.section];                           // ...
+			sectionPosts [data.id] = data;                                         // posts.jsxi:24
 			if (sectionThreads.hasOwnProperty (data.thread))                       // posts.jsxi:26
-				sectionThreads[data.thread].push (data);                           // posts.jsxi:27
+				sectionThreads [data.thread].push (data);                          // posts.jsxi:27
 			else
-				sectionThreads[data.thread] = [ data ];                            // posts.jsxi:29
+				sectionThreads [data.thread] = [ data ];                           // posts.jsxi:29
 			dispatcher.call ('add', data);                                         // posts.jsxi:31
 		};
 		Posts.remove = function (section, id){                                     // posts.jsxi:34
@@ -2058,20 +2058,20 @@ var Storage = function (){                                                      
 		Posts.get = function (section, id){                                        // posts.jsxi:43
 			if (id === undefined){                                                 // posts.jsxi:44
 				var temp = section.split ('/');                                    // posts.jsxi:45
-				section = temp[0];                                                 // posts.jsxi:46
-				id = temp[1];                                                      // posts.jsxi:47
+				section = temp [0];                                                // posts.jsxi:46
+				id = temp [1];                                                     // posts.jsxi:47
 			}
 			initialize (section);                                                  // posts.jsxi:50
-			return posts[section][id];                                             // posts.jsxi:51
+			return posts [section][id];                                            // posts.jsxi:51
 		};
 		Posts.thread = function (section, id){                                     // posts.jsxi:54
 			if (id === undefined){                                                 // posts.jsxi:55
 				var temp = section.split ('/');                                    // posts.jsxi:56
-				section = temp[0];                                                 // posts.jsxi:57
-				id = temp[1];                                                      // posts.jsxi:58
+				section = temp [0];                                                // posts.jsxi:57
+				id = temp [1];                                                     // posts.jsxi:58
 			}
 			initialize (section);                                                  // posts.jsxi:61
-			return threads[section][id];                                           // posts.jsxi:62
+			return threads [section][id];                                          // posts.jsxi:62
 		};
 		return Posts;
 	}(), 
@@ -2079,9 +2079,9 @@ var Storage = function (){                                                      
 		var IndexPage = function (){};
 		__pe (IndexPage, AbstractPage);
 		IndexPage.prototype.__title = function (){
-			return 'Поня.ч';                                                       // indexPage.jsxi:6
+			return 'Поня.ч';                                                       // indexPage.jsxi:8
 		};
-		IndexPage.prototype.build = function (data){                               // indexPage.jsxi:8
+		IndexPage.prototype.build = function (data){
 			return Mustache.indexPage ({ host: location.host });                   // indexPage.jsxi:9
 		};
 		return IndexPage;
@@ -2093,7 +2093,7 @@ var Storage = function (){                                                      
 			AbstractRequest.call (this, 'post', { board_name: section, post_id: post });
 		};
 		__pe (PostRequest, AbstractRequest);
-		PostRequest.prototype.__preprocess = function (raw){                       // postRequest.jsxi:11
+		PostRequest.prototype.__preprocess = function (raw){
 			if (raw === false)                                                     // postRequest.jsxi:12
 				throw new Error (1404);                                            // postRequest.jsxi:13
 			if (!raw || typeof raw !== 'object')                                   // postRequest.jsxi:15
@@ -2106,49 +2106,49 @@ var Storage = function (){                                                      
 	}(), 
 	StaticContent = function (){                                                   // staticContent.jsxi:1
 		var StaticContent = function (host){                                       // staticContent.jsxi:10
-			AbstractElement.call (this, host);                                     // staticContent.jsxi:76
-			this.__set (Mustache.staticContent (), true);                          // ...
-			this.__StaticContent_path = this.__param ('path');                     // ...
+			AbstractElement.call (this, host);                                     // staticContent.jsxi:11
+			this.__set (Mustache.staticContent (), true);                          // staticContent.jsxi:12
+			this.__StaticContent_path = this.__param ('path');                     // staticContent.jsxi:14
 			this.__StaticContent_request = new StaticContentRequest (this.__StaticContent_path).send (__bo (this, '__build'));
 		};
 		__pe (StaticContent, AbstractElement);
-		StaticContent.prototype.__build = function (data, errorCode){              // staticContent.jsxi:18
+		StaticContent.prototype.__build = function (data, errorCode){
 			if (data === null){                                                    // staticContent.jsxi:19
-				this.__failed (errorCode);                                         // staticContent.jsxi:76
+				this.__failed (errorCode);                                         // staticContent.jsxi:20
 			} else {
-				this.__set ('content', data, true);                                // ...
-				this.__loaded ();                                                  // ...
+				this.__set ('content', data, true);                                // staticContent.jsxi:22
+				this.__loaded ();                                                  // staticContent.jsxi:23
 			}
 		};
 		StaticContent.prototype.destroy = function (){
 			this.__StaticContent_request.cancel ();                                // staticContent.jsxi:27
 		};
 		(function (arg){                                                           // staticContent.jsxi:5
-			AbstractElement.__types['static-content'] = StaticContent;             // ...
+			AbstractElement.__types ['static-content'] = StaticContent;            // ...
 		}());
 		return StaticContent;
 	}(), 
 	Status = function (){                                                          // status.jsxi:1
 		var Status = function (host){                                              // status.jsxi:10
-			this.__Status_previous = {};                                           // status.jsxi:7
-			AbstractElement.call (this, host);                                     // status.jsxi:76
+			this.__Status_previous = {};                                           // zepto.jsxi:76
+			AbstractElement.call (this, host);                                     // status.jsxi:11
 			Autoupdate.on (__bo (this, '__Status_autoupdate'));                    // status.jsxi:13
-			this.__Status_autoupdate ();                                           // status.jsxi:76
-			this.__set (Mustache.status (), true);                                 // ...
+			this.__Status_autoupdate ();                                           // status.jsxi:14
+			this.__set (Mustache.status (), true);                                 // status.jsxi:16
 		};
 		__pe (Status, AbstractElement);
 		Status.prototype.__Status_autoupdate = function (){
 			return this.__Status_request = new StatusRequest ().send (__bo (this, '__Status_update'));
 		};
-		Status.prototype.__Status_update = function (data, errorCode){             // status.jsxi:22
+		Status.prototype.__Status_update = function (data, errorCode){
 			var params, html;                                                      // status.jsxi:23
 			if (data === null){                                                    // status.jsxi:25
-				this.__failed (errorCode);                                         // status.jsxi:76
+				this.__failed (errorCode);                                         // status.jsxi:26
 			} else {
 				params = $.extend ({ speedPostfix: data.speed.postfix ('', 'а', 'ов') }, data);
 				if (params.speed !== this.__Status_previous.speed || params.online !== this.__Status_previous.online){
-					this.__set (Mustache.status (params), true);                   // ...
-					this.__loaded ();                                              // ...
+					this.__set (Mustache.status (params), true);                   // status.jsxi:31
+					this.__loaded ();                                              // status.jsxi:32
 					this.__Status_previous = params;                               // status.jsxi:33
 				}
 			}
@@ -2159,34 +2159,34 @@ var Storage = function (){                                                      
 			Autoupdate.off (__bo (this, '__Status_update'));                       // status.jsxi:41
 		};
 		(function (arg){                                                           // status.jsxi:5
-			AbstractElement.__types['status'] = Status;                            // ...
+			AbstractElement.__types ['status'] = Status;                           // ...
 		}());
 		return Status;
 	}(), 
 	ThreadsList = function (){                                                     // threadsList.jsxi:1
 		var ThreadsList = function (host){                                         // threadsList.jsxi:9
-			AbstractElement.call (this, host, false);                              // threadsList.jsxi:76
-			this.__ThreadsList_section = this.__param ('section');                 // ...
-			this.__ThreadsList_pageNumber = this.__param ('page-number');          // ...
+			AbstractElement.call (this, host, false);                              // threadsList.jsxi:10
+			this.__ThreadsList_section = this.__param ('section');                 // threadsList.jsxi:12
+			this.__ThreadsList_pageNumber = this.__param ('page-number');          // threadsList.jsxi:13
 			this.__ThreadsList_request = new ThreadsRequest (this.__ThreadsList_section, this.__ThreadsList_pageNumber).send (__bo (this, '__ThreadsList_build'));
 			Form.on ('sended', __bo (this, '__ThreadsList_sended'));               // threadsList.jsxi:16
 		};
 		__pe (ThreadsList, AbstractElement);
-		ThreadsList.prototype.__ThreadsList_build = function (data, errorCode){    // threadsList.jsxi:20
+		ThreadsList.prototype.__ThreadsList_build = function (data, errorCode){
 			if (data === null){                                                    // threadsList.jsxi:21
-				this.__failed (errorCode);                                         // threadsList.jsxi:76
+				this.__failed (errorCode);                                         // threadsList.jsxi:22
 			} else {
 				__dt (true, 'threads list: html build');                           // threadsList.jsxi:24
 				var threads = '', pages;                                           // threadsList.jsxi:27
 				{
 					var _11 = data.threads;                                        // threadsList.jsxi:37
-					for (var i = 0; i < _11.length; i ++){                         // threadsList.jsxi:29
-						var entry = _11[i];                                        // threadsList.jsxi:37
+					for (var i = 0; i < _11.length; i ++){                         // ...
+						var entry = _11 [i];                                       // ...
 						var childs = '';                                           // threadsList.jsxi:30
 						{
 							var _10 = entry.childs;                                // threadsList.jsxi:33
 							for (var _v = 0; _v < _10.length; _v ++){              // ...
-								var child = _10[_v];                               // ...
+								var child = _10 [_v];                              // ...
 								childs += Post.buildHtml (child);                  // ...
 							}
 							_10 = undefined;                                       // ...
@@ -2198,15 +2198,15 @@ var Storage = function (){                                                      
 				}
 				if (data.pagesCount > 1){                                          // threadsList.jsxi:39
 					pages = [];                                                    // threadsList.jsxi:40
-					for (var i = 0; i < data.pagesCount; i ++)                     // threadsList.jsxi:42
+					for (var i = 0; i < data.pagesCount; i ++)                     // threadsList.jsxi:46
 						pages.push ({ current: i == this.__ThreadsList_pageNumber, number: i });
 				}
 				__dt (false, 'threads list: html build');                          // threadsList.jsxi:49
 				__dt (true, 'threads list: html set');                             // ...
 				this.__set (Mustache.threadsList ({
-					section: this.__ThreadsList_section,                           // threadsList.jsxi:76
+					section: this.__ThreadsList_section,                           // threadsList.jsxi:62
 					threads: threads,                                              // threadsList.jsxi:54
-					pageNumber: this.__ThreadsList_pageNumber,                     // threadsList.jsxi:76
+					pageNumber: this.__ThreadsList_pageNumber,                     // threadsList.jsxi:55
 					pages: pages && {
 						previousPage: this.__ThreadsList_pageNumber == 0 ? false : this.__ThreadsList_pageNumber - 1,
 						nextPage: this.__ThreadsList_pageNumber == data.pages - 1 ? false : this.__ThreadsList_pageNumber + 1,
@@ -2214,35 +2214,35 @@ var Storage = function (){                                                      
 					}
 				}));
 				__dt (false, 'threads list: html set');                            // threadsList.jsxi:64
-				this.__loaded ();                                                  // threadsList.jsxi:76
+				this.__loaded ();                                                  // threadsList.jsxi:66
 				Embed.process (this.host);                                         // threadsList.jsxi:67
 			}
 		};
-		ThreadsList.prototype.expand = function (button, count){                   // threadsList.jsxi:70
+		ThreadsList.prototype.expand = function (button, count){
 			var __that = this;                                                     // threadsList.jsxi:76
-			var threadNode = button.closest ('.thread'),                           // threadsList.jsxi:71
+			var threadNode = button.closest ('.thread'),                           // threadsList.jsxi:73
 				threadId = + threadNode.find ('[data-post]').data ('post').split ('/')[1],
-				message = new Message ('loading').show ();                         // threadsList.jsxi:73
+				message = new Message ('loading').show ();                         // ...
 			this.__ThreadsList_request = new PostsRequest (this.__ThreadsList_section, threadId).send (function (data, error){
 				if (data === null){                                                // threadsList.jsxi:76
 					console.warn ('Not implemented at 77 line of threadsList.jsxi');
 				} else {
-					var html = '',                                                 // threadsList.jsxi:79
+					var html = '',                                                 // threadsList.jsxi:83
 						from = Math.max (data.length - count, 1),                  // threadsList.jsxi:80
 						omittedPosts = 0,                                          // threadsList.jsxi:81
 						omittedImages = 0,                                         // threadsList.jsxi:82
 						target = __that.host.find ('[data-post=\"' + __that.__ThreadsList_section + '/' + threadId + '\"] [data-id=\"childs\"]');
-					for (var i = from; i < data.length; i ++){                     // threadsList.jsxi:85
-						var post = data[i];                                        // threadsList.jsxi:86
+					for (var i = from; i < data.length; i ++){                     // threadsList.jsxi:86
+						var post = data [i];                                       // ...
 						html += Post.buildHtml (post);                             // ...
 					}
-					for (var i = 1; i < from; i ++){                               // threadsList.jsxi:88
+					for (var i = 1; i < from; i ++){                               // threadsList.jsxi:93
 						omittedPosts ++;                                           // threadsList.jsxi:89
-						if (data[i].file)                                          // threadsList.jsxi:91
+						if (data [i].file)                                         // threadsList.jsxi:91
 							omittedImages ++;                                      // threadsList.jsxi:92
 					}
 					target.data ('expanded', count);                               // threadsList.jsxi:95
-					__that.__set (target,                                          // threadsList.jsxi:96
+					__that.__set (target,                                          // threadsList.jsxi:99
 						Mustache.postChilds ({
 							omitted: PonyabaUtils.omitted (omittedPosts, omittedImages),
 							childs: html                                           // threadsList.jsxi:98
@@ -2252,31 +2252,31 @@ var Storage = function (){                                                      
 				}
 			});
 		};
-		ThreadsList.prototype.__ThreadsList_sended = function (data){              // threadsList.jsxi:107
+		ThreadsList.prototype.__ThreadsList_sended = function (data){
 			var __that = this;                                                     // threadsList.jsxi:76
-			if (data[(data instanceof ThreadsList ? '__ThreadsList_section' : 'section')] === this.__ThreadsList_section && data.thread !== undefined){
-				var target = this.host.find ('[data-post=\"' + data[(data instanceof ThreadsList ? '__ThreadsList_section' : 'section')] + '/' + data.thread + '\"] [data-id=\"childs\"]'),
+			if (data [(data instanceof ThreadsList ? '__ThreadsList_section' : 'section')] === this.__ThreadsList_section && data.thread !== undefined){
+				var target = this.host.find ('[data-post=\"' + data [(data instanceof ThreadsList ? '__ThreadsList_section' : 'section')] + '/' + data.thread + '\"] [data-id=\"childs\"]'),
 					count = target.data ('expanded', count) || 5;                  // threadsList.jsxi:110
 				if (target.length > 0)                                             // threadsList.jsxi:112
-					this.__ThreadsList_request = new PostsRequest (data[(data instanceof ThreadsList ? '__ThreadsList_section' : 'section')],
+					this.__ThreadsList_request = new PostsRequest (data [(data instanceof ThreadsList ? '__ThreadsList_section' : 'section')],
 						data.thread).send (function (data, error){                 // threadsList.jsxi:113
 						if (data === null){                                        // threadsList.jsxi:114
 							console.warn ('Not implemented at 115 line of threadsList.jsxi');
 						} else {
-							var html = '',                                         // threadsList.jsxi:117
+							var html = '',                                         // threadsList.jsxi:120
 								from = Math.max (data.length - count, 1),          // threadsList.jsxi:118
 								omittedPosts = 0,                                  // threadsList.jsxi:119
 								omittedImages = 0;                                 // threadsList.jsxi:120
-							for (var i = from; i < data.length; i ++){             // threadsList.jsxi:122
-								var post = data[i];                                // threadsList.jsxi:123
+							for (var i = from; i < data.length; i ++){             // threadsList.jsxi:123
+								var post = data [i];                               // ...
 								html += Post.buildHtml (post);                     // ...
 							}
-							for (var i = 1; i < from; i ++){                       // threadsList.jsxi:125
+							for (var i = 1; i < from; i ++){                       // threadsList.jsxi:130
 								omittedPosts ++;                                   // threadsList.jsxi:126
-								if (data[i].file)                                  // threadsList.jsxi:128
+								if (data [i].file)                                 // threadsList.jsxi:128
 									omittedImages ++;                              // threadsList.jsxi:129
 							}
-							__that.__set (target,                                  // threadsList.jsxi:132
+							__that.__set (target,                                  // threadsList.jsxi:135
 								Mustache.postChilds ({
 									omitted: PonyabaUtils.omitted (omittedPosts, omittedImages),
 									childs: html                                   // threadsList.jsxi:134
@@ -2291,16 +2291,16 @@ var Storage = function (){                                                      
 			this.__ThreadsList_request.cancel ();                                  // threadsList.jsxi:144
 		};
 		(function (arg){                                                           // threadsList.jsxi:5
-			AbstractElement.__types['threads-list'] = ThreadsList;                 // ...
+			AbstractElement.__types ['threads-list'] = ThreadsList;                // ...
 		}());
 		return ThreadsList;
 	}(), 
 	AccountTypeRequest = function (){                                              // accountTypeRequest.jsxi:1
 		var AccountTypeRequest = function (){                                      // accountTypeRequest.jsxi:2
-			AbstractRequest.call (this, 'account_type');                           // accountTypeRequest.jsxi:76
+			AbstractRequest.call (this, 'account_type');                           // accountTypeRequest.jsxi:3
 		};
 		__pe (AccountTypeRequest, AbstractRequest);
-		AccountTypeRequest.prototype.__preprocess = function (data){               // accountTypeRequest.jsxi:6
+		AccountTypeRequest.prototype.__preprocess = function (data){
 			var result = { sections: data.moder_of };                              // accountTypeRequest.jsxi:7
 			switch (data.type){                                                    // accountTypeRequest.jsxi:9
 				case 'admin':                                                      // accountTypeRequest.jsxi:10
@@ -2339,16 +2339,16 @@ var Storage = function (){                                                      
 			AbstractRequest.call (this, 'thread', { board_name: section, thread_id: thread });
 		};
 		__pe (PostsRequest, AbstractRequest);
-		PostsRequest.prototype.__preprocess = function (data, timestamp){          // postsRequest.jsxi:11
-			ThreadRefreshRequest.timestamps[(this.__PostsRequest_section + '/' + this.__PostsRequest_thread)] = timestamp;
+		PostsRequest.prototype.__preprocess = function (data, timestamp){
+			ThreadRefreshRequest.timestamps [(this.__PostsRequest_section + '/' + this.__PostsRequest_thread)] = timestamp;
 			var posts = new Array (data.length), post;                             // postsRequest.jsxi:15
 			Answers.dispath = false;                                               // postsRequest.jsxi:17
-			for (var i = 0; i < data.length; i ++){                                // postsRequest.jsxi:19
-				var raw = data[i];                                                 // postsRequest.jsxi:26
+			for (var i = 0; i < data.length; i ++){                                // postsRequest.jsxi:26
+				var raw = data [i];                                                // ...
 				post = PonyabaUtils.fix (raw, this.__PostsRequest_section, i + 1);
 				if (post){                                                         // postsRequest.jsxi:22
 					Posts.add (post);                                              // postsRequest.jsxi:23
-					posts[i] = post;                                               // postsRequest.jsxi:24
+					posts [i] = post;                                              // postsRequest.jsxi:24
 				}
 			}
 			Answers.dispath = true;                                                // postsRequest.jsxi:28
@@ -2358,41 +2358,41 @@ var Storage = function (){                                                      
 	}(), 
 	SectionsRequest = function (){                                                 // sectionsRequest.jsxi:1
 		var SectionsRequest = function (){                                         // sectionsRequest.jsxi:8
-				AbstractRequest.call (this, 'chan');                               // sectionsRequest.jsxi:76
+				AbstractRequest.call (this, 'chan');                               // sectionsRequest.jsxi:9
 			}, 
 			images = {
-				test: 'http://ponyach.ru/images/logoboard/test.png',               // sectionsRequest.jsxi:3
+				test: 'http://ponyach.ru/images/logoboard/test.png',               // sectionsRequest.jsxi:6
 				r34: 'http://ponyach.ru/images/logoboard/r34.png',                 // sectionsRequest.jsxi:4
 				d: 'http://ponyach.ru/images/logoboard/d.png'                      // sectionsRequest.jsxi:5
 			};
 		__pe (SectionsRequest, AbstractRequest);
-		SectionsRequest.prototype.__preprocess = function (data){                  // sectionsRequest.jsxi:12
+		SectionsRequest.prototype.__preprocess = function (data){
 			var result = [ [], [] ];                                               // sectionsRequest.jsxi:17
-			for (var pos = 0; pos < data.length; pos ++){                          // sectionsRequest.jsxi:19
-				var entry = data[pos];                                             // sectionsRequest.jsxi:42
+			for (var pos = 0; pos < data.length; pos ++){                          // sectionsRequest.jsxi:42
+				var entry = data [pos];                                            // ...
 				if (entry._target){                                                // sectionsRequest.jsxi:20
-					result[1].push ({
-						name: entry.name,                                          // sectionsRequest.jsxi:23
+					result [1].push ({
+						name: entry.name,                                          // sectionsRequest.jsxi:27
 						url: entry._target.indexOf ('//') !== - 1 ? entry._target : '/' + entry._target,
 						target: entry.outside ? '_blank' : undefined,              // sectionsRequest.jsxi:25
 						description: entry.desc                                    // sectionsRequest.jsxi:26
 					});
 				} else {
-					result[0].push ({
-						name: entry.name,                                          // sectionsRequest.jsxi:31
+					result [0].push ({
+						name: entry.name,                                          // sectionsRequest.jsxi:41
 						url: '/' + entry.name + '/',                               // sectionsRequest.jsxi:32
 						position: (entry.order || 0) + pos / 1000,                 // sectionsRequest.jsxi:33
 						description: entry.desc,                                   // sectionsRequest.jsxi:34
 						params: {
-							maxImageSize: entry.maximagesize,                      // sectionsRequest.jsxi:36
+							maxImageSize: entry.maximagesize,                      // sectionsRequest.jsxi:39
 							maxReplies: entry.maxreplies,                          // sectionsRequest.jsxi:37
 							maxMessageLength: entry.messagelength                  // sectionsRequest.jsxi:38
 						}, 
-						logo: images[entry.name]                                   // sectionsRequest.jsxi:40
+						logo: images [entry.name]                                  // sectionsRequest.jsxi:40
 					});
 				}
 			}
-			result[0] = result[0].sort (function (a, b){                           // sectionsRequest.jsxi:44
+			result [0] = result [0].sort (function (a, b){                         // sectionsRequest.jsxi:44
 				return a.position - b.position;                                    // ...
 			});
 			return result;                                                         // sectionsRequest.jsxi:45
@@ -2401,12 +2401,12 @@ var Storage = function (){                                                      
 	}(), 
 	CallbackDispatcher = function (){                                              // dispatcher.jsxi:45
 		var CallbackDispatcher = function (callback){                              // dispatcher.jsxi:48
-			Dispatcher.apply (this, arguments);                                    // dispatcher.jsxi:76
+			Dispatcher.apply (this, arguments);                                    // zepto.jsxi:76
 			this.__CallbackDispatcher_callback = callback;                         // dispatcher.jsxi:49
 		};
 		__pe (CallbackDispatcher, Dispatcher);
-		CallbackDispatcher.prototype.__add = function (type, handler){             // dispatcher.jsxi:52
-			Dispatcher.prototype.__add.call (this, type, handler);                 // dispatcher.jsxi:76
+		CallbackDispatcher.prototype.__add = function (type, handler){
+			Dispatcher.prototype.__add.call (this, type, handler);                 // dispatcher.jsxi:53
 			var temp = this.__CallbackDispatcher_callback (type, handler);         // dispatcher.jsxi:54
 			if (temp !== undefined)                                                // dispatcher.jsxi:55
 				handler (temp, type);                                              // dispatcher.jsxi:56
@@ -2415,10 +2415,10 @@ var Storage = function (){                                                      
 	}(), 
 	StaticContentRequest = function (){                                            // staticContentRequest.jsxi:1
 		var StaticContentRequest = function (target){                              // staticContentRequest.jsxi:2
-			AbstractRequest.call (this, 'static', { target: target });             // staticContentRequest.jsxi:76
+			AbstractRequest.call (this, 'static', { target: target });             // staticContentRequest.jsxi:3
 		};
 		__pe (StaticContentRequest, AbstractRequest);
-		StaticContentRequest.prototype.__preprocess = function (data){             // staticContentRequest.jsxi:6
+		StaticContentRequest.prototype.__preprocess = function (data){
 			switch (data && data.error){                                           // staticContentRequest.jsxi:7
 				case 'bad static page target':                                     // staticContentRequest.jsxi:8
 					throw new Error (1404);                                        // staticContentRequest.jsxi:9
@@ -2433,10 +2433,10 @@ var Storage = function (){                                                      
 	}(), 
 	StatusRequest = function (){                                                   // statusRequest.jsxi:1
 		var StatusRequest = function (arg){                                        // statusRequest.jsxi:2
-			AbstractRequest.call (this, 'status');                                 // statusRequest.jsxi:76
+			AbstractRequest.call (this, 'status');                                 // statusRequest.jsxi:3
 		};
 		__pe (StatusRequest, AbstractRequest);
-		StatusRequest.prototype.__preprocess = function (data){                    // statusRequest.jsxi:6
+		StatusRequest.prototype.__preprocess = function (data){
 			return data && typeof data.last_status === 'number' ? { speed: data.speed || 0, online: data.count || 0 } : { error: 1003 };
 		};
 		return StatusRequest;
@@ -2445,11 +2445,11 @@ var Storage = function (){                                                      
 		var ThreadRefreshRequest = function (section, thread){                     // threadRefreshRequest.jsxi:6
 			this.__ThreadRefreshRequest_section = section;                         // threadRefreshRequest.jsxi:7
 			this.__ThreadRefreshRequest_thread = thread;                           // threadRefreshRequest.jsxi:8
-			this.__ThreadRefreshRequest_timestamp = ThreadRefreshRequest.timestamps[(section + '/' + thread)];
-			console.assert (this.__ThreadRefreshRequest_timestamp,                 // threadRefreshRequest.jsxi:76
-				'Thread have to be loaded first');                                 // threadRefreshRequest.jsxi:11
-			AbstractRequest.call (this,                                            // threadRefreshRequest.jsxi:76
-				'new',                                                             // threadRefreshRequest.jsxi:13
+			this.__ThreadRefreshRequest_timestamp = ThreadRefreshRequest.timestamps [(section + '/' + thread)];
+			console.assert (this.__ThreadRefreshRequest_timestamp,                 // threadRefreshRequest.jsxi:11
+				'Thread have to be loaded first');                                 // ...
+			AbstractRequest.call (this,                                            // threadRefreshRequest.jsxi:13
+				'new',                                                             // ...
 				{
 					board_name: section,                                           // ...
 					thread_id: thread,                                             // ...
@@ -2458,14 +2458,14 @@ var Storage = function (){                                                      
 		};
 		__pe (ThreadRefreshRequest, AbstractRequest);
 		ThreadRefreshRequest.prototype.__preprocess = function (data, timestamp){
-			ThreadRefreshRequest.timestamps[(this.__ThreadRefreshRequest_section + '/' + this.__ThreadRefreshRequest_thread)] = timestamp - 1;
-			var threadEntry = Posts[(Posts instanceof ThreadRefreshRequest ? '__ThreadRefreshRequest_thread' : 'thread')](this.__ThreadRefreshRequest_section,
+			ThreadRefreshRequest.timestamps [(this.__ThreadRefreshRequest_section + '/' + this.__ThreadRefreshRequest_thread)] = timestamp - 1;
+			var threadEntry = Posts [(Posts instanceof ThreadRefreshRequest ? '__ThreadRefreshRequest_thread' : 'thread')](this.__ThreadRefreshRequest_section,
 					this.__ThreadRefreshRequest_thread),                           // threadRefreshRequest.jsxi:76
 				result = [],                                                       // threadRefreshRequest.jsxi:20
 				post;                                                              // threadRefreshRequest.jsxi:21
 			console.assert (threadEntry, 'Thread have to be loaded first');        // threadRefreshRequest.jsxi:23
-			for (var i = 0; i < data.length; i ++){                                // threadRefreshRequest.jsxi:25
-				var raw = data[i];                                                 // threadRefreshRequest.jsxi:32
+			for (var i = 0; i < data.length; i ++){                                // threadRefreshRequest.jsxi:32
+				var raw = data [i];                                                // ...
 				if (!raw.IS_DELETED && !Posts.get (this.__ThreadRefreshRequest_section, raw.id)){
 					post = PonyabaUtils.fix (raw,                                  // threadRefreshRequest.jsxi:27
 						this.__ThreadRefreshRequest_section,                       // threadRefreshRequest.jsxi:76
@@ -2487,19 +2487,19 @@ var Storage = function (){                                                      
 			AbstractRequest.call (this, 'board', { board_name: section, page: page });
 		};
 		__pe (ThreadsRequest, AbstractRequest);
-		ThreadsRequest.prototype.__preprocess = function (data){                   // threadsRequest.jsxi:11
+		ThreadsRequest.prototype.__preprocess = function (data){
 			var threads = new Array (data.threads.length), post;                   // threadsRequest.jsxi:13
 			Answers.dispath = false;                                               // threadsRequest.jsxi:15
 			{
 				var _d = data.threads;                                             // threadsRequest.jsxi:40
-				for (var i = 0; i < _d.length; i ++){                              // threadsRequest.jsxi:17
-					var entry = _d[i];                                             // threadsRequest.jsxi:40
-					var omittedPosts = entry.posts_count - entry.posts.length,     // threadsRequest.jsxi:18
-						omittedImages = entry.files_count;                         // threadsRequest.jsxi:19
+				for (var i = 0; i < _d.length; i ++){                              // ...
+					var entry = _d [i];                                            // ...
+					var omittedPosts = entry.posts_count - entry.posts.length,     // threadsRequest.jsxi:19
+						omittedImages = entry.files_count;                         // ...
 					{
 						var _a = entry.posts;                                      // threadsRequest.jsxi:24
-						for (var j = 0; j < _a.length; j ++){                      // threadsRequest.jsxi:21
-							var raw = _a[j];                                       // threadsRequest.jsxi:24
+						for (var j = 0; j < _a.length; j ++){                      // ...
+							var raw = _a [j];                                      // ...
 							if (raw.file)                                          // threadsRequest.jsxi:22
 								omittedImages --;                                  // threadsRequest.jsxi:23
 						}
@@ -2507,14 +2507,14 @@ var Storage = function (){                                                      
 					}
 					{
 						var _b = entry.posts;                                      // threadsRequest.jsxi:39
-						for (var j = 0; j < _b.length; j ++){                      // threadsRequest.jsxi:26
-							var raw = _b[j];                                       // threadsRequest.jsxi:39
+						for (var j = 0; j < _b.length; j ++){                      // ...
+							var raw = _b [j];                                      // ...
 							post = PonyabaUtils.fix (raw,                          // threadsRequest.jsxi:27
 								this.__ThreadsRequest_section,                     // threadsRequest.jsxi:76
 								j + 1 + (j ? omittedPosts : 0));                   // threadsRequest.jsxi:27
 							Posts.add (post);                                      // threadsRequest.jsxi:28
 							if (j === 0){                                          // threadsRequest.jsxi:30
-								threads[i] = $.extend (post,                       // threadsRequest.jsxi:31
+								threads [i] = $.extend (post,                      // threadsRequest.jsxi:36
 									{
 										omitted: PonyabaUtils.omitted (omittedPosts, omittedImages),
 										stickied: !!entry.stickied,                // threadsRequest.jsxi:33
@@ -2522,7 +2522,7 @@ var Storage = function (){                                                      
 										childs: []                                 // threadsRequest.jsxi:35
 									});
 							} else
-								threads[i].childs.push (post);                     // threadsRequest.jsxi:38
+								threads [i].childs.push (post);                    // threadsRequest.jsxi:38
 						}
 						_b = undefined;                                            // threadsRequest.jsxi:39
 					}
@@ -2537,19 +2537,19 @@ var Storage = function (){                                                      
 	Menu = function (){                                                            // menu.jsxi:1
 		var Menu = function (menu, from, position, fixed){                         // menu.jsxi:29
 				var __that = this;                                                 // menu.jsxi:76
-				console.assert (menus[menu], 'Wrong menu id \"' + menu + '\"');    // menu.jsxi:30
+				console.assert (menus [menu], 'Wrong menu id \"' + menu + '\"');   // menu.jsxi:30
 				this.menu = menu;                                                  // menu.jsxi:32
 				this.from = from;                                                  // menu.jsxi:33
 				this.position = position;                                          // menu.jsxi:34
 				this.fixed = fixed;                                                // menu.jsxi:35
-				var param = menus[menu].param ? menus[menu].param (from) : null,   // menu.jsxi:37
+				var param = menus [menu].param ? menus [menu].param (from) : null,
 					context = param ? null : 'c' + + new Date (),                  // menu.jsxi:38
-					params = { menu: menus[menu].menu, param: param, context: context },
+					params = { menu: menus [menu].menu, param: param, context: context },
 					html = Mustache.menu (params);                                 // menu.jsxi:44
 				if (context)                                                       // menu.jsxi:46
 					from.attr ('id', context);                                     // menu.jsxi:47
-				this.element = $ (html).appendTo (document.body).css ({
-					position: fixed ? 'fixed' : 'absolute',                        // menu.jsxi:50
+				this.element = $(html).appendTo (document.body).css ({
+					position: fixed ? 'fixed' : 'absolute',                        // menu.jsxi:53
 					top: position.top,                                             // menu.jsxi:51
 					left: position.left                                            // menu.jsxi:52
 				}).timeout (function (arg){                                        // menu.jsxi:53
@@ -2558,51 +2558,51 @@ var Storage = function (){                                                      
 			}, 
 			menus = {
 				'image-search': {
-					menu: ImageSearch.items,                                       // menu.jsxi:7
-					param: function (arg){                                         // menu.jsxi:8
+					menu: ImageSearch.items,                                       // menu.jsxi:25
+					param: function (arg){                                         // menu.jsxi:9
 						return arg.closest ('.thread, .post').find ('[data-type=\"image\"]').attr ('href');
 					}
 				}, 
 				'thread-expand': {
-					menu: [ 5, 15, 30, 50, 100 ].map (function (arg){              // menu.jsxi:12
+					menu: [ 5, 15, 30, 50, 100 ].map (function (arg){              // menu.jsxi:16
 						return { label: arg + ' постов', action: 'thread-expand:' + arg };
 					})
 				}, 
 				'add-custom-section': {
 					menu: [
 						{
-							label: 'Добавить кастомный раздел',                    // menu.jsxi:18
-							action: 'custom-section:add'                           // ...
+							label: 'Добавить кастомный раздел',                    // menu.jsxi:20
+							action: 'custom-section:add'                           // menu.jsxi:18
 						}
 					], 
-					param: function (arg){                                         // menu.jsxi:19
+					param: function (arg){                                         // menu.jsxi:20
 						return arg.text ();                                        // ...
 					}
 				}, 
 				'remove-custom-section': {
 					menu: [
 						{
-							label: 'Удалить кастомный раздел',                     // menu.jsxi:22
-							action: 'custom-section:remove'                        // ...
+							label: 'Удалить кастомный раздел',                     // menu.jsxi:24
+							action: 'custom-section:remove'                        // menu.jsxi:22
 						}
 					], 
-					param: function (arg){                                         // menu.jsxi:23
+					param: function (arg){                                         // menu.jsxi:24
 						return arg.text ();                                        // ...
 					}
 				}
 			}, 
 			timeout;                                                               // menu.jsxi:56
 		Menu.mouseover = function (element){                                       // menu.jsxi:58
-			timeout = setTimeout (function (arg){                                  // menu.jsxi:59
+			timeout = setTimeout (function (arg){                                  // menu.jsxi:90
 				timeout = false;                                                   // menu.jsxi:60
-				var rect = element.getBoundingClientRect (),                       // menu.jsxi:62
+				var rect = element.getBoundingClientRect (),                       // menu.jsxi:65
 					parentRect = document.body.getBoundingClientRect (),           // menu.jsxi:63
 					top = rect.top + rect.height - parentRect.top,                 // menu.jsxi:64
 					left = rect.left - parentRect.left;                            // menu.jsxi:65
-				element = $ (element);                                             // menu.jsxi:67
-				var attribute = element.data ('menu'),                             // menu.jsxi:69
+				element = $(element);                                              // menu.jsxi:67
+				var attribute = element.data ('menu'),                             // menu.jsxi:75
 					detPopup = new Menu (attribute, element, { top: top, left: left }).element.mouseenter (mouseenter).mouseleave (mouseleave).click (mouseleave),
-					timeout;                                                       // menu.jsxi:75
+					timeout;                                                       // ...
 				function mouseenter (){                                            // menu.jsxi:77
 					if (timeout){                                                  // menu.jsxi:78
 						clearTimeout (timeout);                                    // menu.jsxi:79
@@ -2610,7 +2610,7 @@ var Storage = function (){                                                      
 					}
 				}
 				function mouseleave (){                                            // menu.jsxi:83
-					return timeout = setTimeout (function (arg){                   // menu.jsxi:84
+					return timeout = setTimeout (function (arg){                   // menu.jsxi:87
 						detPopup.removeClass ('visible').timeout (function (arg){
 							return detPopup.remove ();                             // menu.jsxi:85
 						}, 
@@ -2636,10 +2636,10 @@ var Storage = function (){                                                      
 			this.__SendRequest_section = section;                                  // sendRequest.jsxi:5
 			this.__SendRequest_thread = thread;                                    // sendRequest.jsxi:6
 			this.__SendRequest_args = args;                                        // sendRequest.jsxi:7
-			AbstractRequest.call (this,                                            // sendRequest.jsxi:76
+			AbstractRequest.call (this,                                            // sendRequest.jsxi:19
 				'add_post',                                                        // sendRequest.jsxi:9
 				{
-					board_name: section,                                           // sendRequest.jsxi:10
+					board_name: section,                                           // sendRequest.jsxi:17
 					thread_id: thread,                                             // sendRequest.jsxi:11
 					name: args.name,                                               // sendRequest.jsxi:13
 					email: args.email,                                             // sendRequest.jsxi:14
@@ -2649,7 +2649,7 @@ var Storage = function (){                                                      
 				{ imagefile: args.file });                                         // sendRequest.jsxi:19
 		};
 		__pe (SendRequest, AbstractRequest);
-		SendRequest.prototype.__preprocess = function (raw){                       // sendRequest.jsxi:22
+		SendRequest.prototype.__preprocess = function (raw){
 			Autoupdate.force ();                                                   // sendRequest.jsxi:23
 			if (!raw || typeof raw !== 'object')                                   // sendRequest.jsxi:25
 				throw new Error (1003);                                            // sendRequest.jsxi:26
@@ -2660,7 +2660,7 @@ var Storage = function (){                                                      
 					default:
 						return { error: 1001 };                                    // sendRequest.jsxi:33
 				}
-			return { section: this.__SendRequest_section, id: raw.post_id };       // sendRequest.jsxi:39
+			return { section: this.__SendRequest_section, id: raw.post_id };       // sendRequest.jsxi:40
 		};
 		return SendRequest;
 	}(), 
@@ -2677,48 +2677,48 @@ var Storage = function (){                                                      
 		};
 		function initialize (section){                                             // answers.jsxi:18
 			if (!answers.hasOwnProperty (section))                                 // answers.jsxi:19
-				return answers[section] = {};                                      // answers.jsxi:20
+				return answers [section] = {};                                     // answers.jsxi:20
 		}
 		function answer (from, to){                                                // answers.jsxi:22
-			return from.next.push ({ thread: to.thread, id: to.id });              // answers.jsxi:23
+			return from.next.push ({ thread: to.thread, id: to.id });              // answers.jsxi:26
 		}
 		function handler (data){                                                   // answers.jsxi:28
 			initialize (data.section);                                             // answers.jsxi:29
-			var sectionAnswers = answers[data.section],                            // answers.jsxi:31
+			var sectionAnswers = answers [data.section],                           // answers.jsxi:33
 				update = Answers.dispath ? [] : null,                              // answers.jsxi:32
 				other;                                                             // answers.jsxi:33
 			{
 				var _5 = data.previous;                                            // answers.jsxi:46
 				for (var _4 = 0; _4 < _5.length; _4 ++){                           // ...
-					var previous = _5[_4];                                         // ...
+					var previous = _5 [_4];                                        // ...
 					other = Posts.get (data.section, previous);                    // answers.jsxi:36
 					if (other){                                                    // answers.jsxi:38
 						answer (other, data);                                      // answers.jsxi:39
 						if (Answers.dispath)                                       // answers.jsxi:76
 							update.push (data.section + '/' + previous);           // answers.jsxi:41
 					} else if (sectionAnswers.hasOwnProperty (previous)){          // answers.jsxi:42
-						sectionAnswers[previous].push (data.id);                   // answers.jsxi:43
+						sectionAnswers [previous].push (data.id);                  // answers.jsxi:43
 					} else
-						sectionAnswers[previous] = [ data.id ];                    // answers.jsxi:45
+						sectionAnswers [previous] = [ data.id ];                   // answers.jsxi:45
 				}
 				_5 = undefined;                                                    // answers.jsxi:46
 			}
 			if (sectionAnswers.hasOwnProperty (data.id)){                          // answers.jsxi:48
 				{
-					var _7 = sectionAnswers[data.id];                              // answers.jsxi:50
+					var _7 = sectionAnswers [data.id];                             // answers.jsxi:50
 					for (var _6 = 0; _6 < _7.length; _6 ++){                       // ...
-						var next = _7[_6];                                         // ...
+						var next = _7 [_6];                                        // ...
 						answer (data, Posts.get (data.section, next));             // ...
 					}
 					_7 = undefined;                                                // ...
 				}
-				delete sectionAnswers[data.id];                                    // answers.jsxi:51
+				delete sectionAnswers [data.id];                                   // answers.jsxi:51
 			}
 			if (Answers.dispath && update.length > 0)                              // answers.jsxi:54
 				dispatcher.call (update);                                          // answers.jsxi:55
 		}
 		(function (arg){                                                           // answers.jsxi:14
-			Posts.on ('add', handler);                                             // answers.jsxi:15
+			Posts.on ('add', handler);                                             // answers.jsxi:16
 		}());
 		return Answers;
 	}(), 
@@ -2734,15 +2734,15 @@ var Storage = function (){                                                      
 			return dispatcher.off (fn);                                            // favorites.jsxi:10
 		};
 		function handler (data){                                                   // favorites.jsxi:27
-			if (favorites[(data.section + '/' + data.id)])                         // favorites.jsxi:28
+			if (favorites [(data.section + '/' + data.id)])                        // favorites.jsxi:28
 				data.favorited = true;                                             // favorites.jsxi:29
 		}
 		Favorites.add = function (post){                                           // favorites.jsxi:32
 			if (!favorites.hasOwnProperty (post)){                                 // favorites.jsxi:33
 				var data = Posts.get (post);                                       // favorites.jsxi:34
 				console.assert (data, 'Post not loaded');                          // favorites.jsxi:35
-				favorites[post] = {
-					id: data.id,                                                   // favorites.jsxi:38
+				favorites [post] = {
+					id: data.id,                                                   // favorites.jsxi:41
 					section: data.section,                                         // favorites.jsxi:39
 					subject: data.subjectForced                                    // favorites.jsxi:40
 				};
@@ -2751,32 +2751,32 @@ var Storage = function (){                                                      
 			}
 		};
 		Favorites.remove = function (post){                                        // favorites.jsxi:47
-			console.assert (favorites[post], 'Not in favorites');                  // favorites.jsxi:48
-			delete favorites[post];                                                // favorites.jsxi:49
+			console.assert (favorites [post], 'Not in favorites');                 // favorites.jsxi:48
+			delete favorites [post];                                               // favorites.jsxi:49
 			dispatcher.call ('remove', post);                                      // favorites.jsxi:51
 			storage.save ();                                                       // favorites.jsxi:52
 		};
 		Favorites.sorted = function (){                                            // favorites.jsxi:55
 			var result = [], temp = {};                                            // favorites.jsxi:57
-			for (var id in favorites){                                             // favorites.jsxi:59
-				var entry = favorites[id];                                         // favorites.jsxi:64
+			for (var id in favorites){                                             // favorites.jsxi:64
+				var entry = favorites [id];                                        // ...
 				if (!temp.hasOwnProperty (entry.section)){                         // favorites.jsxi:60
-					temp[entry.section] = { section: entry.section, entries: [ entry ] };
-					result.push (temp[entry.section]);                             // favorites.jsxi:62
+					temp [entry.section] = { section: entry.section, entries: [ entry ] };
+					result.push (temp [entry.section]);                            // favorites.jsxi:62
 				} else
-					temp[entry.section].entries.push (entry);                      // favorites.jsxi:64
+					temp [entry.section].entries.push (entry);                     // favorites.jsxi:64
 			}
 			return result;                                                         // favorites.jsxi:66
 		};
 		(function (arg){                                                           // favorites.jsxi:12
-			storage = new Storage ('clin-favorites',                               // favorites.jsxi:13
-				function (arg){                                                    // ...
-					for (var key in favorites)                                     // favorites.jsxi:14
+			storage = new Storage ('clin-favorites',                               // favorites.jsxi:21
+				function (arg){                                                    // favorites.jsxi:13
+					for (var key in favorites)                                     // favorites.jsxi:16
 						if (!arg.hasOwnProperty (key))                             // favorites.jsxi:15
-							Favorites.remove (key);                                // favorites.jsxi:76
-					for (var key in arg)                                           // favorites.jsxi:18
+							Favorites.remove (key);                                // favorites.jsxi:16
+					for (var key in arg)                                           // favorites.jsxi:20
 						if (!favorites.hasOwnProperty (key))                       // favorites.jsxi:19
-							Favorites.add (key);                                   // favorites.jsxi:76
+							Favorites.add (key);                                   // favorites.jsxi:20
 				});
 			favorites = storage.load ();                                           // favorites.jsxi:23
 			Posts.on ('add', handler);                                             // favorites.jsxi:24
@@ -2784,7 +2784,7 @@ var Storage = function (){                                                      
 		return Favorites;
 	}(), 
 	Page = function (){                                                            // page.jsxi:1
-		var Page = function (){}, dispatcher, pathname;                            // page.jsxi:2
+		var Page = function (){}, dispatcher, pathname;
 		Page.page = undefined;                                                     // page.jsxi:4
 		Page.section = undefined;                                                  // page.jsxi:5
 		Page.thread = undefined;                                                   // page.jsxi:6
@@ -2836,7 +2836,7 @@ var Storage = function (){                                                      
 				dispatcher.call ('navigate', Page);                                // page.jsxi:79
 				pathname = location.pathname;                                      // page.jsxi:80
 			}
-			Page.anchor ();                                                        // page.jsxi:76
+			Page.anchor ();                                                        // page.jsxi:83
 		};
 		Page.reload = function (){                                                 // page.jsxi:86
 			return location.reload ();                                             // page.jsxi:87
@@ -2846,24 +2846,24 @@ var Storage = function (){                                                      
 			dispatcher.call ('hash', Page.hash);                                   // page.jsxi:91
 		};
 		(function (arg){                                                           // page.jsxi:12
-			dispatcher = new CallbackDispatcher (function (arg){                   // page.jsxi:13
+			dispatcher = new CallbackDispatcher (function (arg){                   // page.jsxi:24
 				switch (arg){                                                      // page.jsxi:14
 					case 'navigate':                                               // page.jsxi:15
 						return Page;                                               // page.jsxi:16
 					case 'hash':                                                   // page.jsxi:17
-						return Page.hash;                                          // page.jsxi:76
+						return Page.hash;                                          // page.jsxi:18
 					case 'focus':                                                  // page.jsxi:19
-						return Page.focus;                                         // page.jsxi:76
+						return Page.focus;                                         // page.jsxi:20
 					default:
 						console.warn ('Not implemented at 22 line of page.jsxi');
 				}
 			});
-			$ (window).on ('popstate', Page.navigate).on ('blur focus',            // page.jsxi:28
-				function (event){                                                  // ...
+			$(window).on ('popstate', Page.navigate).on ('blur focus',             // page.jsxi:31
+				function (event){                                                  // page.jsxi:28
 					Page.focus = event.type === 'focus';                           // page.jsxi:29
 					dispatcher.call ('focus', Page.focus);                         // page.jsxi:30
 				});
-			Page.navigate ();                                                      // page.jsxi:76
+			Page.navigate ();                                                      // page.jsxi:33
 		}());
 		return Page;
 	}(), 
@@ -2879,11 +2879,11 @@ var Storage = function (){                                                      
 			return dispatcher.off (fn);                                            // hiddens.jsxi:10
 		};
 		function handler (data){                                                   // hiddens.jsxi:33
-			data.message = data.message.replace ([object Object], 
-				function (matched, post){                                          // hiddens.jsxi:34
+			data.message = data.message.replace ([object Object],                  // hiddens.jsxi:34
+				function (matched, post){                                          // ...
 					return hiddens.hasOwnProperty (post) ? matched + ' data-strikethrough' : matched;
 				});
-			var current = hiddens[(data.section + '/' + data.id)];                 // hiddens.jsxi:36
+			var current = hiddens [(data.section + '/' + data.id)];                // hiddens.jsxi:36
 			if (current){                                                          // hiddens.jsxi:37
 				data.hidden = true;                                                // hiddens.jsxi:38
 				if (current.visible)                                               // hiddens.jsxi:39
@@ -2891,13 +2891,13 @@ var Storage = function (){                                                      
 			}
 		}
 		Hiddens.check = function (post){                                           // hiddens.jsxi:44
-			return hidden.hasOwnProperty (post);                                   // hiddens.jsxi:45
+			return hidden.hasOwnProperty (post);                                   // hiddens.jsxi:47
 		};
-		Hiddens.hide = function (post){                                            // hiddens.jsxi:47
+		Hiddens.hide = function (post){                                            // ...
 			var data = Posts.get (post);                                           // hiddens.jsxi:48
 			console.assert (data, 'Post not loaded');                              // hiddens.jsxi:49
-			hiddens[post] = data.threadMode ? {
-				id: data.id,                                                       // hiddens.jsxi:52
+			hiddens [post] = data.threadMode ? {
+				id: data.id,                                                       // hiddens.jsxi:55
 				section: data.section,                                             // hiddens.jsxi:53
 				subject: data.subjectForced                                        // hiddens.jsxi:54
 			} : true;                                                              // hiddens.jsxi:55
@@ -2911,13 +2911,13 @@ var Storage = function (){                                                      
 			console.assert (data, 'Post not loaded');                              // hiddens.jsxi:66
 			data.visible = true;                                                   // hiddens.jsxi:68
 			if (data.threadMode)                                                   // hiddens.jsxi:70
-				hiddens[post].visible = true;                                      // hiddens.jsxi:71
+				hiddens [post].visible = true;                                     // hiddens.jsxi:71
 			dispatcher.call ('show', post);                                        // hiddens.jsxi:73
 			storage.save ();                                                       // hiddens.jsxi:74
 		};
 		Hiddens.unhide = function (post){                                          // hiddens.jsxi:77
-			console.assert (hiddens[post], 'Not in hiddens');                      // hiddens.jsxi:78
-			delete hiddens[post];                                                  // hiddens.jsxi:79
+			console.assert (hiddens [post], 'Not in hiddens');                     // hiddens.jsxi:78
+			delete hiddens [post];                                                 // hiddens.jsxi:79
 			var data = Posts.get (post);                                           // hiddens.jsxi:81
 			if (data){                                                             // hiddens.jsxi:82
 				delete data.hidden;                                                // hiddens.jsxi:83
@@ -2928,33 +2928,33 @@ var Storage = function (){                                                      
 		};
 		Hiddens.sorted = function (){                                              // hiddens.jsxi:91
 			var result = [], temp = {};                                            // hiddens.jsxi:93
-			for (var id in hiddens){                                               // hiddens.jsxi:95
-				var entry = hiddens[id];                                           // hiddens.jsxi:102
+			for (var id in hiddens){                                               // hiddens.jsxi:102
+				var entry = hiddens [id];                                          // ...
 				if (typeof entry === 'object' && !entry.visible){                  // hiddens.jsxi:96
 					if (!temp.hasOwnProperty (entry.section)){                     // hiddens.jsxi:97
-						temp[entry.section] = { section: entry.section, entries: [ entry ] };
-						result.push (temp[entry.section]);                         // hiddens.jsxi:99
+						temp [entry.section] = { section: entry.section, entries: [ entry ] };
+						result.push (temp [entry.section]);                        // hiddens.jsxi:99
 					} else
-						temp[entry.section].entries.push (entry);                  // hiddens.jsxi:101
+						temp [entry.section].entries.push (entry);                 // hiddens.jsxi:101
 				}
 			}
 			return result;                                                         // hiddens.jsxi:104
 		};
 		(function (arg){                                                           // hiddens.jsxi:12
-			storage = new Storage ('clin-hiddens',                                 // hiddens.jsxi:13
-				function (arg){                                                    // ...
-					for (var key in hiddens)                                       // hiddens.jsxi:14
+			storage = new Storage ('clin-hiddens',                                 // hiddens.jsxi:27
+				function (arg){                                                    // hiddens.jsxi:13
+					for (var key in hiddens)                                       // hiddens.jsxi:16
 						if (!arg.hasOwnProperty (key))                             // hiddens.jsxi:15
-							Hiddens.unhide (key);                                  // hiddens.jsxi:76
-					for (var key in arg){                                          // hiddens.jsxi:18
-						var value = arg[key];                                      // hiddens.jsxi:26
+							Hiddens.unhide (key);                                  // hiddens.jsxi:16
+					for (var key in arg){                                          // hiddens.jsxi:26
+						var value = arg [key];                                     // ...
 						if (!hiddens.hasOwnProperty (key)){                        // hiddens.jsxi:19
-							Hiddens.hide (key);                                    // hiddens.jsxi:76
-						} else if (typeof value === 'object' && value.visible !== hiddens[key].visible){
+							Hiddens.hide (key);                                    // hiddens.jsxi:20
+						} else if (typeof value === 'object' && value.visible !== hiddens [key].visible){
 							if (value.visible)                                     // hiddens.jsxi:22
-								Hiddens.show (key);                                // hiddens.jsxi:76
+								Hiddens.show (key);                                // hiddens.jsxi:23
 							else
-								Hiddens.hide (key);                                // ...
+								Hiddens.hide (key);                                // hiddens.jsxi:25
 						}
 					}
 				});
@@ -2964,7 +2964,7 @@ var Storage = function (){                                                      
 		return Hiddens;
 	}(), 
 	Statistics = function (){                                                      // statistics.jsxi:1
-		var Statistics = function (){}, dispatcher, storage, data;                 // statistics.jsxi:4
+		var Statistics = function (){}, dispatcher, storage, data;
 		Statistics.on = function (fn){                                             // statistics.jsxi:26
 			return dispatcher.on (fn);                                             // statistics.jsxi:27
 		};
@@ -2978,7 +2978,7 @@ var Storage = function (){                                                      
 		}
 		Statistics.get = function (){                                              // statistics.jsxi:38
 			return {
-				threadsVisited: data.threadsVisited.length,                        // statistics.jsxi:40
+				threadsVisited: data.threadsVisited.length,                        // statistics.jsxi:42
 				threadsCreated: data.threadsCreated.length,                        // statistics.jsxi:41
 				messagesSended: data.messagesSended.length                         // statistics.jsxi:42
 			};
@@ -2999,8 +2999,8 @@ var Storage = function (){                                                      
 			update ();                                                             // statistics.jsxi:61
 		};
 		(function (arg){                                                           // statistics.jsxi:6
-			storage = new Storage ('clin-statistics',                              // statistics.jsxi:7
-				function (arg){                                                    // ...
+			storage = new Storage ('clin-statistics',                              // statistics.jsxi:10
+				function (arg){                                                    // statistics.jsxi:7
 					data = arg;                                                    // statistics.jsxi:8
 					update (true);                                                 // statistics.jsxi:9
 				});
@@ -3095,55 +3095,55 @@ var Storage = function (){                                                      
 		};
 		Preferences.set = function (key, value){                                   // preferences.jsxi:38
 			if (value === undefined){                                              // preferences.jsxi:39
-				delete data[key];                                                  // preferences.jsxi:40
-				value = defaults[key];                                             // preferences.jsxi:41
+				delete data [key];                                                 // preferences.jsxi:40
+				value = defaults [key];                                            // preferences.jsxi:41
 			} else
-				data[key] = value;                                                 // preferences.jsxi:43
+				data [key] = value;                                                // preferences.jsxi:43
 			dispatcher.call (key, value);                                          // preferences.jsxi:45
 			storage.save ();                                                       // preferences.jsxi:46
 			return value;                                                          // preferences.jsxi:48
 		};
 		Preferences.remove = function (key){                                       // preferences.jsxi:51
-			return Preferences.set (key, undefined);                               // preferences.jsxi:76
+			return Preferences.set (key, undefined);                               // preferences.jsxi:52
 		};
 		Preferences.toggle = function (key){                                       // preferences.jsxi:54
-			return Preferences.set (key, !Preferences.get (key));                  // preferences.jsxi:76
+			return Preferences.set (key, !Preferences.get (key));                  // preferences.jsxi:55
 		};
 		Preferences.get = function (key, defaultValue){                            // preferences.jsxi:57
-			return data.hasOwnProperty (key) ? data[key] : defaults.hasOwnProperty (key) ? defaults[key] : defaultValue !== undefined ? defaultValue : console.assert (false, 'Wrong key and missing defaultValue: \"' + key + '\"');
+			return data.hasOwnProperty (key) ? data [key] : defaults.hasOwnProperty (key) ? defaults [key] : defaultValue !== undefined ? defaultValue : console.assert (false, 'Wrong key and missing defaultValue: \"' + key + '\"');
 		};
 		Preferences.reset = function (){                                           // preferences.jsxi:66
-			for (var n in data)                                                    // preferences.jsxi:67
-				Preferences.remove (n);                                            // preferences.jsxi:76
+			for (var n in data)                                                    // preferences.jsxi:68
+				Preferences.remove (n);                                            // ...
 		};
 		(function (arg){                                                           // preferences.jsxi:7
-			storage = new Storage ('clin-preferences',                             // preferences.jsxi:8
-				function (arg){                                                    // ...
+			storage = new Storage ('clin-preferences',                             // preferences.jsxi:19
+				function (arg){                                                    // preferences.jsxi:8
 					var updated = [];                                              // preferences.jsxi:9
-					for (var key in arg){                                          // preferences.jsxi:11
-						var value = arg[key];                                      // preferences.jsxi:13
-						if (value !== data[key])                                   // preferences.jsxi:12
+					for (var key in arg){                                          // preferences.jsxi:13
+						var value = arg [key];                                     // ...
+						if (value !== data [key])                                  // preferences.jsxi:12
 							updated.push (key);                                    // preferences.jsxi:13
 					}
 					data = arg;                                                    // preferences.jsxi:15
 					for (var _18 = 0; _18 < updated.length; _18 ++){               // preferences.jsxi:18
-						var key = updated[_18];                                    // ...
-						dispatcher.call (key, data[key]);                          // ...
+						var key = updated [_18];                                   // ...
+						dispatcher.call (key, data [key]);                         // ...
 					}
 				});
 			data = storage.load ();                                                // preferences.jsxi:21
-			dispatcher = new CallbackDispatcher (function (type, handler){         // preferences.jsxi:23
+			dispatcher = new CallbackDispatcher (function (type, handler){         // preferences.jsxi:29
 				if (type === null){                                                // preferences.jsxi:24
 					{
 						var _19 = $.extend ({}, defaults, data);                   // preferences.jsxi:26
-						for (var key in _19){                                      // preferences.jsxi:25
-							var value = _19[key];                                  // preferences.jsxi:26
+						for (var key in _19){                                      // ...
+							var value = _19 [key];                                 // ...
 							handler (value, key);                                  // ...
 						}
 						_19 = undefined;                                           // ...
 					}
 				} else
-					return Preferences.get (type);                                 // preferences.jsxi:76
+					return Preferences.get (type);                                 // preferences.jsxi:28
 			});
 		}());
 		return Preferences;
@@ -3152,53 +3152,53 @@ var Storage = function (){                                                      
 		var Window = function (className){                                         // window.jsxi:21
 				if (this.constructor === Window)
 					throw new Error ('Trying to instantiate abstract class Window');
-				this.closed = false;                                               // window.jsxi:18
+				this.closed = false;                                               // zepto.jsxi:76
 				this.__className = className;                                      // window.jsxi:22
-				this.__element = $ (Mustache.window ({ className: className })).appendTo (document.body).timeout (function (arg){
-					return $ (this).addClass ('visible');                          // window.jsxi:26
+				this.__element = $(Mustache.window ({ className: className })).appendTo (document.body).timeout (function (arg){
+					return $(this).addClass ('visible');                           // window.jsxi:26
 				});
-				this.__create ();                                                  // window.jsxi:76
-				this.switchTab ();                                                 // ...
+				this.__create ();                                                  // window.jsxi:28
+				this.switchTab ();                                                 // window.jsxi:29
 			}, 
 			lastTabs;                                                              // window.jsxi:5
-		Window.prototype.caption = function (str){                                 // window.jsxi:38
+		Window.prototype.caption = function (str){
 			this.__element.findId ('window-caption').html (str);                   // window.jsxi:39
 			return this;                                                           // window.jsxi:40
 		};
-		Window.prototype.bar = function (str){                                     // window.jsxi:43
+		Window.prototype.bar = function (str){
 			this.__element.findId ('window-bar').html (str);                       // window.jsxi:44
 			return this;                                                           // window.jsxi:45
 		};
-		Window.prototype.body = function (str){                                    // window.jsxi:48
+		Window.prototype.body = function (str){
 			this.__element.findId ('window-body').html (str);                      // window.jsxi:49
 			return this;                                                           // window.jsxi:50
 		};
-		Window.prototype.footer = function (str){                                  // window.jsxi:53
+		Window.prototype.footer = function (str){
 			this.__element.findId ('window-footer').html (str);                    // window.jsxi:54
 			return this;                                                           // window.jsxi:55
 		};
-		Window.prototype.click = function (button, key, param){                    // window.jsxi:59
+		Window.prototype.click = function (button, key, param){
 			switch (key){                                                          // window.jsxi:60
 				case 'window-close':                                               // window.jsxi:61
-					this.close ();                                                 // window.jsxi:76
+					this.close ();                                                 // window.jsxi:62
 					return true;                                                   // window.jsxi:63
 				case 'tab':                                                        // window.jsxi:64
-					this.switchTab (param);                                        // window.jsxi:76
+					this.switchTab (param);                                        // window.jsxi:65
 					return true;                                                   // window.jsxi:66
 			}
 		};
-		Window.prototype.switchTab = function (id){                                // window.jsxi:70
-			var allTabs = this.__element.find ('[data-button^=\"tab:\"]'),         // window.jsxi:71
-				html;                                                              // window.jsxi:72
+		Window.prototype.switchTab = function (id){
+			var allTabs = this.__element.find ('[data-button^=\"tab:\"]'),         // window.jsxi:72
+				html;                                                              // ...
 			if (allTabs.length > 0){                                               // window.jsxi:74
 				if (id !== undefined){                                             // window.jsxi:75
-					lastTabs[this.__className] = id;                               // window.jsxi:76
+					lastTabs [this.__className] = id;                              // window.jsxi:76
 					Preferences.set ('window-previous-tabs', lastTabs);            // window.jsxi:77
 				} else if (lastTabs.hasOwnProperty (this.__className)){            // window.jsxi:78
-					id = lastTabs[this.__className];                               // window.jsxi:76
+					id = lastTabs [this.__className];                              // window.jsxi:79
 				} else
 					id = allTabs.eq (0).data ('button').match ([object Object])[0];
-				this.body (this.__tab (id));                                       // ...
+				this.body (this.__tab (id));                                       // window.jsxi:83
 				allTabs.removeClass ('active').filter ('[data-button=\"tab:' + id + '\"]').addClass ('active');
 			}
 			return this;                                                           // window.jsxi:91
@@ -3206,7 +3206,7 @@ var Storage = function (){                                                      
 		Window.prototype.close = function (){
 			console.assert (!this.closed, 'Window already closed');                // window.jsxi:96
 			this.__element.removeClass ('visible').timeout (function (arg){        // window.jsxi:98
-				return $ (this).remove ();                                         // ...
+				return $(this).remove ();                                          // ...
 			}, 
 			300);                                                                  // ...
 			this.closed = true;                                                    // window.jsxi:99
@@ -3245,24 +3245,24 @@ var Storage = function (){                                                      
 				Dec: 'Дек'                                                         // ...
 			}, 
 			domains = [ 'ponyach.ru', 'dev.ponyach.ru', 'ponya.ch' ],              // ponyabaUtils.jsxi:4
-			stupidPonyaba = [object Object], 
-			linkDetect = [object Object], 
-			postLinksDetect = [object Object], 
-			rawPostLinksDetect = [object Object], 
-			imageLinkDetect = [object Object], 
-			audioLinkDetect = [object Object], 
+			stupidPonyaba = [object Object],                                       // ponyabaUtils.jsxi:5
+			linkDetect = [object Object],                                          // ponyabaUtils.jsxi:6
+			postLinksDetect = [object Object],                                     // ponyabaUtils.jsxi:7
+			rawPostLinksDetect = [object Object],                                  // ponyabaUtils.jsxi:8
+			imageLinkDetect = [object Object],                                     // ponyabaUtils.jsxi:9
+			audioLinkDetect = [object Object],                                     // ponyabaUtils.jsxi:10
 			tempDate = new Date (),                                                // ponyabaUtils.jsxi:11
 			imageLinkDetectEnabled,                                                // ponyabaUtils.jsxi:12
 			audioLinkDetectEnabled,                                                // ponyabaUtils.jsxi:13
 			tempDiv;                                                               // ponyabaUtils.jsxi:14
 		function date (timestamp){                                                 // ponyabaUtils.jsxi:21
 			tempDate.setTime (timestamp);                                          // ponyabaUtils.jsxi:25
-			var temp = tempDate.toString (),                                       // ponyabaUtils.jsxi:26
+			var temp = tempDate.toString (),                                       // ponyabaUtils.jsxi:30
 				week = temp.substr (0, 3),                                         // ponyabaUtils.jsxi:27
 				month = temp.substr (4, 3),                                        // ponyabaUtils.jsxi:28
 				day = temp.substr (8, 2),                                          // ponyabaUtils.jsxi:29
 				end = temp.substr (11, 13);                                        // ponyabaUtils.jsxi:30
-			return daysOfWeekNames[week] + ' ' + day + ' ' + monthNames[month] + ' ' + end;
+			return daysOfWeekNames [week] + ' ' + day + ' ' + monthNames [month] + ' ' + end;
 		}
 		PonyabaUtils.formatSize = function (bytes){                                // ponyabaUtils.jsxi:35
 			if ((bytes /= 1024) < 1024)                                            // ponyabaUtils.jsxi:36
@@ -3271,8 +3271,8 @@ var Storage = function (){                                                      
 				return (bytes / 1024).toFixed (2) + 'MB';                          // ponyabaUtils.jsxi:39
 		};
 		PonyabaUtils.fixMessage = function (message, section, previous, embeds){   // ponyabaUtils.jsxi:41
-			return message.replace (stupidPonyaba, '').replace (linkDetect,        // ponyabaUtils.jsxi:44
-				function (linkBegin, href){                                        // ...
+			return message.replace (stupidPonyaba, '').replace (linkDetect,        // ponyabaUtils.jsxi:89
+				function (linkBegin, href){                                        // ponyabaUtils.jsxi:44
 					if (href.match (postLinksDetect)){                             // ponyabaUtils.jsxi:45
 						var to = + (RegExp.$3 || RegExp.$2), ts = RegExp.$1;       // ponyabaUtils.jsxi:47
 						if (section === ts && previous.indexOf (to) === - 1)       // ponyabaUtils.jsxi:49
@@ -3287,7 +3287,7 @@ var Storage = function (){                                                      
 						return Mustache.postAudiolinkThumbinal ({ url: href, type: RegExp.$1, enabled: audioLinkDetectEnabled }) + linkBegin;
 					} else if (href.match (imageLinkDetect)){                      // ponyabaUtils.jsxi:67
 						return Mustache.postImagelinkThumbinal ({
-							url: href,                                             // ponyabaUtils.jsxi:69
+							url: href,                                             // ponyabaUtils.jsxi:72
 							proxyUrl: Crossdomain.proxyUrl (href),                 // ponyabaUtils.jsxi:70
 							enabled: imageLinkDetectEnabled                        // ponyabaUtils.jsxi:71
 						}) + linkBegin;                                            // ponyabaUtils.jsxi:72
@@ -3316,7 +3316,7 @@ var Storage = function (){                                                      
 				if (!Preferences.get ('debug-mode'))                               // ponyabaUtils.jsxi:105
 					throw new Error (1003);                                        // ponyabaUtils.jsxi:106
 			}
-			var timestamp = data.timestamp * 1000,                                 // ponyabaUtils.jsxi:109
+			var timestamp = data.timestamp * 1000,                                 // ponyabaUtils.jsxi:114
 				threadMode = !('parentid' in data),                                // ponyabaUtils.jsxi:110
 				thread = threadMode ? data.id : data.parentid,                     // ponyabaUtils.jsxi:111
 				previous = [],                                                     // ponyabaUtils.jsxi:112
@@ -3331,12 +3331,12 @@ var Storage = function (){                                                      
 					displayName: displayFileName (data.file_original),             // ponyabaUtils.jsxi:122
 					type: data.file_type,                                          // ponyabaUtils.jsxi:123
 					size: data.file_size,                                          // ponyabaUtils.jsxi:124
-					sizeFormatted: PonyabaUtils.formatSize (data.file_size),       // ponyabaUtils.jsxi:76
+					sizeFormatted: PonyabaUtils.formatSize (data.file_size),       // ponyabaUtils.jsxi:125
 					dimensions: { width: data.image_w, height: data.image_h },     // ponyabaUtils.jsxi:126
 					thumbinalDimensions: { width: data.thumb_w, height: data.thumb_h }
 				};
 			return {
-				id: data.id,                                                       // ponyabaUtils.jsxi:131
+				id: data.id,                                                       // ponyabaUtils.jsxi:153
 				threadMode: threadMode,                                            // ponyabaUtils.jsxi:132
 				thread: thread,                                                    // ponyabaUtils.jsxi:133
 				section: section,                                                  // ponyabaUtils.jsxi:134
@@ -3358,7 +3358,7 @@ var Storage = function (){                                                      
 		};
 		PonyabaUtils.omitted = function (posts, images){                           // ponyabaUtils.jsxi:155
 			if (posts <= 0)                                                        // ponyabaUtils.jsxi:156
-				return null;                                                       // ponyabaUtils.jsxi:157
+				return null;                                                       // ponyabaUtils.jsxi:158
 			else
 				return posts + ' ответ' + posts.postfix ('', 'а', 'ов') + ' ' + (images ? 'и ' + images + ' изображени' + images.postfix ('е', 'я', 'й') + ' ' : '') + 'пропущен' + (images > 0 ? Number.POSITIVE_INFINITY : posts).postfix ('', 'о', 'о') + '. Нажмите «Ответ», чтобы увидеть тред целиком.';
 		};
@@ -3377,7 +3377,7 @@ var Storage = function (){                                                      
 	Styles = function (){                                                          // styles.jsxi:1
 		var Styles = function (){                                                  // styles.jsxi:2
 			Preferences.on ([
-				'mask-images',                                                     // styles.jsxi:4
+				'mask-images',                                                     // styles.jsxi:17
 				'hide-names',                                                      // styles.jsxi:5
 				'text-spoilers-open',                                              // styles.jsxi:6
 				'search-buttons',                                                  // styles.jsxi:7
@@ -3392,49 +3392,49 @@ var Storage = function (){                                                      
 				'links-audio-detect'                                               // styles.jsxi:16
 			], 
 			function (value, key){                                                 // styles.jsxi:17
-				return $ (document.body).toggleClass (key, value);                 // ...
+				return $(document.body).toggleClass (key, value);                  // ...
 			});
 			Preferences.on ('popup-posts',                                         // styles.jsxi:19
 				function (arg){                                                    // ...
-					return $ (document.body).toggleClass ('refmap-disabled', arg !== 'refmap');
+					return $(document.body).toggleClass ('refmap-disabled', arg !== 'refmap');
 				});
 			Preferences.on ('embed-size',                                          // styles.jsxi:20
 				function (arg){                                                    // ...
-					return $ (document.body).data ('embed-size', arg);             // ...
+					return $(document.body).data ('embed-size', arg);              // ...
 				});
-			Preferences.on ('hide-reply form-position',                            // styles.jsxi:22
-				function (arg){                                                    // ...
-					return $ (document.body).toggleClass ('hide-reply',            // ...
+			Preferences.on ('hide-reply form-position',                            // styles.jsxi:23
+				function (arg){                                                    // styles.jsxi:22
+					return $(document.body).toggleClass ('hide-reply',             // styles.jsxi:23
 						Preferences.get ('hide-reply') && [ 'hidden', 'popup' ].indexOf (Preferences.get ('form-position')) !== - 1);
 				});
-			Preferences.on ('theme',                                               // styles.jsxi:25
-				function (arg){                                                    // ...
-					$ ('link[data-custom-style]').remove ();                       // styles.jsxi:26
+			Preferences.on ('theme',                                               // styles.jsxi:29
+				function (arg){                                                    // styles.jsxi:25
+					$('link[data-custom-style]').remove ();                        // styles.jsxi:26
 					if (arg)                                                       // styles.jsxi:27
-						$ ('<link rel=\"stylesheet\" data-custom-style type=\"text/css\" href=\"' + arg + '\">').appendTo (document.head);
+						$('<link rel=\"stylesheet\" data-custom-style type=\"text/css\" href=\"' + arg + '\">').appendTo (document.head);
 				});
 		};
 		return Styles;
 	}(), 
 	Embed = function (){                                                           // embed.jsxi:1
 		var Embed = function (){}, 
-			youtubeDetect = [object Object], 
-			vimeoDetect = [object Object], 
-			coubDetect = [object Object], 
-			coubThumbinalParse = [object Object], 
-			coubTitleParse = [object Object], 
+			youtubeDetect = [object Object],                                       // embed.jsxi:6
+			vimeoDetect = [object Object],                                         // embed.jsxi:7
+			coubDetect = [object Object],                                          // embed.jsxi:8
+			coubThumbinalParse = [object Object],                                  // embed.jsxi:9
+			coubTitleParse = [object Object],                                      // embed.jsxi:10
 			callbacks = {};                                                        // embed.jsxi:11
 		function request (url, type, callback){                                    // embed.jsxi:27
 			if (typeof type === 'function'){                                       // embed.jsxi:28
 				callback = type;                                                   // embed.jsxi:29
 				type = undefined;                                                  // embed.jsxi:30
 			}
-			if (callbacks[url]){                                                   // embed.jsxi:33
-				callbacks[url].push (callback);                                    // embed.jsxi:34
+			if (callbacks [url]){                                                  // embed.jsxi:33
+				callbacks [url].push (callback);                                   // embed.jsxi:34
 			} else {
-				callbacks[url] = [ callback ];                                     // embed.jsxi:36
+				callbacks [url] = [ callback ];                                    // embed.jsxi:36
 				$.ajax ({
-					url: url,                                                      // embed.jsxi:39
+					url: url,                                                      // embed.jsxi:43
 					dataType: type,                                                // embed.jsxi:40
 					success: handler,                                              // embed.jsxi:41
 					error: handler.bind (null, null)                               // embed.jsxi:42
@@ -3442,63 +3442,63 @@ var Storage = function (){                                                      
 			}
 			function handler (arg){                                                // embed.jsxi:46
 				{
-					var _g = callbacks[url];                                       // embed.jsxi:48
+					var _g = callbacks [url];                                      // embed.jsxi:48
 					for (var _e = 0; _e < _g.length; _e ++){                       // ...
-						var callback = _g[_e];                                     // ...
+						var callback = _g [_e];                                    // ...
 						callback (arg);                                            // ...
 					}
 					_g = undefined;                                                // ...
 				}
-				delete callbacks[url];                                             // embed.jsxi:49
+				delete callbacks [url];                                            // embed.jsxi:49
 			}
 		}
 		Embed.test = function (href){                                              // embed.jsxi:53
 			if (href.match (youtubeDetect))                                        // embed.jsxi:54
-				return { type: 'youtube', param: RegExp.$1 };                      // embed.jsxi:58
-			else if (href.match (vimeoDetect))                                     // embed.jsxi:59
-				return { type: 'vimeo', param: RegExp.$1 };                        // embed.jsxi:63
-			else if (href.match (coubDetect))                                      // embed.jsxi:64
-				return { type: 'coub', param: RegExp.$1 };                         // embed.jsxi:68
+				return { type: 'youtube', param: RegExp.$1 };                      // embed.jsxi:59
+			else if (href.match (vimeoDetect))                                     // ...
+				return { type: 'vimeo', param: RegExp.$1 };                        // embed.jsxi:64
+			else if (href.match (coubDetect))                                      // ...
+				return { type: 'coub', param: RegExp.$1 };                         // embed.jsxi:69
 			else
 				return false;                                                      // embed.jsxi:70
 		};
 		Embed.buildHtml = function (params){                                       // embed.jsxi:72
 			if (params instanceof Array)                                           // embed.jsxi:73
-				params = params[0];                                                // embed.jsxi:74
+				params = params [0];                                               // embed.jsxi:74
 			switch (params.type){                                                  // embed.jsxi:76
 				case 'youtube':                                                    // embed.jsxi:77
 					
 				case 'coub':                                                       // embed.jsxi:78
 					
 				case 'vimeo':                                                      // embed.jsxi:79
-					return Mustache[$.camelCase ('embed-' + params.type)](params);
+					return Mustache [$.camelCase ('embed-' + params.type)](params);
 				default:
 					console.warn ('Not implemented at 82 line of embed.jsxi');     // embed.jsxi:82
 					return '';                                                     // embed.jsxi:83
 			}
 		};
 		Embed.click = function (_target){                                          // embed.jsxi:87
-			var target = $ (_target),                                              // embed.jsxi:88
+			var target = $(_target),                                               // embed.jsxi:96
 				blockquote = target.closest ('blockquote'),                        // embed.jsxi:89
 				post = blockquote.closest ('[data-post]'),                         // embed.jsxi:90
 				links = blockquote.find ('[data-button=\"embed\"]'),               // embed.jsxi:91
-				index = links.indexOf (target[0]),                                 // embed.jsxi:92
+				index = links.indexOf (target [0]),                                // embed.jsxi:92
 				embeds = Posts.get (post.data ('post')).embeds,                    // embed.jsxi:93
-				params = embeds[index],                                            // embed.jsxi:94
+				params = embeds [index],                                           // embed.jsxi:94
 				previousElement = post.find ('[data-id=\"embeds-host\"] [data-value]'),
-				newElement = $ (Embed.buildHtml (params));                         // embed.jsxi:96
+				newElement = $(Embed.buildHtml (params));                          // embed.jsxi:96
 			if (previousElement.data ('value') === newElement.data ('value')){     // embed.jsxi:98
 				previousElement.toggleClass ('embed-hidden');                      // embed.jsxi:99
 			} else {
 				previousElement.replaceWith (newElement);                          // embed.jsxi:101
-				Embed.process (newElement.parent ());                              // embed.jsxi:76
+				Embed.process (newElement.parent ());                              // embed.jsxi:102
 			}
 		};
 		Embed.setPlayer = function (type, id, _target){                            // embed.jsxi:106
-			var target = $ (_target),                                              // embed.jsxi:107
+			var target = $(_target),                                               // embed.jsxi:111
 				url = target.attr ('href'),                                        // embed.jsxi:108
-				html = Mustache[$.camelCase ('embed-' + type + 'Player')]({ id: id }),
-				player = $ (html),                                                 // embed.jsxi:110
+				html = Mustache [$.camelCase ('embed-' + type + 'Player')]({ id: id }),
+				player = $(html),                                                  // embed.jsxi:110
 				parent = target.closest ('[data-id=\"embeds-host\"] [data-value]');
 			target.hide ();                                                        // embed.jsxi:113
 			parent.append (player).data ('value-off', parent.data ('value')).data ('value', '');
@@ -3506,7 +3506,7 @@ var Storage = function (){                                                      
 		Embed.process = function (parent){                                         // embed.jsxi:121
 			if (parent === undefined)                                              // ...
 				parent = document.body;                                            // ...
-			var elements = $ (parent).find ('[data-embed-param]'),                 // embed.jsxi:122
+			var elements = $(parent).find ('[data-embed-param]'),                  // embed.jsxi:124
 				type,                                                              // embed.jsxi:123
 				param;                                                             // embed.jsxi:124
 			function processElement (element){                                     // embed.jsxi:126
@@ -3518,7 +3518,7 @@ var Storage = function (){                                                      
 							'jsonp',                                               // embed.jsxi:134
 							function (arg){                                        // embed.jsxi:135
 								try {                                              // embed.jsxi:140
-									return $ (element).data ('embed-title', arg.feed.entry[0].title.$t);
+									return $(element).data ('embed-title', arg.feed.entry [0].title.$t);
 								} catch (e){                                       // ...
 									return console.warn ('could not load name of youtube video');
 								} 
@@ -3529,7 +3529,7 @@ var Storage = function (){                                                      
 							'jsonp',                                               // embed.jsxi:145
 							function (arg){                                        // embed.jsxi:146
 								try {                                              // embed.jsxi:151
-									return element.style.backgroundImage = 'url(\"' + arg[0].thumbnail_large + '\")';
+									return element.style.backgroundImage = 'url(\"' + arg [0].thumbnail_large + '\")';
 								} catch (e){                                       // ...
 									return console.warn ('could not load thumbinal of vimeo video');
 								} 
@@ -3540,14 +3540,14 @@ var Storage = function (){                                                      
 							'jsonp',                                               // embed.jsxi:156
 							function (arg){                                        // embed.jsxi:157
 								try {                                              // embed.jsxi:162
-									return $ (element).data ('embed-title', arg[0].title);
+									return $(element).data ('embed-title', arg [0].title);
 								} catch (e){                                       // ...
 									return console.warn ('could not load name of vimeo video');
 								} 
 							});
 						break;                                                     // embed.jsxi:163
 					case 'coub-thumbinal':                                         // embed.jsxi:164
-						Crossdomain.request ('http://coub.com/view/' + param,      // embed.jsxi:166
+						Crossdomain.request ('http://coub.com/view/' + param,      // embed.jsxi:173
 							function (arg){                                        // embed.jsxi:167
 								try {                                              // embed.jsxi:172
 									return element.style.backgroundImage = 'url(\"' + arg.match (coubThumbinalParse)[1].replace ('%{version}', 'med') + '\")';
@@ -3557,10 +3557,10 @@ var Storage = function (){                                                      
 							});
 						break;                                                     // embed.jsxi:173
 					case 'coub':                                                   // embed.jsxi:174
-						Crossdomain.request ('http://coub.com/view/' + param,      // embed.jsxi:176
+						Crossdomain.request ('http://coub.com/view/' + param,      // embed.jsxi:183
 							function (arg){                                        // embed.jsxi:177
 								try {                                              // embed.jsxi:182
-									return $ (element).data ('embed-title', arg.match (coubTitleParse)[1]);
+									return $(element).data ('embed-title', arg.match (coubTitleParse)[1]);
 								} catch (e){                                       // ...
 									return console.warn ('could not load name of coub video');
 								} 
@@ -3572,16 +3572,16 @@ var Storage = function (){                                                      
 				element.removeAttribute ('data-embed-param');                      // embed.jsxi:188
 			}
 			for (var _h = 0; _h < elements.length; _h ++){                         // embed.jsxi:192
-				var element = elements[_h];                                        // ...
+				var element = elements [_h];                                       // ...
 				processElement (element);                                          // ...
 			}
 		};
 		(function (arg){                                                           // embed.jsxi:13
-			Preferences.on ('embed-player',                                        // embed.jsxi:14
-				function (arg){                                                    // ...
+			Preferences.on ('embed-player',                                        // embed.jsxi:25
+				function (arg){                                                    // embed.jsxi:14
 					if (!arg){                                                     // embed.jsxi:15
-						$ ('.embed[data-value-off]').each (function (arg){         // embed.jsxi:16
-							var element = $ (this);                                // embed.jsxi:17
+						$('.embed[data-value-off]').each (function (arg){          // embed.jsxi:24
+							var element = $(this);                                 // embed.jsxi:17
 							element.data ('value', element.data ('value-off')).data ('value-off', null).find ('[data-button^=\"embed:\"]').show ();
 							element.find ('iframe, embed').remove ();              // embed.jsxi:22
 						});
@@ -3593,38 +3593,38 @@ var Storage = function (){                                                      
 	Form = function (){                                                            // form.jsxi:1
 		var Form = function (){                                                    // form.jsxi:25
 				var __that = this;                                                 // form.jsxi:76
-				this.__Form_sectionParams = null;                                  // form.jsxi:18
-				this.__Form_visible = false;                                       // form.jsxi:19
-				this.__Form_disabled = {};                                         // form.jsxi:20
-				this.__Form_busy = false;                                          // form.jsxi:21
-				this.__Form_element = $ (Mustache.form ());                        // form.jsxi:28
-				Preferences.on ('form-formatting-buttons',                         // form.jsxi:30
-					function (arg){                                                // ...
-						var name = arg ? 'formButtons' + arg[0].toUpperCase () + arg.substr (1) : false;
-						__that.__Form_element.findId ('style').html (name && name in Mustache ? Mustache[name](buttons) : '');
+				this.__Form_sectionParams = null;                                  // zepto.jsxi:76
+				this.__Form_visible = false;                                       // ...
+				this.__Form_disabled = {};                                         // ...
+				this.__Form_busy = false;                                          // ...
+				this.__Form_element = $(Mustache.form ());                         // form.jsxi:28
+				Preferences.on ('form-formatting-buttons',                         // form.jsxi:33
+					function (arg){                                                // form.jsxi:30
+						var name = arg ? 'formButtons' + arg [0].toUpperCase () + arg.substr (1) : false;
+						__that.__Form_element.findId ('style').html (name && name in Mustache ? Mustache [name](buttons) : '');
 					});
-				Preferences.on ('form-formatting-buttons-at-bottom',               // form.jsxi:35
-					function (arg){                                                // ...
+				Preferences.on ('form-formatting-buttons-at-bottom',               // form.jsxi:37
+					function (arg){                                                // form.jsxi:35
 						__that.__Form_element.findId ('style').insertAfter (__that.__Form_element.findId (arg ? 'message' : 'submit'));
 					});
-				Preferences.on ('form-fixed-name-enabled form-fixed-name',         // form.jsxi:39
-					function (arg){                                                // ...
+				Preferences.on ('form-fixed-name-enabled form-fixed-name',         // form.jsxi:46
+					function (arg){                                                // form.jsxi:39
 						var name = __that.__Form_element.findId ('name');          // form.jsxi:40
 						if (Preferences.get ('form-fixed-name-enabled')){          // form.jsxi:41
-							Preferences.set ('form-previous-name', name.val ());   // form.jsxi:42
-							name.val (Preferences.get ('form-fixed-name'));        // form.jsxi:43
+							Preferences.set ('form-previous-name', name.val ());   // form.jsxi:43
+							name.val (Preferences.get ('form-fixed-name'));        // ...
 						} else
 							name.val (Preferences.get ('form-previous-name', ''));
 					});
-				this.__Form_setFile (null);                                        // form.jsxi:76
-				this.__Form_resizable ();                                          // ...
-				this.__Form_sageHandler ();                                        // ...
-				this.__Form_styleHandler ();                                       // ...
-				this.__Form_changeHandler ();                                      // ...
-				this.__Form_pasteHandler ();                                       // ...
-				this.__Form_fileMouseoverHandler ();                               // ...
-				this.__Form_fileInputHandler ();                                   // ...
-				this.__Form_submitHandler ();                                      // ...
+				this.__Form_setFile (null);                                        // form.jsxi:48
+				this.__Form_resizable ();                                          // form.jsxi:49
+				this.__Form_sageHandler ();                                        // form.jsxi:50
+				this.__Form_styleHandler ();                                       // form.jsxi:51
+				this.__Form_changeHandler ();                                      // form.jsxi:52
+				this.__Form_pasteHandler ();                                       // form.jsxi:53
+				this.__Form_fileMouseoverHandler ();                               // form.jsxi:54
+				this.__Form_fileInputHandler ();                                   // form.jsxi:55
+				this.__Form_submitHandler ();                                      // form.jsxi:56
 			}, 
 			dispatcher = new Dispatcher (),                                        // form.jsxi:2
 			buttons = [
@@ -3636,13 +3636,13 @@ var Storage = function (){                                                      
 				{ 'label': 'C', 'tag': 'code', 'title': 'Код' },                   // ...
 				{ 'label': '>', 'tag': '>', 'title': 'Цитата' }                    // ...
 			];
-		Form.prototype.__Form_setDisabled = function (reason, param){              // form.jsxi:59
+		Form.prototype.__Form_setDisabled = function (reason, param){
 			if (param)                                                             // form.jsxi:60
-				this.__Form_disabled[reason] = true;                               // form.jsxi:61
+				this.__Form_disabled [reason] = true;                              // form.jsxi:61
 			else
-				delete this.__Form_disabled[reason];                               // form.jsxi:63
-			for (var key in this.__Form_disabled){                                 // form.jsxi:76
-				var value = this.__Form_disabled[key];                             // form.jsxi:69
+				delete this.__Form_disabled [reason];                              // form.jsxi:63
+			for (var key in this.__Form_disabled){                                 // form.jsxi:69
+				var value = this.__Form_disabled [key];                            // ...
 				if (value){                                                        // form.jsxi:66
 					this.__Form_element.findId ('submit').attr ('disabled', true);
 					return;                                                        // form.jsxi:68
@@ -3650,34 +3650,34 @@ var Storage = function (){                                                      
 			}
 			this.__Form_element.findId ('submit').removeAttr ('disabled');         // form.jsxi:71
 		};
-		Form.prototype.__Form_updateSectionParams = function (data){               // form.jsxi:74
+		Form.prototype.__Form_updateSectionParams = function (data){
 			var __that = this;                                                     // form.jsxi:76
 			if (data === null){                                                    // form.jsxi:75
 				console.warn ('Not implemented at 76 line of form.jsxi');          // form.jsxi:76
 			} else {
-				var filtered = data[0].filter (function (arg){                     // form.jsxi:78
-					return arg.name === __that.__Form_section;                     // form.jsxi:76
-				})[0];                                                             // form.jsxi:78
+				var filtered = data [0].filter (function (arg){                    // form.jsxi:78
+					return arg.name === __that.__Form_section;                     // ...
+				})[0];                                                             // ...
 				if (filtered)                                                      // form.jsxi:80
 					this.__Form_sectionParams = filtered.params ? filtered.params : {};
-				this.__Form_setFile ();                                            // form.jsxi:76
-				this.__Form_setDisabled ('loading', false);                        // ...
+				this.__Form_setFile ();                                            // form.jsxi:83
+				this.__Form_setDisabled ('loading', false);                        // form.jsxi:84
 			}
 		};
-		Form.prototype.__Form_updateTarget = function (section, thread){           // form.jsxi:88
+		Form.prototype.__Form_updateTarget = function (section, thread){
 			if (this.__Form_section !== section){                                  // form.jsxi:89
 				this.__Form_sectionParams = null;                                  // form.jsxi:90
-				this.__Form_setDisabled ('loading', true);                         // form.jsxi:76
+				this.__Form_setDisabled ('loading', true);                         // form.jsxi:91
 				new SectionsRequest ().send (__bo (this, '__Form_updateSectionParams'));
 			}
 			this.__Form_section = section;                                         // form.jsxi:96
 			this.__Form_thread = thread;                                           // form.jsxi:97
 		};
-		Form.prototype.__Form_setFile = function (newFile){                        // form.jsxi:100
+		Form.prototype.__Form_setFile = function (newFile){
 			var __that = this;                                                     // form.jsxi:76
 			var __;                                                                // ...
 			if (this.__Form_exif){                                                 // ...
-				this.__Form_setDisabled ('exif-removing', false);                  // ...
+				this.__Form_setDisabled ('exif-removing', false);                  // form.jsxi:102
 				this.__Form_exif.cancel ();                                        // form.jsxi:103
 				this.__Form_exif = null;                                           // form.jsxi:104
 			}
@@ -3698,48 +3698,48 @@ var Storage = function (){                                                      
 			if (this.__Form_file){                                                 // form.jsxi:76
 				if (![object Object].test (this.__Form_file.type))                 // form.jsxi:127
 					error = 'Выберите изображение';                                // form.jsxi:128
-				if (!error && this.__Form_sectionParams){                          // form.jsxi:76
+				if (!error && this.__Form_sectionParams){                          // form.jsxi:130
 					if (this.__Form_file.size > this.__Form_sectionParams.maxImageSize / 10)
 						error = 'Не больше ' + PonyabaUtils.formatSize (this.__Form_sectionParams.maxImageSize);
 				}
 				if (!error && this.__Form_file.type === 'image/jpeg' && Preferences.get ('form-remove-exif')){
-					this.__Form_setDisabled ('exif-removing', true);               // ...
+					this.__Form_setDisabled ('exif-removing', true);               // form.jsxi:138
 					this.__Form_exif = new Exif (this.__Form_file.data);           // form.jsxi:140
-					this.__Form_exif.clear (function (arg){                        // form.jsxi:141
+					this.__Form_exif.clear (function (arg){                        // form.jsxi:147
 						var __;                                                    // form.jsxi:76
-						__that.__Form_setDisabled ('exif-removing', false);        // ...
+						__that.__Form_setDisabled ('exif-removing', false);        // form.jsxi:142
 						if (arg)                                                   // form.jsxi:143
 							__that.__Form_file.data = arg;                         // form.jsxi:144
 						else if (arg === null)                                     // form.jsxi:145
 							(__ = new Message ('warning', 'Увы, но удалить EXIF-данные не удалось', 2000),
-								__[(__ instanceof Form ? '__Form_show' : 'show')]).call (__);
+								__ [(__ instanceof Form ? '__Form_show' : 'show')]).call (__);
 					});
 				}
 			} else
 				(__ = this.__Form_element.findId ('file-form')[0],                 // form.jsxi:150
-					__[(__ instanceof Form ? '__Form_reset' : 'reset')]).call (__);
+					__ [(__ instanceof Form ? '__Form_reset' : 'reset')]).call (__);
 			this.__Form_element.findId ('file-error').text (error || '');          // form.jsxi:152
-			this.__Form_setDisabled ('file-error', error);                         // form.jsxi:76
+			this.__Form_setDisabled ('file-error', error);                         // form.jsxi:153
 		};
 		Form.prototype.__Form_fileInputHandler = function (){
-			var __that = this;                                                     // ...
+			var __that = this;                                                     // form.jsxi:76
 			var __;                                                                // ...
-			this.__Form_element.findId ('file-input').change (function (arg){      // form.jsxi:157
+			this.__Form_element.findId ('file-input').change (function (arg){      // form.jsxi:168
 				return __that.__Form_setFile (this.files.length ? {
-					name: this.files[0].name,                                      // form.jsxi:161
-					type: this.files[0].type,                                      // form.jsxi:162
-					size: this.files[0].size,                                      // form.jsxi:163
-					data: this.files[0]                                            // form.jsxi:164
+					name: this.files [0].name,                                     // ...
+					type: this.files [0].type,                                     // form.jsxi:162
+					size: this.files [0].size,                                     // form.jsxi:163
+					data: this.files [0]                                           // form.jsxi:164
 				} : null);                                                         // form.jsxi:166
 			});
 			(__ = this.__Form_element.findId ('file-clear').click (function (arg){
 					if (arg.which === 1){                                          // form.jsxi:170
-						__that.__Form_setFile (null);                              // form.jsxi:76
+						__that.__Form_setFile (null);                              // form.jsxi:171
 						arg.preventDefault ();                                     // form.jsxi:172
 						arg.stopPropagation ();                                    // form.jsxi:173
 					}
 				}), 
-				__[(__ instanceof Form ? '__Form_hide' : 'hide')]).call (__);      // form.jsxi:76
+				__ [(__ instanceof Form ? '__Form_hide' : 'hide')]).call (__);     // form.jsxi:76
 		};
 		Form.prototype.__Form_pasteHandler = function (){
 			var __that = this;                                                     // ...
@@ -3747,49 +3747,49 @@ var Storage = function (){                                                      
 				var __;                                                            // form.jsxi:76
 				var inserted = this.value.substring (from, this.selectionStart);   // form.jsxi:179
 				if (inserted.match ([object Object])){                             // form.jsxi:180
-					var name = RegExp.$1,                                          // form.jsxi:181
+					var name = RegExp.$1,                                          // form.jsxi:183
 						extension = RegExp.$2,                                     // form.jsxi:182
 						message = (__ = new Message ('loading'),                   // form.jsxi:183
-							__[(__ instanceof Form ? '__Form_show' : 'show')]).call (__);
-					Crossdomain.request (inserted,                                 // form.jsxi:185
-						true,                                                      // ...
+							__ [(__ instanceof Form ? '__Form_show' : 'show')]).call (__);
+					Crossdomain.request (inserted,                                 // form.jsxi:194
+						true,                                                      // form.jsxi:185
 						function (arg){                                            // ...
-							if (arg && !__that.__Form_file)                        // form.jsxi:76
+							if (arg && !__that.__Form_file)                        // form.jsxi:186
 								__that.__Form_setFile ({
-									name: name + '.' + extension,                  // form.jsxi:188
+									name: name + '.' + extension,                  // form.jsxi:192
 									type: 'image/' + extension.toLowerCase ().replace ('jpg', 'jpeg'),
 									size: arg.byteLength,                          // form.jsxi:190
 									data: arg                                      // form.jsxi:191
 								});
-							message[(message instanceof Form ? '__Form_hide' : 'hide')]();
+							message [(message instanceof Form ? '__Form_hide' : 'hide')]();
 						});
 				}
 			}
-			this.__Form_element.findId ('message').on ('paste',                    // form.jsxi:200
-				function (arg){                                                    // ...
-					if (!__that.__Form_file){                                      // form.jsxi:76
+			this.__Form_element.findId ('message').on ('paste',                    // form.jsxi:202
+				function (arg){                                                    // form.jsxi:200
+					if (!__that.__Form_file){                                      // ...
 						setTimeout (run.bind (this, this.selectionStart));         // form.jsxi:201
 					}
 				});
 		};
 		Form.prototype.__Form_fileMouseoverHandler = function (){
-			this.__Form_element.findId ('file-input').mouseover (function (arg){   // form.jsxi:206
+			this.__Form_element.findId ('file-input').mouseover (function (arg){   // form.jsxi:208
 				console.log ('MOUSEOVER');                                         // form.jsxi:207
 			});
 		};
 		Form.prototype.__Form_reset = function (){
 			this.__Form_element.findId ('message').val ('');                       // form.jsxi:212
 			this.__Form_element.findId ('subject').val ('');                       // form.jsxi:213
-			this.__Form_setFile (null);                                            // form.jsxi:76
+			this.__Form_setFile (null);                                            // form.jsxi:214
 			if (!Preferences.get ('sage-button-save'))                             // form.jsxi:215
 				this.__Form_element.findId ('sage').removeClass ('active');        // form.jsxi:216
 		};
 		Form.prototype.__Form_submitHandler = function (){
 			var __that = this;                                                     // form.jsxi:76
-			this.__Form_element.findId ('submit').click (function (arg){           // form.jsxi:220
+			this.__Form_element.findId ('submit').click (function (arg){           // form.jsxi:282
 				var __;                                                            // form.jsxi:76
 				if (arg.which === 1){                                              // form.jsxi:220
-					var input = __that.__Form_element.findId ('file-input')[0],    // form.jsxi:221
+					var input = __that.__Form_element.findId ('file-input')[0],    // form.jsxi:227
 						name = __that.__Form_element.findId ('name').val (),       // form.jsxi:222
 						subject = __that.__Form_element.findId ('subject').val (),
 						message = __that.__Form_element.findId ('message').val (),
@@ -3798,16 +3798,16 @@ var Storage = function (){                                                      
 						loading;                                                   // form.jsxi:227
 					if (Preferences.get ('detect-tripcode') && [object Object].test (subject)){
 						(__ = new Message ('warning', 'Поле «Тема» содержит трипкод', 2000),
-							__[(__ instanceof Form ? '__Form_show' : 'show')]).call (__);
+							__ [(__ instanceof Form ? '__Form_show' : 'show')]).call (__);
 						return;                                                    // form.jsxi:231
 					}
 					if (Preferences.get ('form-signature-enabled'))                // form.jsxi:234
 						message = message.trim () + '\n\n' + Preferences.get ('form-signature');
 					loading = (__ = new Message ('loading', 'Пожалуйста, подождите...'),
-						__[(__ instanceof Form ? '__Form_show' : 'show')]).call (__);
+						__ [(__ instanceof Form ? '__Form_show' : 'show')]).call (__);
 					__that.__Form_busy = true;                                     // form.jsxi:238
-					__that.__Form_hide ();                                         // form.jsxi:76
-					if (__that.__Form_file){                                       // ...
+					__that.__Form_hide ();                                         // form.jsxi:240
+					if (__that.__Form_file){                                       // form.jsxi:76
 						fileEntry = $.extend ({}, __that.__Form_file);             // form.jsxi:243
 						if (Preferences.get ('form-hide-filename'))                // form.jsxi:245
 							fileEntry.name = '.' + __that.__Form_file.type.match ([object Object])[0].replace ([object Object], 'jpg');
@@ -3816,10 +3816,10 @@ var Storage = function (){                                                      
 						email = __that.__Form_element.findId ('sage').hasClass ('active') ? 'sage' : '';
 					else
 						email = __that.__Form_element.findId ('email').val ();     // form.jsxi:252
-					new SendRequest (__that.__Form_section,                        // form.jsxi:76
-						__that.__Form_thread,                                      // ...
+					new SendRequest (__that.__Form_section,                        // form.jsxi:281
+						__that.__Form_thread,                                      // form.jsxi:76
 						{
-							name: name,                                            // form.jsxi:255
+							name: name,                                            // form.jsxi:260
 							subject: subject,                                      // form.jsxi:256
 							email: email,                                          // form.jsxi:257
 							file: fileEntry,                                       // form.jsxi:258
@@ -3827,22 +3827,22 @@ var Storage = function (){                                                      
 						}).send (function (data, error){                           // form.jsxi:260
 						var __;                                                    // form.jsxi:76
 						__that.__Form_busy = false;                                // form.jsxi:261
-						loading[(loading instanceof Form ? '__Form_hide' : 'hide')]();
+						loading [(loading instanceof Form ? '__Form_hide' : 'hide')]();
 						if (data === null){                                        // form.jsxi:264
 							(__ = new Message ('error',                            // form.jsxi:265
 									'Ошибка #' + error + ': ' + Errors.description (error),
 									true),                                         // ...
-								__[(__ instanceof Form ? '__Form_show' : 'show')]).call (__);
-							__that.__Form_show ();                                 // form.jsxi:76
+								__ [(__ instanceof Form ? '__Form_show' : 'show')]).call (__);
+							__that.__Form_show ();                                 // form.jsxi:266
 						} else {
 							(__ = new Message ('success', 'Сообщение отправлено', 2000),
-								__[(__ instanceof Form ? '__Form_show' : 'show')]).call (__);
-							__that.__Form_reset ();                                // ...
+								__ [(__ instanceof Form ? '__Form_show' : 'show')]).call (__);
+							__that.__Form_reset ();                                // form.jsxi:269
 							dispatcher.call ('sended',                             // form.jsxi:271
 								{
-									section: __that.__Form_section,                // form.jsxi:76
+									section: __that.__Form_section,                // ...
 									thread: __that.__Form_thread,                  // ...
-									id: data.id                                    // form.jsxi:271
+									id: data.id                                    // ...
 								});
 							if (__that.__Form_thread === undefined)                // form.jsxi:273
 								Statistics.threadCreated (__that.__Form_section);
@@ -3857,11 +3857,11 @@ var Storage = function (){                                                      
 		};
 		Form.prototype.__Form_sageHandler = function (){
 			var detSage = this.__Form_element.findId ('sage');                     // form.jsxi:286
-			detSage.click (function (arg){                                         // form.jsxi:288
-				if (arg.which === 1){                                              // ...
-					$ (this).toggleClass ('active');                               // form.jsxi:289
+			detSage.click (function (arg){                                         // form.jsxi:292
+				if (arg.which === 1){                                              // form.jsxi:288
+					$(this).toggleClass ('active');                                // form.jsxi:289
 					if (Preferences.get ('sage-button-save'))                      // form.jsxi:290
-						Preferences.set ('form-sage', $ (this).hasClass ('active'));
+						Preferences.set ('form-sage', $(this).hasClass ('active'));
 				}
 			});
 			if (Preferences.get ('sage-button-save') && Preferences.get ('form-sage', false))
@@ -3869,9 +3869,9 @@ var Storage = function (){                                                      
 		};
 		Form.prototype.__Form_changeHandler = function (){
 			var name = Preferences.get ('form-fixed-name-enabled') ? Preferences.get ('form-fixed-name') : Preferences.get ('form-previous-name', '');
-			this.__Form_element.findId ('name').on ('change',                      // form.jsxi:304
-				function (arg){                                                    // ...
-					return Preferences.set ('form-previous-name', $ (this).val ());
+			this.__Form_element.findId ('name').on ('change',                      // form.jsxi:307
+				function (arg){                                                    // form.jsxi:304
+					return Preferences.set ('form-previous-name', $(this).val ());
 				}).val (name);                                                     // form.jsxi:307
 		};
 		Form.prototype.__Form_styleHandler = function (){
@@ -3879,7 +3879,7 @@ var Storage = function (){                                                      
 			function applyCode (open, close){                                      // form.jsxi:311
 				if (close === undefined)                                           // ...
 					close = open;                                                  // ...
-				var textarea = __that.__Form_element.findId ('message')[0],        // form.jsxi:312
+				var textarea = __that.__Form_element.findId ('message')[0],        // form.jsxi:317
 					start = textarea.selectionStart,                               // form.jsxi:313
 					end = textarea.selectionEnd,                                   // form.jsxi:314
 					before = textarea.value.substring (0, start),                  // form.jsxi:315
@@ -3901,7 +3901,7 @@ var Storage = function (){                                                      
 				textarea.focus ();                                                 // form.jsxi:333
 			}
 			function quote (){                                                     // form.jsxi:336
-				var textarea = __that.__Form_element.findId ('message')[0],        // form.jsxi:337
+				var textarea = __that.__Form_element.findId ('message')[0],        // form.jsxi:344
 					start = textarea.selectionStart,                               // form.jsxi:338
 					end = textarea.selectionEnd,                                   // form.jsxi:339
 					before = textarea.value.substring (0, start),                  // form.jsxi:340
@@ -3918,8 +3918,8 @@ var Storage = function (){                                                      
 				textarea.selectionEnd = temp !== - 1 ? temp : textarea.value.length;
 				textarea.focus ();                                                 // form.jsxi:355
 			}
-			this.__Form_element.findId ('style').click (function (arg){            // form.jsxi:358
-				if (arg.which === 1 && arg.target.hasAttribute ('data-tag')){      // ...
+			this.__Form_element.findId ('style').click (function (arg){            // form.jsxi:369
+				if (arg.which === 1 && arg.target.hasAttribute ('data-tag')){      // form.jsxi:358
 					arg.preventDefault ();                                         // form.jsxi:359
 					arg.stopPropagation ();                                        // form.jsxi:360
 					var tag = arg.target.getAttribute ('data-tag');                // form.jsxi:362
@@ -3933,12 +3933,12 @@ var Storage = function (){                                                      
 			});
 		};
 		Form.prototype.__Form_resizable = function (){
-			var message = this.__Form_element.findId ('message'),                  // form.jsxi:377
+			var message = this.__Form_element.findId ('message'),                  // form.jsxi:380
 				loaded = {},                                                       // form.jsxi:378
 				width = loaded.width || message.width (),                          // form.jsxi:379
 				height = loaded.height || message.height ();                       // form.jsxi:380
-			message.on ('mouseup mousemove',                                       // form.jsxi:382
-				function (arg){                                                    // ...
+			message.on ('mouseup mousemove',                                       // form.jsxi:391
+				function (arg){                                                    // form.jsxi:382
 					var newWidth = message.width (), newHeight = message.height ();
 					if (newWidth !== width || newHeight !== height){               // form.jsxi:386
 						width = newWidth;                                          // form.jsxi:387
@@ -3949,15 +3949,15 @@ var Storage = function (){                                                      
 			if (loaded.width && loaded.height)                                     // form.jsxi:393
 				message.css (loaded);                                              // form.jsxi:394
 		};
-		Form.prototype.__Form_insertText = function (text, special){               // form.jsxi:397
-			var textarea = this.__Form_element.findId ('message')[0],              // form.jsxi:398
+		Form.prototype.__Form_insertText = function (text, special){
+			var textarea = this.__Form_element.findId ('message')[0],              // form.jsxi:403
 				start = textarea.selectionStart,                                   // form.jsxi:399
 				end = textarea.selectionEnd,                                       // form.jsxi:400
 				before = textarea.value.substring (0, start),                      // form.jsxi:401
 				after = textarea.value.substring (end),                            // form.jsxi:402
 				selected = textarea.value.substring (start, end);                  // form.jsxi:403
 			if (special){                                                          // form.jsxi:405
-				if (before.length && ![object Object].test (before[(before.length - 1)]))
+				if (before.length && ![object Object].test (before [(before.length - 1)]))
 					text = '\n' + text;                                            // form.jsxi:407
 				text += '\n';                                                      // form.jsxi:409
 			}
@@ -3968,96 +3968,96 @@ var Storage = function (){                                                      
 		};
 		Form.prototype.__Form_show = function (){
 			this.__Form_visible = true;                                            // form.jsxi:420
-			element[(element instanceof Form ? '__Form_show' : 'show')]().addClass ('visible').draggable (true, true);
+			element [(element instanceof Form ? '__Form_show' : 'show')]().addClass ('visible').draggable (true, true);
 		};
 		Form.prototype.__Form_hide = function (){
 			this.__Form_visible = false;                                           // form.jsxi:425
 			this.__Form_element.removeClass ('visible').timeout (function (arg){   // form.jsxi:426
 				var __;                                                            // form.jsxi:76
-				return (__ = $ (this).css ({ bottom: null, right: null }),         // form.jsxi:426
-					__[(__ instanceof Form ? '__Form_hide' : 'hide')]).call (__);
+				return (__ = $(this).css ({ bottom: null, right: null }),          // form.jsxi:426
+					__ [(__ instanceof Form ? '__Form_hide' : 'hide')]).call (__);
 			}, 
 			300);                                                                  // ...
-			$ ('[ data-reply-mode=\"create-thread\"]').text ('Создать тред');      // form.jsxi:428
-			$ ('[ data-reply-mode=\"send-post\"]').text ('Ответить');              // form.jsxi:429
+			$('[ data-reply-mode=\"create-thread\"]').text ('Создать тред');       // form.jsxi:428
+			$('[ data-reply-mode=\"send-post\"]').text ('Ответить');               // form.jsxi:429
 		};
 		Form.prototype.__Form_toggle = function (){
 			if (this.__Form_visible)                                               // form.jsxi:76
-				this.__Form_hide ();                                               // ...
+				this.__Form_hide ();                                               // form.jsxi:434
 			else
-				this.__Form_show ();                                               // ...
-			return this.__Form_visible;                                            // ...
+				this.__Form_show ();                                               // form.jsxi:436
+			return this.__Form_visible;                                            // form.jsxi:437
 		};
-		Form.prototype.__Form_showAfter = function (parent){                       // form.jsxi:440
+		Form.prototype.__Form_showAfter = function (parent){
 			var temp = parent.closest ('.thread').find ('[data-post]').data ('post'),
 				args = temp ? temp.split ('/') : [ parent.closest ('[data-section]').data ('section') ];
-			this.__Form_updateTarget (args[0], args[1]);                           // form.jsxi:76
+			this.__Form_updateTarget (args [0], args [1]);                         // form.jsxi:444
 			this.__Form_element.insertAfter (parent);                              // form.jsxi:446
-			this.__Form_show ();                                                   // form.jsxi:76
+			this.__Form_show ();                                                   // form.jsxi:447
 		};
-		Form.prototype.__Form_replyToPost = function (arg, reflinkClickMode){      // form.jsxi:450
+		Form.prototype.__Form_replyToPost = function (arg, reflinkClickMode){
 			if (this.__Form_busy)                                                  // form.jsxi:76
 				return;                                                            // form.jsxi:452
-			var element = $ (arg),                                                 // form.jsxi:454
+			var element = $(arg),                                                  // form.jsxi:457
 				post = element.closest ('.post, .thread'),                         // form.jsxi:455
 				content = post.find ('[data-post]'),                               // form.jsxi:456
 				from = content.data ('from');                                      // form.jsxi:457
 			if (from){                                                             // form.jsxi:459
-				content = $ ('[data-post=\"' + from + '\"]').eq (0);               // form.jsxi:461
+				content = $('[data-post=\"' + from + '\"]').eq (0);                // form.jsxi:461
 				post = content.closest ('.post, .thread');                         // form.jsxi:462
 			}
 			var after = post.hasClass ('thread') ? post.find ('.content > [data-id=\"answers\"]').eq (0) : post,
 				next = after.next (),                                              // form.jsxi:466
-				temp = this.__Form_visible;                                        // form.jsxi:76
+				temp = this.__Form_visible;                                        // form.jsxi:467
 			if (!this.__Form_visible || !reflinkClickMode)                         // form.jsxi:469
 				if (next.data ('id') === 'form')                                   // form.jsxi:470
-					this.__Form_toggle ();                                         // form.jsxi:76
+					this.__Form_toggle ();                                         // form.jsxi:471
 				else
-					this.__Form_showAfter (after);                                 // ...
+					this.__Form_showAfter (after);                                 // form.jsxi:473
 			if (this.__Form_visible || reflinkClickMode){                          // form.jsxi:475
-				var target = content.data ('post').split ('/'),                    // form.jsxi:476
-					insert = '>>' + (target[0] === this.__Form_section ? target[1] : target.join ('/')),
+				var target = content.data ('post').split ('/'),                    // form.jsxi:478
+					insert = '>>' + (target [0] === this.__Form_section ? target [1] : target.join ('/')),
 					special = reflinkClickMode && !temp || !reflinkClickMode && this.__Form_visible;
-				this.__Form_insertText (insert, special);                          // form.jsxi:76
+				this.__Form_insertText (insert, special);                          // form.jsxi:480
 			}
 		};
-		Form.prototype.toggleAfter = function (arg){                               // form.jsxi:484
-			return this.__Form_replyToPost (arg, false);                           // form.jsxi:76
+		Form.prototype.toggleAfter = function (arg){
+			return this.__Form_replyToPost (arg, false);                           // form.jsxi:485
 		};
-		Form.prototype.reflinkClick = function (arg){                              // form.jsxi:487
-			return this.__Form_replyToPost (arg, true);                            // form.jsxi:76
+		Form.prototype.reflinkClick = function (arg){
+			return this.__Form_replyToPost (arg, true);                            // form.jsxi:488
 		};
-		Form.prototype.__Form_createThreadClick = function (arg){                  // form.jsxi:490
+		Form.prototype.__Form_createThreadClick = function (arg){
 			var parent = arg.parent ();                                            // form.jsxi:491
 			if (this.__Form_visible && parent.next ().hasClass ('form')){          // form.jsxi:492
-				this.__Form_hide ();                                               // form.jsxi:76
+				this.__Form_hide ();                                               // form.jsxi:493
 			} else {
-				$ ('[ data-reply-mode=\"create-thread\"]').text ('Создать тред');
+				$('[ data-reply-mode=\"create-thread\"]').text ('Создать тред');   // form.jsxi:495
 				arg.text ('Закрыть форму');                                        // form.jsxi:496
-				this.__Form_showAfter (parent);                                    // form.jsxi:76
+				this.__Form_showAfter (parent);                                    // form.jsxi:497
 			}
 		};
-		Form.prototype.__Form_sendPostClick = function (arg){                      // form.jsxi:501
+		Form.prototype.__Form_sendPostClick = function (arg){
 			var parent = arg.parent ();                                            // form.jsxi:502
 			if (this.__Form_visible && parent.next ().hasClass ('form')){          // form.jsxi:503
-				this.__Form_hide ();                                               // form.jsxi:76
+				this.__Form_hide ();                                               // form.jsxi:504
 			} else {
-				$ ('[data-reply-mode=\"send-post\"]').text ('Ответить');           // form.jsxi:506
+				$('[data-reply-mode=\"send-post\"]').text ('Ответить');            // form.jsxi:506
 				arg.text ('Закрыть форму');                                        // form.jsxi:507
-				this.__Form_showAfter (parent);                                    // form.jsxi:76
+				this.__Form_showAfter (parent);                                    // form.jsxi:508
 			}
 		};
-		Form.prototype.replyClick = function (arg){                                // form.jsxi:512
-			var target = $ (arg);                                                  // form.jsxi:513
+		Form.prototype.replyClick = function (arg){
+			var target = $(arg);                                                   // form.jsxi:513
 			switch (target.data ('reply-mode')){                                   // form.jsxi:515
 				case 'create-thread':                                              // form.jsxi:516
-					this.__Form_createThreadClick (target);                        // form.jsxi:76
+					this.__Form_createThreadClick (target);                        // form.jsxi:517
 					break;                                                         // form.jsxi:518
 				case 'send-post':                                                  // form.jsxi:519
-					this.__Form_sendPostClick (target);                            // form.jsxi:76
+					this.__Form_sendPostClick (target);                            // form.jsxi:520
 					break;                                                         // form.jsxi:521
 				default:
-					this.toggleAfter (target);                                     // form.jsxi:76
+					this.toggleAfter (target);                                     // form.jsxi:523
 			}
 		};
 		Form.on = function (type, fn){                                             // form.jsxi:4
@@ -4071,33 +4071,33 @@ var Storage = function (){                                                      
 	ImageExpand = function (){                                                     // imageExpand.jsxi:1
 		var ImageExpand = function (){};
 		function collapse (_element){                                              // imageExpand.jsxi:6
-			var element = $ (_element), post;                                      // imageExpand.jsxi:8
+			var element = $(_element), post;                                       // imageExpand.jsxi:8
 			if (element.hasClass ('expanded')){                                    // imageExpand.jsxi:10
 				post = Posts.get (element.closest ('[data-post]').data ('post'));
 				element.removeClass ('expanded').attr ('width', post.file.thumbinalDimensions.width).attr ('height', post.file.thumbinalDimensions.height).attr ('src',
 					Post.fullpathAsThumbinal (post) ? post.file.fullpath : post.file.thumbinal);
 			} else
 				element.removeClass ('visible').timeout (function (arg){           // imageExpand.jsxi:20
-					return $ (this).remove ();                                     // ...
+					return $(this).remove ();                                      // ...
 				}, 
 				300);                                                              // ...
 		}
 		function collapseAll (){                                                   // imageExpand.jsxi:23
-			$ ('.thumb.expanded, .thumb.center').each (function (arg){             // imageExpand.jsxi:24
+			$('.thumb.expanded, .thumb.center').each (function (arg){              // imageExpand.jsxi:24
 				return collapse (this);                                            // ...
 			});
 		}
 		function expand (_element){                                                // imageExpand.jsxi:27
-			var type = Preferences.get ('expand-type'),                            // imageExpand.jsxi:28
-				element = $ (_element),                                            // imageExpand.jsxi:29
+			var type = Preferences.get ('expand-type'),                            // imageExpand.jsxi:34
+				element = $(_element),                                             // imageExpand.jsxi:29
 				post = Posts.get (element.closest ('[data-post]').data ('post')),
 				fullWidth = post.file.dimensions.width,                            // imageExpand.jsxi:31
 				fullHeight = post.file.dimensions.height,                          // imageExpand.jsxi:32
-				windowWidth = $ (window).width () - 15,                            // imageExpand.jsxi:33
-				windowHeight = $ (window).height ();                               // imageExpand.jsxi:34
+				windowWidth = $(window).width () - 15,                             // imageExpand.jsxi:33
+				windowHeight = $(window).height ();                                // imageExpand.jsxi:34
 			if (Preferences.get ('resize-images')){                                // imageExpand.jsxi:36
 				var windowWidthPadding = windowWidth - 12 * 2;                     // imageExpand.jsxi:38
-				windowHeightPadding = windowHeight - 12 * 2, scale = 1;            // ...
+				windowHeightPadding = windowHeight - 12 * 2, scale = 1;            // imageExpand.jsxi:39
 				switch (type){                                                     // imageExpand.jsxi:41
 					case 'expand':                                                 // imageExpand.jsxi:42
 						scale = fullWidth / windowWidthPadding;                    // imageExpand.jsxi:43
@@ -4117,7 +4117,7 @@ var Storage = function (){                                                      
 			switch (type){                                                         // imageExpand.jsxi:58
 				case 'expand':                                                     // imageExpand.jsxi:59
 					element.addClass ('expanded').attr ({
-						width: fullWidth,                                          // imageExpand.jsxi:63
+						width: fullWidth,                                          // imageExpand.jsxi:66
 						height: fullHeight,                                        // imageExpand.jsxi:64
 						src: post.file.fullpath                                    // imageExpand.jsxi:65
 					});
@@ -4127,16 +4127,16 @@ var Storage = function (){                                                      
 					if (!element.next ().hasClass ('center')){                     // imageExpand.jsxi:70
 						var size = 1;                                              // imageExpand.jsxi:71
 						element.clone ().addClass ('center').addClass ('fading').attr ({
-							width: fullWidth,                                      // imageExpand.jsxi:78
+							width: fullWidth,                                      // imageExpand.jsxi:120
 							height: fullHeight,                                    // imageExpand.jsxi:79
 							src: post.file.fullpath,                               // imageExpand.jsxi:80
 							unselectable: 'on',                                    // imageExpand.jsxi:81
 							draggable: false                                       // imageExpand.jsxi:82
 						}).css ({
-							left: (windowWidth - fullWidth) / 2,                   // imageExpand.jsxi:85
+							left: (windowWidth - fullWidth) / 2,                   // imageExpand.jsxi:84
 							top: (windowHeight - fullHeight) / 2                   // imageExpand.jsxi:86
-						}).insertAfter (element).timeout (function (arg){          // imageExpand.jsxi:89
-							return $ (this).addClass ('visible');                  // ...
+						}).insertAfter (element).timeout (function (arg){          // imageExpand.jsxi:88
+							return $(this).addClass ('visible');                   // imageExpand.jsxi:89
 						}).on ('dragstart',                                        // imageExpand.jsxi:90
 							function (arg){                                        // ...
 								return false;                                      // ...
@@ -4145,7 +4145,7 @@ var Storage = function (){                                                      
 								event.preventDefault ();                           // imageExpand.jsxi:92
 								event.stopPropagation ();                          // imageExpand.jsxi:93
 								size += size * (event.deltaY > 0 ? - 0.2 : 0.2);   // imageExpand.jsxi:95
-								var element = $ (this),                            // imageExpand.jsxi:97
+								var element = $(this),                             // imageExpand.jsxi:103
 									oldLeft = parseFloat (element.css ('left')),   // imageExpand.jsxi:98
 									oldTop = parseFloat (element.css ('top')),     // imageExpand.jsxi:99
 									oldWidth = parseFloat (element.css ('width')),
@@ -4158,13 +4158,13 @@ var Storage = function (){                                                      
 									height /= scale;                               // imageExpand.jsxi:108
 									size /= scale;                                 // imageExpand.jsxi:109
 								}
-								$ (this).css ({
-									left: oldLeft + (oldWidth - width) / 2,        // imageExpand.jsxi:113
+								$(this).css ({
+									left: oldLeft + (oldWidth - width) / 2,        // imageExpand.jsxi:117
 									top: oldTop + (oldHeight - height) / 2,        // imageExpand.jsxi:114
 									width: width,                                  // imageExpand.jsxi:115
 									height: height                                 // imageExpand.jsxi:116
 								});
-							}).data ('draggable', true).draggable ();              // imageExpand.jsxi:120
+							}).data ('draggable', true).draggable ();              // imageExpand.jsxi:119
 					}
 					return true;                                                   // imageExpand.jsxi:122
 				default:
@@ -4172,8 +4172,7 @@ var Storage = function (){                                                      
 			}
 		}
 		ImageExpand.click = function (event, _target){                             // imageExpand.jsxi:128
-			var target = $ (_target),                                              // imageExpand.jsxi:129
-				expanded = target.hasClass ('expanded');                           // imageExpand.jsxi:130
+			var target = $(_target), expanded = target.hasClass ('expanded');      // imageExpand.jsxi:130
 			if (target.hasClass ('expanded') || target.hasClass ('center')){       // imageExpand.jsxi:132
 				collapse (target);                                                 // imageExpand.jsxi:133
 			} else if (expand (target) === false)                                  // imageExpand.jsxi:134
@@ -4189,22 +4188,22 @@ var Storage = function (){                                                      
 	HiddensWindow = function (){                                                   // hiddensWindow.jsxi:1
 		var HiddensWindow = function (arg){                                        // hiddensWindow.jsxi:3
 			var __that = this;                                                     // hiddensWindow.jsxi:76
-			Window.call (this, Mustache.hiddensWindowClass ());                    // ...
+			Window.call (this, Mustache.hiddensWindowClass ());                    // hiddensWindow.jsxi:4
 			Hiddens.on (function (arg){                                            // hiddensWindow.jsxi:5
-				return __that.switchTab ();                                        // hiddensWindow.jsxi:76
+				return __that.switchTab ();                                        // ...
 			});
 		};
 		__pe (HiddensWindow, Window);
 		HiddensWindow.prototype.__create = function (){
-			this.caption (Mustache.hiddensWindowCaption ());                       // ...
-			this.bar (Mustache.hiddensWindowBar ());                               // ...
-			this.footer (Mustache.hiddensWindowFooter ());                         // ...
+			this.caption (Mustache.hiddensWindowCaption ());                       // hiddensWindow.jsxi:9
+			this.bar (Mustache.hiddensWindowBar ());                               // hiddensWindow.jsxi:10
+			this.footer (Mustache.hiddensWindowFooter ());                         // hiddensWindow.jsxi:11
 		};
-		HiddensWindow.prototype.switchTab = function (id){                         // hiddensWindow.jsxi:14
-			Window.prototype.switchTab.call (this, id);                            // hiddensWindow.jsxi:76
-			this.__element.on ('change',                                           // hiddensWindow.jsxi:17
-				function (arg){                                                    // ...
-					var checkbox = $ (arg.target),                                 // hiddensWindow.jsxi:18
+		HiddensWindow.prototype.switchTab = function (id){
+			Window.prototype.switchTab.call (this, id);                            // hiddensWindow.jsxi:15
+			this.__element.on ('change',                                           // hiddensWindow.jsxi:39
+				function (arg){                                                    // hiddensWindow.jsxi:17
+					var checkbox = $(arg.target),                                  // hiddensWindow.jsxi:23
 						type = checkbox.data ('checkbox'),                         // hiddensWindow.jsxi:19
 						group,                                                     // hiddensWindow.jsxi:20
 						childs,                                                    // hiddensWindow.jsxi:21
@@ -4220,30 +4219,30 @@ var Storage = function (){                                                      
 						} else if (type === 'thread'){                             // hiddensWindow.jsxi:31
 							main = group.find ('[data-checkbox=\"section\"]');     // hiddensWindow.jsxi:32
 							checked = childs.filter (':checked');                  // hiddensWindow.jsxi:33
-							main[0].indeterminate = checked.length > 0 && checked.length < childs.length;
-							main[0].checked = checked.length === childs.length;    // hiddensWindow.jsxi:36
+							main [0].indeterminate = checked.length > 0 && checked.length < childs.length;
+							main [0].checked = checked.length === childs.length;   // hiddensWindow.jsxi:36
 						}
 					}
 				});
 		};
 		HiddensWindow.prototype.close = function (){
-			Window.prototype.close.apply (this, arguments);                        // hiddensWindow.jsxi:76
+			Window.prototype.close.apply (this, arguments);                        // hiddensWindow.jsxi:43
 			Hiddens.off (__bo (this, 'switchTab'));                                // hiddensWindow.jsxi:44
 		};
 		HiddensWindow.prototype.__HiddensWindow_params = function (){
 			return {
-				threads: Hiddens.sorted (),                                        // hiddensWindow.jsxi:49
-				posts: Array.prototype.map.call ($ ('.thread .post[data-hidden] [data-post]'),
-					function (arg){                                                // hiddensWindow.jsxi:50
+				threads: Hiddens.sorted (),                                        // hiddensWindow.jsxi:50
+				posts: Array.prototype.map.call ($('.thread .post[data-hidden] [data-post]'),
+					function (arg){                                                // ...
 						return Posts.get (arg.getAttribute ('data-post'));         // ...
 					})
 			};
 		};
-		HiddensWindow.prototype.__tab = function (id){                             // hiddensWindow.jsxi:53
+		HiddensWindow.prototype.__tab = function (id){
 			id = $.camelCase ('hiddensWindow-' + id);                              // hiddensWindow.jsxi:54
-			return Mustache.hasOwnProperty (id) ? Mustache[id](this.__HiddensWindow_params ()) : '';
+			return Mustache.hasOwnProperty (id) ? Mustache [id](this.__HiddensWindow_params ()) : '';
 		};
-		HiddensWindow.prototype.click = function (button, key, param){             // hiddensWindow.jsxi:58
+		HiddensWindow.prototype.click = function (button, key, param){
 			switch (key){                                                          // hiddensWindow.jsxi:59
 				case 'unhide-all':                                                 // hiddensWindow.jsxi:60
 					this.__element.find ('input[data-target]').each (function (arg){
@@ -4256,7 +4255,7 @@ var Storage = function (){                                                      
 					});
 					return true;                                                   // hiddensWindow.jsxi:69
 				default:
-					if (Window.prototype.click.call (this, button, key, param))    // hiddensWindow.jsxi:76
+					if (Window.prototype.click.call (this, button, key, param))    // hiddensWindow.jsxi:71
 						return true;                                               // hiddensWindow.jsxi:72
 					console.warn ('Not implemented at 73 line of hiddensWindow.jsxi');
 			}
@@ -4265,24 +4264,24 @@ var Storage = function (){                                                      
 	}(), 
 	PreferencesWindow = function (){                                               // preferencesWindow.jsxi:1
 		var PreferencesWindow = function (){                                       // preferencesWindow.jsxi:8
-			this.__PreferencesWindow_params = { version: Application.version };    // preferencesWindow.jsxi:5
-			Window.call (this, Mustache.preferencesWindowClass ());                // preferencesWindow.jsxi:76
+			this.__PreferencesWindow_params = { version: Application.version };    // zepto.jsxi:76
+			Window.call (this, Mustache.preferencesWindowClass ());                // preferencesWindow.jsxi:9
 		};
 		__pe (PreferencesWindow, Window);
 		PreferencesWindow.prototype.__create = function (){
-			this.caption (Mustache.preferencesWindowCaption ());                   // ...
-			this.bar (Mustache.preferencesWindowBar ());                           // ...
-			this.footer (Mustache.preferencesWindowFooter ());                     // ...
+			this.caption (Mustache.preferencesWindowCaption ());                   // preferencesWindow.jsxi:13
+			this.bar (Mustache.preferencesWindowBar ());                           // preferencesWindow.jsxi:14
+			this.footer (Mustache.preferencesWindowFooter ());                     // preferencesWindow.jsxi:15
 			Preferences.on (__bo (this, 'preferences'));                           // preferencesWindow.jsxi:17
 			Statistics.on (__bo (this, 'statistics'));                             // preferencesWindow.jsxi:18
 			this.__PreferencesWindow_created = true;                               // preferencesWindow.jsxi:20
 		};
-		PreferencesWindow.prototype.__tab = function (id){                         // preferencesWindow.jsxi:23
+		PreferencesWindow.prototype.__tab = function (id){
 			id = $.camelCase ('preferencesWindow-' + id);                          // preferencesWindow.jsxi:24
-			return Mustache.hasOwnProperty (id) ? Mustache[id](this.__PreferencesWindow_params) : '';
+			return Mustache.hasOwnProperty (id) ? Mustache [id](this.__PreferencesWindow_params) : '';
 		};
-		PreferencesWindow.prototype.click = function (button, key, param){         // preferencesWindow.jsxi:28
-			if (Window.prototype.click.call (this, button, key, param))            // preferencesWindow.jsxi:76
+		PreferencesWindow.prototype.click = function (button, key, param){
+			if (Window.prototype.click.call (this, button, key, param))            // preferencesWindow.jsxi:29
 				return true;                                                       // preferencesWindow.jsxi:30
 			switch (key){                                                          // preferencesWindow.jsxi:32
 				case 'preferences-reset':                                          // preferencesWindow.jsxi:33
@@ -4292,38 +4291,38 @@ var Storage = function (){                                                      
 					console.warn ('Not implemented at 37 line of preferencesWindow.jsxi');
 			}
 		};
-		PreferencesWindow.prototype.preferences = function (value, key){           // preferencesWindow.jsxi:41
-			if (!this.__PreferencesWindow_created)                                 // preferencesWindow.jsxi:76
+		PreferencesWindow.prototype.preferences = function (value, key){
+			if (!this.__PreferencesWindow_created)                                 // preferencesWindow.jsxi:42
 				return;                                                            // preferencesWindow.jsxi:43
-			this.__PreferencesWindow_set (key, value);                             // preferencesWindow.jsxi:76
+			this.__PreferencesWindow_set (key, value);                             // preferencesWindow.jsxi:45
 			if (key === 'autoupdate-desktop-notifications' && value && Notification.permission !== 'granted'){
 				if (Notification.permission === 'denied'){                         // preferencesWindow.jsxi:48
 					new Message ('error',                                          // preferencesWindow.jsxi:49
 						'Увы, но вы заблокировали показ уведомлений на этом сайте',
 						2000).show ();                                             // ...
-					Preferences[(Preferences instanceof PreferencesWindow ? '__PreferencesWindow_set' : 'set')]('autoupdate-desktop-notifications', false);
+					Preferences [(Preferences instanceof PreferencesWindow ? '__PreferencesWindow_set' : 'set')]('autoupdate-desktop-notifications', false);
 				} else
-					Notification.requestPermission (function (arg){                // preferencesWindow.jsxi:52
+					Notification.requestPermission (function (arg){                // preferencesWindow.jsxi:56
 						if (arg !== 'granted'){                                    // preferencesWindow.jsxi:53
 							new Message ('error',                                  // preferencesWindow.jsxi:54
 								'Увы, но вы заблокировали показ уведомлений на этом сайте',
 								2000).show ();                                     // ...
-							Preferences[(Preferences instanceof PreferencesWindow ? '__PreferencesWindow_set' : 'set')]('autoupdate-desktop-notifications', false);
+							Preferences [(Preferences instanceof PreferencesWindow ? '__PreferencesWindow_set' : 'set')]('autoupdate-desktop-notifications', false);
 						}
 					});
 			}
 			if (key === 'theme' && this.__element.find ('[data-custom-setting=\"theme\"]').length)
-				this.__PreferencesWindow_processThemeSelect ();                    // preferencesWindow.jsxi:76
+				this.__PreferencesWindow_processThemeSelect ();                    // preferencesWindow.jsxi:60
 		};
-		PreferencesWindow.prototype.statistics = function (value){                 // preferencesWindow.jsxi:63
-			if (!this.__PreferencesWindow_created)                                 // preferencesWindow.jsxi:76
+		PreferencesWindow.prototype.statistics = function (value){
+			if (!this.__PreferencesWindow_created)                                 // preferencesWindow.jsxi:64
 				return;                                                            // preferencesWindow.jsxi:65
 			var statistics = this.__element.findId ('statistics');                 // preferencesWindow.jsxi:67
 			if (statistics.length){                                                // preferencesWindow.jsxi:68
 				try {                                                              // preferencesWindow.jsxi:76
 					var detStats = JSON.parse (localStorage.DESU_Config)[location.host].stats;
-					value = $.extend ({},                                          // preferencesWindow.jsxi:71
-						value,                                                     // ...
+					value = $.extend ({},                                          // preferencesWindow.jsxi:75
+						value,                                                     // preferencesWindow.jsxi:71
 						{
 							threadsVisited: value.threadsVisited + detStats.view,
 							threadsCreated: value.threadsCreated + detStats.op,    // preferencesWindow.jsxi:73
@@ -4334,12 +4333,12 @@ var Storage = function (){                                                      
 			}
 		};
 		PreferencesWindow.prototype.close = function (){
-			Window.prototype.close.apply (this, arguments);                        // preferencesWindow.jsxi:76
+			Window.prototype.close.apply (this, arguments);                        // preferencesWindow.jsxi:83
 			Preferences.off (__bo (this, 'preferences'));                          // preferencesWindow.jsxi:84
 			Statistics.off (__bo (this, 'statistics'));                            // preferencesWindow.jsxi:85
 		};
 		PreferencesWindow.prototype.__PreferencesWindow_type = function (element){
-			return element.tagName === 'INPUT' ? element[(element instanceof PreferencesWindow ? '__PreferencesWindow_type' : 'type')] : element.tagName.toLowerCase ();
+			return element.tagName === 'INPUT' ? element [(element instanceof PreferencesWindow ? '__PreferencesWindow_type' : 'type')] : element.tagName.toLowerCase ();
 		};
 		PreferencesWindow.prototype.__PreferencesWindow_set = function (target, arg){
 			function depends (element, disable){                                   // preferencesWindow.jsxi:93
@@ -4350,10 +4349,10 @@ var Storage = function (){                                                      
 				if (next.hasClass ('preferences-depend-near'))                     // preferencesWindow.jsxi:99
 					next.attr ('disabled', disable ? true : null);                 // preferencesWindow.jsxi:100
 			}
-			var element = $ (typeof target === 'string' ? '[data-setting=\"' + target + '\"]' : target),
+			var element = $(typeof target === 'string' ? '[data-setting=\"' + target + '\"]' : target),
 				value = arg !== undefined ? arg : Preferences.get (element.data ('setting'));
 			if (element.length)                                                    // preferencesWindow.jsxi:106
-				switch (this.__PreferencesWindow_type (element[0])){               // preferencesWindow.jsxi:76
+				switch (this.__PreferencesWindow_type (element [0])){              // preferencesWindow.jsxi:107
 					case 'text':                                                   // preferencesWindow.jsxi:108
 						element.val (value);                                       // preferencesWindow.jsxi:109
 						break;                                                     // preferencesWindow.jsxi:110
@@ -4380,32 +4379,32 @@ var Storage = function (){                                                      
 				current = Preferences.get ('theme'),                               // preferencesWindow.jsxi:129
 				found = false;                                                     // preferencesWindow.jsxi:130
 			for (var _r = 0; _r < data.length; _r ++){                             // preferencesWindow.jsxi:135
-				var group = data[_r];                                              // ...
+				var group = data [_r];                                             // ...
 				for (var _q = 0; _q < group.length; _q ++){                        // ...
-					var style = group[_q];                                         // ...
+					var style = group [_q];                                        // ...
 					if (style.url === current)                                     // preferencesWindow.jsxi:134
 						found = true;                                              // preferencesWindow.jsxi:135
 				}
 			}
 			if (!found)                                                            // preferencesWindow.jsxi:137
 				data.push ({
-					group: 'Кастомные стили',                                      // preferencesWindow.jsxi:139
+					group: 'Кастомные стили',                                      // preferencesWindow.jsxi:141
 					styles: [ { url: current, name: 'Текущий' } ]                  // preferencesWindow.jsxi:140
 				});
 			select.html (Mustache.preferencesWindowThemeSelect (data)).removeAttr ('disabled').val (current).on ('change',
 				function (arg){                                                    // preferencesWindow.jsxi:147
-					Preferences[(Preferences instanceof PreferencesWindow ? '__PreferencesWindow_set' : 'set')]('theme', this.value);
+					Preferences [(Preferences instanceof PreferencesWindow ? '__PreferencesWindow_set' : 'set')]('theme', this.value);
 				});
 		};
-		PreferencesWindow.prototype.switchTab = function (id){                     // preferencesWindow.jsxi:152
+		PreferencesWindow.prototype.switchTab = function (id){
 			var __that = this;                                                     // preferencesWindow.jsxi:76
-			Window.prototype.switchTab.call (this, id);                            // ...
-			this.__element.find ('[data-setting]').each (function (arg){           // preferencesWindow.jsxi:155
-				return __that.__PreferencesWindow_set (this);                      // preferencesWindow.jsxi:76
-			}).on ('change',                                                       // preferencesWindow.jsxi:155
+			Window.prototype.switchTab.call (this, id);                            // preferencesWindow.jsxi:153
+			this.__element.find ('[data-setting]').each (function (arg){           // preferencesWindow.jsxi:184
+				return __that.__PreferencesWindow_set (this);                      // preferencesWindow.jsxi:155
+			}).on ('change',                                                       // ...
 				function (arg){                                                    // ...
-					var element = $ (this);                                        // preferencesWindow.jsxi:156
-					switch (__that.__PreferencesWindow_type (this)){               // preferencesWindow.jsxi:76
+					var element = $(this);                                         // preferencesWindow.jsxi:156
+					switch (__that.__PreferencesWindow_type (this)){               // preferencesWindow.jsxi:158
 						case 'text':                                               // preferencesWindow.jsxi:159
 							if (element.attr ('pattern')){                         // preferencesWindow.jsxi:160
 								var regExp = new RegExp ('^(' + element.attr ('pattern') + ')$');
@@ -4415,64 +4414,64 @@ var Storage = function (){                                                      
 								}
 							}
 							element.removeClass ('bad-value');                     // preferencesWindow.jsxi:169
-							Preferences[(Preferences instanceof PreferencesWindow ? '__PreferencesWindow_set' : 'set')](element.data ('setting'), this.value);
+							Preferences [(Preferences instanceof PreferencesWindow ? '__PreferencesWindow_set' : 'set')](element.data ('setting'), this.value);
 							break;                                                 // preferencesWindow.jsxi:171
 						case 'checkbox':                                           // preferencesWindow.jsxi:172
-							Preferences[(Preferences instanceof PreferencesWindow ? '__PreferencesWindow_set' : 'set')](element.data ('setting'), this.checked);
+							Preferences [(Preferences instanceof PreferencesWindow ? '__PreferencesWindow_set' : 'set')](element.data ('setting'), this.checked);
 							break;                                                 // preferencesWindow.jsxi:174
 						case 'select':                                             // preferencesWindow.jsxi:175
-							Preferences[(Preferences instanceof PreferencesWindow ? '__PreferencesWindow_set' : 'set')](element.data ('setting'), this.value);
+							Preferences [(Preferences instanceof PreferencesWindow ? '__PreferencesWindow_set' : 'set')](element.data ('setting'), this.value);
 							break;                                                 // preferencesWindow.jsxi:177
 						case 'textarea':                                           // preferencesWindow.jsxi:178
-							Preferences[(Preferences instanceof PreferencesWindow ? '__PreferencesWindow_set' : 'set')](element.data ('setting'), this.value);
+							Preferences [(Preferences instanceof PreferencesWindow ? '__PreferencesWindow_set' : 'set')](element.data ('setting'), this.value);
 							break;                                                 // preferencesWindow.jsxi:180
 						default:
 							console.warn ('Not implemented at 182 line of preferencesWindow.jsxi');
 					}
 				});
 			this.__element.find ('[wip], [wip] input, [wip] select').attr ('disabled', true).attr ('title', 'В разработке');
-			this.__element.find ('[data-required]').each (function (arg){          // preferencesWindow.jsxi:187
+			this.__element.find ('[data-required]').each (function (arg){          // preferencesWindow.jsxi:194
 				var required = this.getAttribute ('data-required');                // preferencesWindow.jsxi:188
 				if ([object Object].test (required)){                              // preferencesWindow.jsxi:189
 					if (!(required in window))                                     // preferencesWindow.jsxi:190
-						$ (this).attr ('disabled', true).attr ('title', 'В этом браузере опция не заработает');
+						$(this).attr ('disabled', true).attr ('title', 'В этом браузере опция не заработает');
 				} else
 					console.warn ('Not implemented at 193 line of preferencesWindow.jsxi');
 			});
-			this.statistics ();                                                    // preferencesWindow.jsxi:76
+			this.statistics ();                                                    // preferencesWindow.jsxi:196
 			var themeSelect = this.__element.find ('[data-custom-setting=\"theme\"]');
 			if (themeSelect.length)                                                // preferencesWindow.jsxi:199
-				this.__PreferencesWindow_processThemeSelect (themeSelect);         // preferencesWindow.jsxi:76
+				this.__PreferencesWindow_processThemeSelect (themeSelect);         // preferencesWindow.jsxi:200
 			this.__element.find ('.preferences-textarea').each (function (arg){    // preferencesWindow.jsxi:202
-				return __that.__PreferencesWindow_processTextarea ($ (this));      // preferencesWindow.jsxi:76
+				return __that.__PreferencesWindow_processTextarea ($(this));       // ...
 			});
 		};
 		PreferencesWindow.prototype.__PreferencesWindow_processThemeSelect = function (select){
 			return $.ajax ({
-				url: '/clin/styles/styles.json',                                   // preferencesWindow.jsxi:207
+				url: '/clin/styles/styles.json',                                   // preferencesWindow.jsxi:211
 				dataType: 'json',                                                  // preferencesWindow.jsxi:208
-				success: __bo (this, '__PreferencesWindow_setStyles'),             // preferencesWindow.jsxi:76
+				success: __bo (this, '__PreferencesWindow_setStyles'),             // preferencesWindow.jsxi:209
 				error: function (arg){                                             // preferencesWindow.jsxi:210
 					return console.warn ('Not implemented at 210 line of preferencesWindow.jsxi');
 				}
 			});
 		};
 		PreferencesWindow.prototype.__PreferencesWindow_processTextarea = function (parent){
-			var rows = parent.find ('div').eq (0),                                 // preferencesWindow.jsxi:214
+			var rows = parent.find ('div').eq (0),                                 // preferencesWindow.jsxi:216
 				textarea = parent.find ('textarea'),                               // preferencesWindow.jsxi:215
 				count = 20;                                                        // preferencesWindow.jsxi:216
 			rows.html (__ca (1, count).join ('<br>'));                             // preferencesWindow.jsxi:218
-			textarea.scroll (function (arg){                                       // preferencesWindow.jsxi:221
+			textarea.scroll (function (arg){                                       // preferencesWindow.jsxi:241
 				rows.css ('top', - this.scrollTop);                                // preferencesWindow.jsxi:222
-				var lines = this.value.match ([object Object]).length + 1,         // preferencesWindow.jsxi:224
-					html = '';                                                     // preferencesWindow.jsxi:225
-				while (count < lines)                                              // preferencesWindow.jsxi:226
-					html += '<br>' + ++ count;                                     // preferencesWindow.jsxi:227
+				var lines = this.value.match ([object Object]).length + 1,         // preferencesWindow.jsxi:225
+					html = '';                                                     // ...
+				while (count < lines)                                              // preferencesWindow.jsxi:227
+					html += '<br>' + ++ count;                                     // ...
 				if (html.length)                                                   // preferencesWindow.jsxi:229
-					rows[0].insertAdjacentHTML ('beforeend', html);                // preferencesWindow.jsxi:230
+					rows [0].insertAdjacentHTML ('beforeend', html);               // preferencesWindow.jsxi:230
 			}).keydown (function (arg){                                            // preferencesWindow.jsxi:232
 				if (arg.keyCode === 9){                                            // ...
-					var start = this.selectionStart,                               // preferencesWindow.jsxi:233
+					var start = this.selectionStart,                               // preferencesWindow.jsxi:235
 						end = this.selectionEnd,                                   // preferencesWindow.jsxi:234
 						value = this.value;                                        // preferencesWindow.jsxi:235
 					this.value = value.substring (0, start) + '\t' + value.substring (end);
@@ -4486,7 +4485,7 @@ var Storage = function (){                                                      
 	AuthorizePage = function (){                                                   // authorizePage.jsxi:1
 		var AuthorizePage = function (){}, 
 			phrases = [
-				'Дерпи не грустит и ты не грусти.',                                // authorizePage.jsxi:6
+				'Дерпи не грустит и ты не грусти.',                                // authorizePage.jsxi:44
 				'Пони в каждый дом.',                                              // authorizePage.jsxi:7
 				'Брони всех стран, объединяйтесь.',                                // authorizePage.jsxi:8
 				'Дружба — магия, пони — милашки.',                                 // authorizePage.jsxi:9
@@ -4529,31 +4528,31 @@ var Storage = function (){                                                      
 		AuthorizePage.prototype.__title = function (){
 			return 'Поня.ч';                                                       // authorizePage.jsxi:53
 		};
-		AuthorizePage.prototype.build = function (data){                           // authorizePage.jsxi:55
+		AuthorizePage.prototype.build = function (data){
 			return Mustache.authorizePage ({
-				host: location.host,                                               // authorizePage.jsxi:57
-				phrase: phrases[(phrases.length * Math.random () | 0)]             // authorizePage.jsxi:58
+				host: location.host,                                               // authorizePage.jsxi:59
+				phrase: phrases [(phrases.length * Math.random () | 0)]            // authorizePage.jsxi:58
 			});
 		};
 		AuthorizePage.prototype.run = function (){
 			var __that = this;                                                     // authorizePage.jsxi:76
-			AbstractPage.prototype.run.apply (this, arguments);                    // ...
+			AbstractPage.prototype.run.apply (this, arguments);                    // authorizePage.jsxi:62
 			if (Preferences.get ('authorized'))                                    // authorizePage.jsxi:64
-				new AccountTypeRequest ().send (function (data){                   // authorizePage.jsxi:65
+				new AccountTypeRequest ().send (function (data){                   // authorizePage.jsxi:74
 					if (data === null){                                            // authorizePage.jsxi:66
 						console.warn ('Not implemented at 67 line of authorizePage.jsxi');
 					} else {
 						if (data === false)                                        // authorizePage.jsxi:69
-							__that.__AuthorizePage_requestPassword ();             // authorizePage.jsxi:76
+							__that.__AuthorizePage_requestPassword ();             // authorizePage.jsxi:70
 						else
 							__that.__AuthorizePage_autorized (Preferences.get ('authorized'), true);
 					}
 				});
 			else
-				nextTick (__bo (this, '__AuthorizePage_requestPassword'));         // ...
-			this.__AuthorizePage_switchPage ('loading');                           // ...
+				nextTick (__bo (this, '__AuthorizePage_requestPassword'));         // authorizePage.jsxi:76
+			this.__AuthorizePage_switchPage ('loading');                           // authorizePage.jsxi:78
 		};
-		AuthorizePage.prototype.__AuthorizePage_switchPage = function (to){        // authorizePage.jsxi:81
+		AuthorizePage.prototype.__AuthorizePage_switchPage = function (to){
 			this.__page.find ('.sub, .sub-main').removeClass ('visible').timeout (function (arg){
 				return this.filter (':not(.visible)').css ('z-index', - 1);        // authorizePage.jsxi:82
 			}, 
@@ -4569,11 +4568,11 @@ var Storage = function (){                                                      
 				html = Mustache.authorizePageExit ();                              // authorizePage.jsxi:92
 			this.__AuthorizePage_switchPage ('done').html (html).find ('input[type=\"button\"]').click (function (arg){
 				if (arg.which === 1){                                              // authorizePage.jsxi:97
-					new AuthorizationRequest ().send (function (data){             // authorizePage.jsxi:98
+					new AuthorizationRequest ().send (function (data){             // authorizePage.jsxi:106
 						if (data === null){                                        // authorizePage.jsxi:99
 							console.warn ('Not implemented at 100 line of authorizePage.jsxi');
 						} else {
-							__that.__AuthorizePage_autorized ();                   // authorizePage.jsxi:76
+							__that.__AuthorizePage_autorized ();                   // authorizePage.jsxi:102
 							Preferences.remove ('authorized');                     // authorizePage.jsxi:103
 							setTimeout (function (arg){                            // authorizePage.jsxi:104
 								return Page.reload ();                             // ...
@@ -4586,22 +4585,22 @@ var Storage = function (){                                                      
 		};
 		AuthorizePage.prototype.__AuthorizePage_requestPassword = function (){
 			var __that = this;                                                     // authorizePage.jsxi:76
-			this.__AuthorizePage_switchPage ('form');                              // ...
+			this.__AuthorizePage_switchPage ('form');                              // authorizePage.jsxi:111
 			this.__AuthorizePage_loginInput = this.__page.find ('input[type=\"text\"]');
 			this.__AuthorizePage_passwordInput = this.__page.find ('input[type=\"password\"]');
 			this.__AuthorizePage_buttonInput = this.__page.find ('input[type=\"button\"]');
 			var saved = Preferences.get ('authorize-login', '');                   // authorizePage.jsxi:117
 			if (saved){                                                            // authorizePage.jsxi:118
 				this.__AuthorizePage_loginInput.val (saved);                       // authorizePage.jsxi:119
-				this.__AuthorizePage_passwordInput[0].focus ();                    // authorizePage.jsxi:120
+				this.__AuthorizePage_passwordInput [0].focus ();                   // authorizePage.jsxi:120
 			} else
-				this.__AuthorizePage_loginInput[0].focus ();                       // authorizePage.jsxi:122
+				this.__AuthorizePage_loginInput [0].focus ();                      // authorizePage.jsxi:122
 			this.__AuthorizePage_loginInput.on ('change keyup keydown',            // authorizePage.jsxi:124
 				__bo (this, '__AuthorizePage_update'));                            // authorizePage.jsxi:76
 			this.__AuthorizePage_passwordInput.on ('change keyup keydown',         // authorizePage.jsxi:125
 				__bo (this, '__AuthorizePage_update'));                            // authorizePage.jsxi:76
-			this.__AuthorizePage_buttonInput.click (function (arg){                // authorizePage.jsxi:127
-				if (arg.which === 1){                                              // ...
+			this.__AuthorizePage_buttonInput.click (function (arg){                // authorizePage.jsxi:151
+				if (arg.which === 1){                                              // authorizePage.jsxi:127
 					var login = __that.__AuthorizePage_loginInput.val ().trim (),
 						password = __that.__AuthorizePage_passwordInput.val ().trim ();
 					__that.__AuthorizePage_request = new AuthorizationRequest (login, password).send (function (data){
@@ -4612,7 +4611,7 @@ var Storage = function (){                                                      
 							if (__that.__AuthorizePage_success === false){         // authorizePage.jsxi:137
 								new Message ('error', 'Такие логин или пароль никуда не годятся', 2000).show ();
 							} else {
-								__that.__AuthorizePage_autorized (login);          // authorizePage.jsxi:76
+								__that.__AuthorizePage_autorized (login);          // authorizePage.jsxi:140
 								Preferences.set ('authorized', login);             // authorizePage.jsxi:141
 								setTimeout (function (arg){                        // authorizePage.jsxi:142
 									return Page.reload ();                         // ...
@@ -4621,12 +4620,12 @@ var Storage = function (){                                                      
 							}
 						}
 						__that.__AuthorizePage_request = null;                     // authorizePage.jsxi:146
-						__that.__AuthorizePage_update ();                          // authorizePage.jsxi:76
+						__that.__AuthorizePage_update ();                          // authorizePage.jsxi:147
 					});
-					__that.__AuthorizePage_update ();                              // ...
+					__that.__AuthorizePage_update ();                              // authorizePage.jsxi:150
 				}
 			});
-			this.__AuthorizePage_update ();                                        // ...
+			this.__AuthorizePage_update ();                                        // authorizePage.jsxi:153
 		};
 		AuthorizePage.prototype.__AuthorizePage_update = function (){
 			var enabled = !this.__AuthorizePage_success && !this.__AuthorizePage_request && this.__AuthorizePage_loginInput.val ().trim () && this.__AuthorizePage_passwordInput.val ().trim ();
@@ -4644,31 +4643,31 @@ var Storage = function (){                                                      
 	Panel = function (){                                                           // panel.jsxi:1
 		var Panel = function (){                                                   // panel.jsxi:15
 			var __that = this;                                                     // panel.jsxi:76
-			this.__Panel_pagesCount = null;                                        // panel.jsxi:9
-			this.__Panel_postsCount = null;                                        // panel.jsxi:10
-			this.__Panel_imagesCount = null;                                       // panel.jsxi:11
-			this.__Panel_element = $ (Mustache.panel ()).appendTo (document.body);
+			this.__Panel_pagesCount = null;                                        // zepto.jsxi:76
+			this.__Panel_postsCount = null;                                        // ...
+			this.__Panel_imagesCount = null;                                       // ...
+			this.__Panel_element = $(Mustache.panel ()).appendTo (document.body);
 			Page.on ('navigate', __bo (this, '__Panel_navigate'));                 // panel.jsxi:18
 			Preferences.on ('autoupdate',                                          // panel.jsxi:20
 				function (arg){                                                    // ...
 					return __that.__Panel_element.find ('[data-button=\"autoupdate\"]').toggleClass ('icon-autoupdate-disabled', !arg);
 				});
-			Preferences.on ('panel-expanded',                                      // panel.jsxi:22
-				function (arg){                                                    // ...
+			Preferences.on ('panel-expanded',                                      // panel.jsxi:25
+				function (arg){                                                    // panel.jsxi:22
 					__that.__Panel_element.toggleClass ('expanded', arg);          // panel.jsxi:23
-					__that.__Panel_updateExpandedState (arg);                      // panel.jsxi:76
+					__that.__Panel_updateExpandedState (arg);                      // panel.jsxi:24
 				});
-			this.__Panel_element.on ('mouseover mouseout',                         // panel.jsxi:27
-				function (arg){                                                    // ...
+			this.__Panel_element.on ('mouseover mouseout',                         // panel.jsxi:30
+				function (arg){                                                    // panel.jsxi:27
 					__that.__Panel_element.toggleClass ('hover', arg.type === 'mouseover');
-					__that.__Panel_updateExpandedState ();                         // panel.jsxi:76
+					__that.__Panel_updateExpandedState ();                         // panel.jsxi:29
 				});
 		};
-		Panel.prototype.__Panel_updateExpandedState = function (arg){              // panel.jsxi:33
+		Panel.prototype.__Panel_updateExpandedState = function (arg){
 			return this.__Panel_element.css ('right',                              // panel.jsxi:34
 				arg || this.__Panel_element.hasClass ('hover') || this.__Panel_element.hasClass ('expanded') ? - parseFloat (this.__Panel_element.css ('margin-right')) : 0);
 		};
-		Panel.prototype.click = function (button, data, param){                    // panel.jsxi:36
+		Panel.prototype.click = function (button, data, param){
 			switch (data){                                                         // panel.jsxi:37
 				case 'logo':                                                       // panel.jsxi:38
 					Preferences.toggle ('panel-expanded');                         // panel.jsxi:39
@@ -4706,9 +4705,9 @@ var Storage = function (){                                                      
 					break;                                                         // panel.jsxi:74
 				case 'thread':                                                     // panel.jsxi:76
 					html = Mustache.panelThread ({
-						backUrl: '/' + this.__Panel_section + '/',                 // panel.jsxi:78
-						postsCount: this.__Panel_postsCount,                       // panel.jsxi:76
-						imagesCount: this.__Panel_imagesCount                      // ...
+						backUrl: '/' + this.__Panel_section + '/',                 // panel.jsxi:81
+						postsCount: this.__Panel_postsCount,                       // panel.jsxi:79
+						imagesCount: this.__Panel_imagesCount                      // panel.jsxi:80
 					});
 					break;                                                         // panel.jsxi:82
 			}
@@ -4717,9 +4716,9 @@ var Storage = function (){                                                      
 				this.__Panel_element.find ('[data-button=\"autoupdate\"]').addClass ('icon-autoupdate-disabled');
 			this.__Panel_element.css ('margin-right',                              // panel.jsxi:90
 				- this.__Panel_element.find ('.panel-buttons').width ());          // ...
-			this.__Panel_updateExpandedState ();                                   // panel.jsxi:76
+			this.__Panel_updateExpandedState ();                                   // panel.jsxi:92
 		};
-		Panel.prototype.__Panel_navigate = function (params){                      // panel.jsxi:95
+		Panel.prototype.__Panel_navigate = function (params){
 			var __that = this;                                                     // panel.jsxi:76
 			this.__Panel_mode = params.page;                                       // panel.jsxi:96
 			if (this.__Panel_request)                                              // panel.jsxi:76
@@ -4727,54 +4726,54 @@ var Storage = function (){                                                      
 			Autoupdate.off (__bo (this, '__Panel_update'));                        // panel.jsxi:100
 			switch (params.page){                                                  // panel.jsxi:102
 				case 'section':                                                    // panel.jsxi:103
-					this.__Panel_section = params[(params instanceof Panel ? '__Panel_section' : 'section')];
-					this.__Panel_pageNumber = params[(params instanceof Panel ? '__Panel_pageNumber' : 'pageNumber')];
+					this.__Panel_section = params [(params instanceof Panel ? '__Panel_section' : 'section')];
+					this.__Panel_pageNumber = params [(params instanceof Panel ? '__Panel_pageNumber' : 'pageNumber')];
 					this.__Panel_pagesCount = null;                                // panel.jsxi:106
 					this.__Panel_request = new ThreadsRequest (this.__Panel_section, this.__Panel_pageNumber).send (function (data){
 						if (data !== null)                                         // panel.jsxi:109
-							__that.__Panel_pagesCount = data[(data instanceof Panel ? '__Panel_pagesCount' : 'pagesCount')];
-						__that.__Panel_rebuild ();                                 // panel.jsxi:76
+							__that.__Panel_pagesCount = data [(data instanceof Panel ? '__Panel_pagesCount' : 'pagesCount')];
+						__that.__Panel_rebuild ();                                 // panel.jsxi:112
 						__that.__Panel_request = null;                             // panel.jsxi:113
 					});
 					break;                                                         // panel.jsxi:116
 				case 'thread':                                                     // panel.jsxi:118
-					this.__Panel_section = params[(params instanceof Panel ? '__Panel_section' : 'section')];
-					this.__Panel_thread = params[(params instanceof Panel ? '__Panel_thread' : 'thread')];
+					this.__Panel_section = params [(params instanceof Panel ? '__Panel_section' : 'section')];
+					this.__Panel_thread = params [(params instanceof Panel ? '__Panel_thread' : 'thread')];
 					this.__Panel_postsCount = this.__Panel_imagesCount = null;     // panel.jsxi:121
 					this.__Panel_request = new PostsRequest (this.__Panel_section, this.__Panel_thread).send (function (data, timestamp){
 						if (data !== null){                                        // panel.jsxi:124
 							__that.__Panel_postsCount = data.length;               // panel.jsxi:125
 							__that.__Panel_imagesCount = 0;                        // panel.jsxi:126
 							for (var _i = 0; _i < data.length; _i ++){             // panel.jsxi:130
-								var post = data[_i];                               // ...
+								var post = data [_i];                              // ...
 								if (post.file)                                     // panel.jsxi:129
-									__that.__Panel_imagesCount ++;                 // panel.jsxi:76
+									__that.__Panel_imagesCount ++;                 // panel.jsxi:130
 							}
-							__that.__Panel_rebuild ();                             // ...
+							__that.__Panel_rebuild ();                             // panel.jsxi:132
 							Autoupdate.on (__bo (__that, '__Panel_update'));       // panel.jsxi:133
 						}
 						__that.__Panel_request = null;                             // panel.jsxi:136
 					});
 					break;                                                         // panel.jsxi:139
 			}
-			this.__Panel_rebuild ();                                               // panel.jsxi:76
+			this.__Panel_rebuild ();                                               // panel.jsxi:142
 		};
 		Panel.prototype.__Panel_update = function (){
-			var __that = this;                                                     // ...
+			var __that = this;                                                     // panel.jsxi:76
 			console.assert (this.__Panel_mode === 'thread', 'Fixme');              // panel.jsxi:146
 			function handler (data){                                               // panel.jsxi:148
 				if (data === null){                                                // panel.jsxi:149
 					console.warn ('Not implemented at 150 line of panel.jsxi');    // panel.jsxi:150
 				} else if (data.length > 0){                                       // panel.jsxi:151
-					var posts = Posts[(Posts instanceof Panel ? '__Panel_thread' : 'thread')](__that.__Panel_section, __that.__Panel_thread);
+					var posts = Posts [(Posts instanceof Panel ? '__Panel_thread' : 'thread')](__that.__Panel_section, __that.__Panel_thread);
 					__that.__Panel_postsCount = posts.length;                      // panel.jsxi:154
 					__that.__Panel_imagesCount = 0;                                // panel.jsxi:155
 					for (var _j = 0; _j < posts.length; _j ++){                    // panel.jsxi:159
-						var post = posts[_j];                                      // ...
+						var post = posts [_j];                                     // ...
 						if (post.file)                                             // panel.jsxi:158
-							__that.__Panel_imagesCount ++;                         // panel.jsxi:76
+							__that.__Panel_imagesCount ++;                         // panel.jsxi:159
 					}
-					__that.__Panel_rebuild ();                                     // ...
+					__that.__Panel_rebuild ();                                     // panel.jsxi:161
 				}
 			}
 			new ThreadRefreshRequest (this.__Panel_section, this.__Panel_thread).send (handler);
@@ -4783,7 +4782,7 @@ var Storage = function (){                                                      
 	}(), 
 	FavoritesWindow = function (){                                                 // favoritesWindow.jsxi:1
 		var FavoritesWindow = function (arg){                                      // favoritesWindow.jsxi:3
-			Window.call (this, Mustache.favoritesWindowClass ());                  // favoritesWindow.jsxi:76
+			Window.call (this, Mustache.favoritesWindowClass ());                  // favoritesWindow.jsxi:4
 			Favorites.on (__bo (this, '__FavoritesWindow_redraw'));                // favoritesWindow.jsxi:5
 		};
 		__pe (FavoritesWindow, Window);
@@ -4791,12 +4790,12 @@ var Storage = function (){                                                      
 			this.body (Mustache.favoritesWindowBody ({ threads: Favorites.sorted () }));
 		};
 		FavoritesWindow.prototype.__create = function (){
-			this.caption (Mustache.favoritesWindowCaption ());                     // favoritesWindow.jsxi:76
-			this.footer (Mustache.favoritesWindowFooter ());                       // ...
-			this.__FavoritesWindow_redraw ();                                      // ...
-			this.__element.on ('change',                                           // favoritesWindow.jsxi:19
-				function (arg){                                                    // ...
-					var checkbox = $ (arg.target),                                 // favoritesWindow.jsxi:20
+			this.caption (Mustache.favoritesWindowCaption ());                     // favoritesWindow.jsxi:15
+			this.footer (Mustache.favoritesWindowFooter ());                       // favoritesWindow.jsxi:16
+			this.__FavoritesWindow_redraw ();                                      // favoritesWindow.jsxi:17
+			this.__element.on ('change',                                           // favoritesWindow.jsxi:36
+				function (arg){                                                    // favoritesWindow.jsxi:19
+					var checkbox = $(arg.target),                                  // favoritesWindow.jsxi:25
 						type = checkbox.data ('checkbox'),                         // favoritesWindow.jsxi:21
 						group = checkbox.closest ('[data-id=\"group\"]'),          // favoritesWindow.jsxi:22
 						childs = group.find ('[data-checkbox=\"thread\"]'),        // favoritesWindow.jsxi:23
@@ -4809,22 +4808,22 @@ var Storage = function (){                                                      
 					} else if (type === 'thread'){                                 // favoritesWindow.jsxi:29
 						main = group.find ('[data-checkbox=\"section\"]');         // favoritesWindow.jsxi:30
 						checked = childs.filter (':checked');                      // favoritesWindow.jsxi:31
-						main[0].indeterminate = checked.length > 0 && checked.length < childs.length;
-						main[0].checked = checked.length === childs.length;        // favoritesWindow.jsxi:34
+						main [0].indeterminate = checked.length > 0 && checked.length < childs.length;
+						main [0].checked = checked.length === childs.length;       // favoritesWindow.jsxi:34
 					}
 				});
 		};
 		FavoritesWindow.prototype.close = function (){
-			Window.prototype.close.apply (this, arguments);                        // favoritesWindow.jsxi:76
+			Window.prototype.close.apply (this, arguments);                        // favoritesWindow.jsxi:40
 			Favorites.off (__bo (this, '__FavoritesWindow_redraw'));               // favoritesWindow.jsxi:41
 		};
-		FavoritesWindow.prototype.__tab = function (id){};                         // favoritesWindow.jsxi:44
-		FavoritesWindow.prototype.click = function (button, key, param){           // favoritesWindow.jsxi:46
+		FavoritesWindow.prototype.__tab = function (id){};
+		FavoritesWindow.prototype.click = function (button, key, param){
 			switch (key){                                                          // favoritesWindow.jsxi:47
 				case 'remove-selected':                                            // favoritesWindow.jsxi:48
 					return true;                                                   // favoritesWindow.jsxi:52
 				default:
-					if (Window.prototype.click.call (this, button, key, param))    // favoritesWindow.jsxi:76
+					if (Window.prototype.click.call (this, button, key, param))    // favoritesWindow.jsxi:54
 						return true;                                               // favoritesWindow.jsxi:55
 					console.warn ('Not implemented at 56 line of favoritesWindow.jsxi');
 			}
@@ -4833,43 +4832,43 @@ var Storage = function (){                                                      
 	}(), 
 	SectionsList = function (){                                                    // sectionsList.jsxi:1
 		var SectionsList = function (host){                                        // sectionsList.jsxi:9
-			AbstractElement.call (this, host);                                     // sectionsList.jsxi:76
-			this.__set (Mustache.sectionsList (), true);                           // ...
+			AbstractElement.call (this, host);                                     // sectionsList.jsxi:10
+			this.__set (Mustache.sectionsList (), true);                           // sectionsList.jsxi:11
 			Preferences.on ('custom-sections', __bo (this, '__SectionsList_update'));
 			this.__SectionsList_request = new SectionsRequest ().send (__bo (this, '__build'));
 		};
 		__pe (SectionsList, AbstractElement);
-		SectionsList.prototype.__SectionsList_update = function (value){           // sectionsList.jsxi:17
+		SectionsList.prototype.__SectionsList_update = function (value){
 			if (this.__SectionsList_previous)                                      // sectionsList.jsxi:76
-				this.__build (this.__SectionsList_previous);                       // ...
+				this.__build (this.__SectionsList_previous);                       // sectionsList.jsxi:19
 		};
-		SectionsList.prototype.__build = function (data, errorCode){               // sectionsList.jsxi:22
+		SectionsList.prototype.__build = function (data, errorCode){
 			if (data === null){                                                    // sectionsList.jsxi:23
 				if (this.host.data ('loaded')){                                    // sectionsList.jsxi:24
 					new Message ('error',                                          // sectionsList.jsxi:25
 						errorCode,                                                 // ...
 						'Не удалось загрузить меню:\n\nОшибка #' + Errors.description (errorCode) + ': %1',
 						true).show ();                                             // ...
-					this.__set (' ', true);                                        // sectionsList.jsxi:76
-					this.__loaded ();                                              // ...
+					this.__set (' ', true);                                        // sectionsList.jsxi:26
+					this.__loaded ();                                              // sectionsList.jsxi:27
 				} else
-					this.__failed (errorCode);                                     // ...
+					this.__failed (errorCode);                                     // sectionsList.jsxi:29
 			} else {
 				data = $.extend (true, [], this.__SectionsList_previous = data);   // sectionsList.jsxi:31
-				Array.prototype.push.apply (data[0],                               // sectionsList.jsxi:33
+				Array.prototype.push.apply (data [0],                              // sectionsList.jsxi:37
 					Preferences.get ('custom-sections', []).map (function (arg){   // ...
 						return { name: arg, url: '/' + arg + '/', custom: true };
 					}));
-				if (Page.section && data[0].filter (function (arg){                // sectionsList.jsxi:39
+				if (Page.section && data [0].filter (function (arg){               // sectionsList.jsxi:39
 					return arg.name === Page.section;                              // ...
 				}).length === 0)                                                   // ...
-					data[0].push ({
-						name: Page.section,                                        // sectionsList.jsxi:41
+					data [0].push ({
+						name: Page.section,                                        // sectionsList.jsxi:44
 						url: '/' + Page.section + '/',                             // sectionsList.jsxi:42
 						ghost: true                                                // sectionsList.jsxi:43
 					});
-				this.__set (Mustache.sectionsList ({ menu: data }), true);         // sectionsList.jsxi:76
-				this.__loaded ();                                                  // ...
+				this.__set (Mustache.sectionsList ({ menu: data }), true);         // sectionsList.jsxi:46
+				this.__loaded ();                                                  // sectionsList.jsxi:47
 			}
 		};
 		SectionsList.prototype.destroy = function (){
@@ -4879,11 +4878,11 @@ var Storage = function (){                                                      
 		SectionsList.customSection = function (name, action){                      // sectionsList.jsxi:55
 			switch (action){                                                       // sectionsList.jsxi:56
 				case 'add':                                                        // sectionsList.jsxi:57
-					Preferences[(Preferences instanceof AbstractElement ? '__set' : 'set')]('custom-sections',
+					Preferences [(Preferences instanceof AbstractElement ? '__set' : 'set')]('custom-sections',
 						Preferences.get ('custom-sections', []).concat ([ name ]).sort ());
 					break;                                                         // sectionsList.jsxi:62
 				case 'remove':                                                     // sectionsList.jsxi:63
-					Preferences[(Preferences instanceof AbstractElement ? '__set' : 'set')]('custom-sections',
+					Preferences [(Preferences instanceof AbstractElement ? '__set' : 'set')]('custom-sections',
 						Preferences.get ('custom-sections', []).filter (function (arg){
 							return arg !== name;                                   // sectionsList.jsxi:66
 						}));
@@ -4893,7 +4892,7 @@ var Storage = function (){                                                      
 			}
 		};
 		(function (arg){                                                           // sectionsList.jsxi:5
-			AbstractElement.__types['sections-list'] = SectionsList;               // ...
+			AbstractElement.__types ['sections-list'] = SectionsList;              // ...
 		}());
 		return SectionsList;
 	}(), 
@@ -4901,10 +4900,10 @@ var Storage = function (){                                                      
 		var Post = function (section, id){                                         // post.jsxi:9
 				var data = Posts.get (section, id);                                // post.jsxi:10
 				if (!data){                                                        // post.jsxi:12
-					this.__Post_element = $ (Mustache.postLoading ());             // post.jsxi:13
+					this.__Post_element = $(Mustache.postLoading ());              // post.jsxi:13
 					new PostRequest (section, id).send (__bo (this, '__Post_loaded'));
 				} else
-					this.__Post_element = $ (Post.buildHtml (data, { threadMode: false }));
+					this.__Post_element = $(Post.buildHtml (data, { threadMode: false }));
 			}, 
 			useFullImages,                                                         // post.jsxi:92
 			useFullGifs,                                                           // post.jsxi:93
@@ -4915,11 +4914,11 @@ var Storage = function (){                                                      
 			ignoreHidden,                                                          // post.jsxi:98
 			timeout,                                                               // post.jsxi:99
 			displayedHidden;                                                       // post.jsxi:100
-		Post.prototype.__Post_loaded = function (data, errorCode){                 // post.jsxi:19
+		Post.prototype.__Post_loaded = function (data, errorCode){
 			var html, params;                                                      // post.jsxi:20
 			if (data === null){                                                    // post.jsxi:22
 				params = {
-					section: section,                                              // post.jsxi:24
+					section: section,                                              // post.jsxi:28
 					id: id,                                                        // post.jsxi:25
 					errorCode: errorCode,                                          // post.jsxi:26
 					errorDescription: Errors.description (errorCode)               // post.jsxi:27
@@ -4932,47 +4931,47 @@ var Storage = function (){                                                      
 						html = Mustache.postError (params);                        // post.jsxi:35
 				}
 			} else
-				html = $ (Post.buildHtml (data, { threadMode: false })).html ();   // post.jsxi:38
+				html = $(Post.buildHtml (data, { threadMode: false })).html ();    // post.jsxi:38
 			this.__Post_element.html (html);                                       // post.jsxi:40
 			if (this.__Post_later){                                                // post.jsxi:76
-				this.__Post_popupHighlight (this.__Post_later.highlight);          // ...
-				this.__Post_fixPopupStyles ();                                     // ...
+				this.__Post_popupHighlight (this.__Post_later.highlight);          // post.jsxi:43
+				this.__Post_fixPopupStyles ();                                     // post.jsxi:44
 			}
 		};
-		Post.prototype.__Post_popupHighlight = function (arg){                     // post.jsxi:48
+		Post.prototype.__Post_popupHighlight = function (arg){
 			return this.__Post_element.find ('a[data-link=\"' + arg + '\"]').addClass ('reflink-highlight').length > 0;
 		};
-		Post.prototype.popup = function (parent, link, highlight, from){           // post.jsxi:51
-			var rect = link.getBoundingClientRect (),                              // post.jsxi:52
+		Post.prototype.popup = function (parent, link, highlight, from){
+			var rect = link.getBoundingClientRect (),                              // post.jsxi:55
 				parentRect = parent.getBoundingClientRect (),                      // post.jsxi:53
 				left = rect.left + rect.width / 2 - parentRect.left,               // post.jsxi:54
 				top = rect.top + rect.height - parentRect.top;                     // post.jsxi:55
 			this.__Post_element.appendTo (parent).css ({ left: Math.round (left), top: Math.round (top) }).addClass ('popup').addClass ('fading').timeout (function (arg){
-				return $ (this).addClass ('visible');                              // post.jsxi:62
+				return $(this).addClass ('visible');                               // post.jsxi:62
 			}).draggable ();                                                       // post.jsxi:63
 			this.__Post_element.find ('[data-post]').data ('from', from);          // post.jsxi:65
-			if (!this.__Post_popupHighlight (highlight))                           // post.jsxi:76
+			if (!this.__Post_popupHighlight (highlight))                           // post.jsxi:67
 				this.__Post_later = { highlight: highlight };                      // post.jsxi:68
 			else
-				this.__Post_fixPopupStyles ();                                     // post.jsxi:76
-			return this.__Post_element;                                            // ...
+				this.__Post_fixPopupStyles ();                                     // post.jsxi:70
+			return this.__Post_element;                                            // post.jsxi:72
 		};
 		Post.prototype.__Post_fixPopupStyles = function (){
-			var content = this.__Post_element.find ('.content')[0];                // ...
+			var content = this.__Post_element.find ('.content')[0];                // post.jsxi:76
 			console.assert (content, 'Content not found');                         // post.jsxi:77
-			var rect = content.getBoundingClientRect (),                           // post.jsxi:79
+			var rect = content.getBoundingClientRect (),                           // post.jsxi:81
 				dx = Math.min (window.innerWidth - rect.right, 0) - Math.min (rect.left, 0),
 				dy = Math.min (window.innerHeight - rect.bottom, 0) - Math.min (rect.top, 0);
 			this.__Post_element.css ({
-				top: parseInt (this.__Post_element.css ('top')) + dy,              // post.jsxi:83
+				top: parseInt (this.__Post_element.css ('top')) + dy,              // post.jsxi:87
 				left: parseInt (this.__Post_element.css ('left')) + dx,            // post.jsxi:84
 				width: rect.width,                                                 // post.jsxi:85
 				height: rect.height                                                // post.jsxi:86
 			});
 		};
 		function each (post, fn){                                                  // post.jsxi:175
-			return $ ('[data-post=\"' + post + '\"]').each (function (arg){        // post.jsxi:176
-				return fn ($ (this).closest ('.post, .thread'));                   // ...
+			return $('[data-post=\"' + post + '\"]').each (function (arg){         // post.jsxi:176
+				return fn ($(this).closest ('.post, .thread'));                    // ...
 			});
 		}
 		function remove (post){                                                    // post.jsxi:178
@@ -4982,31 +4981,31 @@ var Storage = function (){                                                      
 				});
 		}
 		function hide (post){                                                      // post.jsxi:181
-			each (post,                                                            // post.jsxi:182
-				function (arg){                                                    // ...
+			each (post,                                                            // post.jsxi:188
+				function (arg){                                                    // post.jsxi:182
 					return arg.addClass ('hidden').data ('hidden', 'true').find ('.icon[data-button=\"hide\"]').eq (0).removeClass ('hide-icon').addClass ('hidden-show-icon');
 				});
-			$ ('[data-link=\"' + post + '\"]').data ('strikethrough', true);       // post.jsxi:189
+			$('[data-link=\"' + post + '\"]').data ('strikethrough', true);        // post.jsxi:189
 		}
 		function show (post){                                                      // post.jsxi:192
-			each (post,                                                            // post.jsxi:193
-				function (arg){                                                    // ...
+			each (post,                                                            // post.jsxi:198
+				function (arg){                                                    // post.jsxi:193
 					return arg.removeClass ('hidden').find ('.icon[data-button=\"hide\"]').eq (0).removeClass ('hidden-show-icon').addClass ('hidden-hide-icon');
 				});
 		}
 		function unhide (post){                                                    // post.jsxi:201
-			each (post,                                                            // post.jsxi:202
-				function (arg){                                                    // ...
+			each (post,                                                            // post.jsxi:209
+				function (arg){                                                    // post.jsxi:202
 					return arg.removeClass ('hidden').removeAttr ('data-hidden').find ('.icon[data-button=\"hide\"]').eq (0).removeClass ('hidden-show-icon').removeClass ('hidden-hide-icon').addClass ('hide-icon');
 				});
-			$ ('[data-link=\"' + post + '\"]').removeAttr ('data-strikethrough');
+			$('[data-link=\"' + post + '\"]').removeAttr ('data-strikethrough');   // post.jsxi:210
 		}
 		function answers (args){                                                   // post.jsxi:213
 			for (var _k = 0; _k < args.length; _k ++){                             // post.jsxi:219
-				var post = args[_k];                                               // ...
-				var elements = $ ('[data-post=\"' + post + '\"] [data-id=\"answers\"]');
+				var post = args [_k];                                              // ...
+				var elements = $('[data-post=\"' + post + '\"] [data-id=\"answers\"]');
 				if (elements.length)                                               // post.jsxi:217
-					elements.html (Mustache.postAnswers (Posts.get (post)));       // post.jsxi:218
+					elements.html (Mustache.postAnswers (Posts.get (post)));       // post.jsxi:219
 			}
 		}
 		function favorite (post){                                                  // post.jsxi:222
@@ -5026,7 +5025,7 @@ var Storage = function (){                                                      
 		};
 		Post.buildHtml = function (params, override){                              // post.jsxi:233
 			console.assert (params.next, 'Raw post detected');                     // post.jsxi:234
-			if (Post.fullpathAsThumbinal (params)){                                // post.jsxi:76
+			if (Post.fullpathAsThumbinal (params)){                                // post.jsxi:236
 				var file = $.extend ({}, params.file);                             // post.jsxi:237
 				if (override === undefined)                                        // post.jsxi:238
 					override = { file: file };                                     // post.jsxi:239
@@ -5042,27 +5041,27 @@ var Storage = function (){                                                      
 			override);                                                             // post.jsxi:251
 		};
 		Post.highlight = function (post){                                          // post.jsxi:255
-			$ ('.content.highlight').removeClass ('highlight');                    // post.jsxi:256
-			$ ('.thread .post:not(.popup) .content[data-post=\"' + Page.section + '/' + post + '\"]').addClass ('highlight');
+			$('.content.highlight').removeClass ('highlight');                     // post.jsxi:256
+			$('.thread .post:not(.popup) .content[data-post=\"' + Page.section + '/' + post + '\"]').addClass ('highlight');
 		};
 		Post.mouseover = function (element){                                       // post.jsxi:260
 			if (element.hasAttribute ('data-display-hidden')){                     // post.jsxi:261
-				var post = $ (element).closest ('.post, .thread');                 // post.jsxi:262
+				var post = $(element).closest ('.post, .thread');                  // post.jsxi:262
 				if (post.hasClass ('hidden')){                                     // post.jsxi:263
 					displayedHidden = post.removeClass ('hidden').addClass ('semi-hidden');
 				}
 			} else if (popupEnabled && (linksDetect || !element.hasAttribute ('data-link-override'))){
-				element = $ (element);                                             // post.jsxi:267
+				element = $(element);                                              // post.jsxi:267
 				if (ignoreHidden && Posts.isHidden (element.data ('link')))        // post.jsxi:269
 					return;                                                        // post.jsxi:270
-				timeout = setTimeout (function (arg){                              // post.jsxi:272
+				timeout = setTimeout (function (arg){                              // post.jsxi:303
 					timeout = false;                                               // post.jsxi:273
-					var attribute = element.data ('link').split ('/'),             // post.jsxi:275
+					var attribute = element.data ('link').split ('/'),             // post.jsxi:288
 						parent = element.closest ('.post'),                        // post.jsxi:276
 						parentPopup = parent.hasClass ('popup'),                   // post.jsxi:277
 						parentContent = parent.find ('[data-post]'),               // post.jsxi:278
-						post = new Post (attribute[0], attribute[1]).popup (parentPopup ? parent[0] : document.body,
-							element[0],                                            // post.jsxi:282
+						post = new Post (attribute [0], attribute [1]).popup (parentPopup ? parent [0] : document.body,
+							element [0],                                           // post.jsxi:282
 							parentContent.data ('post'),                           // post.jsxi:283
 							parentContent.data (parentPopup ? 'from' : 'post')).on ('mouseenter', mouseenter).on ('mouseleave', mouseleave),
 						timeout;                                                   // post.jsxi:288
@@ -5073,7 +5072,7 @@ var Storage = function (){                                                      
 						}
 					}
 					function mouseleave (){                                        // post.jsxi:296
-						return timeout = setTimeout (function (arg){               // post.jsxi:297
+						return timeout = setTimeout (function (arg){               // post.jsxi:300
 							post.removeClass ('visible').timeout (function (arg){
 								return post.remove ();                             // post.jsxi:298
 							}, 
@@ -5098,44 +5097,44 @@ var Storage = function (){                                                      
 			}
 		};
 		Post.hideAllPopups = function (){                                          // post.jsxi:318
-			$ ('.post.popup.visible').removeClass ('visible').timeout (function (arg){
-				return $ (this).remove ();                                         // post.jsxi:321
+			$('.post.popup.visible').removeClass ('visible').timeout (function (arg){
+				return $(this).remove ();                                          // post.jsxi:321
 			}, 
 			300);                                                                  // ...
 		};
 		(function (arg){                                                           // post.jsxi:102
 			Page.on ('navigate', Post.hideAllPopups);                              // post.jsxi:103
 			Page.on ('hash', Post.highlight);                                      // post.jsxi:104
-			Preferences.on ('use-full-images use-full-gifs',                       // post.jsxi:106
-				function (arg){                                                    // ...
+			Preferences.on ('use-full-images use-full-gifs',                       // post.jsxi:118
+				function (arg){                                                    // post.jsxi:106
 					useFullImages = Preferences.get ('use-full-images');           // post.jsxi:107
 					useFullGifs = Preferences.get ('use-full-gifs');               // post.jsxi:108
-					$ ('.post > .content, .thread > .content').each (function (arg){
-						var element = $ (this),                                    // post.jsxi:111
-							params = Posts.get (element.data ('post'));            // post.jsxi:112
+					$('.post > .content, .thread > .content').each (function (arg){
+						var element = $(this),                                     // post.jsxi:112
+							params = Posts.get (element.data ('post'));            // ...
 						if (params.file)                                           // post.jsxi:114
 							element.find ('.thumb:not(.expanded):not(.center)').each (function (arg){
 								return this.src = Post.fullpathAsThumbinal (params) ? params.file.fullpath : params.file.thumbinal;
 							});
 					});
 				});
-			Preferences.on ('links-image-detect',                                  // post.jsxi:120
-				function (arg){                                                    // ...
-					var to = arg ? 'src' : 'data-src',                             // post.jsxi:121
-						from = arg ? 'data-src' : 'src';                           // post.jsxi:122
-					$ ('.image-preview').each (function (arg){                     // post.jsxi:123
+			Preferences.on ('links-image-detect',                                  // post.jsxi:127
+				function (arg){                                                    // post.jsxi:120
+					var to = arg ? 'src' : 'data-src',                             // post.jsxi:122
+						from = arg ? 'data-src' : 'src';                           // ...
+					$('.image-preview').each (function (arg){                      // post.jsxi:126
 						this.setAttribute (to, this.getAttribute (from));          // post.jsxi:124
 						this.removeAttribute (from);                               // post.jsxi:125
 					});
 				});
-			Preferences.on ('links-audio-detect',                                  // post.jsxi:129
-				function (arg){                                                    // ...
-					var to = arg ? 'src' : 'data-src',                             // post.jsxi:130
-						from = arg ? 'data-src' : 'src';                           // post.jsxi:131
-					$ ('.audio-preview source').each (function (arg){              // post.jsxi:132
+			Preferences.on ('links-audio-detect',                                  // post.jsxi:138
+				function (arg){                                                    // post.jsxi:129
+					var to = arg ? 'src' : 'data-src',                             // post.jsxi:131
+						from = arg ? 'data-src' : 'src';                           // ...
+					$('.audio-preview source').each (function (arg){               // post.jsxi:137
 						this.setAttribute (to, this.getAttribute (from));          // post.jsxi:133
 						this.removeAttribute (from);                               // post.jsxi:134
-						var parent = $ (this.parentNode);                          // post.jsxi:135
+						var parent = $(this.parentNode);                           // post.jsxi:135
 						parent.replaceWith (parent.clone ());                      // post.jsxi:136
 					});
 				});
@@ -5162,7 +5161,7 @@ var Storage = function (){                                                      
 								hideTimeout = 0;                                   // post.jsxi:159
 							break;                                                 // post.jsxi:160
 					}
-					Post.hideAllPopups ();                                         // post.jsxi:76
+					Post.hideAllPopups ();                                         // post.jsxi:163
 				});
 			Posts.on ('remove', remove);                                           // post.jsxi:166
 			Hiddens.on ('hide', hide);                                             // post.jsxi:167
@@ -5182,17 +5181,17 @@ var Storage = function (){                                                      
 		};
 		Application.prototype.run = function (){
 			var __;                                                                // application.jsxi:76
-			(__ = (__ = (__ = $ (document.body),                                   // application.jsxi:17
-						__[(__ instanceof Application ? '__Application_click' : 'click')]).call (__, __bo (this, '__Application_click')),
-					__[(__ instanceof Application ? '__Application_mouseover' : 'mouseover')]).call (__, __bo (this, '__Application_mouseover')),
-				__[(__ instanceof Application ? '__Application_mouseout' : 'mouseout')]).call (__, __bo (this, '__Application_mouseout'));
+			(__ = (__ = (__ = $(document.body),                                    // application.jsxi:20
+						__ [(__ instanceof Application ? '__Application_click' : 'click')]).call (__, __bo (this, '__Application_click')),
+					__ [(__ instanceof Application ? '__Application_mouseover' : 'mouseover')]).call (__, __bo (this, '__Application_mouseover')),
+				__ [(__ instanceof Application ? '__Application_mouseout' : 'mouseout')]).call (__, __bo (this, '__Application_mouseout'));
 			Page.on ('navigate', __bo (this, '__Application_navigate'));           // application.jsxi:22
 			Page.on ('hash', Application.hash);                                    // application.jsxi:23
 		};
-		Application.prototype.__Application_navigate = function (params){          // application.jsxi:26
+		Application.prototype.__Application_navigate = function (params){
 			if (this.__Application_page)                                           // application.jsxi:76
 				this.__Application_page.destroy ();                                // application.jsxi:28
-			switch (params[(params instanceof Application ? '__Application_page' : 'page')]){
+			switch (params [(params instanceof Application ? '__Application_page' : 'page')]){
 				case 'index':                                                      // application.jsxi:31
 					this.__Application_page = new IndexPage ();                    // application.jsxi:32
 					break;                                                         // application.jsxi:33
@@ -5212,7 +5211,7 @@ var Storage = function (){                                                      
 			console.assert (this.__Application_page, 'Wrong page');                // application.jsxi:48
 			this.__Application_page.run ();                                        // application.jsxi:49
 		};
-		Application.prototype.__Application_open = function (windowClass){         // application.jsxi:59
+		Application.prototype.__Application_open = function (windowClass){
 			if (this.__Application_openedWindow instanceof windowClass && !this.__Application_openedWindow.closed){
 				this.__Application_openedWindow.close ();                          // application.jsxi:61
 				this.__Application_openedWindow = null;                            // application.jsxi:62
@@ -5223,10 +5222,10 @@ var Storage = function (){                                                      
 			}
 		};
 		Application.prototype.__Application_buttonClick = function (event, _target){
-			var target = $ (_target),                                              // application.jsxi:71
+			var target = $(_target),                                               // application.jsxi:74
 				splitted = target.data ('button').split (':'),                     // application.jsxi:72
-				key = splitted[0],                                                 // application.jsxi:73
-				argument = splitted[1];                                            // application.jsxi:74
+				key = splitted [0],                                                // application.jsxi:73
+				argument = splitted [1];                                           // application.jsxi:74
 			switch (key){                                                          // application.jsxi:76
 				case 'empty':                                                      // application.jsxi:77
 					break;                                                         // application.jsxi:78
@@ -5237,9 +5236,9 @@ var Storage = function (){                                                      
 					SectionsList.customSection (target.parent ().data ('param'), argument);
 					break;                                                         // application.jsxi:87
 				case 'thread-expand':                                              // application.jsxi:90
-					var node = $ ('#' + target.parent ().data ('context')),        // application.jsxi:91
+					var node = $('#' + target.parent ().data ('context')),         // application.jsxi:93
 						element = node.closest ('.host'),                          // application.jsxi:92
-						thread = currentPage.elementByNode (element[0]);           // application.jsxi:93
+						thread = currentPage.elementByNode (element [0]);          // application.jsxi:93
 					thread.expand (node, + argument);                              // application.jsxi:95
 					break;                                                         // application.jsxi:96
 				case 'insert-id':                                                  // application.jsxi:99
@@ -5250,42 +5249,42 @@ var Storage = function (){                                                      
 					this.__Application_form.replyClick (target);                   // application.jsxi:106
 					break;                                                         // application.jsxi:107
 				case 'hide':                                                       // application.jsxi:110
-					var post = target.closest ('.thread, .post'),                  // application.jsxi:111
-						data = post.find ('[data-post]').data ('post');            // application.jsxi:112
+					var post = target.closest ('.thread, .post'),                  // application.jsxi:112
+						data = post.find ('[data-post]').data ('post');            // ...
 					if (target.data ('display-hidden'))                            // application.jsxi:113
-						Post[(Post instanceof Application ? '__Application_mouseout' : 'mouseout')]();
-					Hiddens[(post.hasClass ('hidden') ? 'show' : 'hide')](data);   // application.jsxi:115
+						Post [(Post instanceof Application ? '__Application_mouseout' : 'mouseout')]();
+					Hiddens [(post.hasClass ('hidden') ? 'show' : 'hide')](data);
 					break;                                                         // application.jsxi:116
 				case 'favorite':                                                   // application.jsxi:119
-					var post = target.closest ('.thread, .post'),                  // application.jsxi:120
-						data = post.find ('[data-post]').data ('post');            // application.jsxi:121
-					Favorites[(target.hasClass ('favorite-marked-icon') ? 'remove' : 'add')](data);
+					var post = target.closest ('.thread, .post'),                  // application.jsxi:121
+						data = post.find ('[data-post]').data ('post');            // ...
+					Favorites [(target.hasClass ('favorite-marked-icon') ? 'remove' : 'add')](data);
 					break;                                                         // application.jsxi:123
 				case 'form-close':                                                 // application.jsxi:126
 					this.__Application_form.hide ();                               // application.jsxi:127
 					break;                                                         // application.jsxi:128
 				case 'embed':                                                      // application.jsxi:131
 					if (Preferences.get ('links-embed-detect'))                    // application.jsxi:132
-						Embed[(Embed instanceof Application ? '__Application_click' : 'click')](target);
+						Embed [(Embed instanceof Application ? '__Application_click' : 'click')](target);
 					break;                                                         // application.jsxi:134
 				case 'embed-player':                                               // application.jsxi:137
 					if (Preferences.get ('embed-player'))                          // application.jsxi:138
-						Embed.setPlayer (argument, splitted[2], target);           // application.jsxi:139
+						Embed.setPlayer (argument, splitted [2], target);          // application.jsxi:139
 					break;                                                         // application.jsxi:140
 				case 'preferences':                                                // application.jsxi:142
-					this.__Application_open (PreferencesWindow);                   // application.jsxi:76
+					this.__Application_open (PreferencesWindow);                   // application.jsxi:143
 					break;                                                         // application.jsxi:144
 				case 'hiddens':                                                    // application.jsxi:146
-					this.__Application_open (HiddensWindow);                       // application.jsxi:76
+					this.__Application_open (HiddensWindow);                       // application.jsxi:147
 					break;                                                         // application.jsxi:148
 				case 'favorites':                                                  // application.jsxi:150
-					this.__Application_open (FavoritesWindow);                     // application.jsxi:76
+					this.__Application_open (FavoritesWindow);                     // application.jsxi:151
 					break;                                                         // application.jsxi:152
 				default:
 					if (target.closest ('[data-id=panel]').length)                 // application.jsxi:156
-						panel[(panel instanceof Application ? '__Application_click' : 'click')](target, key, argument);
+						panel [(panel instanceof Application ? '__Application_click' : 'click')](target, key, argument);
 					else if (target.closest ('[data-window]').length)              // application.jsxi:158
-						openedWindow[(openedWindow instanceof Application ? '__Application_click' : 'click')](target, key, argument);
+						openedWindow [(openedWindow instanceof Application ? '__Application_click' : 'click')](target, key, argument);
 					else
 						console.warn ('Not implemented at 161 line of application.jsxi');
 			}
@@ -5297,55 +5296,55 @@ var Storage = function (){                                                      
 				return;                                                            // application.jsxi:170
 			event.preventDefault ();                                               // application.jsxi:172
 			event.stopPropagation ();                                              // application.jsxi:173
-			var target = $ (_target);                                              // application.jsxi:175
+			var target = $(_target);                                               // application.jsxi:175
 			if (target.data ('message'))                                           // application.jsxi:177
 				new Message (target.data ('message-type'), target.data ('message')).show ();
 			else
-				Page[(Page instanceof Application ? '__Application_navigate' : 'navigate')](_target.href);
+				Page [(Page instanceof Application ? '__Application_navigate' : 'navigate')](_target.href);
 		};
-		Application.prototype.__Application_click = function (event){              // application.jsxi:183
+		Application.prototype.__Application_click = function (event){
 			var __that = this;                                                     // application.jsxi:76
 			function checkFor (element, deep){                                     // application.jsxi:184
 				if (element.hasAttribute ('data-button')){                         // application.jsxi:185
-					__that.__Application_buttonClick (event, element);             // application.jsxi:76
+					__that.__Application_buttonClick (event, element);             // application.jsxi:186
 				} else if (element.tagName === 'A'){                               // application.jsxi:187
-					__that.__Application_linkClick (event, element);               // application.jsxi:76
+					__that.__Application_linkClick (event, element);               // application.jsxi:188
 				} else if (element.classList.contains ('thumb')){                  // application.jsxi:189
-					ImageExpand[(ImageExpand instanceof Application ? '__Application_click' : 'click')](event, element);
+					ImageExpand [(ImageExpand instanceof Application ? '__Application_click' : 'click')](event, element);
 				} else if (element.parentNode !== document.body && deep > 0)       // application.jsxi:191
 					checkFor (element.parentNode, deep - 1);                       // application.jsxi:192
 			}
 			if (event.which === 1){                                                // application.jsxi:195
 				checkFor (event.target, 2);                                        // application.jsxi:196
 			} else if (event.which === 2 && event.target.getAttribute ('data-button') === 'insert-id' && Preferences.get ('links-insert')){
-				Page[(Page instanceof Application ? '__Application_navigate' : 'navigate')](event.target.href);
+				Page [(Page instanceof Application ? '__Application_navigate' : 'navigate')](event.target.href);
 				event.preventDefault ();                                           // application.jsxi:199
 				event.stopPropagation ();                                          // application.jsxi:200
 			}
 		};
-		Application.prototype.__Application_mouseover = function (event){          // application.jsxi:205
+		Application.prototype.__Application_mouseover = function (event){
 			if (event.target.hasAttribute ('data-link') || event.target.hasAttribute ('data-display-hidden')){
-				Post[(Post instanceof Application ? '__Application_mouseover' : 'mouseover')](event.target);
+				Post [(Post instanceof Application ? '__Application_mouseover' : 'mouseover')](event.target);
 			} else if (event.target.hasAttribute ('data-menu')){                   // application.jsxi:208
-				Menu[(Menu instanceof Application ? '__Application_mouseover' : 'mouseover')](event.target);
+				Menu [(Menu instanceof Application ? '__Application_mouseover' : 'mouseover')](event.target);
 			} else
 				return;                                                            // application.jsxi:211
 			event.target.setAttribute ('data-mouseover', true);                    // application.jsxi:213
 		};
-		Application.prototype.__Application_mouseout = function (event){           // application.jsxi:216
+		Application.prototype.__Application_mouseout = function (event){
 			if (event.target.hasAttribute ('data-mouseover')){                     // application.jsxi:217
 				event.target.removeAttribute ('data-mouseover');                   // application.jsxi:218
-				Post[(Post instanceof Application ? '__Application_mouseout' : 'mouseout')]();
-				Menu[(Menu instanceof Application ? '__Application_mouseout' : 'mouseout')]();
+				Post [(Post instanceof Application ? '__Application_mouseout' : 'mouseout')]();
+				Menu [(Menu instanceof Application ? '__Application_mouseout' : 'mouseout')]();
 			}
 		};
 		Application.version = '0.5.' + '2563';                                     // application.jsxi:2
 		Application.hash = function (value){                                       // application.jsxi:52
-			return nextTick (function (arg){                                       // application.jsxi:53
-				if (value){                                                        // ...
-					var target = $ ('.page [name=\"' + value + '\"]');             // application.jsxi:54
+			return nextTick (function (arg){                                       // application.jsxi:57
+				if (value){                                                        // application.jsxi:53
+					var target = $('.page [name=\"' + value + '\"]');              // application.jsxi:54
 					if (target.length)                                             // application.jsxi:55
-						Application.scrollTo (target.offset ().top);               // application.jsxi:76
+						Application.scrollTo (target.offset ().top);               // application.jsxi:56
 				}
 			});
 		};
@@ -5357,14 +5356,14 @@ var Storage = function (){                                                      
 	}();
 (function (){                                                                      // time.jsxi:15
 	if ('performance' in window && typeof performance.now === 'function')          // time.jsxi:2
-		Preferences.on ('debug-mode',                                              // time.jsxi:3
-			function (arg){                                                        // ...
+		Preferences.on ('debug-mode',                                              // time.jsxi:14
+			function (arg){                                                        // time.jsxi:3
 				var timers = {};                                                   // time.jsxi:4
-				window.__dt = arg ? function (start, name){                        // time.jsxi:6
+				window.__dt = arg ? function (start, name){                        // time.jsxi:13
 					if (start){                                                    // time.jsxi:7
-						timers[name] = performance.now ();                         // time.jsxi:8
+						timers [name] = performance.now ();                        // time.jsxi:8
 					} else {
-						var delta = performance.now () - timers[name];             // time.jsxi:10
+						var delta = performance.now () - timers [name];            // time.jsxi:10
 						if (delta > 2)                                             // time.jsxi:11
 							console.debug (name + ': ' + delta.toFixed (2) + 'ms');
 					}
@@ -5373,14 +5372,14 @@ var Storage = function (){                                                      
 }());
 (function (){                                                                      // default.jsx:541
 	console.log ('Clin, ' + Application.version);                                  // default.jsx:525
-	$ (function (arg){                                                             // default.jsx:527
+	$(function (arg){                                                              // default.jsx:540
 		function fixFavicon (){                                                    // default.jsx:528
-			var oldLink = $ ('link[rel=\"shortcut icon\"]'),                       // default.jsx:529
-				newLink = $ (oldLink[0].outerHTML.replace ('favicon.ico', 'favicon.ico?r=' + + new Date ()));
+			var oldLink = $('link[rel=\"shortcut icon\"]'),                        // default.jsx:530
+				newLink = $(oldLink [0].outerHTML.replace ('favicon.ico', 'favicon.ico?r=' + + new Date ()));
 			oldLink.remove ();                                                     // default.jsx:532
 			newLink.appendTo (document.head);                                      // default.jsx:533
 		}
-		$ ('noscript').remove ();                                                  // default.jsx:536
+		$('noscript').remove ();                                                   // default.jsx:536
 		new Application ().run ();                                                 // default.jsx:537
 		fixFavicon ();                                                             // default.jsx:539
 	});

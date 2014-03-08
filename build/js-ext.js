@@ -3394,28 +3394,23 @@ return arg !== File.STATE_FINISHED;
 };
 var generate = function (){
 var priorities = [[Syntax.MemberExpression,Syntax.NewExpression],[Syntax.CallExpression],[{"type":Syntax.UnaryExpression,"operator":"++"},{"type":Syntax.UnaryExpression,"operator":"--"}],[{"type":Syntax.UnaryExpression,"operator":"!"},{"type":Syntax.UnaryExpression,"operator":"~"},{"type":Syntax.UnaryExpression,"operator":"+"},{"type":Syntax.UnaryExpression,"operator":"-"},{"type":Syntax.UnaryExpression,"operator":"typeof"},{"type":Syntax.UnaryExpression,"operator":"void"},{"type":Syntax.UnaryExpression,"operator":"delete"}],[{"type":Syntax.BinaryExpression,"operator":"*"},{"type":Syntax.BinaryExpression,"operator":"/"},{"type":Syntax.BinaryExpression,"operator":"%"}],[{"type":Syntax.BinaryExpression,"operator":"+"},{"type":Syntax.BinaryExpression,"operator":"-"}],[{"type":Syntax.BinaryExpression,"operator":"<<"},{"type":Syntax.BinaryExpression,"operator":">>"},{"type":Syntax.BinaryExpression,"operator":">>>"}],[{"type":Syntax.BinaryExpression,"operator":"<"},{"type":Syntax.BinaryExpression,"operator":"<="},{"type":Syntax.BinaryExpression,"operator":">"},{"type":Syntax.BinaryExpression,"operator":">="},{"type":Syntax.BinaryExpression,"operator":"in"},{"type":Syntax.BinaryExpression,"operator":"instanceof"}],[{"type":Syntax.BinaryExpression,"operator":"=="},{"type":Syntax.BinaryExpression,"operator":"!="},{"type":Syntax.BinaryExpression,"operator":"==="},{"type":Syntax.BinaryExpression,"operator":"!=="}],[{"type":Syntax.BinaryExpression,"operator":"&"}],[{"type":Syntax.BinaryExpression,"operator":"^"}],[{"type":Syntax.BinaryExpression,"operator":"|"}],[{"type":Syntax.LogicalExpression,"operator":"&&"}],[{"type":Syntax.LogicalExpression,"operator":"||"}],[Syntax.ConditionalExpression],[Syntax.AssignmentExpression],[Syntax.SequenceExpression]], alotofspaces = function (i,s){
-i = 0;
-s = "";
-while (i++ < 150)
+while (i-- > 0)
 s += " ";
 return s;
-} (), badMode = 0;
-return function (node,params){
+} (150, ""), badMode = 0, comment;
+return function (node,params,parent){
 if (params === undefined)
-params = {"lineBreak":"","comment":{},"first":true};
+params = {"lineBreak":"","first":true};
+var result = "", temp;
 console.assert (node && typeof node.type === "string", "Bad node");
-if (node.filename && ! params.lineNumber)
-{
-params.comment.filename = node.filename;
-params.comment.lineNumber = node.lineNumber;
-}
+if (! comment && node.filename)
+comment = node.filename + ":" + node.lineNumber;
 function end (lineBreak){
 var result = "";
-if (params.comment.lineNumber)
+if (comment)
 {
-result = " //__ " + params.comment.filename + ":" + params.comment.lineNumber + "\n";
-delete params.comment.filename;
-delete params.comment.lineNumber;
+result = " //__ " + comment + "\n";
+comment = null;
 }
 else
 result = "\n";
@@ -3423,129 +3418,139 @@ if (lineBreak !== false)
 result += typeof lineBreak === "string" ? lineBreak : params.lineBreak;
 return result;
 }
+function simple (obj){
+return generate (obj, false);
+}
 function child (obj,newParams){
-return generate (obj, $.extend ({"parent":node,"lineBreak":params.lineBreak,"parentParams":params,"comment":params.comment}, newParams));
+var temp = {"lineBreak":params.lineBreak,"parentParams":params};
+for (var key in newParams){
+var value = newParams[key];
+temp [key] = value;
+}
+return generate (obj, temp, node);
 }
 function indent (obj,newParams){
-if (newParams === undefined)
-newParams = {};
-var lineBreak = params.lineBreak + "\t";
-return (newParams.force ? end (lineBreak) : "") + generate (obj, $.extend ({"parent":node,"lineBreak":lineBreak,"parentParams":params,"comment":params.comment}, newParams));
+var lineBreak = params.lineBreak + "\t", temp = {"lineBreak":lineBreak,"parentParams":params};
+for (var key in newParams){
+var value = newParams[key];
+temp [key] = value;
 }
-function join (array,fn,by,lineBreak){
-var result = "";
-for (var index = 0; index < array.length; index ++){
-var entry = array[index];
-if (index > 0)
-result += by + (lineBreak ? end (lineBreak) : "");
-result += fn (entry, index, array);
+if (newParams && newParams.force)
+return end (lineBreak) + generate (obj, temp, node);
+else
+return generate (obj, temp, node);
 }
-return result;
-}
-function array (array,arrayParams){
+function array (array,joinString,forceWrap,insertSpaces,newParams){
 if (array.length === 0)
 return "";
-var fn, lineBreak, result, oneline, temp, backup = $.extend ({}, params.comment);
-if (arrayParams.indent !== false)
+function join (array,fn,joinString,lineBreak){
+var result = fn (array [0]);
+if (lineBreak)
 {
-fn = indent;
-lineBreak = params.lineBreak + "\t";
+for (var i = 1; 
+i < array.length; i++)
+result += joinString + end (lineBreak) + fn (array [i]);
 }
 else
 {
-fn = child;
-lineBreak = params.lineBreak;
+for (var i = 1; 
+i < array.length; i++)
+result += joinString + fn (array [i]);
 }
-result = join (array, function (arg){
-var result = fn (arg, arrayParams);
-if (result.indexOf ("\n") !== - 1)
-oneline = false;
 return result;
-}, arrayParams.join || "", lineBreak);
-if (oneline !== false)
+}
+var lineBreak = params.lineBreak + "\t", oneline, result, temp = comment;
+result = join (array, function (arg){
+var indented = indent (arg, newParams);
+if (! forceWrap && indented.indexOf ("\n") !== - 1)
+forceWrap = true;
+return indented;
+}, joinString, lineBreak);
+if (! forceWrap)
 oneline = result.replace (/( *\/\/__ [^\n]+)?\n\t*/g, "");
-if (! oneline || oneline.length > 60 || arrayParams.wrap)
+if (forceWrap || ! oneline || oneline.length > 60)
 {
-if (arrayParams.autospaces)
+if (insertSpaces)
 {
 temp = end ();
-result = end (lineBreak) + result + temp;
+return end (lineBreak) + result + temp;
 }
+else
+return result;
 }
 else
 {
-result = oneline;
-if (arrayParams.autospaces)
-result = " " + result + " ";
-$.extend (params.comment, backup);
+comment = temp;
+if (insertSpaces)
+return " " + oneline + " ";
+else
+return oneline;
 }
-return result;
 }
 function sub (obj,newParams){
-return obj.type === Syntax.BlockStatement ? child (obj) : indent (obj, $.extend ({"force":true}, newParams));
-}
-function safe (obj,newParams){
-if (! obj)
-return "";
-var result = child (obj, newParams);
-return result + (/[_$a-zA-Z\d]$/.test (result) ? " " : "");
+return obj.type === Syntax.BlockStatement ? child (obj) : indent (obj, {"force":true});
 }
 function brackets (string){
-console.assert (params.parent, "Not implemented");
+console.assert (parent, "Not implemented");
 function index (type,operator){
 for (var priority = 0; priority < priorities.length; priority ++){
 var group = priorities[priority];
-for (var _8mvo4p2_35 = 0; _8mvo4p2_35 < group.length; _8mvo4p2_35 ++){
-var entry = group[_8mvo4p2_35];
+for (var _hp2bss_34 = 0; _hp2bss_34 < group.length; _hp2bss_34 ++){
+var entry = group[_hp2bss_34];
 if (entry === type || typeof entry === "object" && entry.type === type && entry.operator === operator)
 return priority;
 }
 }
 return - 1;
 }
-var that = index (node.type, node.operator), parent = index (params.parent.type, params.parent.operator);
-console.assert (that !== - 1, "Priority not defined (" + node.type + ", \"" + node.operator + "\")");
-if ((! params.array || node.type === Syntax.SequenceExpression) && parent !== - 1 && that > parent)
+var nodePriority = index (node.type, node.operator), parentPriority = index (parent.type, parent.operator);
+if (nodePriority === - 1)
+throw new Error("Priority not defined (" + node.type + ", \"" + node.operator + "\")");
+if ((! params.array || node.type === Syntax.SequenceExpression) && parentPriority !== - 1 && nodePriority > parentPriority)
 return "(" + string + ")";
 else
 return string;
 }
-var result;
 switch (node.type){
 case Syntax.Identifier:
-result = node.name;
-break;
+return node.name;
 case Syntax.Literal:
 if (typeof node.value === "string")
-result = "'" + JSON.stringify (node.value).slice (1, - 1).replace (/'/g, "\\'") + "'";
+return "'" + JSON.stringify (node.value).slice (1, - 1).replace (/'/g, "\\'") + "'";
 else
-result = String (node.value);
-break;
+return String (node.value);
 case Syntax.Property:
-result = child (node.key) + ": " + child (node.value);
-break;
-case Syntax.MemberExpression:
-result = child (node.object) + (node.computed ? "[" + child (node.property) + "]" : "." + child (node.property));
-break;
+return child (node.key) + ": " + child (node.value);
 case Syntax.ThisExpression:
-result = "this";
-break;
-case Syntax.CallExpression:
-var name = safe (node.callee), args = array (node.arguments, {"join":", ","array":true}), match = args.match (/\n\t*/);
-if (match && match [0].length > params.lineBreak.length + 2)
-args = args.replace (/\n\t/g, "\n");
-result = name + "(" + args + ")";
+return "this";
+case Syntax.MemberExpression:
+result = child (node.object);
+if (node.computed)
+{
+if (/\w$/.test (result))
+result += " ";
+result += "[" + child (node.property) + "]";
+}
+else
+result += "." + simple (node.property);
 break;
 case Syntax.NewExpression:
-var name = safe (node.callee), args = array (node.arguments, {"join":", ","array":true}), match = args.match (/\n\t*/);
-if (match && match [0].length > params.lineBreak.length + 2)
-args = args.replace (/\n\t/g, "\n");
-result = "new " + name + "(" + args + ")";
+result = "new ";
+case Syntax.CallExpression:
+result += child (node.callee);
+result += /\w$/.test (result) ? " (" : "(";
+temp = array (node.arguments, ", ", false, false, {"array":true});
+if (temp.match (/\n(\t*)/) && RegExp.$1.length > params.lineBreak.length + 1)
+temp = temp.replace (/\n\t/g, "\n");
+result += temp + ")";
 break;
 case Syntax.UnaryExpression:
 if (node.prefix)
 {
-result = node.operator + (node.operator === "!" ? "" : " ") + child (node.argument);
+result = node.operator;
+if (node.operator !== "!")
+result += " ";
+result += child (node.argument);
 }
 else
 result = child (node.argument) + " " + node.operator;
@@ -3565,25 +3570,23 @@ case Syntax.ConditionalExpression:
 result = brackets (child (node.test) + " ? " + child (node.consequent) + " : " + child (node.alternate));
 break;
 case Syntax.ArrayExpression:
-if (node.elements.length === 0)
-result = "[]";
-else
-result = "[" + array (node.elements, {"join":", ","autospaces":true}) + "]";
+result = "[" + array (node.elements, ", ", false, true) + "]";
 break;
 case Syntax.ObjectExpression:
-if (node.properties.length === 0)
-result = "{}";
-else
-result = "{" + array (node.properties, {"join":", ","autospaces":true}) + "}";
+result = "{" + array (node.properties, ", ", false, true) + "}";
 break;
 case Syntax.FunctionExpression:
-result = "function " + safe (node.id) + "(" + array (node.params, {"join":", "}) + ")" + child (node.body);
+if (node.id)
+result = "function " + simple (node.id) + " (";
+else
+result = "function (";
+result += array (node.params, ", ") + ")" + child (node.body);
 break;
 case Syntax.FunctionDeclaration:
-result = "function " + child (node.id) + " (" + array (node.params, {"join":", "}) + ")" + child (node.body);
+result = "function " + simple (node.id) + " (" + array (node.params, ", ") + ")" + child (node.body);
 break;
 case Syntax.VariableDeclaration:
-var args = array (node.declarations, {"join":", "}), match = node.declarations.length === 1 && args.match (/\n\t*/);
+var args = array (node.declarations, ", "), match = node.declarations.length === 1 && args.match (/\n\t*/);
 if (match && match [0].length > params.lineBreak.length + 2)
 args = args.replace (/\n\t/g, "\n");
 result = "var " + args + ";";
@@ -3596,7 +3599,7 @@ result = "{";
 if (node.body.length > 0)
 {
 result += end () + "\t";
-result += array (node.body, {"wrap":true});
+result += array (node.body, "", true);
 result += end ();
 }
 result += "}";
@@ -3649,15 +3652,15 @@ result += sub (node.alternate);
 break;
 case Syntax.SwitchStatement:
 result = "switch (" + child (node.discriminant) + "){";
-{ var _32v3hbe_36 = node.cases; for (var _6id0o19_37 = 0; _6id0o19_37 < _32v3hbe_36.length; _6id0o19_37 ++){
-var obj = _32v3hbe_36[_6id0o19_37];
+{ var _3kg74vo_35 = node.cases; for (var _s3oonv_36 = 0; _s3oonv_36 < _3kg74vo_35.length; _s3oonv_36 ++){
+var obj = _3kg74vo_35[_s3oonv_36];
 result += indent (obj, {"force":true});
 }}
 result += end () + "}";
 break;
 case Syntax.SwitchCase:
 result = (node.test ? "case " + child (node.test) : "default") + ":" + end ();
-result += "\t" + array (node.consequent, {"wrap":true});
+result += "\t" + array (node.consequent, "", true);
 break;
 case Syntax.WhileStatement:
 result = "while (" + child (node.test) + ")" + sub (node.body);
@@ -3688,8 +3691,8 @@ result = "for (" + child (node.left).replace (/;$/, "") + " in " + child (node.r
 break;
 case Syntax.TryStatement:
 result = "try " + sub (node.block) + " ";
-{ var _md3irb_38 = node.handlers; for (var _89tlpa6_39 = 0; _89tlpa6_39 < _md3irb_38.length; _89tlpa6_39 ++){
-var handler = _md3irb_38[_89tlpa6_39];
+{ var _649gm9b_37 = node.handlers; for (var _88ms877_38 = 0; _88ms877_38 < _649gm9b_37.length; _88ms877_38 ++){
+var handler = _649gm9b_37[_88ms877_38];
 result += child (handler) + " ";
 }}
 if (node.finalizer)
@@ -3707,8 +3710,10 @@ break;
 case Syntax.Program:
 result = node.body.map (child).join ("\n") + end ();
 break;
-default:throw new Error("Unsupported type: " + node.type + " (" + JSON.stringify (params.parent, false, 4) + ")");
+default:throw new Error("Unsupported type: " + node.type);
 }
+if (params === false)
+throw new Error(node.type + " isn't the simpliest node");
 if (params.first)
 {
 var max = - 1, maxAllowed = 80, indent, begins = [], previous, index = 0;

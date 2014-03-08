@@ -93,6 +93,7 @@
 	F import folders
 	F fix bug with "super"
 	С check "[ from .. to ]" (with variables)
+	- fix "object [(condition ? 'true' : 'false')]" priorities and check others
 	- optimize for "string = '%0%1' ('', '');"
 	- support for chars in string literals like "\u2020"
 	- syntax like "function name (){ ... }()" support

@@ -2,112 +2,113 @@
 var generate = function (){
 	// https://developer.mozilla.org/ru/docs/JavaScript/Reference/Operators/Operator_Precedence
 	var priorities = [
-		[ 
-			Syntax.MemberExpression, 
-			Syntax.NewExpression 
-		],
+			[ 
+				Syntax.MemberExpression, 
+				Syntax.NewExpression 
+			],
 
-		[ 
-			Syntax.CallExpression 
-		],
+			[ 
+				Syntax.CallExpression 
+			],
 
-		[
-			{ type: Syntax.UnaryExpression, operator: '++' },
-			{ type: Syntax.UnaryExpression, operator: '--' },
-		],
+			[
+				{ type: Syntax.UnaryExpression, operator: '++' },
+				{ type: Syntax.UnaryExpression, operator: '--' },
+			],
 
-		[
-			{ type: Syntax.UnaryExpression, operator: '!' },
-			{ type: Syntax.UnaryExpression, operator: '~' },
-			{ type: Syntax.UnaryExpression, operator: '+' },
-			{ type: Syntax.UnaryExpression, operator: '-' },
-			{ type: Syntax.UnaryExpression, operator: 'typeof' },
-			{ type: Syntax.UnaryExpression, operator: 'void' },
-			{ type: Syntax.UnaryExpression, operator: 'delete' },
-		],
+			[
+				{ type: Syntax.UnaryExpression, operator: '!' },
+				{ type: Syntax.UnaryExpression, operator: '~' },
+				{ type: Syntax.UnaryExpression, operator: '+' },
+				{ type: Syntax.UnaryExpression, operator: '-' },
+				{ type: Syntax.UnaryExpression, operator: 'typeof' },
+				{ type: Syntax.UnaryExpression, operator: 'void' },
+				{ type: Syntax.UnaryExpression, operator: 'delete' },
+			],
 
-		[
-			{ type: Syntax.BinaryExpression, operator: '*' },
-			{ type: Syntax.BinaryExpression, operator: '/' },
-			{ type: Syntax.BinaryExpression, operator: '%' }
-		],
+			[
+				{ type: Syntax.BinaryExpression, operator: '*' },
+				{ type: Syntax.BinaryExpression, operator: '/' },
+				{ type: Syntax.BinaryExpression, operator: '%' }
+			],
 
-		[
-			{ type: Syntax.BinaryExpression, operator: '+' },
-			{ type: Syntax.BinaryExpression, operator: '-' }
-		],
+			[
+				{ type: Syntax.BinaryExpression, operator: '+' },
+				{ type: Syntax.BinaryExpression, operator: '-' }
+			],
 
-		[
-			{ type: Syntax.BinaryExpression, operator: '<<' },
-			{ type: Syntax.BinaryExpression, operator: '>>' },
-			{ type: Syntax.BinaryExpression, operator: '>>>' }
-		],
+			[
+				{ type: Syntax.BinaryExpression, operator: '<<' },
+				{ type: Syntax.BinaryExpression, operator: '>>' },
+				{ type: Syntax.BinaryExpression, operator: '>>>' }
+			],
 
-		[
-			{ type: Syntax.BinaryExpression, operator: '<' },
-			{ type: Syntax.BinaryExpression, operator: '<=' },
-			{ type: Syntax.BinaryExpression, operator: '>' },
-			{ type: Syntax.BinaryExpression, operator: '>=' },
-			{ type: Syntax.BinaryExpression, operator: 'in' },
-			{ type: Syntax.BinaryExpression, operator: 'instanceof' }
-		],
+			[
+				{ type: Syntax.BinaryExpression, operator: '<' },
+				{ type: Syntax.BinaryExpression, operator: '<=' },
+				{ type: Syntax.BinaryExpression, operator: '>' },
+				{ type: Syntax.BinaryExpression, operator: '>=' },
+				{ type: Syntax.BinaryExpression, operator: 'in' },
+				{ type: Syntax.BinaryExpression, operator: 'instanceof' }
+			],
 
-		[
-			{ type: Syntax.BinaryExpression, operator: '==' },
-			{ type: Syntax.BinaryExpression, operator: '!=' },
-			{ type: Syntax.BinaryExpression, operator: '===' },
-			{ type: Syntax.BinaryExpression, operator: '!==' }
-		],
+			[
+				{ type: Syntax.BinaryExpression, operator: '==' },
+				{ type: Syntax.BinaryExpression, operator: '!=' },
+				{ type: Syntax.BinaryExpression, operator: '===' },
+				{ type: Syntax.BinaryExpression, operator: '!==' }
+			],
 
-		[
-			{ type: Syntax.BinaryExpression, operator: '&' }
-		],
+			[
+				{ type: Syntax.BinaryExpression, operator: '&' }
+			],
 
-		[
-			{ type: Syntax.BinaryExpression, operator: '^' }
-		],
+			[
+				{ type: Syntax.BinaryExpression, operator: '^' }
+			],
 
-		[
-			{ type: Syntax.BinaryExpression, operator: '|' }
-		],
+			[
+				{ type: Syntax.BinaryExpression, operator: '|' }
+			],
 
-		[
-			{ type: Syntax.LogicalExpression, operator: '&&' }
-		],
+			[
+				{ type: Syntax.LogicalExpression, operator: '&&' }
+			],
 
-		[
-			{ type: Syntax.LogicalExpression, operator: '||' }
-		],
+			[
+				{ type: Syntax.LogicalExpression, operator: '||' }
+			],
 
-		[
-			Syntax.ConditionalExpression
-		],
+			[
+				Syntax.ConditionalExpression
+			],
 
-		[
-			Syntax.AssignmentExpression
-		],
+			[
+				Syntax.AssignmentExpression
+			],
 
-		[
-			Syntax.SequenceExpression
-		]
-	], alotofspaces = lambda (i, s){ i = 0; s = ''; while (i ++ < 150) s += ' '; return s }(), badMode = 0;
+			[
+				Syntax.SequenceExpression
+			]
+		], 
+		alotofspaces = lambda (i, s){ while (i -- > 0) s += ' '; return s }(150, ''),
+		badMode = 0, 
+		comment;
 
-	return function (node, params = { lineBreak: '', comment: {}, first: true }){
+	return function (node, params = { lineBreak: '', first: true }, parent){
+		var result = '', temp;
+
 		console.assert (node && typeof node.type === 'string', 'Bad node');
 
-		if (node.filename && !params.lineNumber){
-			params.comment.filename = node.filename;
-			params.comment.lineNumber = node.lineNumber;
-		}
+		if (!comment && node.filename)
+			comment = node.filename + ':' + node.lineNumber;
 
 		function end (lineBreak){
 			var result = '';
 
-			if (params.comment.lineNumber){
-				result = ' //__ ' + params.comment.filename + ':' + params.comment.lineNumber + '\n';
-
-				delete params.comment.filename;
-				delete params.comment.lineNumber;
+			if (comment){
+				result = ' //__ ' + comment + '\n';
+				comment = null;
 			} else 
 				result = '\n';
 
@@ -117,82 +118,100 @@ var generate = function (){
 			return result; 
 		}
 
+		function simple (obj)
+			return generate (obj, false);
+
 		function child (obj, newParams){
-			return generate (obj, $.extend ({ parent: node, lineBreak: params.lineBreak, parentParams: params, comment: params.comment }, newParams));
+			var temp = {
+				lineBreak: 		params.lineBreak,
+				parentParams: 	params
+			};
+
+			for (var key, value in newParams)
+				temp [key] = value;
+
+			return generate (obj, temp, node);
 		}
 
-		function indent (obj, newParams = {}){
-			var lineBreak = params.lineBreak + '\t';
-			return (newParams.force ? end (lineBreak) : '') + generate (obj, $.extend ({ parent: node, lineBreak: lineBreak, parentParams: params, comment: params.comment }, newParams));
+		function indent (obj, newParams){
+			var lineBreak = params.lineBreak + '\t',
+				temp = {
+					lineBreak: 		lineBreak, 
+					parentParams: 	params
+				};
+
+			for (var key, value in newParams)
+				temp [key] = value;
+
+			if (newParams && newParams.force)
+				return end (lineBreak) + generate (obj, temp, node);
+			else
+				return generate (obj, temp, node);
 		}
 
-		function join (array, fn, by, lineBreak){
-			var result = '';
-
-			for (var index, entry in-array array){
-				if (index > 0)
-					result += by + (lineBreak ? end (lineBreak) : '');
-
-				result += fn (entry, index, array);
-			}
-
-			return result;
-		}
-
-		function array (array, arrayParams){
+		function array (array, joinString, forceWrap, insertSpaces, newParams){
 			if (array.length === 0)
 				return '';
 
-			var fn, lineBreak, result, oneline, temp, backup = $.extend ({}, params.comment);
+			function join (array, fn, joinString, lineBreak){
+				// Пустых массивов быть не может - функция выше их отфильтрует
+				var result = fn (array [0]);
 
-			if (arrayParams.indent !== false){
-				fn = indent;
-				lineBreak = params.lineBreak + '\t';
-			} else {
-				fn = child;
-				lineBreak = params.lineBreak;
+				if (lineBreak){
+					for (var i = 1; i < array.length; i ++)
+						result += joinString + end (lineBreak) + fn (array [i]);
+				} else {
+					for (var i = 1; i < array.length; i ++)
+						result += joinString + fn (array [i]);
+				}
+
+				return result;
 			}
 
-			result = join (array, lambda {
-				var result = fn (arg, arrayParams);
-				if (result.indexOf ('\n') !== -1)
-					oneline = false;
-				return result;
-			}, arrayParams.join || '', lineBreak);
+			var lineBreak = params.lineBreak + '\t', 
+				oneline, 
+				result, 
+				temp = comment;
 
-			if (oneline !== false)
+			// Сгенерируем результат, с переносами
+			result = join (array, lambda {
+				var indented = indent (arg, newParams);
+				if (!forceWrap && indented.indexOf ('\n') !== -1)
+					forceWrap = true;
+				return indented;
+			}, joinString, lineBreak);
+
+			// Если переносы необязательны, попробуем их вырезать
+			if (!forceWrap)
 				oneline = result.replace (/( *\/\/__ [^\n]+)?\n\t*/g, '');
 
-			if (!oneline || oneline.length > 60 || arrayParams.wrap){
-				if (arrayParams.autospaces){
+			// Если же они нужны,  или после их удаления строка остаётся слишком
+			// длинной, оставляем как есть
+			if (forceWrap || !oneline || oneline.length > 60){
+
+				// Если нужно, вставляем переносы в начало и конец
+				if (insertSpaces){
 					temp = end ();
-					result = end (lineBreak) + result + temp;
-				}
+					return end (lineBreak) + result + temp;
+				} else
+					return result;
 			} else {
-				result = oneline;
-				if (arrayParams.autospaces)
-					result = ' ' + result + ' ';
-				$.extend (params.comment, backup);
+				comment = temp;
+
+				// Если нужно, вставляем пробелы
+				if (insertSpaces)
+					return ' ' + oneline + ' ';
+				else
+					return oneline;
 			}
-
-			return result;
 		}
 
-		function sub (obj, newParams){
-			return obj.type === Syntax.BlockStatement ? child (obj) : indent (obj, $.extend ({ force: true }, newParams))
-		}
-
-		function safe (obj, newParams){
-			if (!obj)
-				return '';
-
-			var result = child (obj, newParams);
-			return result + (/[_$a-zA-Z\d]$/.test (result) ? ' ' : '');
-		}
+		function sub (obj, newParams)
+			return obj.type === Syntax.BlockStatement ? child (obj) : indent (obj, { force: true });
 
 		function brackets (string){
 			// Как и с записью ниже - парсинг обычно начинается с «Program», так что родитель должен быть.
-			console.assert (params.parent, 'Not implemented');
+			console.assert (parent, 'Not implemented');
 
 			function index (type, operator){
 				for (var priority, group in-array priorities)
@@ -206,68 +225,69 @@ var generate = function (){
 				return -1;
 			}
 
-			var that = index (node.type, node.operator),
-				parent = index (params.parent.type, params.parent.operator);
+			var nodePriority = index (node.type, node.operator),
+				parentPriority = index (parent.type, parent.operator);
 
-			console.assert (that !== -1, 'Priority not defined (' + node.type + ', "' + node.operator + '")');
+			if (nodePriority === -1)
+				throw new Error ('Priority not defined (' + node.type + ', "' + node.operator + '")');
 
-			if ((!params.array || node.type === Syntax.SequenceExpression) && parent !== -1 && that > parent)
+			if ((!params.array || node.type === Syntax.SequenceExpression) && parentPriority !== -1 && nodePriority > parentPriority)
 				return '(' + string + ')';
 			else
 				return string;
 		}
 
-		var result;
 		switch (node.type){
-			/* Base */
+			/* Simpliest */
 			case Syntax.Identifier:
-				result = node.name;
-				break;
+				return node.name;
 
 			case Syntax.Literal:
 				if (typeof node.value === 'string')
-					result = '\'' + JSON.stringify (node.value).slice (1, -1).replace (/'/g, '\\\'') + '\'';
+					return '\'' + JSON.stringify (node.value).slice (1, -1).replace (/'/g, '\\\'') + '\'';
 				else
-					result = String (node.value);
-				break;
+					return String (node.value);
 
 			case Syntax.Property:
-				result = child (node.key) + ': ' + child (node.value);
-				break;
+				return child (node.key) + ': ' + child (node.value);
+
+			case Syntax.ThisExpression:
+				return 'this';
 
 
 			/* Expressions: Access */
 			case Syntax.MemberExpression:
-				result = child (node.object) + (node.computed ? '[' + child (node.property) + ']' : '.' + child (node.property));
+				result = child (node.object);
+				if (node.computed){
+					if (/\w$/.test (result))
+						result += ' ';
+					result += '[' + child (node.property) + ']';
+				} else
+					result += '.' + simple (node.property);
 				break;
 
-			case Syntax.ThisExpression:
-				result = 'this';
-				break;
 
 			/* Expressions: Calls */
+			case Syntax.NewExpression:
+				result = 'new ';
+
 			case Syntax.CallExpression:
-				var name = safe (node.callee),
-					args = array (node.arguments, { join: ', ', array: true }),
-					match = args.match (/\n\t*/);
-				if (match && match [0].length > params.lineBreak.length + 2)
-					args = args.replace (/\n\t/g, '\n');
-				result = name + '(' + args + ')';
+				result += child (node.callee);
+				result += /\w$/.test (result) ? ' (' : '(';
+				temp = array (node.arguments, ', ', false, false, { array: true });
+				if (temp.match (/\n(\t*)/) && RegExp.$1.length > params.lineBreak.length + 1)
+					temp = temp.replace (/\n\t/g, '\n');
+				result += temp + ')';
 				break;
 
-			case Syntax.NewExpression:
-				var name = safe (node.callee),
-					args = array (node.arguments, { join: ', ', array: true }),
-					match = args.match (/\n\t*/);
-				if (match && match [0].length > params.lineBreak.length + 2)
-					args = args.replace (/\n\t/g, '\n');
-				result = 'new ' + name + '(' + args + ')';
-				break;
 
 			/* Expressions: Operator */
 			case Syntax.UnaryExpression:
 				if (node.prefix){
-					result = node.operator + (node.operator === '!' ? '' : ' ') + child (node.argument);
+					result = node.operator;
+					if (node.operator !== '!')
+						result += ' ';
+					result += child (node.argument);
 				} else
 					result = child (node.argument) + ' ' + node.operator;
 				result = brackets (result);
@@ -287,33 +307,32 @@ var generate = function (){
 				result = brackets (child (node.test) + ' ? ' + child (node.consequent) + ' : ' + child (node.alternate));
 				break;
 
+
 			/* Expressions: Creating */
 			case Syntax.ArrayExpression:
-				if (node.elements.length === 0)
-					result = '[]';
-				else
-					result = '[' + array (node.elements, { join: ', ', autospaces: true }) + ']';
+				result = '[' + array (node.elements, ', ', false, true) + ']';
 				break;
 
 			case Syntax.ObjectExpression:
-				if (node.properties.length === 0)
-					result = '{}';
-				else
-					result = '{' + array (node.properties, { join: ', ', autospaces: true }) + '}';
+				result = '{' + array (node.properties, ', ', false, true) + '}';
 				break;
 
 			case Syntax.FunctionExpression:
-				result = 'function ' + safe (node.id) + '(' + array (node.params, { join: ', ' }) + ')' + child (node.body);
+				if (node.id)
+					result = 'function ' + simple (node.id) + ' (';
+				else
+					result = 'function (';
+				result += array (node.params, ', ') + ')' + child (node.body);
 				break;
 
 
 			/* Declarations */
 			case Syntax.FunctionDeclaration:
-				result = 'function ' + child (node.id) + ' (' + array (node.params, { join: ', ' }) + ')' + child (node.body);
+				result = 'function ' + simple (node.id) + ' (' + array (node.params, ', ') + ')' + child (node.body);
 				break;
 
 			case Syntax.VariableDeclaration:
-				var args = array (node.declarations, { join: ', ' }),
+				var args = array (node.declarations, ', '),
 					match = node.declarations.length === 1 && args.match (/\n\t*/);
 				if (match && match [0].length > params.lineBreak.length + 2)
 					args = args.replace (/\n\t/g, '\n');
@@ -328,9 +347,10 @@ var generate = function (){
 			/* Statements: Base */
 			case Syntax.BlockStatement:
 				result = '{';
+
 				if (node.body.length > 0){
 					result += end () + '\t';
-					result += array (node.body, { wrap: true });
+					result += array (node.body, '', true);
 					result += end ();
 				}
 
@@ -399,7 +419,7 @@ var generate = function (){
 
 			case Syntax.SwitchCase:
 				result = (node.test ? 'case ' + child (node.test) : 'default') + ':' + end ();
-				result += '\t' + array (node.consequent, { wrap: true });
+				result += '\t' + array (node.consequent, '', true);
 				break;
 
 			/* Statements: Loops */
@@ -464,8 +484,11 @@ var generate = function (){
 				break;
 
 			default:
-				throw new Error ('Unsupported type: ' + node.type + ' (' + JSON.stringify (params.parent, false, 4) + ')');
+				throw new Error ('Unsupported type: ' + node.type);
 		}
+
+		if (params === false)
+			throw new Error (node.type + ' isn\'t the simpliest node');
 
 		if (params.first){
 			var max = -1, maxAllowed = 80, indent, begins = [], previous, index = 0;
