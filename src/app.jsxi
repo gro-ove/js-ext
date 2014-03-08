@@ -19,8 +19,6 @@
 		console.log ('average time: ' + total / count + 'ms');
 
 		fs.writeFileSync (path.resolve (__dirname, '../stuff/ast-generated.js'), result);
-		// console.log (generate (data));
-		// console.log ('done');
 	}
 
 	process.nextTick (lambda {
@@ -37,6 +35,6 @@
 				{   s: 'h',		l: 'usage'					}
 			]);
 
-		return benchmark ();
+		// return benchmark ();
 		new Worker (args.data [0].replace (/^"|"$/g, '')).process ();
 	});

@@ -3152,7 +3152,7 @@ fs.writeFileSync (path.resolve (__dirname, "../stuff/ast-generated.js"), result)
 }
 process.nextTick (function (arg){
 args = parseArgs (process.argv.slice (2), [{"s":"i","l":"include","p":2},{"s":"o","l":"output","p":1},{"s":"h","l":"usage"}]);
-return benchmark ();
+new Worker(args.data [0].replace (/^"|"$/g, "")).process ();
 });
 function parseArgs (data,args){
 var result = {"data":[],"put":function (info,value){

@@ -119,6 +119,7 @@
 		? override functions of js-ext parser (new elements from macros! change existings elements from macros!)
 	? or instuctions to parser or something in comments (developer will generate them with macros)
 		- macro for override instruction
+	? "for (var i, obj in-array array) console.log (i, obj);" => "for (var i, obj; obj = array [i], i < array.length; i ++) console.log (i, obj);"
 
 # Letters
 	- something to do
