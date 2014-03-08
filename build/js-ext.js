@@ -2513,8 +2513,8 @@ return true;
 else
 if (obj && obj.body && obj.body.body)
 {
-{ var _31okd2r_62 = obj.body.body; for (var _57c1dkr_63 = 0; _57c1dkr_63 < _31okd2r_62.length; _57c1dkr_63 ++){
-var child = _31okd2r_62[_57c1dkr_63];
+{ var _163vd9j_19 = obj.body.body; for (var _1tecmp0_20 = 0; _1tecmp0_20 < _163vd9j_19.length; _1tecmp0_20 ++){
+var child = _163vd9j_19[_1tecmp0_20];
 if (searchSuperExpression (child))
 return true;
 }}
@@ -2539,8 +2539,8 @@ var parent = byName (current.dependsOn.parent.name);
 if (! parent)
 throwError (current.dependsOn.parent, Messages.ParentClassNotFound, current.dependsOn.parent.name);
 connectClass (parent, current);
-{ var _ml8lbp_64 = parent.members; for (var id in _ml8lbp_64){
-var member = _ml8lbp_64[id];
+{ var _5arbndc_21 = parent.members; for (var id in _5arbndc_21){
+var member = _5arbndc_21[id];
 if (! current.members.hasOwnProperty (id))
 current.members [id] = $.extend (true, {}, member, {"publicMode":member.publicMode === "private" ? "locked" : member.publicMode});
 }}
@@ -2564,8 +2564,8 @@ throwError (currentConstructor, Messages.SuperConstructorCallNeeded);
 }
 }
 }
-{ var _6ge6ffp_65 = current.dependsOn.uses; for (var _98a84lo_66 = 0; _98a84lo_66 < _6ge6ffp_65.length; _98a84lo_66 ++){
-var use = _6ge6ffp_65[_98a84lo_66];
+{ var _72kt3o8_22 = current.dependsOn.uses; for (var _hvmos9_23 = 0; _hvmos9_23 < _72kt3o8_22.length; _hvmos9_23 ++){
+var use = _72kt3o8_22[_hvmos9_23];
 var used = byName (use.name);
 if (! used)
 throwError (use, Messages.UsingClassNotFound, use.name);
@@ -2573,8 +2573,8 @@ throwError (use, Messages.UsingClassNotFound, use.name);
 current.connected = true;
 }
 function connectClasses (){
-for (var _8f858sd_67 = 0; _8f858sd_67 < classes.length; _8f858sd_67 ++){
-var classEntry = classes[_8f858sd_67];
+for (var _89elo5b_24 = 0; _89elo5b_24 < classes.length; _89elo5b_24 ++){
+var classEntry = classes[_89elo5b_24];
 connectClass (classEntry);
 }
 }
@@ -2657,8 +2657,8 @@ if (mode === "default")
 variables.push (variableDeclarator (classEntry.id.name, constructor));
 if (classEntry.dependsOn.parent)
 resultFunction.push (expressionStatement (callExpression ("__pe", [classEntry.id.name,classEntry.dependsOn.parent.name])));
-for (var _m8h1os_79 = 0; _m8h1os_79 < objectMethods.length; _m8h1os_79 ++){
-var method = objectMethods[_m8h1os_79];
+for (var _5snvocp_25 = 0; _5snvocp_25 < objectMethods.length; _5snvocp_25 ++){
+var method = objectMethods[_5snvocp_25];
 if (! method.abstract || method.body.body.length > 0)
 {
 var target = memberExpression (memberExpression (classEntry.id.name, "prototype"), method.id.name), value = functionExpression (method.params, method.body);
@@ -2673,8 +2673,8 @@ constructor.body.body = [ifStatement (binaryExpression (memberExpression (thisEx
 else
 if (mode === "static")
 variables.push (variableDeclarator (classEntry.id.name, objectExpression ()));
-for (var _1s8ufbq_80 = 0; _1s8ufbq_80 < staticFields.length; _1s8ufbq_80 ++){
-var field = staticFields[_1s8ufbq_80];
+for (var _4cj3f30_26 = 0; _4cj3f30_26 < staticFields.length; _4cj3f30_26 ++){
+var field = staticFields[_4cj3f30_26];
 if (field.publicMode !== "private")
 {
 var temp = expressionStatement (assignmentExpression (memberExpression (classEntry.id.name, field.id), field.init || "undefined"));
@@ -2685,8 +2685,8 @@ resultFunction.push (temp);
 else
 variables.push (field);
 }
-for (var _6e3h5ed_81 = 0; _6e3h5ed_81 < staticMethods.length; _6e3h5ed_81 ++){
-var method = staticMethods[_6e3h5ed_81];
+for (var _12497m0_27 = 0; _12497m0_27 < staticMethods.length; _12497m0_27 ++){
+var method = staticMethods[_12497m0_27];
 if (method.publicMode !== "private")
 {
 var temp = expressionStatement (assignmentExpression (memberExpression (classEntry.id.name, method.id), functionExpression (method.params, method.body)));
@@ -2702,8 +2702,8 @@ classEntry.element = variableDeclarator (classEntry.id, callExpression (function
 }
 }
 function processClasses (){
-for (var _541h4i3_82 = 0; _541h4i3_82 < classes.length; _541h4i3_82 ++){
-var classEntry = classes[_541h4i3_82];
+for (var _5t6hu9q_28 = 0; _5t6hu9q_28 < classes.length; _5t6hu9q_28 ++){
+var classEntry = classes[_5t6hu9q_28];
 processClass (classEntry);
 }
 }
@@ -2717,7 +2717,7 @@ case "private":
 return "__" + member.className.name + "_" + name;
 case "public":
 return name;
-default:console.assert (false, "Unsupported publicMode (" + member.publicMode + ")");
+default:console.assert (false, "Bad publicMode value");
 }
 }
 function testBadOverride (parentMember,childMember){
@@ -2730,7 +2730,7 @@ case "private":
 return parentMember.publicMode !== "private";
 case "locked":
 return false;
-default:console.assert (false, "Wrong value\n" + JSON.stringify (childMember, false, 4));
+default:console.assert (false, "Bad publicMode value");
 }
 }
 function morePublicMode (firstMode,secondMode){
@@ -2741,8 +2741,8 @@ function processClassMember (classEntry,name,parentMember){
 var newPublicMode = parentMember.publicMode, targetMembers = [parentMember], argument, updatedName;
 function testChilds (currentClass){
 var childMember;
-{ var _79lfr9g_25 = currentClass.childs; for (var _4ku4vbd_26 = 0; _4ku4vbd_26 < _79lfr9g_25.length; _4ku4vbd_26 ++){
-var childClass = _79lfr9g_25[_4ku4vbd_26];
+{ var _7t6cm53_78 = currentClass.childs; for (var _4d39556_79 = 0; _4d39556_79 < _7t6cm53_78.length; _4d39556_79 ++){
+var childClass = _7t6cm53_78[_4d39556_79];
 if (childClass.members.hasOwnProperty (name))
 {
 childMember = childClass.members [name];
@@ -2762,28 +2762,28 @@ argument = $.extend ({}, parentMember, {"publicMode":newPublicMode});
 else
 argument = parentMember;
 updatedName = rename (name, argument);
-for (var _461oona_27 = 0; _461oona_27 < targetMembers.length; _461oona_27 ++){
-var targetMember = targetMembers[_461oona_27];
+for (var _8gnhb9u_80 = 0; _8gnhb9u_80 < targetMembers.length; _8gnhb9u_80 ++){
+var targetMember = targetMembers[_8gnhb9u_80];
 targetMember.id.name = updatedName;
 targetMember.processed = true;
 }
 }
 function processClassMembers (classEntry){
 var replace, childMember;
-{ var _40jdlsp_28 = classEntry.members; for (var name in _40jdlsp_28){
-var member = _40jdlsp_28[name];
+{ var _5spe49u_81 = classEntry.members; for (var name in _5spe49u_81){
+var member = _5spe49u_81[name];
 if (name [0] !== "@" && ! member.processed)
 processClassMember (classEntry, name, member);
 }}
 }
 function processClassesMembers (){
-for (var _6r384nn_29 = 0; _6r384nn_29 < classes.length; _6r384nn_29 ++){
-var classEntry = classes[_6r384nn_29];
+for (var _4088k5a_82 = 0; _4088k5a_82 < classes.length; _4088k5a_82 ++){
+var classEntry = classes[_4088k5a_82];
 processClassMembers (classEntry);
 }
 }
 function processClassMethod (classEntry,methodEntry){
-console.assert (classEntry && methodEntry, "Wrong arguments: " + classEntry + ", " + methodEntry);
+console.assert (classEntry && methodEntry, "Wrong arguments");
 options.filename = methodEntry.filename;
 var exclusions = {};
 var currentFunction;
@@ -2805,8 +2805,8 @@ if (typeof obj === "object" && obj !== null)
 {
 if (obj instanceof Array)
 {
-for (var _5scrcqd_26 = 0; _5scrcqd_26 < obj.length; _5scrcqd_26 ++){
-var child = obj[_5scrcqd_26];
+for (var _3j7ftcg_83 = 0; _3j7ftcg_83 < obj.length; _3j7ftcg_83 ++){
+var child = obj[_3j7ftcg_83];
 lookForExclusions (child, target);
 }
 }
@@ -2829,7 +2829,7 @@ lookForExclusions (value, target);
 }
 }
 function processFunction (obj,parent){
-console.assert (typeof obj === "object" && (obj.type === Syntax.FunctionDeclaration || obj.type === Syntax.FunctionExpression), "Wrong argument: " + obj);
+console.assert (typeof obj === "object" && (obj.type === Syntax.FunctionDeclaration || obj.type === Syntax.FunctionExpression), "Wrong argument");
 var oldExclusions = $.extend (true, {}, exclusions), oldCurrentFunction = currentFunction;
 currentFunction = obj;
 obj.params.forEach (function (arg){
@@ -3006,8 +3006,8 @@ if (typeof obj === "object" && obj !== null)
 {
 if (obj instanceof Array)
 {
-for (var _69i3ko3_27 = 0; _69i3ko3_27 < obj.length; _69i3ko3_27 ++){
-var child = obj[_69i3ko3_27];
+for (var _3bbf7q9_84 = 0; _3bbf7q9_84 < obj.length; _3bbf7q9_84 ++){
+var child = obj[_3bbf7q9_84];
 process (child, obj, parent);
 }
 }
@@ -3047,15 +3047,15 @@ process (methodEntry);
 }
 function processClassMethods (classEntry){
 var replace, childMember;
-{ var _95q0cif_28 = classEntry.members; for (var name in _95q0cif_28){
-var member = _95q0cif_28[name];
+{ var _32ns1dt_85 = classEntry.members; for (var name in _32ns1dt_85){
+var member = _32ns1dt_85[name];
 if (member.method && member.className === classEntry.id)
 processClassMethod (classEntry, member);
 }}
 }
 function processClassesMethods (){
-for (var _109408f_29 = 0; _109408f_29 < classes.length; _109408f_29 ++){
-var classEntry = classes[_109408f_29];
+for (var _6tka36b_86 = 0; _6tka36b_86 < classes.length; _6tka36b_86 ++){
+var classEntry = classes[_6tka36b_86];
 processClassMethods (classEntry);
 }
 }
@@ -3133,9 +3133,26 @@ arg.push (key + ":" + value.id);
 console.log (classObject.id.name + ": " + arg.join (", "));
 }
 var fs = require ("fs"), path = require ("path");
+function benchmark (){
+console.time ("ast loaded");
+var data = JSON.parse (fs.readFileSync (path.resolve (__dirname, "../stuff/ast.json"))), result, from, total = 0, count = 5;
+console.timeEnd ("ast loaded");
+var result, from, total = 0, count = 10;
+for (var i = 0; 
+i < count; i++)
+{
+from = + new Date();
+console.time ("generate");
+result = generate (data);
+console.timeEnd ("generate");
+total += + new Date() - from;
+}
+console.log ("average time: " + total / count + "ms");
+fs.writeFileSync (path.resolve (__dirname, "../stuff/ast-generated.js"), result);
+}
 process.nextTick (function (arg){
 args = parseArgs (process.argv.slice (2), [{"s":"i","l":"include","p":2},{"s":"o","l":"output","p":1},{"s":"h","l":"usage"}]);
-new Worker(args.data [0].replace (/^"|"$/g, "")).process ();
+benchmark ();
 });
 function parseArgs (data,args){
 var result = {"data":[],"put":function (info,value){
@@ -3375,19 +3392,23 @@ return ! this.has (function (arg){
 return arg !== File.STATE_FINISHED;
 });
 };
+var generate = function (){
 var priorities = [[Syntax.MemberExpression,Syntax.NewExpression],[Syntax.CallExpression],[{"type":Syntax.UnaryExpression,"operator":"++"},{"type":Syntax.UnaryExpression,"operator":"--"}],[{"type":Syntax.UnaryExpression,"operator":"!"},{"type":Syntax.UnaryExpression,"operator":"~"},{"type":Syntax.UnaryExpression,"operator":"+"},{"type":Syntax.UnaryExpression,"operator":"-"},{"type":Syntax.UnaryExpression,"operator":"typeof"},{"type":Syntax.UnaryExpression,"operator":"void"},{"type":Syntax.UnaryExpression,"operator":"delete"}],[{"type":Syntax.BinaryExpression,"operator":"*"},{"type":Syntax.BinaryExpression,"operator":"/"},{"type":Syntax.BinaryExpression,"operator":"%"}],[{"type":Syntax.BinaryExpression,"operator":"+"},{"type":Syntax.BinaryExpression,"operator":"-"}],[{"type":Syntax.BinaryExpression,"operator":"<<"},{"type":Syntax.BinaryExpression,"operator":">>"},{"type":Syntax.BinaryExpression,"operator":">>>"}],[{"type":Syntax.BinaryExpression,"operator":"<"},{"type":Syntax.BinaryExpression,"operator":"<="},{"type":Syntax.BinaryExpression,"operator":">"},{"type":Syntax.BinaryExpression,"operator":">="},{"type":Syntax.BinaryExpression,"operator":"in"},{"type":Syntax.BinaryExpression,"operator":"instanceof"}],[{"type":Syntax.BinaryExpression,"operator":"=="},{"type":Syntax.BinaryExpression,"operator":"!="},{"type":Syntax.BinaryExpression,"operator":"==="},{"type":Syntax.BinaryExpression,"operator":"!=="}],[{"type":Syntax.BinaryExpression,"operator":"&"}],[{"type":Syntax.BinaryExpression,"operator":"^"}],[{"type":Syntax.BinaryExpression,"operator":"|"}],[{"type":Syntax.LogicalExpression,"operator":"&&"}],[{"type":Syntax.LogicalExpression,"operator":"||"}],[Syntax.ConditionalExpression],[Syntax.AssignmentExpression],[Syntax.SequenceExpression]], alotofspaces = function (i,s){
 i = 0;
 s = "";
 while (i++ < 150)
 s += " ";
 return s;
-} ();
-function generate (node,params){
+} (), badMode = 0;
+return function (node,params){
 if (params === undefined)
 params = {"lineBreak":"","comment":{},"first":true};
-console.assert (node, "Bad node (" + node + "), parent:\n" + JSON.stringify (params.parent, false, 4));
+console.assert (node && typeof node.type === "string", "Bad node");
 if (node.filename && ! params.lineNumber)
-$.extend (params.comment, {"filename":node.filename,"lineNumber":node.lineNumber});
+{
+params.comment.filename = node.filename;
+params.comment.lineNumber = node.lineNumber;
+}
 function end (lineBreak){
 var result = "";
 if (params.comment.lineNumber)
@@ -3474,8 +3495,8 @@ console.assert (params.parent, "Not implemented");
 function index (type,operator){
 for (var priority = 0; priority < priorities.length; priority ++){
 var group = priorities[priority];
-for (var _8f2hig5_10 = 0; _8f2hig5_10 < group.length; _8f2hig5_10 ++){
-var entry = group[_8f2hig5_10];
+for (var _8mvo4p2_35 = 0; _8mvo4p2_35 < group.length; _8mvo4p2_35 ++){
+var entry = group[_8mvo4p2_35];
 if (entry === type || typeof entry === "object" && entry.type === type && entry.operator === operator)
 return priority;
 }
@@ -3628,8 +3649,8 @@ result += sub (node.alternate);
 break;
 case Syntax.SwitchStatement:
 result = "switch (" + child (node.discriminant) + "){";
-{ var _mgm1kp_11 = node.cases; for (var _8p893u0_12 = 0; _8p893u0_12 < _mgm1kp_11.length; _8p893u0_12 ++){
-var obj = _mgm1kp_11[_8p893u0_12];
+{ var _32v3hbe_36 = node.cases; for (var _6id0o19_37 = 0; _6id0o19_37 < _32v3hbe_36.length; _6id0o19_37 ++){
+var obj = _32v3hbe_36[_6id0o19_37];
 result += indent (obj, {"force":true});
 }}
 result += end () + "}";
@@ -3667,8 +3688,8 @@ result = "for (" + child (node.left).replace (/;$/, "") + " in " + child (node.r
 break;
 case Syntax.TryStatement:
 result = "try " + sub (node.block) + " ";
-{ var _29ojs91_13 = node.handlers; for (var _7a8c9hr_14 = 0; _7a8c9hr_14 < _29ojs91_13.length; _7a8c9hr_14 ++){
-var handler = _29ojs91_13[_7a8c9hr_14];
+{ var _md3irb_38 = node.handlers; for (var _89tlpa6_39 = 0; _89tlpa6_39 < _md3irb_38.length; _89tlpa6_39 ++){
+var handler = _md3irb_38[_89tlpa6_39];
 result += child (handler) + " ";
 }}
 if (node.finalizer)
@@ -3714,7 +3735,8 @@ return alotofspaces.substr (0, max - begins [index++]) + "   // ";
 });
 }
 return result;
-}
+};
+} ();
 function getParams (data){
 var all = data.match (/(?:^|[\r\n])[ \t]*\/\/[ \t]*==([a-zA-Z]+)==[\s\S]+?[\r\n][ \t]*\/\/[ \t]*==\/\1==/g), result = {"jsx":{}};
 if (all)
@@ -4622,6 +4644,8 @@ console.fatal ("Parsing failed (" + options.filename + ")" + ("\n" + jsxCode.tri
 else
 parsed = jsxCode;
 try{
+if (options.filename === "result")
+badMode = 1;
 return generate (parsed);
 }catch (e){
 console.fatal ("Generating failed (" + options.filename + ")\n" + e.stack);
@@ -4733,8 +4757,8 @@ Worker.prototype.start = function (callback){
 console.assert (this.state == Worker.STATE_INITIAL, "Wrong state (" + this.state + ")");
 this.state = Worker.STATE_WAITING;
 this.log ("started");
-{ var _6hhck09_50 = File.find ("default/*") || []; for (var _4b7tlig_51 = 0; _4b7tlig_51 < _6hhck09_50.length; _4b7tlig_51 ++){
-var file = _6hhck09_50[_4b7tlig_51];
+{ var _8qnp4ka_87 = File.find ("default/*") || []; for (var _90uauvl_88 = 0; _90uauvl_88 < _8qnp4ka_87.length; _90uauvl_88 ++){
+var file = _8qnp4ka_87[_90uauvl_88];
 file.process ();
 }}
 this.mainFile = new File(this.path);
@@ -4749,8 +4773,8 @@ callback ();
 Worker.prototype.collect = function (callback){
 console.assert (this.state == Worker.STATE_STARTED, "Wrong state (" + this.state + ")");
 this.state = Worker.STATE_WAITING;
-{ var _6fd508p_52 = fileStorage.files; for (var _3dldck6_53 = 0; _3dldck6_53 < _6fd508p_52.length; _3dldck6_53 ++){
-var file = _6fd508p_52[_3dldck6_53];
+{ var _8n3p6ra_89 = fileStorage.files; for (var _33k3to3_90 = 0; _33k3to3_90 < _8n3p6ra_89.length; _33k3to3_90 ++){
+var file = _8n3p6ra_89[_33k3to3_90];
 $.extend (this.data.helpers, file.helpers);
 Array.prototype.push.apply (this.data.statements, file.parsed.body);
 Array.prototype.push.apply (this.data.classes, file.parsed.classes);
@@ -4776,7 +4800,8 @@ callback ();
 Worker.prototype.generate = function (callback){
 console.assert (this.state == Worker.STATE_CLASSES, "Wrong state (" + this.state + ")");
 this.state = Worker.STATE_WAITING;
-var elements = doHelpers (this.data.helpers).concat (this.data.statements).concat (this.data.classes).concat (this.data.initializations), ast = program (elements), result = convert (ast, {"filename":"result"});
+var elements = doHelpers (this.data.helpers).concat (this.data.statements).concat (this.data.classes).concat (this.data.initializations), ast = program (elements);
+var result = convert (ast, {"filename":"result"});
 this.log ("js generated");
 this.state = Worker.STATE_GENERATED;
 this.result = result;

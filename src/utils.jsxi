@@ -28,6 +28,8 @@ function convert (jsxCode, options){
 		parsed = jsxCode;
 
 	try {
+		if (options.filename === 'result')
+			badMode = 1;
 		return generate (parsed);
 	} catch 
 		console.fatal ('Generating failed (' + options.filename + ')\n' 

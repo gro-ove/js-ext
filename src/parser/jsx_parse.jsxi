@@ -16,6 +16,8 @@ function jsxParse (code, args, callback){
 	helpers 		= new HelpersManager ();
 
 	var result = parseProgram ();
+
+	// TODO: Reset variables like "lineNumber"
 	
 	if (typeof callback === 'function')
 		callback (result, helpers.helpers);

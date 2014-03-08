@@ -15,7 +15,7 @@ function rename (name, member){
 			return name;
 
 		default:
-			console.assert (false, 'Unsupported publicMode (' + member.publicMode + ')');
+			console.assert (false, 'Bad publicMode value');
 	}
 }
 
@@ -39,7 +39,7 @@ function testBadOverride (parentMember, childMember)
 			return false;
 
 		default:
-			console.assert (false, 'Wrong value\n' + JSON.stringify (childMember, false, 4));
+			console.assert (false, 'Bad publicMode value');
 	}
 
 function morePublicMode (firstMode, secondMode){

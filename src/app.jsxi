@@ -1,6 +1,28 @@
 	var fs 				= require ('fs'), 
 		path 			= require ('path');
 
+	function benchmark (){
+		console.time ('ast loaded');
+		var data = JSON.parse (fs.readFileSync (path.resolve (__dirname, '../stuff/ast.json'))), result, from, total = 0, count = 5;
+		console.timeEnd ('ast loaded');
+
+		var result, from, total = 0, count = 10;
+
+		for (var i = 0; i < count; i ++){
+			from = +new Date;
+			console.time ('generate');
+			result = generate (data);
+			console.timeEnd ('generate');
+			total += +new Date - from;
+		}
+
+		console.log ('average time: ' + total / count + 'ms');
+
+		fs.writeFileSync (path.resolve (__dirname, '../stuff/ast-generated.js'), result);
+		// console.log (generate (data));
+		// console.log ('done');
+	}
+
 	process.nextTick (lambda {
 		args = parseArgs (process.argv.slice (2), [
 				// Атрибуты: 
@@ -9,11 +31,12 @@
 				// 		p - есть ли параметры (1 - не больше одного, 2 - сколько угодно)
 				// TODO: Сделать нормально
 				// TODO: Сделать всё нормально
-				// TODO: Переделать всё. Нормально.
+				// TODO: Переделать всё
 				{ 	s: 'i', 	l: 'include', 	p: 2		},
 				{ 	s: 'o', 	l: 'output',  	p: 1		},
 				{   s: 'h',		l: 'usage'					}
 			]);
 
-		new Worker (args.data [0].replace (/^"|"$/g, '')).process ();
+		benchmark ();
+		// new Worker (args.data [0].replace (/^"|"$/g, '')).process ();
 	});

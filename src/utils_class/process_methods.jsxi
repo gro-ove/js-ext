@@ -1,6 +1,6 @@
 // Обработка метода класса
 function processClassMethod (classEntry, methodEntry){
-	console.assert (classEntry && methodEntry, 'Wrong arguments: ' + classEntry + ', ' + methodEntry);
+	console.assert (classEntry && methodEntry, 'Wrong arguments');
 
 	options.filename = methodEntry.filename;
 
@@ -57,7 +57,7 @@ function processClassMethod (classEntry, methodEntry){
 	// Обработка функции
 	function processFunction (obj, parent){
 		console.assert (typeof obj === 'object' 
-			&& (obj.type === Syntax.FunctionDeclaration || obj.type === Syntax.FunctionExpression), 'Wrong argument: ' + obj);
+			&& (obj.type === Syntax.FunctionDeclaration || obj.type === Syntax.FunctionExpression), 'Wrong argument');
 
 		// Сохраняем текущие значения, а после переустанавливаем на свои
 		var oldExclusions = $.extend (true, {}, exclusions),
