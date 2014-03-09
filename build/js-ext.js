@@ -1676,7 +1676,7 @@ expr = parseExpression ();
 if (expr.type === Syntax.Identifier && match (":"))
 {
 lex ();
-return labeledStatement (expr, parseStatement ());
+return mark (labeledStatement (expr, parseStatement ()), token);
 }
 consumeSemicolon ();
 return mark (expressionStatement (expr), token);
