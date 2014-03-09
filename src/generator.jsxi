@@ -84,18 +84,28 @@ var niceMode = true,
 				function join (array, fn, joinString){
 					// Пустых массивов  быть не может - функция выше их отфильт-
 					// рует
-					var result = fn (array [0]);
+					var result = fn (array [0], 0);
 
 					for (var i = 1; i < array.length; i ++)
-						result += joinString + end () + '\t' + fn (array [i]);
+						result += joinString + end () + '\t' + fn (array [i], i);
 
 					return result;
 				}
 
 				var oneline, 
 					temp = comment, 
-					result = join (array, lambda {
-						var indented = generate (arg, tabs + '\t', array);
+					localTabs = tabs + '\t',
+					previous,
+					result = join (array, forceWrap ? lambda (arg, index){
+						var indented = generate (arg, localTabs, array);
+						if (previous !== arg.type || arg.type !== Syntax.ExpressionStatement){
+							previous = arg.type;
+							if (index > 0)
+								return '\n' + localTabs + indented;
+						}
+						return indented;
+					} : lambda {
+						var indented = generate (arg, localTabs, array);
 						if (!forceWrap && indented.indexOf ('\n') !== -1)
 							forceWrap = true;
 						return indented;
@@ -116,6 +126,7 @@ var niceMode = true,
 					} else
 						return result;
 				} else {
+					// Восстанавливаем комментарий
 					comment = temp;
 
 					// Если нужно, вставляем пробелы
