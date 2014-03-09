@@ -313,9 +313,7 @@ if (obj && obj.lineNumber)
 return $.extend (obj, {"filename":options.filename});
 }
 else
-{
 return $.extend (obj || {}, {"filename":options.filename,"lineNumber":lineNumber,"lineStart":lineStart,"index":index});
-}
 }
 function literal (value){
 return typeof value === "object" && value !== null ? {"type":Syntax.Literal,"value":value.value,"lineNumber":value.lineNumber,"filename":options.filename} : mark ({"type":Syntax.Literal,"value":value});
@@ -326,17 +324,17 @@ return typeof arg === "string" ? mark ({"type":Syntax.Identifier,"name":arg}) : 
 function property (key,value,kind){
 if (kind === undefined)
 kind = "init";
-return mark ({"type":Syntax.Property,"key":identifier (key),"value":identifier (value),"kind":kind});
+return {"type":Syntax.Property,"key":identifier (key),"value":identifier (value),"kind":kind};
 }
 function objectExpression (properties){
 if (properties === undefined)
 properties = [];
-return mark ({"type":Syntax.ObjectExpression,"properties":properties});
+return {"type":Syntax.ObjectExpression,"properties":properties};
 }
 function memberExpression (obj,property,computed){
 if (computed === undefined)
 computed = false;
-return mark ({"type":Syntax.MemberExpression,"computed":computed,"object":identifier (obj),"property":identifier (property)});
+return {"type":Syntax.MemberExpression,"computed":computed,"object":identifier (obj),"property":identifier (property)};
 }
 function callExpression (name,arguments){
 if (arguments === undefined)
@@ -350,7 +348,7 @@ else
 if (obj.type === Syntax.ObjectExpression && obj.properties.length === 0)
 name.object.object = memberExpression ("Object", "prototype");
 }
-return mark ({"type":Syntax.CallExpression,"callee":identifier (name),"arguments":arguments.map (identifier)});
+return {"type":Syntax.CallExpression,"callee":identifier (name),"arguments":arguments.map (identifier)};
 }
 function superExpression (name,args,level){
 return {"type":Syntax.CallExpression,"callee":identifier (name),"arguments":args || null,"super":level || 1};
@@ -359,32 +357,32 @@ function thisExpression (){
 return mark ({"type":Syntax.ThisExpression});
 }
 function arrayExpression (elements){
-return mark ({"type":Syntax.ArrayExpression,"elements":elements});
+return {"type":Syntax.ArrayExpression,"elements":elements};
 }
 function assignmentExpression (left,operator,right){
-return mark (typeof operator !== "string" || operator [operator.length - 1] !== "=" ? {"type":Syntax.AssignmentExpression,"operator":"=","left":identifier (left),"right":identifier (operator)} : {"type":Syntax.AssignmentExpression,"operator":operator,"left":identifier (left),"right":identifier (right)});
+return typeof operator !== "string" || operator [operator.length - 1] !== "=" ? {"type":Syntax.AssignmentExpression,"operator":"=","left":identifier (left),"right":identifier (operator)} : {"type":Syntax.AssignmentExpression,"operator":operator,"left":identifier (left),"right":identifier (right)};
 }
 function newExpression (callee,args){
 if (args === undefined)
 args = [];
-return mark ({"type":Syntax.NewExpression,"callee":identifier (callee),"arguments":args.map (identifier)});
+return {"type":Syntax.NewExpression,"callee":identifier (callee),"arguments":args.map (identifier)};
 }
 function sequenceExpression (expressions){
-return mark ({"type":Syntax.SequenceExpression,"expressions":expressions});
+return {"type":Syntax.SequenceExpression,"expressions":expressions};
 }
 function conditionalExpression (test,trueExpression,falseExpression){
-return mark ({"type":Syntax.ConditionalExpression,"test":test,"consequent":identifier (trueExpression),"alternate":identifier (falseExpression)});
+return {"type":Syntax.ConditionalExpression,"test":test,"consequent":identifier (trueExpression),"alternate":identifier (falseExpression)};
 }
 function logicalExpression (left,operator,right){
-return mark ({"type":Syntax.LogicalExpression,"operator":operator,"left":identifier (left),"right":identifier (right)});
+return {"type":Syntax.LogicalExpression,"operator":operator,"left":identifier (left),"right":identifier (right)};
 }
 function binaryExpression (left,operator,right){
-return mark ({"type":Syntax.BinaryExpression,"operator":operator,"left":identifier (left),"right":identifier (right)});
+return {"type":Syntax.BinaryExpression,"operator":operator,"left":identifier (left),"right":identifier (right)};
 }
 function unaryExpression (argument,operator,prefix){
 if (prefix === undefined)
 prefix = false;
-return mark ({"type":Syntax.UnaryExpression,"operator":operator,"argument":identifier (argument),"prefix":prefix});
+return {"type":Syntax.UnaryExpression,"operator":operator,"argument":identifier (argument),"prefix":prefix};
 }
 function blockStatement (body,single){
 if (body === undefined)
@@ -392,39 +390,39 @@ body = [];
 return body instanceof Array ? {"type":Syntax.BlockStatement,"body":body,"single":single} : body;
 }
 function expressionStatement (expression){
-return mark ({"type":Syntax.ExpressionStatement,"expression":expression});
+return {"type":Syntax.ExpressionStatement,"expression":expression};
 }
 function ifStatement (test,trueStatement,falseStatement){
 if (falseStatement === undefined)
 falseStatement = null;
-return mark ({"type":Syntax.IfStatement,"test":identifier (test),"consequent":trueStatement,"alternate":falseStatement});
+return {"type":Syntax.IfStatement,"test":identifier (test),"consequent":trueStatement,"alternate":falseStatement};
 }
 function whileStatement (test,body){
-return mark ({"type":Syntax.WhileStatement,"test":test,"body":body});
+return {"type":Syntax.WhileStatement,"test":test,"body":body};
 }
 function doWhileStatement (body,test){
-return mark ({"type":Syntax.DoWhileStatement,"body":body,"test":test});
+return {"type":Syntax.DoWhileStatement,"body":body,"test":test};
 }
 function doWhileStatement (body,test){
-return mark ({"type":Syntax.DoWhileStatement,"body":body,"test":test});
+return {"type":Syntax.DoWhileStatement,"body":body,"test":test};
 }
 function forStatement (left,test,update,body){
-return mark ({"type":Syntax.ForStatement,"init":left,"test":test,"update":update,"body":blockStatement (body)});
+return {"type":Syntax.ForStatement,"init":left,"test":test,"update":update,"body":blockStatement (body)};
 }
 function forInStatement (left,right,body){
-return mark ({"type":Syntax.ForInStatement,"left":left,"right":right,"body":body,"each":false});
+return {"type":Syntax.ForInStatement,"left":left,"right":right,"body":body,"each":false};
 }
 function labeledStatement (label,statement){
-return mark ({"type":Syntax.LabeledStatement,"label":identifier (label),"body":statement});
+return {"type":Syntax.LabeledStatement,"label":identifier (label),"body":statement};
 }
 function catchClause (param,body){
-return mark ({"type":Syntax.CatchClause,"param":identifier (param),"body":body});
+return {"type":Syntax.CatchClause,"param":identifier (param),"body":body};
 }
 function tryStatement (block,handlers,finalizer){
-return mark ({"type":Syntax.TryStatement,"block":block,"guardedHandlers":[],"handlers":handlers,"finalizer":finalizer});
+return {"type":Syntax.TryStatement,"block":block,"guardedHandlers":[],"handlers":handlers,"finalizer":finalizer};
 }
 function returnStatement (arg){
-return mark ({"type":Syntax.ReturnStatement,"argument":identifier (arg)});
+return {"type":Syntax.ReturnStatement,"argument":identifier (arg)};
 }
 function throwStatement (arg){
 return mark ({"type":Syntax.ThrowStatement,"argument":identifier (arg)});
@@ -454,10 +452,10 @@ params = [];
 return {"type":Syntax.FunctionDeclaration,"id":identifier (name),"params":params.map (identifier),"defaults":[],"body":blockStatement (body),"rest":null,"generator":false,"expression":false,"number":name + tempId++};
 }
 function variableDeclarator (name,value){
-return mark ({"type":Syntax.VariableDeclarator,"id":identifier (name),"init":identifier (value)});
+return {"type":Syntax.VariableDeclarator,"id":identifier (name),"init":identifier (value)};
 }
 function variableDeclaration (variables){
-return mark ({"type":Syntax.VariableDeclaration,"declarations":variables,"kind":"var"});
+return {"type":Syntax.VariableDeclaration,"declarations":variables,"kind":"var"};
 }
 function program (elements,classes,initializations){
 return {"type":Syntax.Program,"body":elements,"classes":classes,"initializations":initializations};
@@ -541,19 +539,20 @@ list.push (parseStatement ());
 return list;
 }
 function parseBlock (){
-var block, oldPreventSequence = state.preventSequence;
+var block, oldPreventSequence = state.preventSequence, token = lookahead ();
 state.preventSequence = false;
 expect ("{");
 block = parseStatementList ();
 expect ("}");
 state.preventSequence = oldPreventSequence;
-return blockStatement (block);
+return mark (blockStatement (block), token);
 }
 function parseBlockOrNotBlock (){
-if (match ("{"))
+var token = lookahead ();
+if (token.value === "{")
 return parseBlock ();
 else
-return blockStatement ([parseStatement ()], true);
+return mark (blockStatement ([parseStatement ()], true), token);
 }
 function parseClassIdentifier (){
 return mark (parseVariableIdentifier ());
@@ -1254,8 +1253,9 @@ expect ("]");
 return temp;
 }
 function parseNewExpression (){
+var token = lookahead ();
 expectKeyword ("new");
-return newExpression (parseLeftHandSideExpression (), match ("(") ? parseArguments () : []);
+return mark (newExpression (parseLeftHandSideExpression (), match ("(") ? parseArguments () : []), token);
 }
 function parseLeftHandSideExpressionTemp (){
 return matchKeyword ("new") ? parseNewExpression () : matchKeyword ("super") ? parseSuperExpression () : parsePrimaryExpression ();
@@ -1469,8 +1469,12 @@ return index % 2 ? args [+ value] : literal (value);
 }).filter (function (arg,index,array){
 if (arg.type !== Syntax.Literal || typeof arg.value !== "string")
 return true;
-var previous = array [index - 1];
-if (previous && previous.type === Syntax.Literal && typeof previous.value === "string")
+if (index > 0 && arg.type === Syntax.Literal && arg.value === "")
+return false;
+for (var i = index - 1, previous; 
+i >= 0 && array [i].type === Syntax.Literal && typeof array [i].value === "string"; i--)
+previous = array [i];
+if (previous)
 {
 previous.value = previous.value + arg.value;
 return false;
@@ -1479,8 +1483,6 @@ else
 return true;
 });
 result = splitted [0];
-if (typeof result.value !== "string")
-result = binaryExpression (literal (""), "+", result);
 for (var i = 1; 
 i < splitted.length; i++)
 result = binaryExpression (result, "+", splitted [i]);
@@ -1550,8 +1552,6 @@ case "interface":
 return parseClassDeclaration ();
 case "function":
 return parseFunctionDeclaration ();
-default:if (token.type === Token.Keyword)
-return parseStatement ();
 }
 if (options.initializationAllowed && token.type === Token.Punctuator && (token.value === "(" || token.value === "{"))
 {
@@ -1594,13 +1594,13 @@ return true;
 return program (sourceElements, state.classes, initializations);
 }
 function parseStatement (){
-var token = lookahead (), expr, saved;
+var token = lookahead (), expr, saved, result;
 if (token.type === Token.EOF)
 throwUnexpected (token);
 if (token.type === Token.Punctuator)
 switch (token.value){
 case ";":
-return parseEmptyStatement ();
+return mark (parseEmptyStatement (), token);
 case "{":
 try{
 saved = saveAll ();
@@ -1623,36 +1623,53 @@ return expressionStatement (callExpression (memberExpression ("console", "warn")
 }
 }
 if (token.type === Token.Keyword)
+{
 switch (token.value){
 case "function":
 return parseFunctionDeclaration ();
-case "break":
-return parseBreakStatement ();
-case "continue":
-return parseContinueStatement ();
-case "debugger":
-return parseDebuggerStatement ();
-case "do":
-return parseDoWhileStatement ();
-case "for":
-return parseForStatement ();
 case "if":
-return parseIfStatement ();
-case "return":
-return parseReturnStatement ();
-case "switch":
-return parseSwitchStatement ();
-case "throw":
-return parseThrowStatement ();
-case "try":
-return parseTryStatement ();
+result = parseIfStatement ();
+break;
 case "var":
-return parseVariableStatement ();
+result = parseVariableStatement ();
+break;
+case "do":
+result = parseDoWhileStatement ();
+break;
+case "for":
+result = parseForStatement ();
+break;
+case "return":
+result = parseReturnStatement ();
+break;
+case "switch":
+result = parseSwitchStatement ();
+break;
+case "throw":
+result = parseThrowStatement ();
+break;
+case "try":
+result = parseTryStatement ();
+break;
 case "while":
-return parseWhileStatement ();
+result = parseWhileStatement ();
+break;
 case "with":
-return parseWithStatement ();
+result = parseWithStatement ();
+break;
+case "break":
+result = parseBreakStatement ();
+break;
+case "continue":
+result = parseContinueStatement ();
+break;
+case "debugger":
+result = parseDebuggerStatement ();
+break;
 default:break;
+}
+if (result)
+return mark (result, token);
 }
 expr = parseExpression ();
 if (expr.type === Syntax.Identifier && match (":"))
@@ -1661,13 +1678,13 @@ lex ();
 return labeledStatement (expr, parseStatement ());
 }
 consumeSemicolon ();
-return expressionStatement (expr);
+return mark (expressionStatement (expr), token);
 }
 function parseSuperExpression (){
-var level = 1, name = null, temp, from = mark ();
+var level = 1, name = null, temp, token = lookahead ();
 expectKeyword ("super");
 if (! state.superAvailable)
-throwError (lookahead (), "Super can be used in class functions only");
+throwError (token, "Super can be used in class functions only");
 while (match ("."))
 {
 lex ();
@@ -1682,7 +1699,7 @@ name = parseClassIdentifier ();
 break;
 }
 }
-return mark (superExpression (name, match ("(") ? parseArguments () : null, level), from);
+return mark (superExpression (name, match ("(") ? parseArguments () : null, level), token);
 }
 function parseSwitchCase (){
 var test, consequent = [], statement;
@@ -1792,13 +1809,13 @@ throwUnexpected (token);
 return identifier (token.value);
 }
 function parseVariableDeclaration (kind){
-var id = parseVariableIdentifier (), init = null;
+var token = lookahead (), id = parseVariableIdentifier (), init = null;
 if (match ("="))
 {
 lex ();
 init = parseAssignmentExpression ();
 }
-return variableDeclarator (id, init);
+return mark (variableDeclarator (id, init), token);
 }
 function parseVariableDeclarationList (kind){
 var list = [];
@@ -3167,7 +3184,6 @@ fs.writeFileSync (output, result);
 }
 process.nextTick (function (arg){
 args = parseArgs (process.argv.slice (2), [{"s":"i","l":"include","p":2},{"s":"o","l":"output","p":1},{"s":"h","l":"usage"}]);
-return benchmark (path.resolve (__dirname, "../tests/ast.json"), path.resolve (__dirname, "../tests/ast-generated.js"));
 new Worker(args.data [0].replace (/^"|"$/g, "")).process ();
 });
 function parseArgs (data,args){
@@ -3579,7 +3595,7 @@ case Syntax.FunctionDeclaration:
 return "function " + child (node.id) + " (" + mapArray (node.params, ", ") + ")" + child (node.body);
 case Syntax.VariableDeclaration:
 temp = mapArray (node.declarations, ", ");
-if (node.declarations.length > 0 && temp.match (/\n(\t*)/) && RegExp.$1.length > tabs.length + 1)
+if (node.declarations.length === 1 && temp.match (/\n(\t*)/) && RegExp.$1.length > tabs.length + 1)
 temp = temp.replace (/\n\t/g, "\n");
 if (parent.type === Syntax.ForStatement || parent.type === Syntax.ForInStatement)
 return "var " + temp;
@@ -3603,6 +3619,8 @@ if (/^function\s*\(/.test (result))
 return "(" + result + ");";
 else
 return result + ";";
+case Syntax.EmptyStatement:
+return ";";
 case Syntax.LabeledStatement:
 return child (node.label) + ": " + child (node.body);
 case Syntax.ReturnStatement:
@@ -3640,8 +3658,8 @@ result += sub (node.alternate);
 return result;
 case Syntax.SwitchStatement:
 result = "switch (" + child (node.discriminant) + "){";
-{ var _e1k9a2_70 = node.cases; for (var _4nuun2b_71 = 0; _4nuun2b_71 < _e1k9a2_70.length; _4nuun2b_71 ++){
-var obj = _e1k9a2_70[_4nuun2b_71];
+{ var _3paamq7_10 = node.cases; for (var _8gt8il3_11 = 0; _8gt8il3_11 < _3paamq7_10.length; _8gt8il3_11 ++){
+var obj = _3paamq7_10[_8gt8il3_11];
 result += indent (obj);
 }}
 return result + end () + "}";
@@ -3674,8 +3692,8 @@ case Syntax.ForInStatement:
 return "for (" + child (node.left) + " in " + child (node.right) + ")" + sub (node.body);
 case Syntax.TryStatement:
 result = "try " + sub (node.block) + " ";
-{ var _1lakk6c_72 = node.handlers; for (var _7q93tsl_73 = 0; _7q93tsl_73 < _1lakk6c_72.length; _7q93tsl_73 ++){
-var handler = _1lakk6c_72[_7q93tsl_73];
+{ var _7c1cbrv_12 = node.handlers; for (var _5cdok33_13 = 0; _5cdok33_13 < _7c1cbrv_12.length; _5cdok33_13 ++){
+var handler = _7c1cbrv_12[_5cdok33_13];
 result += child (handler) + " ";
 }}
 if (node.finalizer)
@@ -3690,8 +3708,8 @@ return "debugger;";
 case Syntax.Program:
 result = "";
 temp = node.body [0].type;
-{ var _6mas1ur_74 = node.body; for (var index = 0; index < _6mas1ur_74.length; index ++){
-var childNode = _6mas1ur_74[index];
+{ var _4vr7hev_14 = node.body; for (var index = 0; index < _4vr7hev_14.length; index ++){
+var childNode = _4vr7hev_14[index];
 if (index > 0)
 {
 if (temp !== childNode.type || childNode.type !== Syntax.ExpressionStatement)
@@ -3704,7 +3722,7 @@ result += end ();
 }
 result += child (childNode);
 }}
-return result;
+return result + end ();
 default:throw new Error("Unsupported type: " + node.type);
 }
 }

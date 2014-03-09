@@ -1,26 +1,47 @@
 	function parseComplexString (str){
+		// Парсим запись вида «'string %0 %1' (a, b)», отдавая на выходе синтак-
+		// сическое дерево, соответствующее коду «'string ' + a + ' ' + b»
+
 		var temp,
-			args = parseArguments ()/*.filter (lambda (arg, index, array)
-				if (index && arg.type === Syntax.Literal && array [index - 1].type === Syntax.Literal){
-					array [index - 1].value = String (array [index - 1].value) + String (arg.value);
-					return false 
-				} else
-					return true)*/,
+			args = parseArguments (),
 			splitted,
 			result;
 
+		// Для пустой строки возиться незачем
 		if (args.length === 0 || str.length === 0)
 			return literal (str);
 
 		splitted = str
+			// Собираем регулярное выражение  /%(0|1|...)/g под число аргументов
+			// и режем им строку на части
 			.split (new RegExp ('%(' + args.map (lambda (a, i) i).join ('|') + ')', 'g'))
-			.map (lambda (a, i) i % 2 ? args [+a] : a && literal (a))
-			.filter (lambda arg);
+			// Все нечётные элементы - аргументы, все чётные - куски строки
+			.map (lambda (value, index) index % 2 ? args [+value] : literal (value))
+			// Фильтруем получившийся массив
+			.filter (lambda (arg, index, array){
+				// Если это не строка, оставляем
+				if (arg.type !== Syntax.Literal || typeof arg.value !== 'string')
+					return true;
+
+				// Выкидываем пустые строки, кроме первой
+				if (index > 0 && arg.type === Syntax.Literal && arg.value === '')
+					return false;
+
+				// Находим предыдущую строку
+				for (var i = index - 1, previous; i >= 0 && array [i].type === Syntax.Literal && typeof array [i].value === 'string'; i --)
+					previous = array [i];
+
+				if (previous){
+					previous.value = previous.value + arg.value;
+					return false;
+				} else
+					return true;
+			});
 
 		result = splitted [0];
 
-		if (typeof result.value !== 'string')
-			result = binaryExpression (literal (''), '+', result);
+		// if (typeof result.value !== 'string')
+		// 	result = binaryExpression (literal (''), '+', result);
 
 		for (var i = 1; i < splitted.length; i ++)
 			result = binaryExpression (result, '+', splitted [i]);

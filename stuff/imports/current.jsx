@@ -2,8 +2,7 @@ var a = function (){
 		'%0' (5);
 		'%0%1' (5, 8);
 		'test%0%1' (5, 8);
-		'test%0qwerty%1' ('', 'test');
-		'%0-%%0-%1' (5, 8);
+		'begin %0 middle %1 end' ('insert', 'test');
 	}, 
 	b = function (){
 		function q (){}
@@ -21,4 +20,6 @@ var a = function (){
 	}
 
 'qwerty';
-console.log ('test');
+console.log ('hi');
+
+while (0);
