@@ -10,7 +10,8 @@
 	}
 
 	function parseVariableDeclaration (kind){
-		var id = parseVariableIdentifier (),
+		var token = lookahead (),
+			id = parseVariableIdentifier (),
 			init = null;
 
 		if (match ('=')){
@@ -18,7 +19,7 @@
 			init = parseAssignmentExpression ();
 		}
 
-		return variableDeclarator (id, init);
+		return mark (variableDeclarator (id, init), token);
 	}
 
 	function parseVariableDeclarationList (kind){
@@ -35,11 +36,11 @@
 	}
 
 	function parseVariableStatement (){
-		var declarations;
+		var declarations, token = lookahead ();
 
 		expectKeyword ('var');
 		declarations = parseVariableDeclarationList ();
 		consumeSemicolon ();
 
-		return variableDeclaration (declarations);
+		return mark (variableDeclaration (declarations), token);
 	}

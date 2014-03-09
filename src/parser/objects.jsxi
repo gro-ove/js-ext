@@ -318,18 +318,18 @@
 		}
 
 	function variableDeclarator (name, value)
-		return mark ({
+		return {
 			type: 				Syntax.VariableDeclarator,
 			id: 				identifier (name),
 			init: 				identifier (value)
-		})
+		}
 
 	function variableDeclaration (variables)
-		return mark ({
+		return {
 			type: 				Syntax.VariableDeclaration,
 			declarations: 		variables,
 			kind: 				'var'
-		})
+		}
 
 	function program (elements, classes, initializations)
 		return {
