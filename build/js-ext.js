@@ -460,7 +460,7 @@ function variableDeclaration (variables){
 return mark ({"type":Syntax.VariableDeclaration,"declarations":variables,"kind":"var"});
 }
 function program (elements,classes,initializations){
-return mark ({"type":Syntax.Program,"body":elements,"classes":classes,"initializations":initializations});
+return {"type":Syntax.Program,"body":elements,"classes":classes,"initializations":initializations};
 }
 function parseArguments (){
 var args = [], comma = {};
@@ -1464,10 +1464,19 @@ if (args.length === 0 || str.length === 0)
 return literal (str);
 splitted = str.split (new RegExp("%(" + args.map (function (a,i){
 return i;
-}).join ("|") + ")", "g")).map (function (a,i){
-return i % 2 ? args [+ a] : a && literal (a);
-}).filter (function (arg){
-return arg;
+}).join ("|") + ")", "g")).map (function (value,index){
+return index % 2 ? args [+ value] : literal (value);
+}).filter (function (arg,index,array){
+if (arg.type !== Syntax.Literal || typeof arg.value !== "string")
+return true;
+var previous = array [index - 1];
+if (previous && previous.type === Syntax.Literal && typeof previous.value === "string")
+{
+previous.value = previous.value + arg.value;
+return false;
+}
+else
+return true;
 });
 result = splitted [0];
 if (typeof result.value !== "string")
@@ -3135,11 +3144,13 @@ arg.push (key + ":" + value.id);
 console.log (classObject.id.name + ": " + arg.join (", "));
 }
 var fs = require ("fs"), path = require ("path");
-function benchmark (){
+function benchmark (input,output,count){
+if (count === undefined)
+count = 1;
+var data, result, from, total = 0;
 console.time ("ast loaded");
-var data = JSON.parse (fs.readFileSync (path.resolve (__dirname, "../stuff/ast.json"))), result, from, total = 0, count = 5;
+data = JSON.parse (fs.readFileSync (input));
 console.timeEnd ("ast loaded");
-var result, from, total = 0, count = 10;
 for (var i = 0; 
 i < count; i++)
 {
@@ -3149,11 +3160,14 @@ result = generate (data);
 console.timeEnd ("generate");
 total += + new Date() - from;
 }
+if (i > 1)
 console.log ("average time: " + total / count + "ms");
-fs.writeFileSync (path.resolve (__dirname, "../stuff/ast-generated.js"), result);
+if (result)
+fs.writeFileSync (output, result);
 }
 process.nextTick (function (arg){
 args = parseArgs (process.argv.slice (2), [{"s":"i","l":"include","p":2},{"s":"o","l":"output","p":1},{"s":"h","l":"usage"}]);
+return benchmark (path.resolve (__dirname, "../tests/ast.json"), path.resolve (__dirname, "../tests/ast-generated.js"));
 new Worker(args.data [0].replace (/^"|"$/g, "")).process ();
 });
 function parseArgs (data,args){
@@ -3394,10 +3408,10 @@ return ! this.has (function (arg){
 return arg !== File.STATE_FINISHED;
 });
 };
-function generatorComments (value){
-comments = value;
+function niceGeneratorMode (value){
+niceMode = value;
 }
-var comments = true, generate = function (){
+var niceMode = true, generate = function (){
 var priorities = [Syntax.MemberExpression,Syntax.NewExpression,Syntax.CallExpression,["++","--"],Syntax.UnaryExpression,["*","/","%"],["+","-"],["<<",">>",">>>"],["<","<=",">",">=","in","instanceof"],["==","!=","===","!=="],["&"],["^"],["|"],["&&"],["||"],Syntax.ConditionalExpression,Syntax.AssignmentExpression,Syntax.SequenceExpression], spaces = new Array(300).join (" "), badMode = 0, comment = null;
 function findPriority (type,operator){
 for (var priority = 0; priority < priorities.length; priority ++){
@@ -3450,14 +3464,23 @@ function mapArray (array,joinString,forceWrap,insertSpaces){
 if (array.length === 0)
 return "";
 function join (array,fn,joinString){
-var result = fn (array [0]);
+var result = fn (array [0], 0);
 for (var i = 1; 
 i < array.length; i++)
-result += joinString + end () + "\t" + fn (array [i]);
+result += joinString + end () + "\t" + fn (array [i], i);
 return result;
 }
-var oneline, temp = comment, result = join (array, function (arg){
-var indented = generate (arg, tabs + "\t", array);
+var oneline, temp = comment, localTabs = tabs + "\t", previous, result = join (array, forceWrap ? function (arg,index){
+var indented = generate (arg, localTabs, array);
+if (previous !== arg.type || arg.type !== Syntax.ExpressionStatement)
+{
+previous = arg.type;
+if (index > 0)
+return "\n" + localTabs + indented;
+}
+return indented;
+} : function (arg){
+var indented = generate (arg, localTabs, array);
 if (! forceWrap && indented.indexOf ("\n") !== - 1)
 forceWrap = true;
 return indented;
@@ -3486,7 +3509,7 @@ return oneline;
 function sub (obj){
 return obj.type === Syntax.BlockStatement ? child (obj) : indent (obj);
 }
-if (comments && comment === null && node.filename)
+if (niceMode && comment === null && node.filename)
 comment = node.filename + ":" + node.lineNumber;
 var result, temp;
 switch (node.type){
@@ -3617,8 +3640,8 @@ result += sub (node.alternate);
 return result;
 case Syntax.SwitchStatement:
 result = "switch (" + child (node.discriminant) + "){";
-{ var _12sot16_48 = node.cases; for (var _5jt753l_49 = 0; _5jt753l_49 < _12sot16_48.length; _5jt753l_49 ++){
-var obj = _12sot16_48[_5jt753l_49];
+{ var _e1k9a2_70 = node.cases; for (var _4nuun2b_71 = 0; _4nuun2b_71 < _e1k9a2_70.length; _4nuun2b_71 ++){
+var obj = _e1k9a2_70[_4nuun2b_71];
 result += indent (obj);
 }}
 return result + end () + "}";
@@ -3651,8 +3674,8 @@ case Syntax.ForInStatement:
 return "for (" + child (node.left) + " in " + child (node.right) + ")" + sub (node.body);
 case Syntax.TryStatement:
 result = "try " + sub (node.block) + " ";
-{ var _4ld6jln_50 = node.handlers; for (var _2a9ue3_51 = 0; _2a9ue3_51 < _4ld6jln_50.length; _2a9ue3_51 ++){
-var handler = _4ld6jln_50[_2a9ue3_51];
+{ var _1lakk6c_72 = node.handlers; for (var _7q93tsl_73 = 0; _7q93tsl_73 < _1lakk6c_72.length; _7q93tsl_73 ++){
+var handler = _1lakk6c_72[_7q93tsl_73];
 result += child (handler) + " ";
 }}
 if (node.finalizer)
@@ -3665,13 +3688,30 @@ return "throw " + child (node.argument) + ";";
 case Syntax.DebuggerStatement:
 return "debugger;";
 case Syntax.Program:
-return node.body.map (child).join ("\n") + end ();
+result = "";
+temp = node.body [0].type;
+{ var _6mas1ur_74 = node.body; for (var index = 0; index < _6mas1ur_74.length; index ++){
+var childNode = _6mas1ur_74[index];
+if (index > 0)
+{
+if (temp !== childNode.type || childNode.type !== Syntax.ExpressionStatement)
+{
+temp = childNode.type;
+result += end () + "\n";
+}
+else
+result += end ();
+}
+result += child (childNode);
+}}
+return result;
 default:throw new Error("Unsupported type: " + node.type);
 }
 }
 return function (arg){
 var max = - 1, maxAllowed = 80, indent, begins = [], previous, index = 0, result = generate (arg, "");
-if (comments)
+if (niceMode)
+{
 result = result.replace (/([^\n]*?)[ \t]*( \/\/__ )([^\n]+)/g, function (match,begin,keyword,found){
 var length = begin.replace (/\t/g, "    ").length;
 if (length > maxAllowed)
@@ -3690,6 +3730,7 @@ max = length;
 return begin + keyword + found;
 }
 });
+}
 return result.replace (/ \/\/__ /g, function (arg){
 return spaces.substr (0, max - begins [index++]) + "   // ";
 });

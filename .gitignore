@@ -3,3 +3,5 @@ build/cache
 *.sublime-*
 build/js-ext.temp.*
 node_modules
+tests/ast.json
+tests/ast-generated.js
