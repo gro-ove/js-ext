@@ -1,10 +1,11 @@
-function generatorComments (value)
-	comments = value;
+function niceGeneratorMode (value)
+	niceMode = value;
 
-// TODO: Check if generator broke strings, regexps or something like that
-var comments = true,
+// TODO: Проверить, не ломает ли генератор строки или регекспы
+var niceMode = true,
 	generate = function (){
-		// https://developer.mozilla.org/ru/docs/JavaScript/Reference/Operators/Operator_Precedence
+		// https://developer.mozilla.org/ru/docs/JavaScript/Reference/Operators/
+		// Operator_Precedence
 		var priorities = [
 				Syntax.MemberExpression, 
 				Syntax.NewExpression,
@@ -52,7 +53,8 @@ var comments = true,
 					return '\n' + tabs;
 
 			function brackets (arg){
-				// Парсинг обычно начинается с «Program», так что родитель должен быть.
+				// Парсинг обычно начинается с «Program»,  так что родитель дол-
+				// жен быть.
 
 				if (parent instanceof Array){
 					if (node.type === Syntax.SequenceExpression)
@@ -80,7 +82,8 @@ var comments = true,
 					return '';
 
 				function join (array, fn, joinString){
-					// Пустых массивов быть не может - функция выше их отфильтрует
+					// Пустых массивов  быть не может - функция выше их отфильт-
+					// рует
 					var result = fn (array [0]);
 
 					for (var i = 1; i < array.length; i ++)
@@ -102,8 +105,8 @@ var comments = true,
 				if (!forceWrap)
 					oneline = result.replace (/(?: *\/\/__ [^\n]+)?\n\t*/g, '');
 
-				// Если же они нужны  (или после их удаления строка остаётся слишком
-				// длинной), оставляем как есть
+				// Если же они нужны (или после их удаления строка остаётся сли-
+				// шком длинной), оставляем как есть
 				if (forceWrap || !oneline || oneline.length > 60){
 
 					// Если нужно, вставляем переносы в начало и конец
@@ -126,7 +129,7 @@ var comments = true,
 			function sub (obj)
 				return obj.type === Syntax.BlockStatement ? child (obj) : indent (obj);
 
-			if (comments && comment === null && node.filename)
+			if (niceMode && comment === null && node.filename)
 				comment = node.filename + ':' + node.lineNumber;
 
 			var result, temp;
@@ -351,7 +354,22 @@ var comments = true,
 
 				/* Stuff */
 				case Syntax.Program:
-					return node.body.map (child).join ('\n') + end ();
+					result = '';
+					temp = node.body [0].type;
+
+					for (var index, childNode in-array node.body){
+						if (index > 0){
+							if (temp !== childNode.type || childNode.type !== Syntax.ExpressionStatement){
+								temp = childNode.type;
+								result += end () + '\n';
+							} else
+								result += end ();
+						}
+
+						result += child (childNode);
+					}
+
+					return result;
 
 				default:
 					throw new Error ('Unsupported type: ' + node.type);
@@ -367,7 +385,7 @@ var comments = true,
 				index = 0,
 				result = generate (arg, '');
 
-			if (comments)
+			if (niceMode){
 				result = result.replace (/([^\n]*?)[ \t]*( \/\/__ )([^\n]+)/g, lambda (match, begin, keyword, found){
 					var length = begin.replace (/\t/g, '    ').length;
 
@@ -385,6 +403,7 @@ var comments = true,
 						return begin + keyword + found;
 					}
 				});
+			}
 
 			return result.replace (/ \/\/__ /g, lambda spaces.substr (0, max - begins [index ++]) + '   // ');
 		};
