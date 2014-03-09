@@ -1,8 +1,7 @@
 	// 11.1.4 Array Initialiser
 
 	function parseArrayPerlInitializer (elements, from){
-		expect ('.');
-		expect ('.');
+		expect ('..');
 
 		var from = elements [0],
 			to = parseAssignmentExpression ();
@@ -20,13 +19,12 @@
 				nto = String (to.value).charCodeAt (0);
 
 			if (Math.abs (nto - nfrom) < 10){
-				from.value = nfrom;
 				if (nto > nfrom)
 					for (nfrom ++; nfrom <= nto; nfrom ++)
-						elements.push (from);
+						elements.push (literal (nfrom));
 				else
-					for (nfrom ++; nfrom >= nto; nfrom --)
-						elements.push (from);
+					for (nfrom --; nfrom >= nto; nfrom --)
+						elements.push (literal (nfrom));
 				return arrayExpression (elements);
 			}
 		}
@@ -36,7 +34,7 @@
 	}
 	
 	function parseArrayInitialiser (){
-		var elements = [], token, comma = {}, from = mark ();
+		var elements = [], comma = {}, token = lookahead ();
 
 		expect ('[');
 
@@ -46,12 +44,11 @@
 				elements.push (null);
 			} else {
 				elements.push (parseAssignmentExpression ());
-				token = lookahead ();
 
-				if (elements.length === 1 && token.value === '.' && source [token.range [0] + 1] === '.')
-					return parseArrayPerlInitializer (elements, from);
+				if (elements.length === 1 && match ('..'))
+					return mark (parseArrayPerlInitializer (elements), token);
 
-				if (token.value !== ']')
+				if (!match (']'))
 					parseOptionalComma (comma);
 			}
 

@@ -1,9 +1,7 @@
-process.on ('uncaughtException', function (error){
-	console.fatal (error && error.stack ? error.stack : String (error));
-});
+process.on ('uncaughtException', lambda console.fatal ('    [    UNCAUGHT    ]\n\n' + (arg && arg.stack ? arg.stack : String (arg))));
 
 console.fatal = function (){
-	console.log ('\n    [ FATAL ERROR ]\n');
+	console.log ('\n    [  FATAL  ERROR  ]\n');
 	console.log.apply (console, arguments);
 	console.log ('');
 	console.log = lambda;

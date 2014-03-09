@@ -6,6 +6,8 @@
 		if (token.type === Token.EOF)
 			throwUnexpected (token);
 
+		console.log (token);
+
 		if (token.type === Token.Punctuator)
 			switch (token.value){
 				case ';':
@@ -22,18 +24,12 @@
 					}
 				case '(':
 					return mark (parseExpressionStatement (), token);
-				case '.':
-					if (source [token.range [0] + 1] === '.' && source [token.range [0] + 2] === '.'){
-						lex ();
-						lex ();
-						lex ();
-
-						expr = callExpression (
-							memberExpression ('console', 'warn'), 
-							[ literal ('Not implemented at ' + lineNumber + ' line of ' + options.filename) ]);
-
-						return mark (expressionStatement (expr), token);
-					}
+				case '...':
+					lex ();
+					expr = callExpression (
+						memberExpression ('console', 'warn'), 
+						[ literal ('Not implemented at ' + lineNumber + ' line of ' + options.filename) ]);
+					return mark (expressionStatement (expr), token);
 			}
 
 		if (token.type === Token.Keyword){

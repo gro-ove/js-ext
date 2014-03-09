@@ -316,7 +316,7 @@ else
 return $.extend (obj || {}, {"filename":options.filename,"lineNumber":lineNumber,"lineStart":lineStart,"index":index});
 }
 function literal (value){
-return typeof value === "object" && value !== null ? {"type":Syntax.Literal,"value":value.value,"lineNumber":value.lineNumber,"filename":options.filename} : mark ({"type":Syntax.Literal,"value":value});
+return typeof value === "object" && value ? {"type":Syntax.Literal,"value":value.value,"raw":value.raw,"lineNumber":value.lineNumber,"filename":options.filename} : mark ({"type":Syntax.Literal,"value":value});
 }
 function identifier (arg){
 return typeof arg === "string" ? mark ({"type":Syntax.Identifier,"name":arg}) : arg || null;
@@ -483,8 +483,7 @@ if (token.value === ",")
 lex ();
 }
 function parseArrayPerlInitializer (elements,from){
-expect (".");
-expect (".");
+expect ("..");
 var from = elements [0], to = parseAssignmentExpression ();
 expect ("]");
 if (from.type === Syntax.Literal && to.type === Syntax.Literal)
@@ -496,15 +495,14 @@ if (Number.isNaN (nto))
 nto = String (to.value).charCodeAt (0);
 if (Math.abs (nto - nfrom) < 10)
 {
-from.value = nfrom;
 if (nto > nfrom)
 for (nfrom++; 
 nfrom <= nto; nfrom++)
-elements.push (from);
+elements.push (literal (nfrom));
 else
-for (nfrom++; 
+for (nfrom--; 
 nfrom >= nto; nfrom--)
-elements.push (from);
+elements.push (literal (nfrom));
 return arrayExpression (elements);
 }
 }
@@ -512,7 +510,7 @@ helpers.set ("createArray", from);
 return callExpression ("__ca", [from,to]);
 }
 function parseArrayInitialiser (){
-var elements = [], token, comma = {}, from = mark ();
+var elements = [], comma = {}, token = lookahead ();
 expect ("[");
 while (! match ("]"))
 if (match (","))
@@ -523,10 +521,9 @@ elements.push (null);
 else
 {
 elements.push (parseAssignmentExpression ());
-token = lookahead ();
-if (elements.length === 1 && token.value === "." && source [token.range [0] + 1] === ".")
-return parseArrayPerlInitializer (elements, from);
-if (token.value !== "]")
+if (elements.length === 1 && match (".."))
+return mark (parseArrayPerlInitializer (elements), token);
+if (! match ("]"))
 parseOptionalComma (comma);
 }
 expect ("]");
@@ -1597,6 +1594,7 @@ function parseStatement (){
 var token = lookahead (), expr, saved, result;
 if (token.type === Token.EOF)
 throwUnexpected (token);
+console.log (token);
 if (token.type === Token.Punctuator)
 switch (token.value){
 case ";":
@@ -1613,15 +1611,10 @@ return parseBlock ();
 }
 case "(":
 return mark (parseExpressionStatement (), token);
-case ".":
-if (source [token.range [0] + 1] === "." && source [token.range [0] + 2] === ".")
-{
-lex ();
-lex ();
+case "...":
 lex ();
 expr = callExpression (memberExpression ("console", "warn"), [literal ("Not implemented at " + lineNumber + " line of " + options.filename)]);
 return mark (expressionStatement (expr), token);
-}
 }
 if (token.type === Token.Keyword)
 {
@@ -1869,7 +1862,7 @@ if (source [index] === "@")
 try{
 temp = " " + source.substr (index).match (/@([_$a-zA-Z][_$a-zA-Z0-9\.\-]*)/) [0].toUpperCase ();
 }catch (e){}
-throwError ({}, Messages.UnexpectedToken, "AND IT LOOKS LIKE MACROS" + temp);
+throwError ({}, Messages.UnexpectedToken, "AND IT LOOKS LIKE MACROS" + (temp || ""));
 }
 if (! isIdentifierStart (source [index]))
 return;
@@ -1908,12 +1901,30 @@ function scanPunctuator (){
 var start = index, ch1 = source [index], ch2, ch3, ch4;
 if (ch1 === ";" || ch1 === "{" || ch1 === "}" || ch1 === "," || ch1 === "(" || ch1 === ")")
 {
-++ index;
+index += 1;
 return {"type":Token.Punctuator,"value":ch1,"lineNumber":lineNumber,"lineStart":lineStart,"range":[start,index]};
 }
 ch2 = source [index + 1];
-if (ch1 === "." && ! isDecimalDigit (ch2))
-return {"type":Token.Punctuator,"value":source [index++],"lineNumber":lineNumber,"lineStart":lineStart,"range":[start,index]};
+if (ch1 === ".")
+if (ch2 === ".")
+{
+if (source [index + 2] === ".")
+{
+index += 3;
+return {"type":Token.Punctuator,"value":"...","lineNumber":lineNumber,"lineStart":lineStart,"range":[start,index]};
+}
+else
+{
+index += 2;
+return {"type":Token.Punctuator,"value":"..","lineNumber":lineNumber,"lineStart":lineStart,"range":[start,index]};
+}
+}
+else
+if (! isDecimalDigit (ch2))
+{
+index += 1;
+return {"type":Token.Punctuator,"value":".","lineNumber":lineNumber,"lineStart":lineStart,"range":[start,index]};
+}
 ch3 = source [index + 2];
 ch4 = source [index + 3];
 if (ch1 === ">" && ch2 === ">" && ch3 === ">" && ch4 === "=")
@@ -1996,7 +2007,7 @@ break;
 number += source [index++];
 }
 }
-if (ch === ".")
+if (ch === "." && source [index + 1] !== ".")
 {
 number += source [index++];
 while (index < length)
@@ -2153,7 +2164,7 @@ str += ch;
 }
 if (quote !== "")
 throwError ({}, Messages.UnexpectedToken, "ILLEGAL");
-return {"type":Token.StringLiteral,"value":str,"octal":octal,"lineNumber":lineNumber,"lineStart":lineStart,"range":[start,index]};
+return {"type":Token.StringLiteral,"value":str,"raw":source.substring (start, index),"octal":octal,"lineNumber":lineNumber,"lineStart":lineStart,"range":[start,index]};
 }
 function scanRegExp (){
 var str, ch, start, pattern, flags, value, classMarker = false, restore, terminated = false;
@@ -3498,6 +3509,8 @@ return "\n" + localTabs + indented;
 return indented;
 } : function (arg){
 var indented = generate (arg, localTabs, array);
+if (! indented)
+console.log ("fail", arg);
 if (! forceWrap && indented.indexOf ("\n") !== - 1)
 forceWrap = true;
 return indented;
@@ -3533,6 +3546,9 @@ switch (node.type){
 case Syntax.Identifier:
 return node.name;
 case Syntax.Literal:
+if (typeof node.raw === "string")
+return node.raw;
+else
 if (typeof node.value === "string")
 return "'" + JSON.stringify (node.value).slice (1, - 1).replace (/'/g, "\\'") + "'";
 else
@@ -3659,8 +3675,8 @@ result += sub (node.alternate);
 return result;
 case Syntax.SwitchStatement:
 result = "switch (" + child (node.discriminant) + "){";
-{ var _8d3gh3s_82 = node.cases; for (var _6u5gip0_83 = 0; _6u5gip0_83 < _8d3gh3s_82.length; _6u5gip0_83 ++){
-var obj = _8d3gh3s_82[_6u5gip0_83];
+{ var _48psuep_81 = node.cases; for (var _95ueb8a_82 = 0; _95ueb8a_82 < _48psuep_81.length; _95ueb8a_82 ++){
+var obj = _48psuep_81[_95ueb8a_82];
 result += indent (obj);
 }}
 return result + end () + "}";
@@ -3693,8 +3709,8 @@ case Syntax.ForInStatement:
 return "for (" + child (node.left) + " in " + child (node.right) + ")" + sub (node.body);
 case Syntax.TryStatement:
 result = "try " + sub (node.block) + " ";
-{ var _4fkr3aq_84 = node.handlers; for (var _5lil4hn_85 = 0; _5lil4hn_85 < _4fkr3aq_84.length; _5lil4hn_85 ++){
-var handler = _4fkr3aq_84[_5lil4hn_85];
+{ var _4fltmp8_83 = node.handlers; for (var _1ncfsna_84 = 0; _1ncfsna_84 < _4fltmp8_83.length; _1ncfsna_84 ++){
+var handler = _4fltmp8_83[_1ncfsna_84];
 result += child (handler) + " ";
 }}
 if (node.finalizer)
@@ -3709,8 +3725,8 @@ return "debugger;";
 case Syntax.Program:
 result = "";
 temp = node.body [0].type;
-{ var _s9o3ms_86 = node.body; for (var index = 0; index < _s9o3ms_86.length; index ++){
-var childNode = _s9o3ms_86[index];
+{ var _2q7g6hv_85 = node.body; for (var index = 0; index < _2q7g6hv_85.length; index ++){
+var childNode = _2q7g6hv_85[index];
 if (index > 0)
 {
 if (temp !== childNode.type || childNode.type !== Syntax.ExpressionStatement)
@@ -4632,11 +4648,11 @@ this.callback = callback;
 this.complete ();
 return this;
 };
-process.on ("uncaughtException", function (error){
-console.fatal (error && error.stack ? error.stack : String (error));
+process.on ("uncaughtException", function (arg){
+return console.fatal ("    [    UNCAUGHT    ]\n\n" + (arg && arg.stack ? arg.stack : String (arg)));
 });
 console.fatal = function (){
-console.log ("\n    [ FATAL ERROR ]\n");
+console.log ("\n    [  FATAL  ERROR  ]\n");
 console.log.apply (console, arguments);
 console.log ("");
 console.log = function (arg){
@@ -4775,8 +4791,8 @@ Worker.prototype.start = function (callback){
 console.assert (this.state == Worker.STATE_INITIAL, "Wrong state (" + this.state + ")");
 this.state = Worker.STATE_WAITING;
 this.log ("started");
-{ var _8qnp4ka_87 = File.find ("default/*") || []; for (var _90uauvl_88 = 0; _90uauvl_88 < _8qnp4ka_87.length; _90uauvl_88 ++){
-var file = _8qnp4ka_87[_90uauvl_88];
+{ var _34i9bue_73 = File.find ("default/*") || []; for (var _9ro2gf_74 = 0; _9ro2gf_74 < _34i9bue_73.length; _9ro2gf_74 ++){
+var file = _34i9bue_73[_9ro2gf_74];
 file.process ();
 }}
 this.mainFile = new File(this.path);
@@ -4791,8 +4807,8 @@ callback ();
 Worker.prototype.collect = function (callback){
 console.assert (this.state == Worker.STATE_STARTED, "Wrong state (" + this.state + ")");
 this.state = Worker.STATE_WAITING;
-{ var _8n3p6ra_89 = fileStorage.files; for (var _33k3to3_90 = 0; _33k3to3_90 < _8n3p6ra_89.length; _33k3to3_90 ++){
-var file = _8n3p6ra_89[_33k3to3_90];
+{ var _62s9eiu_75 = fileStorage.files; for (var _3d2t6dg_76 = 0; _3d2t6dg_76 < _62s9eiu_75.length; _3d2t6dg_76 ++){
+var file = _62s9eiu_75[_3d2t6dg_76];
 $.extend (this.data.helpers, file.helpers);
 Array.prototype.push.apply (this.data.statements, file.parsed.body);
 Array.prototype.push.apply (this.data.classes, file.parsed.classes);
@@ -4818,7 +4834,9 @@ callback ();
 Worker.prototype.generate = function (callback){
 console.assert (this.state == Worker.STATE_CLASSES, "Wrong state (" + this.state + ")");
 this.state = Worker.STATE_WAITING;
-var elements = doHelpers (this.data.helpers).concat (this.data.statements).concat (this.data.classes).concat (this.data.initializations), ast = program (elements);
+var elements = doHelpers (this.data.helpers).concat (this.data.statements).concat (this.data.classes).concat (this.data.initializations), ast = program (elements), temp = path.resolve (__dirname, "../tests/ast-debug.json");
+if (! fs.existsSync (temp))
+fs.writeFileSync (temp, JSON.stringify (ast, false, 4));
 var result = convert (ast, {"filename":"result"});
 this.log ("js generated");
 this.state = Worker.STATE_GENERATED;

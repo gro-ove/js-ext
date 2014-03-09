@@ -106,6 +106,8 @@ var niceMode = true,
 						return indented;
 					} : lambda {
 						var indented = generate (arg, localTabs, array);
+						if (!indented)
+							console.log ('fail', arg);
 						if (!forceWrap && indented.indexOf ('\n') !== -1)
 							forceWrap = true;
 						return indented;
@@ -151,7 +153,9 @@ var niceMode = true,
 					return node.name;
 
 				case Syntax.Literal:
-					if (typeof node.value === 'string')
+					if (typeof node.raw === 'string')
+						return node.raw;
+					else if (typeof node.value === 'string')
 						return '\'' + JSON.stringify (node.value).slice (1, -1).replace (/'/g, '\\\'') + '\'';
 					else
 						return String (node.value);

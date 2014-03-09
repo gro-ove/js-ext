@@ -95,9 +95,10 @@
 							.concat (this.data.statements)
 							.concat (this.data.classes)
 							.concat (this.data.initializations),
-			ast 		= program (elements);
-
-		// fs.writeFileSync (path.resolve (__dirname, '../stuff/ast.json'), JSON.stringify (ast, false, 4));
+			ast 		= program (elements),
+			temp 		= path.resolve (__dirname, '../tests/ast-debug.json');
+		if (!fs.existsSync (temp))
+			fs.writeFileSync (temp, JSON.stringify (ast, false, 4));
 
 		var result 		= convert (ast, { filename: 'result' });
 
