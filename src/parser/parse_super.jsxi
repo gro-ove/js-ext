@@ -2,12 +2,12 @@
 		var level = 1, 
 			name = null, 
 			temp, 
-			from = mark ();
+			token = lookahead ();
 
 		expectKeyword ('super');
 
 		if (!state.superAvailable)
-			throwError (lookahead (), 'Super can be used in class functions only');
+			throwError (token, 'Super can be used in class functions only');
 
 		while (match ('.')){
 			lex ();
@@ -21,5 +21,5 @@
 			}
 		}
 
-		return mark (superExpression (name, match ('(') ? parseArguments () : null, level), from);
+		return mark (superExpression (name, match ('(') ? parseArguments () : null, level), token);
 	}

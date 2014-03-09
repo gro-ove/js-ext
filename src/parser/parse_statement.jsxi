@@ -1,7 +1,7 @@
 	// 12 Statements
 	
 	function parseStatement (){
-		var token = lookahead (), expr, saved;
+		var token = lookahead (), expr, saved, result;
 
 		if (token.type === Token.EOF)
 			throwUnexpected (token);
@@ -9,7 +9,7 @@
 		if (token.type === Token.Punctuator)
 			switch (token.value){
 				case ';':
-					return parseEmptyStatement ();
+					return mark (parseEmptyStatement (), token);
 				case '{':
 					try {
 						saved = saveAll ();
@@ -33,39 +33,70 @@
 					}
 			}
 
-		if (token.type === Token.Keyword)
+		if (token.type === Token.Keyword){
 			switch (token.value){
 				case 'function':
 					return parseFunctionDeclaration ();
-				case 'break':
-					return parseBreakStatement ();
-				case 'continue':
-					return parseContinueStatement ();
-				case 'debugger':
-					return parseDebuggerStatement ();
-				case 'do':
-					return parseDoWhileStatement ();
-				case 'for':
-					return parseForStatement ();
+
 				case 'if':
-					return parseIfStatement ();
-				case 'return':
-					return parseReturnStatement ();
-				case 'switch':
-					return parseSwitchStatement ();
-				case 'throw':
-					return parseThrowStatement ();
-				case 'try':
-					return parseTryStatement ();
+					result = parseIfStatement ();
+					break;
+
 				case 'var':
-					return parseVariableStatement ();
+					result = parseVariableStatement ();
+					break;
+
+				case 'do':
+					result = parseDoWhileStatement ();
+					break;
+
+				case 'for':
+					result = parseForStatement ();
+					break;
+
+				case 'return':
+					result = parseReturnStatement ();
+					break;
+
+				case 'switch':
+					result = parseSwitchStatement ();
+					break;
+
+				case 'throw':
+					result = parseThrowStatement ();
+					break;
+
+				case 'try':
+					result = parseTryStatement ();
+					break;
+
 				case 'while':
-					return parseWhileStatement ();
+					result = parseWhileStatement ();
+					break;
+
 				case 'with':
-					return parseWithStatement ();
+					result = parseWithStatement ();
+					break;
+
+				case 'break':
+					result = parseBreakStatement ();
+					break;
+
+				case 'continue':
+					result = parseContinueStatement ();
+					break;
+
+				case 'debugger':
+					result = parseDebuggerStatement ();
+					break;
+
 				default:
 					break;
 			}
+
+			if (result)
+				return mark (result, token);
+		}
 
 		expr = parseExpression ();
 
@@ -79,5 +110,5 @@
 
 		consumeSemicolon ();
 
-		return expressionStatement (expr);
+		return mark (expressionStatement (expr), token);
 	}

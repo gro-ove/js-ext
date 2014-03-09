@@ -11,7 +11,8 @@
 
 	function parseBlock (){
 		var block, 
-			oldPreventSequence = state.preventSequence;
+			oldPreventSequence = state.preventSequence,
+			token = lookahead ();
 		state.preventSequence = false;
 
 		expect ('{');
@@ -19,12 +20,13 @@
 		expect ('}');
 
 		state.preventSequence = oldPreventSequence;
-		return blockStatement (block);
+		return mark (blockStatement (block), token);
 	}
 
 	function parseBlockOrNotBlock (){
-		if (match ('{'))
+		var token = lookahead ();
+		if (token.value === '{')
 			return parseBlock ();
 		else
-			return blockStatement ([ parseStatement () ], true);
+			return mark (blockStatement ([ parseStatement () ], true), token);
 	}

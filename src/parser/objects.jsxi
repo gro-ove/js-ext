@@ -21,14 +21,13 @@
 			return obj || {};
 		} else if (obj && obj.lineNumber){
 			return $.extend (obj, { filename: options.filename });
-		} else {
+		} else 
 			return $.extend (obj || {}, {
 				filename:     	options.filename,
 				lineNumber: 	lineNumber,
 				lineStart: 	 	lineStart,
 				index: 		 	index
 			});
-		}
 
 	function literal (value)
 		return typeof value === 'object' && value !== null ? {
@@ -48,26 +47,26 @@
 		}) : arg || null
 
 	function property (key, value, kind = 'init')
-		return mark ({
+		return {
 			type: 				Syntax.Property,
 			key: 				identifier (key),
 			value: 				identifier (value),
 			kind: 				kind
-		})
+		}
 
 	function objectExpression (properties = [])
-		return mark ({
+		return {
 			type: 				Syntax.ObjectExpression,
 			properties: 		properties
-		})
+		}
 
 	function memberExpression (obj, property, computed = false)
-		return mark ({
+		return {
 			type: 				Syntax.MemberExpression,
 			computed: 			computed,
 			object: 			identifier (obj),
 			property: 			identifier (property)
-		})
+		}
 
 	function callExpression (name, arguments = []){
 		if (name 
@@ -86,11 +85,11 @@
 				name.object.object = memberExpression ('Object', 'prototype');
 		}
 
-		return mark ({
+		return {
 			type: 				Syntax.CallExpression,
 			callee: 			identifier (name),
 			arguments: 			arguments.map (identifier)
-		})
+		}
 	}
 
 	function superExpression (name, args, level)
@@ -107,13 +106,13 @@
 		})
 
 	function arrayExpression (elements)
-		return mark ({
+		return {
 			type:       		Syntax.ArrayExpression,
 			elements:   		elements
-		})
+		}
 
 	function assignmentExpression (left, operator, right)
-		return mark (typeof operator !== 'string' || operator [operator.length - 1] !== '=' ? {
+		return typeof operator !== 'string' || operator [operator.length - 1] !== '=' ? {
 			type: 				Syntax.AssignmentExpression,
 			operator: 			'=',
 			left: 				identifier (left),
@@ -123,52 +122,52 @@
 			operator: 			operator,
 			left: 				identifier (left),
 			right: 				identifier (right)
-		})
+		}
 
 	function newExpression (callee, args = [])
-		return mark ({
+		return {
 			type: 				Syntax.NewExpression,
 			callee: 			identifier (callee),
 			arguments: 			args.map (identifier)
-		})
+		}
 
 	function sequenceExpression (expressions)
-		return mark ({
+		return {
 			type: 				Syntax.SequenceExpression,
 			expressions: 		expressions
-		})
+		}
 
 	function conditionalExpression (test, trueExpression, falseExpression)
-		return mark ({
+		return {
 			type: 				Syntax.ConditionalExpression,
 			test: 				test,
 			consequent: 		identifier (trueExpression),
 			alternate: 			identifier (falseExpression)
-		})
+		}
 
 	function logicalExpression (left, operator, right)
-		return mark ({
+		return {
 			type: 				Syntax.LogicalExpression,
 			operator: 			operator,
 			left: 				identifier (left),
 			right: 				identifier (right)
-		})
+		}
 
 	function binaryExpression (left, operator, right)
-		return mark ({
+		return {
 			type: 				Syntax.BinaryExpression,
 			operator: 			operator,
 			left: 				identifier (left),
 			right: 				identifier (right)
-		})
+		}
 
 	function unaryExpression (argument, operator, prefix = false)
-		return mark ({
+		return {
 			type: 				Syntax.UnaryExpression,
 			operator: 			operator,
 			argument: 			identifier (argument),
 			prefix: 			prefix
-		})
+		}
 
 	function blockStatement (body = [], single)
 		return body instanceof Array ? {
@@ -178,86 +177,86 @@
 		} : body
 
 	function expressionStatement (expression)
-		return mark ({
+		return {
 			type: 				Syntax.ExpressionStatement,
 			expression: 		expression
-		})
+		}
 
 	function ifStatement (test, trueStatement, falseStatement = null)
-		return mark ({
+		return {
 			type: 				Syntax.IfStatement,
 			test: 				identifier (test),
 			consequent: 		trueStatement,
 			alternate: 			falseStatement
-		})
+		}
 
 	function whileStatement (test, body)
-		return mark ({
+		return {
 			type: 				Syntax.WhileStatement,
 			test: 				test,
 			body: 				body
-		})
+		}
 
 	function doWhileStatement (body, test)
-		return mark ({
+		return {
 			type: 				Syntax.DoWhileStatement,
 			body: 				body,
 			test: 				test
-		})
+		}
 
 	function doWhileStatement (body, test)
-		return mark ({
+		return {
 			type: 				Syntax.DoWhileStatement,
 			body: 				body,
 			test: 				test
-		})
+		}
 
 	function forStatement (left, test, update, body)
-		return mark ({
+		return {
 			type: 				Syntax.ForStatement,
 			init: 				left,
 			test: 				test,
 			update: 			update,
 			body: 				blockStatement (body)
-		})
+		}
 
 	function forInStatement (left, right, body)
-		return mark ({
+		return {
 			type: 				Syntax.ForInStatement,
 			left: 				left,
 			right: 				right,
 			body: 				body,
 			each: 				false
-		})
+		}
 
 	function labeledStatement (label, statement)
-		return mark ({
+		return {
 			type: 				Syntax.LabeledStatement,
 			label: 				identifier (label),
 			body: 				statement
-		})
+		}
 
 	function catchClause (param, body)
-		return mark ({
+		return {
 			type:   			Syntax.CatchClause,
 			param:  			identifier (param),
 			body:  				body
-		})
+		}
 
 	function tryStatement (block, handlers, finalizer)
-		return mark ({
+		return {
 			type:               Syntax.TryStatement,
 			block:              block,
 			guardedHandlers:    [],
 			handlers:           handlers,
 			finalizer:          finalizer
-		})
+		}
 
 	function returnStatement (arg)
-		return mark ({
+		return {
 			type: 				Syntax.ReturnStatement,
 			argument: 			identifier (arg)
-		})
+		}
 
 	function throwStatement (arg)
 		return mark ({

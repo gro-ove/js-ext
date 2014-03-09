@@ -15,9 +15,6 @@
 				return parseClassDeclaration ();
 			case 'function':
 				return parseFunctionDeclaration ();
-			default:
-				if (token.type === Token.Keyword)
-					return parseStatement ();
 		}
 
 		if (options.initializationAllowed && token.type === Token.Punctuator && (token.value === '(' || token.value === '{')){

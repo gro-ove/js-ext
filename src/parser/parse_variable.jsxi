@@ -36,11 +36,11 @@
 	}
 
 	function parseVariableStatement (){
-		var declarations, token = lookahead ();
+		var declarations;
 
 		expectKeyword ('var');
 		declarations = parseVariableDeclarationList ();
 		consumeSemicolon ();
 
-		return mark (variableDeclaration (declarations), token);
+		return variableDeclaration (declarations);
 	}

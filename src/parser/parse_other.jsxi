@@ -21,8 +21,9 @@
 	}
 
 	function parseNewExpression (){
+		var token = lookahead ();
 		expectKeyword ('new');
-		return newExpression (parseLeftHandSideExpression (), match ('(') ? parseArguments () : []);
+		return mark (newExpression (parseLeftHandSideExpression (), match ('(') ? parseArguments () : []), token);
 	}
 
 	function parseLeftHandSideExpressionTemp ()
