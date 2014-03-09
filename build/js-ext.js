@@ -1612,14 +1612,15 @@ restoreAll (saved);
 return parseBlock ();
 }
 case "(":
-return parseExpressionStatement ();
+return mark (parseExpressionStatement (), token);
 case ".":
 if (source [token.range [0] + 1] === "." && source [token.range [0] + 2] === ".")
 {
 lex ();
 lex ();
 lex ();
-return expressionStatement (callExpression (memberExpression ("console", "warn"), [literal ("Not implemented at " + lineNumber + " line of " + options.filename)]));
+expr = callExpression (memberExpression ("console", "warn"), [literal ("Not implemented at " + lineNumber + " line of " + options.filename)]);
+return mark (expressionStatement (expr), token);
 }
 }
 if (token.type === Token.Keyword)
