@@ -232,7 +232,7 @@ var niceMode = true,
 
 				case Syntax.VariableDeclaration:
 					temp = mapArray (node.declarations, ', ');
-					if (node.declarations.length > 0 && temp.match (/\n(\t*)/) && RegExp.$1.length > tabs.length + 1)
+					if (node.declarations.length === 1 && temp.match (/\n(\t*)/) && RegExp.$1.length > tabs.length + 1)
 						temp = temp.replace (/\n\t/g, '\n');
 					if (parent.type === Syntax.ForStatement || parent.type === Syntax.ForInStatement)
 						return 'var ' + temp;
