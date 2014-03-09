@@ -260,6 +260,9 @@ var niceMode = true,
 					else
 						return result + ';';
 
+				case Syntax.EmptyStatement:
+					return ';';
+
 				case Syntax.LabeledStatement:
 					return child (node.label) + ': ' + child (node.body);
 
@@ -380,7 +383,7 @@ var niceMode = true,
 						result += child (childNode);
 					}
 
-					return result;
+					return result + end ();
 
 				default:
 					throw new Error ('Unsupported type: ' + node.type);
