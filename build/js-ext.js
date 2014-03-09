@@ -3523,7 +3523,7 @@ return oneline;
 }
 }
 function sub (obj){
-return obj.type === Syntax.BlockStatement ? child (obj) : indent (obj);
+return obj.type === Syntax.BlockStatement ? child (obj) : obj.type === Syntax.EmptyStatement ? ";" : indent (obj);
 }
 if (niceMode && comment === null && node.filename)
 comment = node.filename + ":" + node.lineNumber;
@@ -3658,8 +3658,8 @@ result += sub (node.alternate);
 return result;
 case Syntax.SwitchStatement:
 result = "switch (" + child (node.discriminant) + "){";
-{ var _3paamq7_10 = node.cases; for (var _8gt8il3_11 = 0; _8gt8il3_11 < _3paamq7_10.length; _8gt8il3_11 ++){
-var obj = _3paamq7_10[_8gt8il3_11];
+{ var _8d3gh3s_82 = node.cases; for (var _6u5gip0_83 = 0; _6u5gip0_83 < _8d3gh3s_82.length; _6u5gip0_83 ++){
+var obj = _8d3gh3s_82[_6u5gip0_83];
 result += indent (obj);
 }}
 return result + end () + "}";
@@ -3692,8 +3692,8 @@ case Syntax.ForInStatement:
 return "for (" + child (node.left) + " in " + child (node.right) + ")" + sub (node.body);
 case Syntax.TryStatement:
 result = "try " + sub (node.block) + " ";
-{ var _7c1cbrv_12 = node.handlers; for (var _5cdok33_13 = 0; _5cdok33_13 < _7c1cbrv_12.length; _5cdok33_13 ++){
-var handler = _7c1cbrv_12[_5cdok33_13];
+{ var _4fkr3aq_84 = node.handlers; for (var _5lil4hn_85 = 0; _5lil4hn_85 < _4fkr3aq_84.length; _5lil4hn_85 ++){
+var handler = _4fkr3aq_84[_5lil4hn_85];
 result += child (handler) + " ";
 }}
 if (node.finalizer)
@@ -3708,8 +3708,8 @@ return "debugger;";
 case Syntax.Program:
 result = "";
 temp = node.body [0].type;
-{ var _4vr7hev_14 = node.body; for (var index = 0; index < _4vr7hev_14.length; index ++){
-var childNode = _4vr7hev_14[index];
+{ var _s9o3ms_86 = node.body; for (var index = 0; index < _s9o3ms_86.length; index ++){
+var childNode = _s9o3ms_86[index];
 if (index > 0)
 {
 if (temp !== childNode.type || childNode.type !== Syntax.ExpressionStatement)

@@ -138,7 +138,7 @@ var niceMode = true,
 			}
 
 			function sub (obj)
-				return obj.type === Syntax.BlockStatement ? child (obj) : indent (obj);
+				return obj.type === Syntax.BlockStatement ? child (obj) : obj.type === Syntax.EmptyStatement ? ';' : indent (obj);
 
 			if (niceMode && comment === null && node.filename)
 				comment = node.filename + ':' + node.lineNumber /** /+ ' [' + node.type + ']'/**/;

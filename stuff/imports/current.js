@@ -22,5 +22,4 @@ var a = function (){                      // current.jsx:1
 'qwerty';                                 // current.jsx:22
 console.log ('hi');                       // current.jsx:23
 
-while (0)                                 // current.jsx:25
-	;                                     // ...
+while (0);                                // current.jsx:25
