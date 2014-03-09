@@ -332,9 +332,9 @@
 		})
 
 	function program (elements, classes, initializations)
-		return mark ({
+		return {
 			type: 				Syntax.Program,
 			body: 				elements,
 			classes: 			classes,
 			initializations: 	initializations
-		})
+		}

@@ -141,7 +141,7 @@ var niceMode = true,
 				return obj.type === Syntax.BlockStatement ? child (obj) : indent (obj);
 
 			if (niceMode && comment === null && node.filename)
-				comment = node.filename + ':' + node.lineNumber;
+				comment = node.filename + ':' + node.lineNumber /*+ ' [' + node.type + ']'*/;
 
 			var result, temp;
 
