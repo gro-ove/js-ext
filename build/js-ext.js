@@ -1459,7 +1459,7 @@ expr = unaryExpression (expr, lex ().value, false);
 return expr;
 }
 function parseComplexString (str){
-var args = parseArguments (), splitted, result, temp;
+var temp, args = parseArguments (), splitted, result;
 if (args.length === 0 || str.length === 0)
 return literal (str);
 splitted = str.split (new RegExp("%(" + args.map (function (a,i){
@@ -1470,6 +1470,8 @@ return i % 2 ? args [+ a] : a && literal (a);
 return arg;
 });
 result = splitted [0];
+if (typeof result.value !== "string")
+result = binaryExpression (literal (""), "+", result);
 for (var i = 1; 
 i < splitted.length; i++)
 result = binaryExpression (result, "+", splitted [i]);
@@ -1489,7 +1491,7 @@ if (type === Token.Keyword)
 if (matchKeyword ("this"))
 {
 lex ();
-return {"type":Syntax.ThisExpression};
+return thisExpression ();
 }
 if (matchKeyword ("function"))
 return parseFunctionExpression ();

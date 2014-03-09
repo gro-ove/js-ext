@@ -1,8 +1,13 @@
 	function parseComplexString (str){
-		var args = parseArguments (),
+		var temp,
+			args = parseArguments ()/*.filter (lambda (arg, index, array)
+				if (index && arg.type === Syntax.Literal && array [index - 1].type === Syntax.Literal){
+					array [index - 1].value = String (array [index - 1].value) + String (arg.value);
+					return false 
+				} else
+					return true)*/,
 			splitted,
-			result,
-			temp;
+			result;
 
 		if (args.length === 0 || str.length === 0)
 			return literal (str);
@@ -13,8 +18,13 @@
 			.filter (lambda arg);
 
 		result = splitted [0];
+
+		if (typeof result.value !== 'string')
+			result = binaryExpression (literal (''), '+', result);
+
 		for (var i = 1; i < splitted.length; i ++)
 			result = binaryExpression (result, '+', splitted [i]);
+
 		return result;
 	}
 
@@ -36,7 +46,7 @@
 		if (type === Token.Keyword){
 			if (matchKeyword ('this')){
 				lex ();
-				return { type: Syntax.ThisExpression };
+				return thisExpression ();
 			}
 
 			if (matchKeyword ('function'))
