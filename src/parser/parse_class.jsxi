@@ -9,7 +9,8 @@ function parseClassParams (){
 			publicMode: 		null, 
 			abstract: 			false,
 			static: 			false,
-			interface: 			false
+			interface: 			false,
+			partial: 			false
 		};
 
 	do {
@@ -22,6 +23,12 @@ function parseClassParams (){
 				if (result.publicMode !== null)
 					unexpected (token);
 				result.publicMode = token.value;
+				break;
+
+			case 'partial':
+				if (result.partial)
+					unexpected (token);
+				result.partial = true;
 				break;
 
 			case 'abstract':
@@ -86,10 +93,9 @@ function parseExtendsImplementsAndUses (mode){
 	} while (index < length);
 }
 
-function parseClassMembers (params, dependsOn){
+function parseClassMembers (params, dependsOn, result = {}){
 	var oldInClass = state.inClass,
 		token, 
-		result = {}, 
 		current;
 
 	function refresh ()
@@ -111,7 +117,7 @@ function parseClassMembers (params, dependsOn){
 		if (temp instanceof Array){
 			temp.push (obj);
 		} else if (has){
-			throw new SyntaxError ('Name "' + name + '" is already used by an another ' + (result [name].type === Syntax.VariableDeclarator ? 'field' : 'method'), token);
+			throw new SyntaxError ('Member "' + name + '" already declared', token);
 		} else
 			result [name] = obj;
 	}
@@ -150,13 +156,16 @@ function parseClassMembers (params, dependsOn){
 			throw new TypeError ('Constructor or initializer couldn\'t be abstract');
 
 		state.superAvailable = !current.static && dependsOn.parent;
+		state.noReturn = true;
 
 		var result = parseFunction ({ keyword: null, id: false, optionalParams: true });
 
 		result.id = identifier (current.static ? '@initializer' : '@constructor');
 		set (result);
-		state.superAvailable = false;
 		refresh ();
+
+		state.superAvailable = false;
+		state.noReturn = false;
 	}
 
 	state.inClass = true;
@@ -296,19 +305,38 @@ function parseClassDeclaration (){
 	// Классы, от которых зависит текущий класс (родительские, интерфейсы и используемые)
 	var dependsOn = parseExtendsImplementsAndUses (params);
 
+	// Кусок класса
+	var previous = state.classes.filter (lambda arg.id.name === id.name)[0];
+
+	if (previous){
+		if (!params.partial)
+			throw new TypeError ('Class "' + id.name + '" already declared', id);
+		else if (JSON.stringify (params) !== JSON.stringify (previous.params))
+			throw new TypeError ('Different class params', id);
+		else if (JSON.stringify (dependsOn.parent) !== JSON.stringify (previous.dependsOn.parent))
+			throw new TypeError ('Different "extends" param', id);
+		else if (JSON.stringify (dependsOn.implements) !== JSON.stringify (previous.dependsOn.implements))
+			throw new TypeError ('Different "implements" param', id);
+
+		for (var temp in-array dependsOn.uses)
+			if (previous.dependsOn.uses.indexOf (temp) === -1)
+				previous.dependsOn.uses.push (temp);
+	}
+
 	// Содержимое класса
-	var members = parseClassMembers (params, dependsOn);
+	var members = parseClassMembers (params, dependsOn, previous ? previous.members : {});
 
 	// Выводим распарсенное в консоль
-	// verbose (id, params, dependsOn, members);
+	verbose (id, params, dependsOn, members);
 
 	// Записываем новый класс
-	state.classes.push ({
-		id: 			id,
-		params: 		params,
-		dependsOn: 		dependsOn,
-		members: 		members
-	});
+	if (!previous)
+		state.classes.push ({
+			id: 			id,
+			params: 		params,
+			dependsOn: 		dependsOn,
+			members: 		members
+		});
 
 	return null;
 }

@@ -116,6 +116,9 @@ function parseBreakStatement (){
 function parseReturnStatement (){
 	var argument = null;
 
+	if (state.noReturn)
+		unexpected (lookahead ());
+
 	expectKeyword ('return');
 
 	if (source [index] === ' ' && identifierStart (source [index + 1])){

@@ -1,8 +1,11 @@
-class Menu {
+partial class Menu {
 	(){
 		console.log ('created');
-		return 8;
 	}
 }
 
-console.log (new Menu ());
+partial class Menu {
+	method (){
+		console.log ('created');
+	}
+}

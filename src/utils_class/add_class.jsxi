@@ -1,8 +1,6 @@
 // Записываем класс в список
 function addClass (classEntry){
-	// Если класс с таким именем уже есть, вываливаемся
-	if (byName (classEntry.id.name))
-		throw new TypeError ('Class "' + classEntry.id.name + '" already declared', classEntry.id);
+	console.assert (!byName (classEntry.id.name), 'already declared');
 
 	// Вспомогательный атрибут на будущее
 	classEntry.classObject = true;

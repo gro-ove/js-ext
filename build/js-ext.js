@@ -354,7 +354,7 @@ else
 return blockStatement ([parseStatement ()], true);
 }
 function parseClassParams (){
-var token, result = {"publicMode":null,"abstract":false,"static":false,"interface":false};
+var token, result = {"publicMode":null,"abstract":false,"static":false,"interface":false,"partial":false};
 do
 {
 token = lex ();
@@ -367,6 +367,11 @@ case "protected":
 if (result.publicMode !== null)
 unexpected (token);
 result.publicMode = token.value;
+break;
+case "partial":
+if (result.partial)
+unexpected (token);
+result.partial = true;
 break;
 case "abstract":
 
@@ -419,8 +424,10 @@ default:return result;
 }
  while (index < length);
 }
-function parseClassMembers (params,dependsOn){
-var oldInClass = state.inClass, token, result = {}, current;
+function parseClassMembers (params,dependsOn,result){
+if (result === undefined)
+result = {};
+var oldInClass = state.inClass, token, current;
 function refresh (){
 current = {"publicMode":null,"abstract":params.abstract,"static":params.static};
 }
@@ -434,7 +441,7 @@ temp.push (obj);
 else
 if (has)
 {
-throw new SyntaxError("Name \"" + name + "\" is already used by an another " + (result [name].type === Syntax.VariableDeclarator ? "field" : "method"), token);
+throw new SyntaxError("Member \"" + name + "\" already declared", token);
 }
 else
 result [name] = obj;
@@ -444,8 +451,8 @@ if (params.interface && ! current.static)
 throw new TypeError("Interface couldn't have object fields.");
 if (current.abstract)
 throw new TypeError("Field could't be abstract.");
-{ var _20m712p_22 = parseVariableDeclarators (); for (var _53pbb07_23 = 0; _53pbb07_23 < _20m712p_22.length; _53pbb07_23 ++){
-var entry = _20m712p_22[_53pbb07_23];
+{ var _3iimg29_55 = parseVariableDeclarators (); for (var _2hu03gk_56 = 0; _2hu03gk_56 < _3iimg29_55.length; _2hu03gk_56 ++){
+var entry = _3iimg29_55[_2hu03gk_56];
 set (entry);
 }}
 refresh ();
@@ -465,11 +472,13 @@ throw new TypeError("Constructor or initializer couldn't be " + current.publicMo
 if (current.abstract)
 throw new TypeError("Constructor or initializer couldn't be abstract");
 state.superAvailable = ! current.static && dependsOn.parent;
+state.noReturn = true;
 var result = parseFunction ({"keyword":null,"id":false,"optionalParams":true});
 result.id = identifier (current.static ? "@initializer" : "@constructor");
 set (result);
-state.superAvailable = false;
 refresh ();
+state.superAvailable = false;
+state.noReturn = false;
 }
 state.inClass = true;
 expect ("{");
@@ -584,7 +593,31 @@ function parseClassDeclaration (){
 var params = parseClassParams ();
 var id = parseIdentifier ();
 var dependsOn = parseExtendsImplementsAndUses (params);
-var members = parseClassMembers (params, dependsOn);
+var previous = state.classes.filter (function (arg){
+return arg.id.name === id.name;
+}) [0];
+if (previous)
+{
+if (! params.partial)
+throw new TypeError("Class \"" + id.name + "\" already declared", id);
+else
+if (JSON.stringify (params) !== JSON.stringify (previous.params))
+throw new TypeError("Different class params", id);
+else
+if (JSON.stringify (dependsOn.parent) !== JSON.stringify (previous.dependsOn.parent))
+throw new TypeError("Different \"extends\" param", id);
+else
+if (JSON.stringify (dependsOn.implements) !== JSON.stringify (previous.dependsOn.implements))
+throw new TypeError("Different \"implements\" param", id);
+{ var _1c18tfe_57 = dependsOn.uses; for (var _435b6uj_58 = 0; _435b6uj_58 < _1c18tfe_57.length; _435b6uj_58 ++){
+var temp = _1c18tfe_57[_435b6uj_58];
+if (previous.dependsOn.uses.indexOf (temp) === - 1)
+previous.dependsOn.uses.push (temp);
+}}
+}
+var members = parseClassMembers (params, dependsOn, previous ? previous.members : {});
+verbose (id, params, dependsOn, members);
+if (! previous)
 state.classes.push ({"id":id,"params":params,"dependsOn":dependsOn,"members":members});
 return null;
 }
@@ -1324,6 +1357,8 @@ case "abstract":
 case "class":
 
 case "interface":
+
+case "partial":
 return parseClassDeclaration ();
 case "(":
 
@@ -1481,6 +1516,8 @@ return breakStatement (label);
 }
 function parseReturnStatement (){
 var argument = null;
+if (state.noReturn)
+unexpected (lookahead ());
 expectKeyword ("return");
 if (source [index] === " " && identifierStart (source [index + 1]))
 {
@@ -1650,7 +1687,7 @@ return id === "while" || id === "break" || id === "catch" || id === "throw" || i
 case 6:
 return id === "return" || id === "typeof" || id === "delete" || id === "switch" || id === "lambda" || id === "static" || id === "public";
 case 7:
-return id === "default" || id === "finally" || id === "private" || id === "extends";
+return id === "default" || id === "finally" || id === "private" || id === "extends" || id === "partial";
 case 8:
 return id === "function" || id === "continue" || id === "debugger" || id === "abstract";
 case 9:
@@ -2061,11 +2098,10 @@ else
 return expression;
 }
 function addClass (classEntry){
-if (byName (classEntry.id.name))
-throw new TypeError("Class \"" + classEntry.id.name + "\" already declared", classEntry.id);
+console.assert (! byName (classEntry.id.name), "already declared");
 classEntry.classObject = true;
-{ var _35nl1vr_47 = classEntry.members; for (var name in _35nl1vr_47){
-var value = _35nl1vr_47[name];
+{ var _1pc12jg_8 = classEntry.members; for (var name in _1pc12jg_8){
+var value = _1pc12jg_8[name];
 value.className = classEntry.id;
 }}
 var constructor = classEntry.members ["@constructor"];
@@ -2081,8 +2117,8 @@ initializer = updateMember (functionExpression ("@initializer", [], blockStateme
 initializer.static = true;
 initializer.autocreated = true;
 }
-{ var _3svcdff_48 = classEntry.members; for (var name in _3svcdff_48){
-var member = _3svcdff_48[name];
+{ var _6hrbjm_9 = classEntry.members; for (var name in _6hrbjm_9){
+var member = _6hrbjm_9[name];
 updateMember (member, classEntry);
 }}
 var fields = filter (classEntry.members, function (arg){
@@ -2137,8 +2173,8 @@ return true;
 else
 if (obj && obj.body && obj.body.body)
 {
-{ var _407rcng_5 = obj.body.body; for (var _8en6md0_6 = 0; _8en6md0_6 < _407rcng_5.length; _8en6md0_6 ++){
-var child = _407rcng_5[_8en6md0_6];
+{ var _4ce1ntf_58 = obj.body.body; for (var _63i6kpu_59 = 0; _63i6kpu_59 < _4ce1ntf_58.length; _63i6kpu_59 ++){
+var child = _4ce1ntf_58[_63i6kpu_59];
 if (searchSuperExpression (child))
 return true;
 }}
@@ -2163,8 +2199,8 @@ var parent = byName (current.dependsOn.parent.name);
 if (! parent)
 throw new TypeError("Parent class not found", current.dependsOn.parent);
 connectClass (parent, current);
-{ var _1j9nkit_7 = parent.members; for (var id in _1j9nkit_7){
-var member = _1j9nkit_7[id];
+{ var _8v1st8l_60 = parent.members; for (var id in _8v1st8l_60){
+var member = _8v1st8l_60[id];
 if (! current.members.hasOwnProperty (id))
 current.members [id] = $.extend (true, {}, member, {"publicMode":member.publicMode === "private" ? "locked" : member.publicMode});
 }}
@@ -2188,17 +2224,17 @@ throw new TypeError("Super constructor call is required", currentConstructor);
 }
 }
 }
-{ var _5hepqpj_8 = current.dependsOn.uses; for (var _24ngph0_9 = 0; _24ngph0_9 < _5hepqpj_8.length; _24ngph0_9 ++){
-var use = _5hepqpj_8[_24ngph0_9];
+{ var _em0je2_61 = current.dependsOn.uses; for (var _70pqdcq_62 = 0; _70pqdcq_62 < _em0je2_61.length; _70pqdcq_62 ++){
+var use = _em0je2_61[_70pqdcq_62];
 var used = byName (use.name);
 if (! used)
-throw new TypeError("Used class not found", use);
+throw new TypeError("Used class \"" + use.name + "\" not found", use);
 }}
 current.connected = true;
 }
 function connectClasses (){
-for (var _89m3onc_10 = 0; _89m3onc_10 < classes.length; _89m3onc_10 ++){
-var classEntry = classes[_89m3onc_10];
+for (var _7tlielj_63 = 0; _7tlielj_63 < classes.length; _7tlielj_63 ++){
+var classEntry = classes[_7tlielj_63];
 connectClass (classEntry);
 }
 }
@@ -3094,7 +3130,7 @@ return result;
 }
 var oneline, temp = comment, localTabs = tabs + "\t", previous, result = join (array, forceWrap ? function (arg,index){
 var indented = generate (arg, localTabs, array);
-if (previous !== arg.type || arg.type !== Syntax.ExpressionStatement)
+if ((previous !== arg.type || arg.type !== Syntax.ExpressionStatement) && arg.type !== Syntax.ReturnStatement)
 {
 previous = arg.type;
 if (index > 0)
@@ -3227,8 +3263,8 @@ case Syntax.BlockStatement:
 temp = node.body.length > 0;
 result = "{" + end () + "\t";
 if (parent.type === Syntax.FunctionDeclaration || parent.type === Syntax.FunctionExpression)
-{ var _85dcbnp_69 = parent.params; for (var _32r0vup_70 = 0; _32r0vup_70 < _85dcbnp_69.length; _32r0vup_70 ++){
-var param = _85dcbnp_69[_32r0vup_70];
+{ var _fbf9ea_51 = parent.params; for (var _6vdgu05_52 = 0; _6vdgu05_52 < _fbf9ea_51.length; _6vdgu05_52 ++){
+var param = _fbf9ea_51[_6vdgu05_52];
 if (param.defaultValue)
 {
 result += "if (" + child (param) + " === undefined)" + end () + "\t\t" + child (param) + " = " + child (param.defaultValue) + ";" + end () + "\n\t" + tabs;
@@ -3290,8 +3326,8 @@ result += sub (node.alternate);
 return result;
 case Syntax.SwitchStatement:
 result = "switch (" + child (node.discriminant) + "){";
-{ var _7i7dol5_71 = node.cases; for (var _8vg9nl9_72 = 0; _8vg9nl9_72 < _7i7dol5_71.length; _8vg9nl9_72 ++){
-var obj = _7i7dol5_71[_8vg9nl9_72];
+{ var _78uvpv6_53 = node.cases; for (var _2ce1e1h_54 = 0; _2ce1e1h_54 < _78uvpv6_53.length; _2ce1e1h_54 ++){
+var obj = _78uvpv6_53[_2ce1e1h_54];
 result += indent (obj);
 }}
 return result + end () + "}";
@@ -3324,8 +3360,8 @@ case Syntax.ForInStatement:
 return "for (" + child (node.left) + " in " + child (node.right) + ")" + sub (node.body);
 case Syntax.TryStatement:
 result = "try " + sub (node.block) + " ";
-{ var _809prti_73 = node.handlers; for (var _7l18em8_74 = 0; _7l18em8_74 < _809prti_73.length; _7l18em8_74 ++){
-var handler = _809prti_73[_7l18em8_74];
+{ var _8rh227n_55 = node.handlers; for (var _849hdv7_56 = 0; _849hdv7_56 < _8rh227n_55.length; _849hdv7_56 ++){
+var handler = _8rh227n_55[_849hdv7_56];
 result += child (handler) + " ";
 }}
 if (node.finalizer)
@@ -3340,8 +3376,8 @@ return "debugger;";
 case Syntax.Program:
 result = "";
 temp = node.body [0].type;
-{ var _mr3i9b_75 = node.body; for (var index = 0; index < _mr3i9b_75.length; index ++){
-var childNode = _mr3i9b_75[index];
+{ var _1mm1h87_57 = node.body; for (var index = 0; index < _1mm1h87_57.length; index ++){
+var childNode = _1mm1h87_57[index];
 if (index > 0)
 {
 if (temp !== childNode.type || childNode.type !== Syntax.ExpressionStatement)

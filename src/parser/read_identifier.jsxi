@@ -11,7 +11,7 @@ function keyword (id)
 		case 6:
 			return id === 'return' || id === 'typeof' || id === 'delete' || id === 'switch' || id === 'lambda' || id === 'static' || id === 'public';
 		case 7:
-			return id === 'default' || id === 'finally' || id === 'private' || id === 'extends';
+			return id === 'default' || id === 'finally' || id === 'private' || id === 'extends' || id === 'partial';
 		case 8:
 			return id === 'function' || id === 'continue' || id === 'debugger' || id === 'abstract';
 		case 9:

@@ -74,7 +74,7 @@ function connectClass (current, from){
 	for (var use in-array current.dependsOn.uses){
 		var used = byName (use.name);
 		if (!used)
-			throw new TypeError ('Used class not found', use);
+			throw new TypeError ('Used class "' + use.name + '" not found', use);
 	}
 
 	current.connected = true;

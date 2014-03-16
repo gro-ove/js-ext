@@ -35,13 +35,13 @@
 		V default arguments to constuctor
 		V improve search for 'super' in contructor
 		V fix bug with 'super'
+		V throw error if 'return' found in contructor
+		V not use functionexpression unnecessarily
+		V partial classes
 		C if default fields initializations
-		- throw error if 'return' found in contructor
-		- partial classes
 		- change abstract members to java-style
-		- not use functionexpression unnecessarily
 		- when possible, use "className.prototype = { methog: ... }"
-		- classes from other files for 'extends' or 'implement' (instead of 'implemented' take data from others ".jsxo"; see "caching")
+		- classes from other ".jsx" for 'extends' or 'implement' (instead of 'implemented' take data from others ".jsxo"; see "caching")
 		L interfaces
 		L inner classes
 		L local classes

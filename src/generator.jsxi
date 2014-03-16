@@ -103,7 +103,7 @@ var niceMode = true,
 					previous,
 					result = join (array, forceWrap ? lambda (arg, index){
 						var indented = generate (arg, localTabs, array);
-						if (previous !== arg.type || arg.type !== Syntax.ExpressionStatement){
+						if ((previous !== arg.type || arg.type !== Syntax.ExpressionStatement) && arg.type !== Syntax.ReturnStatement){
 							previous = arg.type;
 							if (index > 0)
 								return '\n' + localTabs + indented;
