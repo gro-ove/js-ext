@@ -1,1 +1,0 @@
-String.prototype.matchSafe = function (a) return this.match (a) || [];

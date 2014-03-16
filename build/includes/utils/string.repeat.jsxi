@@ -1,1 +1,0 @@
-String.prototype.repeat = lambda new Array (arg + 1).join (this);

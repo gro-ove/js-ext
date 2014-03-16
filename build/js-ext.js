@@ -1,184 +1,23 @@
 #!/usr/bin/env node
-(function (st){
-st.format = function (){
-if (arguments.length == 0)
-return this;
-var placeholder = /\{(\d+)(?:,([-+]?\d+))?(?:\:([^(^}]+)(?:\(((?:\\\)|[^)])+)\)){0,1}){0,1}\}/g;
-var args = arguments;
-return this.replace (placeholder, function (m,num,len,f,params){
-m = args [Number (num)];
-f = formatters [f];
-return fl (f == null ? m : f (m, pp ((params || "").replace (/\\\)/g, ")").replace (/\\,/g, "\u0000").split (","), args)), len);
-});
-};
-String.format = function (format){
-return arguments.length <= 1 ? format : st.format.apply (format, Array.prototype.slice.call (arguments, 1));
-};
-st.format.add = function (name,func,replace){
-if (formatters [name] != null && ! replace)
-throw "Format " + name + " exist, use replace=true for replace";
-formatters [name] = func;
-};
-String.format.init = st.format.init = function (param){
-var f;
-for (var n in param)
-{
-f = formatters [n];
-if (f != null && f.init != null)
-f.init (param [n]);
-}
-};
-st.format.get = function (name){
-return formatters [name];
-};
-var paramph = /^\{(\d+)\}$/;
-var formatters = {};
-var sp = "    ";
-function pp (params,args){
-var r;
-for (var i = 0; 
-i < params.length; i++)
-{
-if ((r = paramph.exec (params [i])) != null)
-params [i] = args [Number (r [1])];
-else
-params [i] = params [i].replace (/\0/g, ",");
-}
-return params;
-}
-function fl (s,len){
-len = Number (len);
-if (isNaN (len))
-return s;
-s = "" + s;
-var nl = Math.abs (len) - s.length;
-if (nl <= 0)
-return s;
-while (sp.length < nl)
-sp += sp;
-return len < 0 ? (s + sp.substring (0, nl)) : (sp.substring (0, nl) + s);
-}
-st.format.add ("arr", function arr (va,params){
-if (va == null)
-return "null";
-var v = [];
-var j = params.shift () || "";
-var f = formatters [params.shift ()];
-if (f == null)
-v = va;
-else
-for (var i = 0; 
-i < va.length; i++)
-v.push (f (va [i], params));
-return v.join (j);
-});
-st.format.add ("obj", function (v,params){
-return v [params];
-});
-}) (String.prototype);
-function skipComment (){
-var ch, start, blockComment, lineComment, lineCommentFrom;
-blockComment = false;
-lineComment = false;
-while (index < length)
-{
-ch = source [index];
-if (lineComment)
-{
-ch = source [index++];
-if (isLineTerminator (ch))
-{
-lineComment = false;
-if (ch === "\r" && source [index] === "\n")
-++ index;
-++ lineNumber;
-lineStart = index;
-}
-}
-else
-if (blockComment)
-{
-if (isLineTerminator (ch))
-{
-if (ch === "\r" && source [index + 1] === "\n")
-++ index;
-++ lineNumber;
-++ index;
-lineStart = index;
-if (index >= length)
-throwError ({}, Messages.UnexpectedToken, "ILLEGAL");
-}
-else
-{
-ch = source [index++];
-if (index >= length)
-throwError ({}, Messages.UnexpectedToken, "ILLEGAL");
-if (ch === "*")
-{
-ch = source [index];
-if (ch === "/")
-{
-++ index;
-blockComment = false;
-}
-}
-}
-}
-else
-if (ch === "/")
-{
-ch = source [index + 1];
-if (ch === "/")
-{
-index += 2;
-lineCommentFrom = index;
-lineComment = true;
-}
-else
-if (ch === "*")
-{
-index += 2;
-blockComment = true;
-if (index >= length)
-throwError ({}, Messages.UnexpectedToken, "ILLEGAL");
-}
-else
-break;
-}
-else
-if (isWhiteSpace (ch))
-{
-++ index;
-}
-else
-if (isLineTerminator (ch))
-{
-++ index;
-if (ch === "\r" && source [index] === "\n")
-++ index;
-++ lineNumber;
-lineStart = index;
-}
-else
-break;
-}
-}
 function HelpersManager (){
 this.helpers = {};
 }
 HelpersManager.prototype.set = function (key,arg){
 if (! this.helpers.hasOwnProperty (key))
-this.helpers [key] = typeof arg === "object" ? $.extend (true, {}, mark (arg)) : true;
+this.helpers [key] = true;
+};
+HelpersManager.prototype.get = function (key,arg){
+return this.helpers;
 };
 function helperById (id,mark){
 switch (id){
 case "prototypeExtend":
-return functionDeclaration ("__pe", ["c","p","t"], [expressionStatement (assignmentExpression ("t", functionExpression ())),expressionStatement (assignmentExpression (memberExpression ("t", "prototype"), memberExpression ("p", "prototype"))),expressionStatement (assignmentExpression (memberExpression ("c", "prototype"), newExpression ("t"))),expressionStatement (assignmentExpression (memberExpression (memberExpression ("c", "prototype"), "constructor"), "c"))]);
+return functionDeclaration ("__prototypeExtend", ["c","p","t"], blockStatement ([expressionStatement (assignmentExpression ("t", functionExpression (null, [], blockStatement ([])))),expressionStatement (assignmentExpression (memberExpression ("t", "prototype"), memberExpression ("p", "prototype"))),expressionStatement (assignmentExpression (memberExpression ("c", "prototype"), newExpression ("t"))),expressionStatement (assignmentExpression (memberExpression (memberExpression ("c", "prototype"), "constructor"), "c"))]));
 case "createArray":
-return functionDeclaration ("__ca", ["from","to","result"], [ifStatement (binaryExpression (unaryExpression ("from", "typeof", true), "===", literal ("string")), expressionStatement (assignmentExpression ("from", callExpression (memberExpression ("from", "charCodeAt"), [literal (0)])))),ifStatement (binaryExpression (unaryExpression ("to", "typeof", true), "===", literal ("string")), expressionStatement (assignmentExpression ("to", callExpression (memberExpression ("to", "charCodeAt"), [literal (0)])))),expressionStatement (assignmentExpression ("result", newExpression ("Array", [binaryExpression (callExpression (memberExpression ("Math", "abs"), [binaryExpression ("to", "-", "from")]), "+", literal (1))]))),ifStatement (binaryExpression ("from", "<", "to"), forStatement (variableDeclaration ([variableDeclarator ("i", literal (0))]), binaryExpression ("i", "<", memberExpression ("result", "length")), unaryExpression ("i", "++"), expressionStatement (assignmentExpression (memberExpression ("result", "i", true), binaryExpression ("i", "+", "from")))), forStatement (variableDeclaration ([variableDeclarator ("i", binaryExpression (memberExpression ("result", "length"), "-", literal (1)))]), binaryExpression ("i", ">=", literal (0)), unaryExpression ("i", "--"), expressionStatement (assignmentExpression (memberExpression ("result", "i", true), binaryExpression ("from", "-", "i"))))),returnStatement ("result")]);
+return functionDeclaration ("__createArray", ["from","to","result"], blockStatement ([ifStatement (binaryExpression (unaryExpression ("from", "typeof", true), "===", stringLiteralWithQuotes ("string")), expressionStatement (assignmentExpression ("from", callExpression (memberExpression ("from", "charCodeAt"), [numericLiteral (0)])))),ifStatement (binaryExpression (unaryExpression ("to", "typeof", true), "===", stringLiteralWithQuotes ("string")), expressionStatement (assignmentExpression ("to", callExpression (memberExpression ("to", "charCodeAt"), [numericLiteral (0)])))),expressionStatement (assignmentExpression ("result", newExpression ("Array", [binaryExpression (callExpression (memberExpression ("Math", "abs"), [binaryExpression ("to", "-", "from")]), "+", numericLiteral (1))]))),ifStatement (binaryExpression ("from", "<", "to"), forStatement (variableDeclaration ([variableDeclarator ("i", numericLiteral (0))]), binaryExpression ("i", "<", memberExpression ("result", "length")), unaryExpression ("i", "++"), expressionStatement (assignmentExpression (memberExpression ("result", "i", true), binaryExpression ("i", "+", "from")))), forStatement (variableDeclaration ([variableDeclarator ("i", binaryExpression (memberExpression ("result", "length"), "-", numericLiteral (1)))]), binaryExpression ("i", ">=", numericLiteral (0)), unaryExpression ("i", "--"), expressionStatement (assignmentExpression (memberExpression ("result", "i", true), binaryExpression ("from", "-", "i"))))),returnStatement ("result")]));
 case "bindOnce":
 var bindedTable = memberExpression ("obj", "__bt"), objectFunction = memberExpression ("obj", "name", true), placeInTable = memberExpression (bindedTable, "name", true);
-return functionDeclaration ("__bo", ["obj","name"], [ifStatement (unaryExpression (callExpression (memberExpression ("obj", "hasOwnProperty"), [literal ("__bt")]), "!", true), expressionStatement (assignmentExpression (bindedTable, objectExpression ()))),ifStatement (unaryExpression (callExpression (memberExpression (bindedTable, "hasOwnProperty"), ["name"]), "!", true), expressionStatement (assignmentExpression (placeInTable, callExpression (memberExpression (objectFunction, "bind"), ["obj"])))),returnStatement (placeInTable)]);
+return functionDeclaration ("__bindOnce", ["obj","name"], blockStatement ([ifStatement (unaryExpression (callExpression (memberExpression ("obj", "hasOwnProperty"), [stringLiteralWithQuotes ("__bindTable")]), "!", true), expressionStatement (assignmentExpression (bindedTable, objectExpression ([])))),ifStatement (unaryExpression (callExpression (memberExpression (bindedTable, "hasOwnProperty"), ["name"]), "!", true), expressionStatement (assignmentExpression (placeInTable, callExpression (memberExpression (objectFunction, "bind"), ["obj"])))),returnStatement (placeInTable)]));
 default:console.assert (false, "Wrong helper id: " + id);
 }
 }
@@ -189,137 +28,73 @@ var value = helpers[id];
 if (value && typeof value !== "function")
 {
 temp = helperById (id, value);
-if (typeof value === "object")
-markAll (temp, value);
 result.push (temp);
 }
 }
 return result;
 }
-function isIdentifierStart (ch){
-return ch === "$" || ch === "_" || ch === "\\" || ch >= "a" && ch <= "z" || ch >= "A" && ch <= "Z" || ch.charCodeAt (0) >= 128 && Regex.NonAsciiIdentifierStart.test (ch);
-}
-function isIdentifierPart (ch){
-return ch === "$" || ch === "_" || ch === "\\" || ch >= "a" && ch <= "z" || ch >= "A" && ch <= "Z" || ch >= "0" && ch <= "9" || ch.charCodeAt (0) >= 128 && Regex.NonAsciiIdentifierPart.test (ch);
-}
-var source, index, lineNumber, lineStart, length, buffer, state, information, options, helpers;
+var source;
+var length;
+var index;
+var lineNumber;
+var buffer;
+var state;
+var options;
+var helpers;
 function jsxParse (code,args,callback){
-source = String (code);
+source = String (code).replace (/\r\n?/g, "\n") + "\n";
+length = source.length;
 index = 0;
 lineNumber = source.length ? 1 : 0;
-lineStart = 0;
-length = source.length;
 buffer = null;
 state = {"allowIn":true,"inClass":false,"parsingComplete":false,"preventSequence":false,"classes":[]};
 options = args || {"filename":"[ not a file ]","insertReturn":false,"initializationAllowed":false};
 helpers = new HelpersManager();
 var result = parseProgram ();
+source = length = index = lineNumber = buffer = state = options = null;
 if (typeof callback === "function")
 callback (result, helpers.helpers);
 else
 return result;
 }
-function isKeyword (id){
-var keyword = false;
-switch (id.length){
-case 2:
-keyword = (id === "if") || (id === "in") || (id === "do");
-break;
-case 3:
-keyword = (id === "var") || (id === "for") || (id === "new") || (id === "try") || (id === "uses");
-break;
-case 4:
-keyword = (id === "this") || (id === "else") || (id === "case") || (id === "void") || (id === "with");
-break;
-case 5:
-keyword = (id === "while") || (id === "break") || (id === "catch") || (id === "throw") || (id === "class") || (id === "super");
-break;
-case 6:
-keyword = (id === "return") || (id === "typeof") || (id === "delete") || (id === "switch") || (id === "lambda") || (id === "static") || (id === "public");
-break;
-case 7:
-keyword = (id === "default") || (id === "finally") || (id === "private") || (id === "extends");
-break;
-case 8:
-keyword = (id === "function") || (id === "continue") || (id === "debugger") || (id === "abstract");
-break;
-case 9:
-keyword = (id === "protected") || (id === "interface");
-break;
-case 10:
-keyword = (id === "instanceof") || (id === "implements");
-break;
-case 11:
-keyword = (id === "implemented");
-break;
-}
-if (keyword)
-return true;
-return isFutureReservedWord (id);
-}
-function isFutureReservedWord (id){
-switch (id){
-case "enum":
-
-case "export":
-
-case "import":
-return true;
-default:return false;
-}
-}
-var Token, PropertyKind, TokenName, Syntax, Messages, Regex;
-Token = {"BooleanLiteral":1,"EOF":2,"Identifier":3,"Keyword":4,"NullLiteral":5,"NumericLiteral":6,"Punctuator":7,"StringLiteral":8};
-PropertyKind = {"Data":1,"Get":2,"Set":4};
-TokenName = {};
-TokenName [Token.BooleanLiteral] = "Boolean";
-TokenName [Token.EOF] = "<end>";
-TokenName [Token.Identifier] = "Identifier";
-TokenName [Token.Keyword] = "Keyword";
-TokenName [Token.NullLiteral] = "Null";
-TokenName [Token.NumericLiteral] = "Numeric";
-TokenName [Token.Punctuator] = "Punctuator";
-TokenName [Token.StringLiteral] = "String";
-Syntax = {"AssignmentExpression":"AssignmentExpression","ArrayExpression":"ArrayExpression","BlockStatement":"BlockStatement","BinaryExpression":"BinaryExpression","BreakStatement":"BreakStatement","CallExpression":"CallExpression","CatchClause":"CatchClause","ConditionalExpression":"ConditionalExpression","ContinueStatement":"ContinueStatement","DoWhileStatement":"DoWhileStatement","DebuggerStatement":"DebuggerStatement","EmptyStatement":"EmptyStatement","ExpressionStatement":"ExpressionStatement","ForStatement":"ForStatement","ForInStatement":"ForInStatement","FunctionDeclaration":"FunctionDeclaration","FunctionExpression":"FunctionExpression","Identifier":"Identifier","IfStatement":"IfStatement","Literal":"Literal","LabeledStatement":"LabeledStatement","LogicalExpression":"LogicalExpression","MemberExpression":"MemberExpression","NewExpression":"NewExpression","ObjectExpression":"ObjectExpression","Program":"Program","Property":"Property","ReturnStatement":"ReturnStatement","SequenceExpression":"SequenceExpression","SwitchStatement":"SwitchStatement","SwitchCase":"SwitchCase","ThisExpression":"ThisExpression","ThrowStatement":"ThrowStatement","TryStatement":"TryStatement","UnaryExpression":"UnaryExpression","VariableDeclaration":"VariableDeclaration","VariableDeclarator":"VariableDeclarator","WhileStatement":"WhileStatement","WithStatement":"WithStatement"};
-Messages = {"UnexpectedToken":"Unexpected token %0","UnexpectedNumber":"Unexpected number","UnexpectedString":"Unexpected string","UnexpectedIdentifier":"Unexpected identifier","UnexpectedReserved":"Unexpected reserved word","UnexpectedEOS":"Unexpected end of input","NewlineAfterThrow":"Illegal newline after throw","InvalidRegExp":"Invalid regular expression","InvalidIdentifier":"Invalid identifier","UnterminatedRegExp":"Invalid regular expression: missing /","InvalidLHSInAssignment":"Invalid left-hand side in assignment","InvalidLHSInForIn":"Invalid left-hand side in for-in","MultipleDefaultsInSwitch":"More than one default clause in switch statement","NoCatchOrFinally":"Missing catch or finally after try","IllegalContinue":"Illegal continue statement","IllegalBreak":"Illegal break statement","IllegalReturn":"Illegal return statement","AccessorDataProperty":"Object literal may not have data and accessor property with the same name","AccessorGetSet":"Object literal may not have multiple get/set accessors with the same name","CyclicDependencyDetected":"Cyclic dependency detected (%0)","PrivateAccessError":"Attempt to access to private %0","ObjectAccessError":"Attempt to access to object field %0 from static method","SuperMethodIsNotAvailable":"Super methods are not available for this class","ClassAlreadyDefined":"Class with name %0 already defined","ClassMemberAlreadyDefined":"Class member with name %0 already defined","ParentClassNotFound":"Parent class %0 not found","UsingClassNotFound":"Using class %0 not found","SuperConstructorCallNeeded":"Super constructor call is required","WtfMan":"WTF, MAN"};
-Regex = {"NonAsciiIdentifierStart":new RegExp("[ªµºÀ-ÖØ-öø-ˁˆ-ˑˠ-ˤˬˮͰ-ʹͶͷͺ-ͽΆΈ-ΊΌΎ-ΡΣ-ϵϷ-ҁҊ-ԧԱ-Ֆՙա-ևא-תװ-ײؠ-يٮٯٱ-ۓەۥۦۮۯۺ-ۼۿܐܒ-ܯݍ-ޥޱߊ-ߪߴߵߺࠀ-ࠕࠚࠤࠨࡀ-ࡘࢠࢢ-ࢬऄ-हऽॐक़-ॡॱ-ॷॹ-ॿঅ-ঌএঐও-নপ-রলশ-হঽৎড়ঢ়য়-ৡৰৱਅ-ਊਏਐਓ-ਨਪ-ਰਲਲ਼ਵਸ਼ਸਹਖ਼-ੜਫ਼ੲ-ੴઅ-ઍએ-ઑઓ-નપ-રલળવ-હઽૐૠૡଅ-ଌଏଐଓ-ନପ-ରଲଳଵ-ହଽଡ଼ଢ଼ୟ-ୡୱஃஅ-ஊஎ-ஐஒ-கஙசஜஞடணதந-பம-ஹௐఅ-ఌఎ-ఐఒ-నప-ళవ-హఽౘౙౠౡಅ-ಌಎ-ಐಒ-ನಪ-ಳವ-ಹಽೞೠೡೱೲഅ-ഌഎ-ഐഒ-ഺഽൎൠൡൺ-ൿඅ-ඖක-නඳ-රලව-ෆก-ะาำเ-ๆກຂຄງຈຊຍດ-ທນ-ຟມ-ຣລວສຫອ-ະາຳຽເ-ໄໆໜ-ໟༀཀ-ཇཉ-ཬྈ-ྌက-ဪဿၐ-ၕၚ-ၝၡၥၦၮ-ၰၵ-ႁႎႠ-ჅჇჍა-ჺჼ-ቈቊ-ቍቐ-ቖቘቚ-ቝበ-ኈኊ-ኍነ-ኰኲ-ኵኸ-ኾዀዂ-ዅወ-ዖዘ-ጐጒ-ጕጘ-ፚᎀ-ᎏᎠ-Ᏼᐁ-ᙬᙯ-ᙿᚁ-ᚚᚠ-ᛪᛮ-ᛰᜀ-ᜌᜎ-ᜑᜠ-ᜱᝀ-ᝑᝠ-ᝬᝮ-ᝰក-ឳៗៜᠠ-ᡷᢀ-ᢨᢪᢰ-ᣵᤀ-ᤜᥐ-ᥭᥰ-ᥴᦀ-ᦫᧁ-ᧇᨀ-ᨖᨠ-ᩔᪧᬅ-ᬳᭅ-ᭋᮃ-ᮠᮮᮯᮺ-ᯥᰀ-ᰣᱍ-ᱏᱚ-ᱽᳩ-ᳬᳮ-ᳱᳵᳶᴀ-ᶿḀ-ἕἘ-Ἕἠ-ὅὈ-Ὅὐ-ὗὙὛὝὟ-ώᾀ-ᾴᾶ-ᾼιῂ-ῄῆ-ῌῐ-ΐῖ-Ίῠ-Ῥῲ-ῴῶ-ῼⁱⁿₐ-ₜℂℇℊ-ℓℕℙ-ℝℤΩℨK-ℭℯ-ℹℼ-ℿⅅ-ⅉⅎⅠ-ↈⰀ-Ⱞⰰ-ⱞⱠ-ⳤⳫ-ⳮⳲⳳⴀ-ⴥⴧⴭⴰ-ⵧⵯⶀ-ⶖⶠ-ⶦⶨ-ⶮⶰ-ⶶⶸ-ⶾⷀ-ⷆⷈ-ⷎⷐ-ⷖⷘ-ⷞⸯ々-〇〡-〩〱-〵〸-〼ぁ-ゖゝ-ゟァ-ヺー-ヿㄅ-ㄭㄱ-ㆎㆠ-ㆺㇰ-ㇿ㐀-䶵一-鿌ꀀ-ꒌꓐ-ꓽꔀ-ꘌꘐ-ꘟꘪꘫꙀ-ꙮꙿ-ꚗꚠ-ꛯꜗ-ꜟꜢ-ꞈꞋ-ꞎꞐ-ꞓꞠ-Ɦꟸ-ꠁꠃ-ꠅꠇ-ꠊꠌ-ꠢꡀ-ꡳꢂ-ꢳꣲ-ꣷꣻꤊ-ꤥꤰ-ꥆꥠ-ꥼꦄ-ꦲꧏꨀ-ꨨꩀ-ꩂꩄ-ꩋꩠ-ꩶꩺꪀ-ꪯꪱꪵꪶꪹ-ꪽꫀꫂꫛ-ꫝꫠ-ꫪꫲ-ꫴꬁ-ꬆꬉ-ꬎꬑ-ꬖꬠ-ꬦꬨ-ꬮꯀ-ꯢ가-힣ힰ-ퟆퟋ-ퟻ豈-舘並-龎ﬀ-ﬆﬓ-ﬗיִײַ-ﬨשׁ-זּטּ-לּמּנּסּףּפּצּ-ﮱﯓ-ﴽﵐ-ﶏﶒ-ﷇﷰ-ﷻﹰ-ﹴﹶ-ﻼＡ-Ｚａ-ｚｦ-ﾾￂ-ￇￊ-ￏￒ-ￗￚ-ￜ]"),"NonAsciiIdentifierPart":new RegExp("[ªµºÀ-ÖØ-öø-ˁˆ-ˑˠ-ˤˬˮ̀-ʹͶͷͺ-ͽΆΈ-ΊΌΎ-ΡΣ-ϵϷ-ҁ҃-҇Ҋ-ԧԱ-Ֆՙա-և֑-ׇֽֿׁׂׅׄא-תװ-ײؐ-ؚؠ-٩ٮ-ۓە-ۜ۟-۪ۨ-ۼۿܐ-݊ݍ-ޱ߀-ߵߺࠀ-࠭ࡀ-࡛ࢠࢢ-ࢬࣤ-ࣾऀ-ॣ०-९ॱ-ॷॹ-ॿঁ-ঃঅ-ঌএঐও-নপ-রলশ-হ়-ৄেৈো-ৎৗড়ঢ়য়-ৣ০-ৱਁ-ਃਅ-ਊਏਐਓ-ਨਪ-ਰਲਲ਼ਵਸ਼ਸਹ਼ਾ-ੂੇੈੋ-੍ੑਖ਼-ੜਫ਼੦-ੵઁ-ઃઅ-ઍએ-ઑઓ-નપ-રલળવ-હ઼-ૅે-ૉો-્ૐૠ-ૣ૦-૯ଁ-ଃଅ-ଌଏଐଓ-ନପ-ରଲଳଵ-ହ଼-ୄେୈୋ-୍ୖୗଡ଼ଢ଼ୟ-ୣ୦-୯ୱஂஃஅ-ஊஎ-ஐஒ-கஙசஜஞடணதந-பம-ஹா-ூெ-ைொ-்ௐௗ௦-௯ఁ-ఃఅ-ఌఎ-ఐఒ-నప-ళవ-హఽ-ౄె-ైొ-్ౕౖౘౙౠ-ౣ౦-౯ಂಃಅ-ಌಎ-ಐಒ-ನಪ-ಳವ-ಹ಼-ೄೆ-ೈೊ-್ೕೖೞೠ-ೣ೦-೯ೱೲംഃഅ-ഌഎ-ഐഒ-ഺഽ-ൄെ-ൈൊ-ൎൗൠ-ൣ൦-൯ൺ-ൿංඃඅ-ඖක-නඳ-රලව-ෆ්ා-ුූෘ-ෟෲෳก-ฺเ-๎๐-๙ກຂຄງຈຊຍດ-ທນ-ຟມ-ຣລວສຫອ-ູົ-ຽເ-ໄໆ່-ໍ໐-໙ໜ-ໟༀ༘༙༠-༩༹༵༷༾-ཇཉ-ཬཱ-྄྆-ྗྙ-ྼ࿆က-၉ၐ-ႝႠ-ჅჇჍა-ჺჼ-ቈቊ-ቍቐ-ቖቘቚ-ቝበ-ኈኊ-ኍነ-ኰኲ-ኵኸ-ኾዀዂ-ዅወ-ዖዘ-ጐጒ-ጕጘ-ፚ፝-፟ᎀ-ᎏᎠ-Ᏼᐁ-ᙬᙯ-ᙿᚁ-ᚚᚠ-ᛪᛮ-ᛰᜀ-ᜌᜎ-᜔ᜠ-᜴ᝀ-ᝓᝠ-ᝬᝮ-ᝰᝲᝳក-៓ៗៜ៝០-៩᠋-᠍᠐-᠙ᠠ-ᡷᢀ-ᢪᢰ-ᣵᤀ-ᤜᤠ-ᤫᤰ-᤻᥆-ᥭᥰ-ᥴᦀ-ᦫᦰ-ᧉ᧐-᧙ᨀ-ᨛᨠ-ᩞ᩠-᩿᩼-᪉᪐-᪙ᪧᬀ-ᭋ᭐-᭙᭫-᭳ᮀ-᯳ᰀ-᰷᱀-᱉ᱍ-ᱽ᳐-᳔᳒-ᳶᴀ-ᷦ᷼-ἕἘ-Ἕἠ-ὅὈ-Ὅὐ-ὗὙὛὝὟ-ώᾀ-ᾴᾶ-ᾼιῂ-ῄῆ-ῌῐ-ΐῖ-Ίῠ-Ῥῲ-ῴῶ-ῼ‌‍‿⁀⁔ⁱⁿₐ-ₜ⃐-⃥⃜⃡-⃰ℂℇℊ-ℓℕℙ-ℝℤΩℨK-ℭℯ-ℹℼ-ℿⅅ-ⅉⅎⅠ-ↈⰀ-Ⱞⰰ-ⱞⱠ-ⳤⳫ-ⳳⴀ-ⴥⴧⴭⴰ-ⵧⵯ⵿-ⶖⶠ-ⶦⶨ-ⶮⶰ-ⶶⶸ-ⶾⷀ-ⷆⷈ-ⷎⷐ-ⷖⷘ-ⷞⷠ-ⷿⸯ々-〇〡-〯〱-〵〸-〼ぁ-ゖ゙゚ゝ-ゟァ-ヺー-ヿㄅ-ㄭㄱ-ㆎㆠ-ㆺㇰ-ㇿ㐀-䶵一-鿌ꀀ-ꒌꓐ-ꓽꔀ-ꘌꘐ-ꘫꙀ-꙯ꙴ-꙽ꙿ-ꚗꚟ-꛱ꜗ-ꜟꜢ-ꞈꞋ-ꞎꞐ-ꞓꞠ-Ɦꟸ-ꠧꡀ-ꡳꢀ-꣄꣐-꣙꣠-ꣷꣻ꤀-꤭ꤰ-꥓ꥠ-ꥼꦀ-꧀ꧏ-꧙ꨀ-ꨶꩀ-ꩍ꩐-꩙ꩠ-ꩶꩺꩻꪀ-ꫂꫛ-ꫝꫠ-ꫯꫲ-꫶ꬁ-ꬆꬉ-ꬎꬑ-ꬖꬠ-ꬦꬨ-ꬮꯀ-ꯪ꯬꯭꯰-꯹가-힣ힰ-ퟆퟋ-ퟻ豈-舘並-龎ﬀ-ﬆﬓ-ﬗיִ-ﬨשׁ-זּטּ-לּמּנּסּףּפּצּ-ﮱﯓ-ﴽﵐ-ﶏﶒ-ﷇﷰ-ﷻ︀-️︠-︦︳︴﹍-﹏ﹰ-ﹴﹶ-ﻼ０-９Ａ-Ｚ＿ａ-ｚｦ-ﾾￂ-ￇￊ-ￏￒ-ￗￚ-ￜ]")};
-function markAll (obj,arg){
-if (obj.lineNumber)
-mark (obj, arg);
-for (var key in obj){
-var value = obj[key];
-if (value !== null && typeof value === "object")
-markAll (value, arg);
-}
-return obj;
-}
-function mark (obj,arg){
-if (arg !== undefined)
-{
-obj.filename = arg.filename || options.filename;
-obj.lineNumber = arg.lineNumber || lineNumber;
-obj.lineStart = arg.lineStart || lineStart;
-obj.index = arg.index || index;
-return obj;
-}
-else
-if (index > length || obj && obj.filename)
-{
-return obj || {};
-}
-else
-if (obj && obj.lineNumber)
-{
-return $.extend (obj, {"filename":options.filename});
-}
-else
-return $.extend (obj || {}, {"filename":options.filename,"lineNumber":lineNumber,"lineStart":lineStart,"index":index});
-}
-function literal (value){
-return typeof value === "object" && value ? {"type":Syntax.Literal,"value":value.value,"raw":value.raw,"lineNumber":value.lineNumber,"filename":options.filename} : mark ({"type":Syntax.Literal,"value":value});
-}
+var Token = {"Punctuator":0,"Identifier":1,"Keyword":2,"BooleanLiteral":3,"NullLiteral":4,"NumericLiteral":5,"StringLiteral":6,"UndefinedLiteral":7,"EOF":8}, TokenName = ["Punctuator","Identifier","Keyword","Boolean","Null","Numeric","String","Undefined","<end>"], Syntax = {"AssignmentExpression":"AssignmentExpression","ArrayExpression":"ArrayExpression","BlockStatement":"BlockStatement","BinaryExpression":"BinaryExpression","BreakStatement":"BreakStatement","CallExpression":"CallExpression","CatchClause":"CatchClause","ConditionalExpression":"ConditionalExpression","ContinueStatement":"ContinueStatement","DoWhileStatement":"DoWhileStatement","DebuggerStatement":"DebuggerStatement","EmptyStatement":"EmptyStatement","ExpressionStatement":"ExpressionStatement","ForStatement":"ForStatement","ForInStatement":"ForInStatement","FunctionDeclaration":"FunctionDeclaration","FunctionExpression":"FunctionExpression","Identifier":"Identifier","IfStatement":"IfStatement","LabeledStatement":"LabeledStatement","LogicalExpression":"LogicalExpression","MemberExpression":"MemberExpression","NewExpression":"NewExpression","ObjectExpression":"ObjectExpression","Program":"Program","Property":"Property","ReturnStatement":"ReturnStatement","SequenceExpression":"SequenceExpression","SwitchStatement":"SwitchStatement","SwitchCase":"SwitchCase","ThisExpression":"ThisExpression","ThrowStatement":"ThrowStatement","TryStatement":"TryStatement","UnaryExpression":"UnaryExpression","VariableDeclaration":"VariableDeclaration","VariableDeclarator":"VariableDeclarator","WhileStatement":"WhileStatement","WithStatement":"WithStatement","BooleanLiteral":"BooleanLiteral","NullLiteral":"NullLiteral","NumericLiteral":"NumericLiteral","RegexpLiteral":"RegexpLiteral","StringLiteral":"StringLiteral","UndefinedLiteral":"UndefinedLiteral","NotImplementedStatement":"NotImplementedStatement"}, PropertyKind = {"Data":1,"Get":2,"Set":4};
 function identifier (arg){
-return typeof arg === "string" ? mark ({"type":Syntax.Identifier,"name":arg}) : arg || null;
+return typeof arg === "string" ? {"type":Syntax.Identifier,"name":arg} : arg || null;
+}
+function booleanLiteral (value){
+console.assert (value === "true" || value === "false", "bad boolean literal");
+return {"type":Syntax.BooleanLiteral,"value":value};
+}
+function nullLiteral (){
+return {"type":Syntax.NullLiteral,"value":"null"};
+}
+function numericLiteral (value){
+if (typeof value === "number")
+value = String (value);
+console.assert (typeof value === "string", "bad numeric literal");
+return {"type":Syntax.NumericLiteral,"value":value};
+}
+function regexpLiteral (value){
+console.assert (typeof value === "string", "bad regexp literal");
+return {"type":Syntax.RegexpLiteral,"value":value};
+}
+function stringLiteral (value){
+console.assert (typeof value === "string" && value.length > 1 && (value [0] === "'" || value [0] === "\"") && value [0] === value [value.length - 1], "bad string literal");
+return {"type":Syntax.StringLiteral,"value":value};
+}
+function stringLiteralWithQuotes (value){
+return stringLiteral ("'" + value.replace (/(^|[^\\])'/g, "$1\\'") + "'");
+}
+function stringLiteralValue (literal){
+console.assert (literal.value.length >= 2, "Bad literal");
+return literal.value.slice (1, - 1);
+}
+function stringLiteralEmpty (literal){
+console.assert (literal.value.length >= 2, "Bad literal");
+return literal.value.length === 2;
+}
+function undefinedLiteral (){
+return {"type":Syntax.UndefinedLiteral,"value":"undefined"};
 }
 function property (key,value,kind){
 if (kind === undefined)
@@ -327,8 +102,6 @@ kind = "init";
 return {"type":Syntax.Property,"key":identifier (key),"value":identifier (value),"kind":kind};
 }
 function objectExpression (properties){
-if (properties === undefined)
-properties = [];
 return {"type":Syntax.ObjectExpression,"properties":properties};
 }
 function memberExpression (obj,property,computed){
@@ -354,7 +127,7 @@ function superExpression (name,args,level){
 return {"type":Syntax.CallExpression,"callee":identifier (name),"arguments":args || null,"super":level || 1};
 }
 function thisExpression (){
-return mark ({"type":Syntax.ThisExpression});
+return {"type":Syntax.ThisExpression};
 }
 function arrayExpression (elements){
 return {"type":Syntax.ArrayExpression,"elements":elements};
@@ -392,10 +165,10 @@ return body instanceof Array ? {"type":Syntax.BlockStatement,"body":body,"single
 function expressionStatement (expression){
 return {"type":Syntax.ExpressionStatement,"expression":expression};
 }
-function ifStatement (test,trueStatement,falseStatement){
-if (falseStatement === undefined)
-falseStatement = null;
-return {"type":Syntax.IfStatement,"test":identifier (test),"consequent":trueStatement,"alternate":falseStatement};
+function ifStatement (test,consequent,alternate){
+if (alternate === undefined)
+alternate = null;
+return {"type":Syntax.IfStatement,"test":identifier (test),"consequent":consequent,"alternate":alternate};
 }
 function whileStatement (test,body){
 return {"type":Syntax.WhileStatement,"test":test,"body":body};
@@ -425,40 +198,55 @@ function returnStatement (arg){
 return {"type":Syntax.ReturnStatement,"argument":identifier (arg)};
 }
 function throwStatement (arg){
-return mark ({"type":Syntax.ThrowStatement,"argument":identifier (arg)});
+return {"type":Syntax.ThrowStatement,"argument":identifier (arg)};
 }
 function breakStatement (arg){
-return mark ({"type":Syntax.BreakStatement,"label":identifier (arg)});
+return {"type":Syntax.BreakStatement,"label":identifier (arg)};
 }
 function continueStatement (arg){
-return mark ({"type":Syntax.ContinueStatement,"label":identifier (arg)});
+return {"type":Syntax.ContinueStatement,"label":identifier (arg)};
 }
 function debuggerStatement (){
-return mark ({"type":Syntax.DebuggerStatement});
+return {"type":Syntax.DebuggerStatement};
 }
-var tempId = 0;
 function functionExpression (name,params,body){
-if (name instanceof Array)
-{
-body = params;
-params = name;
-name = null;
-}
-return {"type":Syntax.FunctionExpression,"id":identifier (name),"params":params ? params.map (identifier) : [],"defaults":[],"body":blockStatement (body),"rest":null,"generator":false,"expression":false,"number":name + tempId++};
+return {"type":Syntax.FunctionExpression,"id":identifier (name),"params":params.map (identifier),"body":body};
 }
 function functionDeclaration (name,params,body){
-if (params === undefined)
-params = [];
-return {"type":Syntax.FunctionDeclaration,"id":identifier (name),"params":params.map (identifier),"defaults":[],"body":blockStatement (body),"rest":null,"generator":false,"expression":false,"number":name + tempId++};
+return {"type":Syntax.FunctionDeclaration,"id":identifier (name),"params":params.map (identifier),"body":body};
 }
-function variableDeclarator (name,value){
-return {"type":Syntax.VariableDeclarator,"id":identifier (name),"init":identifier (value)};
+function variableDeclarator (id,value){
+return {"type":Syntax.VariableDeclarator,"id":identifier (id),"init":identifier (value)};
 }
 function variableDeclaration (variables){
-return {"type":Syntax.VariableDeclaration,"declarations":variables,"kind":"var"};
+return {"type":Syntax.VariableDeclaration,"declarations":identifier (variables)};
 }
 function program (elements,classes,initializations){
 return {"type":Syntax.Program,"body":elements,"classes":classes,"initializations":initializations};
+}
+function callFunctionExpression (body){
+return callExpression (functionExpression (null, [], body instanceof Array ? blockStatement (body) : body), []);
+}
+function oneVariableDeclaration (id,init){
+return variableDeclaration ([variableDeclarator (id, init)]);
+}
+function assignmentStatement (left,right){
+return expressionStatement (assignmentExpression (left, right));
+}
+function identifierFromToken (token){
+return {"type":Syntax.Identifier,"name":token.value,"filename":options.filename,"lineNumber":token.lineNumber};
+}
+function stringLiteralFromToken (token){
+return {"type":Syntax.StringLiteral,"value":token.value,"filename":options.filename,"lineNumber":token.lineNumber};
+}
+function thisExpressionFromToken (token){
+return {"type":Syntax.ThisExpression,"filename":options.filename,"lineNumber":token.lineNumber};
+}
+function functionExpressionFromToken (token,name,params,body){
+return {"type":Syntax.FunctionExpression,"id":name,"params":params,"body":body,"filename":options.filename,"lineNumber":token.lineNumber};
+}
+function functionDeclarationFromToken (token,name,params,body){
+return {"type":Syntax.FunctionDeclaration,"id":name,"params":params,"body":body,"filename":options.filename,"lineNumber":token.lineNumber};
 }
 function parseArguments (){
 var args = [], comma = {};
@@ -478,39 +266,50 @@ if (state.comma === undefined)
 state.comma = token.value === ",";
 else
 if (state.comma !== (token.value === ","))
-throwUnexpected (token);
+unexpected (token);
 if (token.value === ",")
 lex ();
 }
-function parseArrayPerlInitializer (elements,from){
-expect ("..");
-var from = elements [0], to = parseAssignmentExpression ();
+var maxCountForInline = 10;
+function parseArrayPerlInitializer (elements){
+var firstElement = elements [0], secondElement = parseAssignmentExpression (), from, to, delta, chars;
 expect ("]");
-if (from.type === Syntax.Literal && to.type === Syntax.Literal)
+if (firstElement.type === Syntax.NumericLiteral && secondElement.type === Syntax.NumericLiteral)
 {
-var nfrom = + from.value, nto = + to.value;
-if (Number.isNaN (nfrom))
-nfrom = String (from.value).charCodeAt (0);
-if (Number.isNaN (nto))
-nto = String (to.value).charCodeAt (0);
-if (Math.abs (nto - nfrom) < 10)
-{
-if (nto > nfrom)
-for (nfrom++; 
-nfrom <= nto; nfrom++)
-elements.push (literal (nfrom));
+from = + firstElement.value;
+to = + secondElement.value;
+}
 else
-for (nfrom--; 
-nfrom >= nto; nfrom--)
-elements.push (literal (nfrom));
+if (firstElement.type === Syntax.StringLiteral && secondElement.type === Syntax.StringLiteral)
+{
+from = stringLiteralValue (firstElement);
+to = stringLiteralValue (secondElement);
+if (from === null || from.length > 1)
+unexpected (firstElement);
+if (to === null || to.length > 1)
+unexpected (secondElement);
+from = from.charCodeAt (0);
+to = to.charCodeAt (0);
+chars = true;
+}
+if (from !== undefined && Math.abs (from - to) < 10)
+{
+delta = from < to ? 1 : - 1;
+while (from !== to)
+{
+from += delta;
+elements.push (chars ? stringLiteralWithQuotes (String.fromCharCode (from)) : numericLiteral (from));
+}
 return arrayExpression (elements);
 }
+else
+{
+helpers.set ("createArray", firstElement);
+return callExpression ("__createArray", [firstElement,secondElement]);
 }
-helpers.set ("createArray", from);
-return callExpression ("__ca", [from,to]);
 }
 function parseArrayInitialiser (){
-var elements = [], comma = {}, token = lookahead ();
+var elements = [], comma = {};
 expect ("[");
 while (! match ("]"))
 if (match (","))
@@ -522,7 +321,10 @@ else
 {
 elements.push (parseAssignmentExpression ());
 if (elements.length === 1 && match (".."))
-return mark (parseArrayPerlInitializer (elements), token);
+{
+lex ();
+return parseArrayPerlInitializer (elements);
+}
 if (! match ("]"))
 parseOptionalComma (comma);
 }
@@ -542,23 +344,20 @@ expect ("{");
 block = parseStatementList ();
 expect ("}");
 state.preventSequence = oldPreventSequence;
-return mark (blockStatement (block), token);
+return blockStatement (block);
 }
 function parseBlockOrNotBlock (){
 var token = lookahead ();
 if (token.value === "{")
 return parseBlock ();
 else
-return mark (blockStatement ([parseStatement ()], true), token);
-}
-function parseClassIdentifier (){
-return mark (parseVariableIdentifier ());
+return blockStatement ([parseStatement ()], true);
 }
 function parseClassParams (){
-var token, result = {"publicMode":null,"abstract":false,"implemented":false,"static":false,"interface":false};
+var token, result = {"publicMode":null,"abstract":false,"static":false,"interface":false};
 do
 {
-token = lookahead ();
+token = lex ();
 switch (token.value){
 case "public":
 
@@ -566,31 +365,24 @@ case "private":
 
 case "protected":
 if (result.publicMode !== null)
-throwUnexpected (token);
-lex ();
+unexpected (token);
 result.publicMode = token.value;
 break;
 case "abstract":
 
 case "static":
 if (result.static || result.abstract)
-throwUnexpected (token);
-case "implemented":
-if (result [token.value])
-throwUnexpected (token);
-lex ();
+unexpected (token);
 result [token.value] = true;
 break;
 case "interface":
 if (result.abstract)
-throwUnexpected (token);
-lex ();
+unexpected (token);
 result.interface = token.value;
 return result;
 case "class":
-lex ();
 return result;
-default:throwUnexpected (token);
+default:unexpected (token);
 }
 }
  while (index < length);
@@ -600,7 +392,7 @@ function collect (list){
 if (list === undefined)
 list = [];
 do
-list.push (parseClassIdentifier ());
+list.push (parseIdentifier ());
  while (index < length && match (",") && lex ());
 return list;
 }
@@ -611,9 +403,9 @@ token = lookahead ();
 switch (token.value){
 case "extends":
 if (result.parent || mode.interface || mode.static)
-throwUnexpected (token);
+unexpected (token);
 lex ();
-result.parent = parseClassIdentifier ();
+result.parent = parseIdentifier ();
 helpers.set ("prototypeExtend", token);
 break;
 case "implements":
@@ -642,42 +434,42 @@ temp.push (obj);
 else
 if (has)
 {
-throwError (token, "Name \"" + name + "\" is already used by an another " + (result [name].type === Syntax.VariableDeclarator ? "field" : "method"));
+throw new SyntaxError("Name \"" + name + "\" is already used by an another " + (result [name].type === Syntax.VariableDeclarator ? "field" : "method"), token);
 }
 else
 result [name] = obj;
 }
 function parseField (){
-if (matchKeyword ("var"))
-lex ();
-var token = lookahead (), data = parseVariableDeclarationList ();
-consumeSemicolon ();
-for (var _3e2gklt_31 = 0; _3e2gklt_31 < data.length; _3e2gklt_31 ++){
-var entry = data[_3e2gklt_31];
 if (params.interface && ! current.static)
-throwError (token, "Interface couldn't have object fields.");
-if (params.implemented && entry.init)
-throwError (token, "Implemented couldn't have initialized fields.");
+throw new TypeError("Interface couldn't have object fields.");
 if (current.abstract)
-throwError (token, "Field could't be abstract.");
+throw new TypeError("Field could't be abstract.");
+{ var _20m712p_22 = parseVariableDeclarators (); for (var _53pbb07_23 = 0; _53pbb07_23 < _20m712p_22.length; _53pbb07_23 ++){
+var entry = _20m712p_22[_53pbb07_23];
 set (entry);
-}
+}}
 refresh ();
 }
 function parseMethod (){
-if (matchKeyword ("function"))
-lex ();
-state.superAvailable = ! current.static && dependsOn.parent;
 if (current.publicMode === "private" && current.abstract)
-throwError (token, "Private method could't be abstract.");
-var result = parseFunction ({"keyword":null,"declaration":true,"empty":params.interface && ! current.static || params.implemented});
-if (result.id === null)
+throw new TypeError("Private method couldn't be abstract.");
+state.superAvailable = ! current.static && dependsOn.parent;
+var empty = params.interface && ! current.static || current.abstract, result = parseFunction ({"keyword":null,"empty":empty});
+set (result);
+state.superAvailable = false;
+refresh ();
+}
+function parseInitializerOrConstructor (){
+if (current.publicMode)
+throw new TypeError("Constructor or initializer couldn't be " + current.publicMode);
+if (current.abstract)
+throw new TypeError("Constructor or initializer couldn't be abstract");
+state.superAvailable = ! current.static && dependsOn.parent;
+var result = parseFunction ({"keyword":null,"id":false,"optionalParams":true});
 result.id = identifier (current.static ? "@initializer" : "@constructor");
 set (result);
 state.superAvailable = false;
 refresh ();
-if (match (";"))
-lex ();
 }
 state.inClass = true;
 expect ("{");
@@ -690,36 +482,50 @@ break;
 switch (token.value){
 case "private":
 if (current.abstract)
-throwUnexpected (token);
+unexpected (token);
 case "public":
 
 case "protected":
 if (current.publicMode !== null)
-throwUnexpected (token);
+unexpected (token);
 lex ();
 current.publicMode = token.value;
 break;
 case "abstract":
 if (params.interface || current.publicMode === "private")
-throwUnexpected (token);
+unexpected (token);
 case "static":
 if (current.abstract || current.static)
-throwUnexpected (token);
+unexpected (token);
 lex ();
 current [token.value] = true;
 break;
 case "var":
+lex ();
 parseField ();
 break;
 case "function":
+lex ();
 parseMethod ();
 break;
-default:if (token.type === Token.Identifier || token.value === "(" || token.value === "{")
+case "(":
+
+case "{":
+parseInitializerOrConstructor ();
+break;
+default:if (token.type === Token.Identifier)
 {
-attemptTo (parseField, parseMethod);
+var saved = saveAll (), method;
+lex ();
+method = match ("(");
+restoreAll (saved);
+if (method)
+parseMethod ();
+else
+parseField ();
 }
 else
-throwUnexpected (token);
+unexpected (token);
 }
 }
  while (index < length);
@@ -745,7 +551,7 @@ temp.push (attribute);
 }
 if (member.publicMode)
 temp.push (member.publicMode);
-temp.push ({"FunctionDeclaration":"method","VariableDeclarator":"field"} [member.type] || member.type);
+temp.push ({"FunctionExpression":"method","VariableDeclarator":"field"} [member.type] || "<something wrong: " + member.type + ">");
 if (members [key] instanceof Array)
 temp.push (", total count: " + members [key].length);
 membersStrings.push ("\t* " + member.id.name + " (" + temp.join (" ").replace (/ ,/g, ",") + ")");
@@ -772,162 +578,99 @@ return arg.name;
 }).join (", "));
 if (dependsOnStrings.length)
 beforeString = " (" + dependsOnStrings.join ("; ") + ")";
-console.log (id.name + beforeString + ":\n" + membersStrings.join ("\n"));
+console.info (id.name + beforeString + ":\n" + membersStrings.join ("\n"));
 }
 function parseClassDeclaration (){
 var params = parseClassParams ();
-var id = parseClassIdentifier ();
+var id = parseIdentifier ();
 var dependsOn = parseExtendsImplementsAndUses (params);
 var members = parseClassMembers (params, dependsOn);
 state.classes.push ({"id":id,"params":params,"dependsOn":dependsOn,"members":members});
 return null;
 }
-function parseContinueStatement (){
-var token, label = null;
-expectKeyword ("continue");
-if (source [index] === ";")
+
+function parseFunction (options){
+if (options === undefined)
+options = {};
+var id, params, body, token = lookahead ();
+if (options.keyword !== null)
+expectKeyword (options.keyword || "function");
+if (options.id === true || options.id !== false && lookahead ().type === Token.Identifier)
+id = parseIdentifier ();
+else
+id = null;
+if (options.optionalParams)
+params = parseOptionalFunctionArguments () || (options.optionalParams === true ? [] : options.optionalParams);
+else
+params = parseFunctionArguments ();
+if (! options.empty)
 {
-lex ();
-return continueStatement ();
+body = parseFunctionElements ();
 }
-if (peekLineTerminator ())
-return continueStatement ();
-token = lookahead ();
-if (token.type === Token.Identifier)
-label = parseVariableIdentifier ();
-consumeSemicolon ();
-return continueStatement (label);
-}
-function parseBreakStatement (){
-var token, label = null;
-expectKeyword ("break");
-if (source [index] === ";")
+else
 {
-lex ();
-return breakStatement ();
-}
-if (peekLineTerminator ())
-return breakStatement ();
-token = lookahead ();
-if (token.type === Token.Identifier)
-label = parseVariableIdentifier ();
+body = null;
 consumeSemicolon ();
-return breakStatement (label);
 }
-function parseReturnStatement (){
-var token, argument = null;
-expectKeyword ("return");
-if (source [index] === " " && isIdentifierStart (source [index + 1]))
-{
-argument = parseExpression ();
-consumeSemicolon ();
-return returnStatement (argument);
+return (options.declaration ? functionDeclarationFromToken : functionExpressionFromToken) (token, id, params, body);
 }
-if (peekLineTerminator ())
-return returnStatement ();
-if (! match (";"))
-{
-token = lookahead ();
-if (! match ("}") && token.type !== Token.EOF)
-argument = parseExpression ();
+function parseFunctionExpression (){
+return parseFunction ();
 }
-consumeSemicolon ();
-return returnStatement (argument);
+function parseFunctionDeclaration (){
+return parseFunction ({"id":true,"declaration":true});
 }
-function parseThrowStatement (){
-var argument;
-expectKeyword ("throw");
-if (peekLineTerminator ())
-throwError ({}, Messages.NewlineAfterThrow);
-argument = parseExpression ();
-consumeSemicolon ();
-return throwStatement (argument);
+function parseLambdaExpression (){
+return parseFunction ({"id":false,"keyword":"lambda","optionalParams":[identifier ("arg")]});
 }
-function parseDebuggerStatement (){
-expectKeyword ("debugger");
-consumeSemicolon ();
-return debuggerStatement ();
-}
-function parseEmptyStatement (){
-expect (";");
-return {"type":Syntax.EmptyStatement};
-}
-function parseExpressionStatement (){
-var expr = parseExpression ();
-consumeSemicolon ();
-return {"type":Syntax.ExpressionStatement,"expression":expr};
-}
-function parseFunctionArguments (defaults,noargs){
-return attemptTo (function (arg){
+function parseFunctionArguments (){
 var name, params = [], comma = {};
 expect ("(");
 while (! match (")"))
 {
 if (params.length)
 parseOptionalComma (comma);
-name = parseVariableIdentifier ();
-if (defaults && match ("="))
-{
-lex ();
-defaults.push (ifStatement (binaryExpression (name.name, "===", "undefined"), expressionStatement (assignmentExpression (name.name, parseAssignmentExpression ()))));
-}
+name = parseIdentifier ();
+if (matchLex ("="))
+name.defaultValue = parseAssignmentExpression ();
 params.push (name);
 }
 expect (")");
 return params;
-}, function (arg){
-return noargs ? [] : [identifier ("arg")];
-}, ! match ("("));
 }
-function parseFunctionSourceElements (defaults){
-var oldPreventSequence = state.preventSequence, sourceElements = defaults || [], token;
+function parseOptionalFunctionArguments (){
+return attemptTo (parseFunctionArguments, null, ! match ("("));
+}
+function parseFunctionElements (){
+var oldPreventSequence = state.preventSequence, result;
 if (match ("{"))
 {
 expect ("{");
-token = lookahead ();
 attemptTo (function (arg){
-var object = objectExpression (parseObjectContent ()), statement = returnStatement (object);
-sourceElements.push (statement);
+result = [returnStatement (objectExpression (parseObjectContent ()))];
 consumeSemicolon ();
 }, function (arg){
 state.preventSequence = false;
+result = [];
 while (! match ("}"))
-sourceElements.push (parseStatement ());
-}, token.type !== Token.Literal && token.type !== Token.Identifier);
+result.push (parseStatement ());
+}, lookahead ().type !== Token.Literal && lookahead ().type !== Token.Identifier);
 expect ("}");
 }
 else
-if (! match ("]") && ! match (")") && ! match ("}") && ! match (",") && ! match (";"))
+if (match (";"))
+{
+lex ();
+result = [];
+}
+else
+if (! match ("]") && ! match (")") && ! match ("}") && ! match (","))
 {
 state.preventSequence = true;
-sourceElements.push (setReturnStatement (parseStatement ()));
+result = [setReturnStatement (parseStatement ())];
 }
 state.preventSequence = oldPreventSequence;
-return blockStatement (sourceElements);
-}
-function parseFunction (options){
-if (options === undefined)
-options = {};
-var id = null, params, defaults = [], body = null, pos = lookahead ();
-if (options.keyword !== null)
-expectKeyword (options.keyword || "function");
-if (options.name === true || options.name !== false && lookahead ().type === Token.Identifier)
-id = parseVariableIdentifier ();
-params = parseFunctionArguments (defaults);
-if (options.empty)
-consumeSemicolon ();
-else
-body = parseFunctionSourceElements (defaults);
-return mark ((options.declaration ? functionDeclaration : functionExpression) (id, params, body), pos);
-}
-function parseFunctionExpression (){
-return parseFunction ();
-}
-function parseFunctionDeclaration (){
-return parseFunction ({"name":true,"declaration":true});
-}
-function parseLambdaExpression (){
-return parseFunction ({"name":false,"keyword":"lambda"});
+return blockStatement (result);
 }
 function setReturnStatement (data){
 if (data)
@@ -970,11 +713,16 @@ var result = parseExpression ();
 expect (")");
 return result;
 }
+function parseIdentifier (){
+var token = lex ();
+if (token.type !== Token.Identifier)
+unexpected (token);
+return identifierFromToken (token);
+}
 function parseIfStatement (){
-var test, consequent, alternate;
 expectKeyword ("if");
 expect ("(");
-test = parseExpression ();
+var test = parseExpression (), consequent, alternate;
 expect (")");
 consequent = parseStatement ();
 if (matchKeyword ("else"))
@@ -984,47 +732,35 @@ alternate = parseStatement ();
 }
 else
 alternate = null;
-return {"type":Syntax.IfStatement,"test":test,"consequent":consequent,"alternate":alternate};
+return ifStatement (test, consequent, alternate);
 }
 function parseDoWhileStatement (){
-var body, test;
 expectKeyword ("do");
-body = parseStatement ();
+var body = parseStatement ();
 expectKeyword ("while");
 expect ("(");
-test = parseExpression ();
+var test = parseExpression ();
 expect (")");
-if (match (";"))
-lex ();
+matchLex (";");
 return doWhileStatement (body, test);
 }
 function parseWhileStatement (){
-var test;
 expectKeyword ("while");
 expect ("(");
-test = parseExpression ();
+var test = parseExpression ();
 expect (")");
 return whileStatement (test, parseStatement ());
 }
-function parseForVariableDeclaration (){
-lex ();
-return variableDeclaration (parseVariableDeclarationList ());
-}
 function parseForStatement (){
-var init, test, update, left, right, body, temp, result, arrayMode, identifierMode, propertyName;
-init = test = update = null;
+var init = null, test = null, update = null, left, right, body, temp, result, arrayMode, identifierMode, propertyName;
 expectKeyword ("for");
 expect ("(");
-if (match (";"))
+if (! matchLex (";"))
 {
-lex ();
-}
-else
-{
-if (matchKeyword ("var"))
+if (matchKeywordLex ("var"))
 {
 state.allowIn = false;
-init = parseForVariableDeclaration ();
+init = variableDeclaration (parseVariableDeclarators (false));
 state.allowIn = true;
 if (init.declarations.length <= 2 && (matchKeyword ("in-array") || matchKeyword ("in-object") || matchKeyword ("in")))
 {
@@ -1041,18 +777,21 @@ init = parseExpression ();
 state.allowIn = true;
 if (matchKeyword ("in-array") || matchKeyword ("in-object") || matchKeyword ("in"))
 {
-if (! isLeftHandSide (init) && (init.type !== Syntax.SequenceExpression || init.expressions.length !== 2))
-throwError ({}, Messages.InvalidLHSInForIn);
+if (init.type !== Syntax.SequenceExpression)
+leftSideOnly (init);
+else
+if (init.expressions.length !== 2)
+leftSideOnly ();
 arrayMode = lex ().value;
 left = init;
 right = parseExpression ();
 init = null;
 }
 }
-if (typeof left === "undefined")
+if (left === undefined)
 expect (";");
 }
-if (typeof left === "undefined")
+if (left === undefined)
 {
 if (! match (";"))
 test = parseExpression ();
@@ -1106,10 +845,10 @@ left.declarations.length = 1;
 if (arrayMode === "in-array")
 {
 if (left.type === Syntax.VariableDeclaration && ! left.declarations [0].init)
-left.declarations [0].init = literal (0);
+left.declarations [0].init = numericLiteral (0);
 temp = left.type === Syntax.VariableDeclaration ? left.declarations [0].id : left.type === Syntax.SequenceExpression ? left.expressions [0] : left;
 if (left.type === Syntax.Identifier)
-left = assignmentExpression (left, literal (0));
+left = assignmentExpression (left, numericLiteral (0));
 result = forStatement (left, binaryExpression (temp, "<", memberExpression (right, "length")), unaryExpression (temp, "++", false), body);
 }
 else
@@ -1134,21 +873,21 @@ return blockStatement ([variableDeclaration ([variableDeclarator (right, temp)])
 return result;
 }
 function parsePropertyFunction (param,first){
-return {"type":Syntax.FunctionExpression,"id":null,"params":param,"defaults":[],"body":parseFunctionSourceElements (),"rest":null,"generator":false,"expression":false};
+return {"type":Syntax.FunctionExpression,"id":null,"params":param,"body":parseFunctionElements ()};
 }
 function parseObjectPropertyKey (){
 var token = lex ();
-if (token.type === Token.StringLiteral || token.type === Token.NumericLiteral)
-return literal (token);
-return identifier (token.value);
+if (token.type === Token.StringLiteral)
+return stringLiteralFromToken (token);
+else
+return identifierFromToken (token);
 }
 function parseObjectProperty (){
-var token, key, id, param, from;
+var token, key, id, param;
 token = lookahead ();
 if (token.type === Token.Identifier)
 {
 id = parseObjectPropertyKey ();
-from = mark ();
 if (token.value === "get" && ! match (":"))
 {
 key = parseObjectPropertyKey ();
@@ -1165,12 +904,12 @@ token = lookahead ();
 if (token.type !== Token.Identifier)
 {
 expect (")");
-throwError (token, Messages.UnexpectedToken, token.value);
+unexpected (token);
 return property (key, parsePropertyFunction ([]), "set");
 }
 else
 {
-param = [parseVariableIdentifier ()];
+param = [parseIdentifier ()];
 expect (")");
 return property (key, parsePropertyFunction (param, token), "set");
 }
@@ -1184,7 +923,7 @@ return property (id, parseAssignmentExpression ());
 else
 if (token.type === Token.EOF || token.type === Token.Punctuator)
 {
-throwUnexpected (token);
+unexpected (token);
 }
 else
 {
@@ -1198,27 +937,17 @@ var properties = [], property, name, kind, map = {}, comma = {};
 while (! match ("}"))
 {
 if (properties.length)
+{
 parseOptionalComma (comma);
 if (match ("}"))
 break;
+}
 property = parseObjectProperty ();
 name = property.key.type === Syntax.Identifier ? property.key.name : String (property.key.value);
 kind = property.kind === "init" ? PropertyKind.Data : property.kind === "get" ? PropertyKind.Get : PropertyKind.Set;
 if (Object.prototype.hasOwnProperty.call (map, name))
 {
-if (map [name] === PropertyKind.Data)
-{
-if (kind !== PropertyKind.Data)
-throwError ({}, Messages.AccessorDataProperty);
-}
-else
-{
-if (kind === PropertyKind.Data)
-throwError ({}, Messages.AccessorDataProperty);
-else
-if (map [name] & kind)
-throwError ({}, Messages.AccessorGetSet);
-}
+throw new JsExtError("NotImplementedError", "Getters and setters", lookahead ());
 map [name] |= kind;
 }
 else
@@ -1235,9 +964,9 @@ return objectExpression (result);
 }
 function parseNonComputedProperty (){
 var token = lex ();
-if (! isIdentifierName (token))
-throwUnexpected (token);
-return identifier (token.value);
+if (token.type !== Token.Identifier && token.type !== Token.Keyword && token.type !== Token.BooleanLiteral && token.type !== Token.NullLiteral)
+unexpected (token);
+return identifierFromToken (token);
 }
 function parseNonComputedMember (){
 expect (".");
@@ -1250,67 +979,68 @@ expect ("]");
 return temp;
 }
 function parseNewExpression (){
-var token = lookahead ();
 expectKeyword ("new");
-return mark (newExpression (parseLeftHandSideExpression (), match ("(") ? parseArguments () : []), token);
+return newExpression (parseLeftHandSideExpression (), match ("(") ? parseArguments () : []);
 }
 function parseLeftHandSideExpressionTemp (){
 return matchKeyword ("new") ? parseNewExpression () : matchKeyword ("super") ? parseSuperExpression () : parsePrimaryExpression ();
 }
 function parseLeftHandSideExpressionAllowCall (){
-var temp = parseLeftHandSideExpressionTemp (), token;
-while (match (".") || match ("[") || match ("("))
-if (match ("("))
-{
-temp = callExpression (temp, parseArguments ());
-}
-else
-if (match ("["))
-{
-temp = memberExpression (temp, parseComputedMember (), true);
-}
-else
+var expression = parseLeftHandSideExpressionTemp (), token;
+while (index < length)
 {
 token = lookahead ();
-if (source [token.range [0] + 1] !== ".")
-temp = memberExpression (temp, parseNonComputedMember (), false);
+if (token.value === "(")
+{
+expression = callExpression (expression, parseArguments ());
+}
+else
+if (token.value === "[")
+{
+expression = memberExpression (expression, parseComputedMember (), true);
+}
+else
+if (token.value === "." && source [token.range [0] + 1] !== ".")
+{
+expression = memberExpression (expression, parseNonComputedMember (), false);
+}
 else
 break;
 }
-return temp;
+return expression;
 }
 function parseLeftHandSideExpression (){
-var temp = parseLeftHandSideExpressionTemp ();
+var expression = parseLeftHandSideExpressionTemp ();
 while (match (".") || match ("["))
 if (match ("["))
-temp = memberExpression (temp, parseComputedMember (), true);
+expression = memberExpression (expression, parseComputedMember (), true);
 else
-temp = memberExpression (temp, parseNonComputedMember (), false);
-return temp;
+expression = memberExpression (expression, parseNonComputedMember (), false);
+return expression;
 }
 function parseMultiplicativeExpression (){
-var temp = parseUnaryExpression ();
+var expression = parseUnaryExpression ();
 while (match ("*") || match ("/") || match ("%"))
-temp = binaryExpression (temp, lex ().value, parseUnaryExpression ());
-return temp;
+expression = binaryExpression (expression, lex ().value, parseUnaryExpression ());
+return expression;
 }
 function parseAdditiveExpression (){
-var temp = parseMultiplicativeExpression ();
+var expression = parseMultiplicativeExpression ();
 while (match ("+") || match ("-"))
-temp = binaryExpression (temp, lex ().value, parseMultiplicativeExpression ());
-return temp;
+expression = binaryExpression (expression, lex ().value, parseMultiplicativeExpression ());
+return expression;
 }
 function parseShiftExpression (){
-var temp = parseAdditiveExpression ();
+var expression = parseAdditiveExpression ();
 while (match ("<<") || match (">>") || match (">>>"))
-temp = binaryExpression (temp, lex ().value, parseAdditiveExpression ());
-return temp;
+expression = binaryExpression (expression, lex ().value, parseAdditiveExpression ());
+return expression;
 }
 function parseRelationalExpression (){
-var inverse, temp, previousAllowIn;
+var inverse, expression, previousAllowIn;
 previousAllowIn = state.allowIn;
 state.allowIn = true;
-temp = parseShiftExpression ();
+expression = parseShiftExpression ();
 while (index < length)
 {
 if (match ("!") && source [lookahead ().range [0] + 1] === "i")
@@ -1320,13 +1050,13 @@ lex ();
 }
 if (match ("<") || match (">") || match ("<=") || match (">=") || previousAllowIn && matchKeyword ("in") || matchKeyword ("instanceof"))
 {
-temp = binaryExpression (temp, lex ().value, parseShiftExpression ());
+expression = binaryExpression (expression, lex ().value, parseShiftExpression ());
 }
 else
 if (previousAllowIn && (matchKeyword ("in-object") || matchKeyword ("in-array")))
 {
 lex ();
-temp = callExpression (memberExpression (parseShiftExpression (), "hasOwnProperty"), [temp]);
+expression = callExpression (memberExpression (parseShiftExpression (), "hasOwnProperty"), [expression]);
 }
 else
 {
@@ -1336,67 +1066,67 @@ break;
 }
 if (inverse)
 {
-temp = unaryExpression (temp, "!", true);
+expression = unaryExpression (expression, "!", true);
 inverse = false;
 }
 }
 state.allowIn = previousAllowIn;
-return temp;
+return expression;
 }
 function parseEqualityExpression (){
-var temp = parseRelationalExpression ();
+var expression = parseRelationalExpression ();
 while (match ("==") || match ("!=") || match ("===") || match ("!=="))
-temp = binaryExpression (temp, lex ().value, parseRelationalExpression ());
-return temp;
+expression = binaryExpression (expression, lex ().value, parseRelationalExpression ());
+return expression;
 }
 function parseBitwiseANDExpression (){
-var temp = parseEqualityExpression ();
+var expression = parseEqualityExpression ();
 while (match ("&"))
 {
 lex ();
-temp = binaryExpression (temp, "&", parseEqualityExpression ());
+expression = binaryExpression (expression, "&", parseEqualityExpression ());
 }
-return temp;
+return expression;
 }
 function parseBitwiseXORExpression (){
-var temp = parseBitwiseANDExpression ();
+var expression = parseBitwiseANDExpression ();
 while (match ("^"))
 {
 lex ();
-temp = binaryExpression (temp, "^", parseBitwiseANDExpression ());
+expression = binaryExpression (expression, "^", parseBitwiseANDExpression ());
 }
-return temp;
+return expression;
 }
 function parseBitwiseORExpression (){
-var temp = parseBitwiseXORExpression ();
+var expression = parseBitwiseXORExpression ();
 while (match ("|"))
 {
 lex ();
-temp = binaryExpression (temp, "|", parseBitwiseXORExpression ());
+expression = binaryExpression (expression, "|", parseBitwiseXORExpression ());
 }
-return temp;
+return expression;
 }
 function parseLogicalANDExpression (){
-var temp = parseBitwiseORExpression ();
+var expression = parseBitwiseORExpression ();
 while (match ("&&"))
 {
 lex ();
-temp = logicalExpression (temp, "&&", parseBitwiseORExpression ());
+expression = logicalExpression (expression, "&&", parseBitwiseORExpression ());
 }
-return temp;
+return expression;
 }
 function parseLogicalORExpression (){
-var temp = parseLogicalANDExpression ();
+var expression = parseLogicalANDExpression ();
 while (match ("||"))
 {
 lex ();
-temp = logicalExpression (temp, "||", parseLogicalANDExpression ());
+expression = logicalExpression (expression, "||", parseLogicalANDExpression ());
 }
-return temp;
+return expression;
 }
 function parseConditionalExpression (){
-var temp, previousAllowIn, consequent;
-temp = parseLogicalORExpression ();
+var expression, previousAllowIn, consequent;
+expression = parseLogicalORExpression ();
 if (match ("?"))
 {
 lex ();
@@ -1405,80 +1135,123 @@ state.allowIn = true;
 consequent = parseAssignmentExpression ();
 state.allowIn = previousAllowIn;
 expect (":");
-temp = conditionalExpression (temp, consequent, parseAssignmentExpression ());
+expression = conditionalExpression (expression, consequent, parseAssignmentExpression ());
 }
-return temp;
-}
-function matchAssign (){
-var token = lookahead (), op = token.value;
-if (token.type !== Token.Punctuator)
-return false;
-return op === "=" || op === "*=" || op === "/=" || op === "%=" || op === "+=" || op === "-=" || op === "<<=" || op === ">>=" || op === ">>>=" || op === "&=" || op === "^=" || op === "|=";
+return expression;
 }
 function parseAssignmentExpression (){
-var token, temp;
-token = lookahead ();
-temp = parseConditionalExpression ();
-if (matchAssign ())
+var expression = parseConditionalExpression (), token = lookahead ();
+if (token.type === Token.Punctuator && (token.value === "=" || token.value === "*=" || token.value === "/=" || token.value === "%=" || token.value === "+=" || token.value === "-=" || token.value === "<<=" || token.value === ">>=" || token.value === ">>>=" || token.value === "&=" || token.value === "^=" || token.value === "|="))
 {
-if (! isLeftHandSide (temp))
-throwError ({}, Messages.InvalidLHSInAssignment);
-temp = assignmentExpression (temp, lex ().value, parseAssignmentExpression ());
+leftSideOnly (expression);
+expression = assignmentExpression (expression, lex ().value, parseAssignmentExpression ());
 }
-return temp;
+return expression;
 }
 function parseExpression (){
-var temp = parseAssignmentExpression ();
+var expression = parseAssignmentExpression ();
 if (! state.preventSequence && match (","))
 {
-temp = sequenceExpression ([temp]);
+expression = sequenceExpression ([expression]);
 while (index < length)
 {
 if (! match (","))
 break;
 lex ();
-temp.expressions.push (parseAssignmentExpression ());
+expression.expressions.push (parseAssignmentExpression ());
 }
 }
-return temp;
+return expression;
 }
 function parsePostfixExpression (){
-var expr = parseLeftHandSideExpressionAllowCall (), token;
+var expression = parseLeftHandSideExpressionAllowCall (), token;
 token = lookahead ();
 if (token.type !== Token.Punctuator)
-return expr;
+return expression;
 if ((match ("++") || match ("--")) && ! peekLineTerminator ())
 {
-if (! isLeftHandSide (expr))
-throwError ({}, Messages.InvalidLHSInAssignment);
-expr = unaryExpression (expr, lex ().value, false);
+leftSideOnly (expression);
+expression = unaryExpression (expression, lex ().value, false);
 }
-return expr;
+return expression;
 }
-function parseComplexString (str){
-var temp, args = parseArguments (), splitted, result;
-if (args.length === 0 || str.length === 0)
-return literal (str);
-splitted = str.split (new RegExp("%(" + args.map (function (a,i){
-return i;
-}).join ("|") + ")", "g")).map (function (value,index){
-return index % 2 ? args [+ value] : literal (value);
+function parseComplexString (token){
+function split (string,max){
+var length = string.length, index = 0, previous = 0, character, temp, result = [];
+while (index < length)
+switch (string [index]){
+case "\\":
+if (string [index + 1] === "%")
+{
+if (previous < index)
+result.push (string.substring (previous, index));
+previous = index + 1;
+}
+index += 2;
+break;
+case "%":
+if (index + 1 === length)
+{
+index++;
+break;
+}
+if (string [index + 1] === "0" && index + 2 < length && decimalDigit (string [index + 2]))
+{
+index += 2;
+break;
+}
+if (previous < index)
+{
+result.push (string.substring (previous, index));
+previous = index;
+}
+index += 2;
+while (index < length && decimalDigit (string [index]))
+index++;
+temp = + string.substring (previous + 1, index);
+if (temp < max)
+result.push (temp);
+previous = index;
+break;
+default:index++;
+}
+if (previous < length)
+result.push (string.substring (previous, length));
+return result;
+}
+var string = stringLiteralValue (token), args = parseArguments (), splitted, result;
+if (string.length <= 1)
+return stringLiteral (token.value);
+splitted = split (string, args.length).map (function (arg){
+if (typeof arg === "number")
+{
+var temp = args [arg];
+if (temp.type === Syntax.StringLiteral)
+return stringLiteral (temp.value);
+if (temp.type === Syntax.BooleanLiteral || temp.type === Syntax.NullLiteral || temp.type === Syntax.NumericLiteral || temp.type === Syntax.RegexpLiteral || temp.type === Syntax.UndefinedLiteral)
+return stringLiteralWithQuotes (temp.value);
+return temp;
+}
+else
+return stringLiteralWithQuotes (arg);
 }).filter (function (arg,index,array){
-if (arg.type !== Syntax.Literal || typeof arg.value !== "string")
+if (arg.type !== Syntax.StringLiteral)
 return true;
-if (index > 0 && arg.type === Syntax.Literal && arg.value === "")
-return false;
 for (var i = index - 1, previous; 
-i >= 0 && array [i].type === Syntax.Literal && typeof array [i].value === "string"; i--)
+i >= 0 && array [i].type === Syntax.StringLiteral; i--)
 previous = array [i];
 if (previous)
 {
-previous.value = previous.value + arg.value;
+previous.value = stringLiteralWithQuotes (stringLiteralValue (previous) + stringLiteralValue (arg)).value;
 return false;
 }
 else
 return true;
+}).filter (function (arg,index,array){
+return arg.type !== Syntax.StringLiteral || index === 0 || ! stringLiteralEmpty (arg);
 });
+if (splitted [0].type !== Syntax.StringLiteral && (splitted.length === 1 || splitted [1].type !== Syntax.StringLiteral))
+splitted = [stringLiteral ("''")].concat (splitted);
 result = splitted [0];
 for (var i = 1; 
 i < splitted.length; i++)
@@ -1486,47 +1259,54 @@ result = binaryExpression (result, "+", splitted [i]);
 return result;
 }
 function parsePrimaryExpression (){
-var token = lookahead (), type = token.type, temp;
-if (type === Token.Identifier)
-return identifier (lex ().value);
-if (type === Token.StringLiteral || type === Token.NumericLiteral)
-{
-temp = lex ();
-return match ("(") ? parseComplexString (temp.value) : literal (temp);
-}
-if (type === Token.Keyword)
-{
-if (matchKeyword ("this"))
+var token = lookahead ();
+switch (token.type){
+case Token.Identifier:
+lex ();
+return identifierFromToken (token);
+case Token.Keyword:
+if (token.value === "this")
 {
 lex ();
-return thisExpression ();
+return thisExpressionFromToken (token);
 }
-if (matchKeyword ("function"))
+if (token.value === "function")
 return parseFunctionExpression ();
-if (matchKeyword ("lambda"))
+if (token.value === "lambda")
 return parseLambdaExpression ();
-}
-if (type === Token.BooleanLiteral)
-{
+break;
+case Token.StringLiteral:
 lex ();
-token.value = token.value === "true";
-return literal (token);
-}
-if (type === Token.NullLiteral)
-{
+if (lookahead ().value === "(")
+return parseComplexString (token);
+else
+return stringLiteralFromToken (token);
+case Token.NumericLiteral:
 lex ();
-token.value = null;
-return literal (token);
-}
-if (match ("["))
+return numericLiteral (token.value);
+case Token.BooleanLiteral:
+lex ();
+return booleanLiteral (token.value);
+case Token.NullLiteral:
+lex ();
+return nullLiteral ();
+case Token.UndefinedLiteral:
+lex ();
+return undefinedLiteral ();
+case Token.Punctuator:
+switch (token.value){
+case "[":
 return parseArrayInitialiser ();
-if (match ("{"))
+case "{":
 return parseObjectInitialiser ();
-if (match ("("))
+case "(":
 return parseGroupExpression ();
-if (match ("/") || match ("/="))
-return literal (scanRegExp ());
-return throwUnexpected (lex ());
+case "/":
+lex ();
+return readRegexp ();
+}
+default:unexpected (token);
+}
 }
 function parseProgramElement (){
 var token = lookahead (), temp, result;
@@ -1541,16 +1321,14 @@ case "static":
 
 case "abstract":
 
-case "implemented":
-
 case "class":
 
 case "interface":
 return parseClassDeclaration ();
-case "function":
-return parseFunctionDeclaration ();
-}
-if (options.initializationAllowed && token.type === Token.Punctuator && (token.value === "(" || token.value === "{"))
+case "(":
+
+case "{":
+if (options.initializationAllowed)
 {
 saved = saveAll ();
 try{
@@ -1560,6 +1338,7 @@ result.after = true;
 return result;
 }catch (e){
 restoreAll (saved);
+}
 }
 }
 if (token.type !== Token.EOF)
@@ -1591,94 +1370,149 @@ return true;
 return program (sourceElements, state.classes, initializations);
 }
 function parseStatement (){
-var token = lookahead (), expr, saved, result;
+var token = lookahead ();
 if (token.type === Token.EOF)
-throwUnexpected (token);
-console.log (token);
+unexpected (token);
 if (token.type === Token.Punctuator)
 switch (token.value){
 case ";":
-return mark (parseEmptyStatement (), token);
+lex ();
+return {"type":Syntax.EmptyStatement};
 case "{":
-try{
-saved = saveAll ();
-expr = parseObjectInitialiser ();
+return attemptTo (function (arg){
+var expression = parseObjectInitialiser ();
 consumeSemicolon ();
-return expressionStatement (expr);
-}catch (e){
-restoreAll (saved);
-return parseBlock ();
-}
+return expressionStatement (expression);
+}, parseBlock);
 case "(":
-return mark (parseExpressionStatement (), token);
+var expression = parseExpression ();
+consumeSemicolon ();
+return {"type":Syntax.ExpressionStatement,"expression":expression};
 case "...":
 lex ();
-expr = callExpression (memberExpression ("console", "warn"), [literal ("Not implemented at " + lineNumber + " line of " + options.filename)]);
-return mark (expressionStatement (expr), token);
+return {"type":Syntax.NotImplementedStatement,"lineNumber":lineNumber,"filename":options.filename};
 }
 if (token.type === Token.Keyword)
-{
 switch (token.value){
 case "function":
 return parseFunctionDeclaration ();
 case "if":
-result = parseIfStatement ();
-break;
+return parseIfStatement ();
 case "var":
-result = parseVariableStatement ();
-break;
+return parseVariableDeclaration ();
 case "do":
-result = parseDoWhileStatement ();
-break;
+return parseDoWhileStatement ();
 case "for":
-result = parseForStatement ();
-break;
-case "return":
-result = parseReturnStatement ();
-break;
+return parseForStatement ();
 case "switch":
-result = parseSwitchStatement ();
-break;
-case "throw":
-result = parseThrowStatement ();
-break;
+return parseSwitchStatement ();
 case "try":
-result = parseTryStatement ();
-break;
+return parseTryStatement ();
 case "while":
-result = parseWhileStatement ();
-break;
+return parseWhileStatement ();
 case "with":
-result = parseWithStatement ();
-break;
+return parseWithStatement ();
 case "break":
-result = parseBreakStatement ();
-break;
+return parseBreakStatement ();
 case "continue":
-result = parseContinueStatement ();
-break;
+return parseContinueStatement ();
+case "return":
+return parseReturnStatement ();
+case "throw":
+return parseThrowStatement ();
 case "debugger":
-result = parseDebuggerStatement ();
-break;
-default:break;
+return parseDebuggerStatement ();
 }
-if (result)
-return mark (result, token);
+var expression = parseExpression ();
+if (expression.type === Syntax.Identifier && matchLex (":"))
+{
+return labeledStatement (expression, parseStatement ());
 }
-expr = parseExpression ();
-if (expr.type === Syntax.Identifier && match (":"))
+else
+{
+consumeSemicolon ();
+return expressionStatement (expression);
+}
+}
+function parseVariableDeclarators (semicolon){
+var result = [];
+do
+{
+result.push (variableDeclarator (parseIdentifier (), matchLex ("=") ? parseAssignmentExpression () : null));
+}
+ while (index < length && matchLex (","));
+if (semicolon !== false)
+consumeSemicolon ();
+return result;
+}
+function parseVariableDeclaration (){
+expectKeyword ("var");
+return variableDeclaration (parseVariableDeclarators ());
+}
+function parseContinueStatement (){
+var label = null;
+expectKeyword ("continue");
+if (source [index] === ";")
 {
 lex ();
-return mark (labeledStatement (expr, parseStatement ()), token);
+return continueStatement ();
 }
+if (peekLineTerminator ())
+return continueStatement ();
+if (lookahead ().type === Token.Identifier)
+label = parseVariableIdentifier ();
 consumeSemicolon ();
-return mark (expressionStatement (expr), token);
+return continueStatement (label);
+}
+function parseBreakStatement (){
+var label = null;
+expectKeyword ("break");
+if (source [index] === ";")
+{
+lex ();
+return breakStatement ();
+}
+if (peekLineTerminator ())
+return breakStatement ();
+if (lookahead ().type === Token.Identifier)
+label = parseVariableIdentifier ();
+consumeSemicolon ();
+return breakStatement (label);
+}
+function parseReturnStatement (){
+var argument = null;
+expectKeyword ("return");
+if (source [index] === " " && identifierStart (source [index + 1]))
+{
+argument = parseExpression ();
+consumeSemicolon ();
+return returnStatement (argument);
+}
+if (peekLineTerminator ())
+return returnStatement ();
+if (! match (";") && ! match ("}") && lookahead ().type !== Token.EOF)
+argument = parseExpression ();
+consumeSemicolon ();
+return returnStatement (argument);
+}
+function parseThrowStatement (){
+expectKeyword ("throw");
+if (peekLineTerminator ())
+throwError ({}, Messages.NewlineAfterThrow);
+var argument = parseExpression ();
+consumeSemicolon ();
+return throwStatement (argument);
+}
+function parseDebuggerStatement (){
+expectKeyword ("debugger");
+consumeSemicolon ();
+return debuggerStatement ();
 }
 function parseSuperExpression (){
 var level = 1, name = null, temp, token = lookahead ();
 expectKeyword ("super");
 if (! state.superAvailable)
-throwError (token, "Super can be used in class functions only");
+throw new TypeError("Super can be used in class functions only", token);
 while (match ("."))
 {
 lex ();
@@ -1689,11 +1523,11 @@ lex ();
 }
 else
 {
-name = parseClassIdentifier ();
+name = parseIdentifier ();
 break;
 }
 }
-return mark (superExpression (name, match ("(") ? parseArguments () : null, level), token);
+return superExpression (name, match ("(") ? parseArguments () : null, level);
 }
 function parseSwitchCase (){
 var test, consequent = [], statement;
@@ -1713,7 +1547,7 @@ while (index < length)
 if (match ("}") || matchKeyword ("default") || matchKeyword ("case"))
 break;
 statement = parseStatement ();
-if (typeof statement === "undefined")
+if (statement === undefined)
 break;
 consequent.push (statement);
 }
@@ -1748,12 +1582,12 @@ if (match ("("))
 {
 expect ("(");
 if (match (")"))
-throwUnexpected (lookahead ());
-param = parseVariableIdentifier ();
+unexpected (lookahead ());
+param = parseIdentifier ();
 expect (")");
 }
 else
-param = {"type":"Identifier","name":"e"};
+param = identifier ("e");
 return catchClause (param, parseBlockOrNotBlock ());
 }
 function parseTryStatement (){
@@ -1768,67 +1602,31 @@ lex ();
 finalizer = parseBlockOrNotBlock ();
 }
 if (finalizer === null && handlers.length === 0)
-handlers.push (catchClause ("e", blockStatement ()));
+handlers.push (catchClause ("e", blockStatement ([])));
 return tryStatement (block, handlers, finalizer);
 }
 function parseUnaryExpression (){
-var token, expr, temp;
-token = lookahead ();
-if (token.type !== Token.Punctuator && token.type !== Token.Keyword)
-return parsePostfixExpression ();
-if (match ("++") || match ("--"))
+var token = lookahead ();
+if (token.type === Token.Punctuator)
 {
-token = lex ();
-expr = parseUnaryExpression ();
-if (! isLeftHandSide (expr))
-throwError ({}, Messages.InvalidLHSInAssignment);
-return unaryExpression (expr, token.value, true);
-}
-if (match ("+") || match ("-") || match ("~") || match ("!"))
-{
-temp = lex ();
-return unaryExpression (parseUnaryExpression (), temp.value, true);
-}
-if (matchKeyword ("delete") || matchKeyword ("void") || matchKeyword ("typeof"))
-{
-temp = lex ();
-return unaryExpression (parseUnaryExpression (), temp.value, true);
-}
-return parsePostfixExpression ();
-}
-function parseVariableIdentifier (){
-var token = lex ();
-if (token.type !== Token.Identifier)
-throwUnexpected (token);
-return identifier (token.value);
-}
-function parseVariableDeclaration (kind){
-var token = lookahead (), id = parseVariableIdentifier (), init = null;
-if (match ("="))
+if (token.value === "++" || token.value === "--")
 {
 lex ();
-init = parseAssignmentExpression ();
+return unaryExpression (leftSideOnly (parseUnaryExpression ()), token.value, true);
 }
-return mark (variableDeclarator (id, init), token);
-}
-function parseVariableDeclarationList (kind){
-var list = [];
-do
+if (token.value === "+" || token.value === "-" || token.value === "~" || token.value === "!")
 {
-list.push (parseVariableDeclaration (kind));
-if (! match (","))
-break;
 lex ();
+return unaryExpression (parseUnaryExpression (), token.value, true);
 }
- while (index < length);
-return list;
 }
-function parseVariableStatement (){
-var declarations;
-expectKeyword ("var");
-declarations = parseVariableDeclarationList ();
-consumeSemicolon ();
-return variableDeclaration (declarations);
+else
+if (token.type === Token.Keyword && (token.value === "typeof" || token.value === "delete" || token.value === "void"))
+{
+lex ();
+return unaryExpression (parseUnaryExpression (), token.value, true);
+}
+return parsePostfixExpression ();
 }
 function parseWithStatement (){
 var object, body;
@@ -1839,524 +1637,318 @@ expect (")");
 body = parseStatement ();
 return {"type":Syntax.WithStatement,"object":object,"body":body};
 }
-function scanHexEscape (prefix){
-var i, len, ch, code = 0;
-len = prefix === "u" ? 4 : 2;
-for (i = 0; 
-i < len; ++ i)
+function keyword (id){
+switch (id.length){
+case 2:
+return id === "if" || id === "in" || id === "do";
+case 3:
+return id === "var" || id === "for" || id === "new" || id === "try" || id === "uses";
+case 4:
+return id === "this" || id === "else" || id === "case" || id === "void" || id === "with" || id === "enum";
+case 5:
+return id === "while" || id === "break" || id === "catch" || id === "throw" || id === "class" || id === "super";
+case 6:
+return id === "return" || id === "typeof" || id === "delete" || id === "switch" || id === "lambda" || id === "static" || id === "public";
+case 7:
+return id === "default" || id === "finally" || id === "private" || id === "extends";
+case 8:
+return id === "function" || id === "continue" || id === "debugger" || id === "abstract";
+case 9:
+return id === "protected" || id === "interface";
+case 10:
+return id === "instanceof" || id === "implements";
+}
+}
+function readIdentifier (){
+var start = index, identifier;
+if (identifierStart (source [index]))
 {
-if (index < length && isHexDigit (source [index]))
+do
+index++;
+ while (identifierPart (source [index]));
+if (index - start === 1)
+return {"type":Token.Identifier,"value":source [start],"lineNumber":lineNumber,"range":[start,index]};
+identifier = source.substring (start, index);
+if (keyword (identifier))
 {
-ch = source [index++];
-code = code * 16 + "0123456789abcdef".indexOf (ch.toLowerCase ());
+if (identifier === "in" && source [index] === "-")
+{
+while (identifierPart (source [++ index]))
+;
+identifier = source.substring (start, index);
+if (identifier !== "in-object" && identifier !== "in-array")
+unexpected ();
+}
+return {"type":Token.Keyword,"value":identifier,"lineNumber":lineNumber,"range":[start,index]};
+}
+if (identifier === "null")
+return {"type":Token.NullLiteral,"value":identifier,"lineNumber":lineNumber,"range":[start,index]};
+if (identifier === "true" || identifier === "false")
+return {"type":Token.BooleanLiteral,"value":identifier,"lineNumber":lineNumber,"range":[start,index]};
+if (identifier === "undefined")
+return {"type":Token.UndefinedLiteral,"value":identifier,"lineNumber":lineNumber,"range":[start,index]};
+return {"type":Token.Identifier,"value":identifier,"lineNumber":lineNumber,"range":[start,index]};
 }
 else
-return "";
-}
-return String.fromCharCode (code);
-}
-function scanIdentifier (){
-var start, id, restore, special, temp;
 if (source [index] === "@")
-{
-try{
-temp = " " + source.substr (index).match (/@([_$a-zA-Z][_$a-zA-Z0-9\.\-]*)/) [0].toUpperCase ();
-}catch (e){}
-throwError ({}, Messages.UnexpectedToken, "AND IT LOOKS LIKE MACROS" + (temp || ""));
+throw new Error("Unexpected macro");
 }
-if (! isIdentifierStart (source [index]))
-return;
-start = index;
-id = source [index++];
-if (id === "i")
-{
-if (source.substr (index, 7) === "n-array")
-special = "in-array";
-else
-if (source.substr (index, 8) === "n-object")
-special = "in-object";
-if (special)
-{
-index += special.length - 1;
-return {"type":Token.Keyword,"value":special,"lineNumber":lineNumber,"lineStart":lineStart,"range":[start,index]};
-}
-}
-while (index < length)
-{
-if (! isIdentifierPart (source [index]))
-break;
-id += source [index++];
-}
-if (id.length === 1)
-return {"type":Token.Identifier,"value":id,"lineNumber":lineNumber,"lineStart":lineStart,"range":[start,index]};
-if (isKeyword (id))
-return {"type":Token.Keyword,"value":id,"lineNumber":lineNumber,"lineStart":lineStart,"range":[start,index]};
-if (id === "null")
-return {"type":Token.NullLiteral,"value":id,"lineNumber":lineNumber,"lineStart":lineStart,"range":[start,index]};
-if (id === "true" || id === "false")
-return {"type":Token.BooleanLiteral,"value":id,"lineNumber":lineNumber,"lineStart":lineStart,"range":[start,index]};
-return {"type":Token.Identifier,"value":id,"lineNumber":lineNumber,"lineStart":lineStart,"range":[start,index]};
-}
-function scanPunctuator (){
-var start = index, ch1 = source [index], ch2, ch3, ch4;
-if (ch1 === ";" || ch1 === "{" || ch1 === "}" || ch1 === "," || ch1 === "(" || ch1 === ")")
-{
-index += 1;
-return {"type":Token.Punctuator,"value":ch1,"lineNumber":lineNumber,"lineStart":lineStart,"range":[start,index]};
-}
-ch2 = source [index + 1];
-if (ch1 === ".")
-if (ch2 === ".")
-{
-if (source [index + 2] === ".")
-{
-index += 3;
-return {"type":Token.Punctuator,"value":"...","lineNumber":lineNumber,"lineStart":lineStart,"range":[start,index]};
-}
-else
+function readNumericLiteral (){
+var start = index;
+if (source [index] === "0" && (source [index + 1] === "x" || source [index + 1] === "X"))
 {
 index += 2;
-return {"type":Token.Punctuator,"value":"..","lineNumber":lineNumber,"lineStart":lineStart,"range":[start,index]};
-}
-}
-else
-if (! isDecimalDigit (ch2))
-{
-index += 1;
-return {"type":Token.Punctuator,"value":".","lineNumber":lineNumber,"lineStart":lineStart,"range":[start,index]};
-}
-ch3 = source [index + 2];
-ch4 = source [index + 3];
-if (ch1 === ">" && ch2 === ">" && ch3 === ">" && ch4 === "=")
-{
-index += 4;
-return {"type":Token.Punctuator,"value":">>>=","lineNumber":lineNumber,"lineStart":lineStart,"range":[start,index]};
-}
-if (ch1 === "=" && ch2 === "=" && ch3 === "=" || ch1 === "!" && ch2 === "=" && ch3 === "=" || ch1 === ">" && ch2 === ">" && ch3 === ">" || ch1 === "<" && ch2 === "<" && ch3 === "=" || ch1 === ">" && ch2 === ">" && ch3 === "=")
-{
-index += 3;
-return {"type":Token.Punctuator,"value":ch1 + ch2 + ch3,"lineNumber":lineNumber,"lineStart":lineStart,"range":[start,index]};
-}
-if (ch2 === "=" && "<>=!+-*%&|^/".indexOf (ch1) >= 0 || ch1 === ch2 && "+-<>&|".indexOf (ch1) >= 0)
-{
-index += 2;
-return {"type":Token.Punctuator,"value":ch1 + ch2,"lineNumber":lineNumber,"lineStart":lineStart,"range":[start,index]};
-}
-if ("[]<>+-*%&|^!~?:=/".indexOf (ch1) >= 0)
-return {"type":Token.Punctuator,"value":source [index++],"lineNumber":lineNumber,"lineStart":lineStart,"range":[start,index]};
-}
-function scanNumericLiteral (){
-var number, start, ch;
-ch = source [index];
-console.assert (isDecimalDigit (ch) || ch === ".", "Numeric literal must start with a decimal digit or a decimal point");
-start = index;
-number = "";
-if (ch !== ".")
-{
-number = source [index++];
-ch = source [index];
-if (number === "0")
-{
-if (ch === "x" || ch === "X")
-{
-number += source [index++];
-while (index < length)
-{
-ch = source [index];
-if (! isHexDigit (ch))
-break;
-number += source [index++];
-}
-if (number.length <= 2)
-throwError ({}, Messages.UnexpectedToken, "ILLEGAL");
-if (index < length)
-{
-ch = source [index];
-if (isIdentifierStart (ch))
-throwError ({}, Messages.UnexpectedToken, "ILLEGAL");
-}
-return {"type":Token.NumericLiteral,"value":parseInt (number, 16),"lineNumber":lineNumber,"lineStart":lineStart,"range":[start,index]};
-}
-else
-if (isOctalDigit (ch))
-{
-number += source [index++];
-while (index < length)
-{
-ch = source [index];
-if (! isOctalDigit (ch))
-break;
-number += source [index++];
-}
-if (index < length)
-{
-ch = source [index];
-if (isIdentifierStart (ch) || isDecimalDigit (ch))
-throwError ({}, Messages.UnexpectedToken, "ILLEGAL");
-}
-return {"type":Token.NumericLiteral,"value":parseInt (number, 8),"octal":true,"lineNumber":lineNumber,"lineStart":lineStart,"range":[start,index]};
-}
-if (isDecimalDigit (ch))
-throwError ({}, Messages.UnexpectedToken, "ILLEGAL");
-}
-while (index < length)
-{
-ch = source [index];
-if (! isDecimalDigit (ch))
-break;
-number += source [index++];
-}
-}
-if (ch === "." && source [index + 1] !== ".")
-{
-number += source [index++];
-while (index < length)
-{
-ch = source [index];
-if (! isDecimalDigit (ch))
-break;
-number += source [index++];
-}
-}
-if (ch === "e" || ch === "E")
-{
-number += source [index++];
-ch = source [index];
-if (ch === "+" || ch === "-")
-number += source [index++];
-ch = source [index];
-if (isDecimalDigit (ch))
-{
-number += source [index++];
-while (index < length)
-{
-ch = source [index];
-if (! isDecimalDigit (ch))
-break;
-number += source [index++];
-}
+while (index < length && hexDigit (source [index]))
+index++;
+if (index === start + 2)
+unexpected ();
 }
 else
 {
-ch = "character " + ch;
-if (index >= length)
-ch = "<end>";
-throwError ({}, Messages.UnexpectedToken, "ILLEGAL");
-}
-}
-if (index < length)
-{
-ch = source [index];
-if (isIdentifierStart (ch))
-throwError ({}, Messages.UnexpectedToken, "ILLEGAL");
-}
-return {"type":Token.NumericLiteral,"value":parseFloat (number),"lineNumber":lineNumber,"lineStart":lineStart,"range":[start,index]};
-}
-function scanStringLiteral (){
-var str = "", quote, start, ch, code, unescaped, restore, octal = false;
-quote = source [index];
-console.assert (quote === "'" || quote === "\"" || quote === "`", "String literal must starts with a quote");
-start = index;
-++ index;
-if (quote === "`")
-{
-while (index < length)
-{
-ch = source [index++];
-if (ch === quote)
-{
-quote = "";
-break;
-}
-else
-if (ch === "\\" && source [index] === "`")
+if (source [index] !== ".")
+while (index < length && decimalDigit (source [index]))
+index++;
+if (source [index] === "." && source [index + 1] !== ".")
 {
 index++;
-str += "`";
+while (index < length && decimalDigit (source [index]))
+index++;
 }
+if (source [index] === "e" || source [index] === "E")
+{
+index++;
+if (source [index] === "+" || source [index] === "-")
+index++;
+if (! decimalDigit (source [index]))
+unexpected ();
+index++;
+while (index < length && decimalDigit (source [index]))
+index++;
+}
+}
+if (index < length && identifierStart (source [index]))
+unexpected ();
+return {"type":Token.NumericLiteral,"value":source.substring (start, index),"lineNumber":lineNumber,"range":[start,index]};
+}
+function readPunctuator (){
+var start = index, ch1 = source [index], ch2, ch3, ch4;
+if (ch1 === ";" || ch1 === "{" || ch1 === "}" || ch1 === "," || ch1 === "(" || ch1 === ")")
+return {"type":Token.Punctuator,"value":ch1,"lineNumber":lineNumber,"range":[start,++ index]};
+ch2 = source [index + 1];
+ch3 = source [index + 2];
+if (ch1 === ".")
+if (ch2 === ".")
+return {"type":Token.Punctuator,"value":ch3 === "." ? "..." : "..","lineNumber":lineNumber,"range":[start,index += ch3 === "." ? 3 : 2]};
 else
-str += ch;
+if (! decimalDigit (ch2))
+return {"type":Token.Punctuator,"value":".","lineNumber":lineNumber,"range":[start,++ index]};
+ch4 = source [index + 3];
+if (ch1 === ">" && ch2 === ">" && ch3 === ">" && ch4 === "=")
+return {"type":Token.Punctuator,"value":">>>=","lineNumber":lineNumber,"range":[start,index += 4]};
+if ((ch1 === "=" || ch1 === "!") && ch2 === "=" && ch3 === "=" || ch1 === "<" && ch2 === "<" && ch3 === "=" || ch1 === ">" && ch2 === ">" && (ch3 === ">" || ch3 === "="))
+return {"type":Token.Punctuator,"value":ch1 + ch2 + ch3,"lineNumber":lineNumber,"range":[start,index += 3]};
+if (ch2 === "=" && "<>=!+-*%&|^/".indexOf (ch1) >= 0 || ch1 === ch2 && "+-<>&|".indexOf (ch1) >= 0)
+return {"type":Token.Punctuator,"value":ch1 + ch2,"lineNumber":lineNumber,"range":[start,index += 2]};
+if (ch1 === "[" || ch1 === "]" || ch1 === "<" || ch1 === ">" || ch1 === "+" || ch1 === "-" || ch1 === "*" || ch1 === "%" || ch1 === "&" || ch1 === "|" || ch1 === "^" || ch1 === "!" || ch1 === "~" || ch1 === "?" || ch1 === ":" || ch1 === "=" || ch1 === "/")
+return {"type":Token.Punctuator,"value":ch1,"lineNumber":lineNumber,"range":[start,++ index]};
 }
-}
-else
+function readRegexp (){
+var start = index - 1, end = null, classMarker = false;
+loop:while (index < length)
 {
-while (index < length)
-{
-ch = source [index++];
-if (ch === quote)
-{
-quote = "";
+switch (source [index++]){
+case "\\":
+if (source [index++] !== "\n")
 break;
-}
-else
-if (ch === "\\")
-{
-ch = source [index++];
-if (! isLineTerminator (ch))
-{
-switch (ch){
-case "n":
-str += "\n";
-break;
-case "r":
-str += "\r";
-break;
-case "t":
-str += "\t";
-break;
-case "u":
-
-case "x":
-restore = index;
-unescaped = scanHexEscape (ch);
-if (unescaped)
-{
-str += unescaped;
-}
-else
-{
-index = restore;
-str += ch;
-}
-break;
-case "b":
-str += "\b";
-break;
-case "f":
-str += "\f";
-break;
-case "v":
-str += "\u000b";
-break;
-default:if (isOctalDigit (ch))
-{
-code = "01234567".indexOf (ch);
-if (code !== 0)
-octal = true;
-if (index < length && isOctalDigit (source [index]))
-{
-octal = true;
-code = code * 8 + "01234567".indexOf (source [index++]);
-if ("0123".indexOf (ch) >= 0 && index < length && isOctalDigit (source [index]))
-code = code * 8 + "01234567".indexOf (source [index++]);
-}
-str += String.fromCharCode (code);
-}
-else
-str += ch; break;
-}
-}
-else
-{
-++ lineNumber;
-if (ch === "\r" && source [index] === "\n")
-++ index;
-}
-}
-else
-if (isLineTerminator (ch))
-{
-break;
-}
-else
-str += ch;
-}
-}
-if (quote !== "")
-throwError ({}, Messages.UnexpectedToken, "ILLEGAL");
-return {"type":Token.StringLiteral,"value":str,"raw":source.substring (start, index),"octal":octal,"lineNumber":lineNumber,"lineStart":lineStart,"range":[start,index]};
-}
-function scanRegExp (){
-var str, ch, start, pattern, flags, value, classMarker = false, restore, terminated = false;
-buffer = null;
-skipComment ();
-start = index;
-ch = source [index];
-console.assert (ch === "/", "Regular expression literal must start with a slash");
-str = source [index++];
-while (index < length)
-{
-ch = source [index++];
-str += ch;
-if (ch === "\\")
-{
-ch = source [index++];
-if (isLineTerminator (ch))
-throwError ({}, Messages.UnterminatedRegExp);
-str += ch;
-}
-else
+case "\n":
+break loop;
+case "/":
 if (classMarker)
 {
-if (ch === "]")
-classMarker = false;
+continue loop;
 }
 else
-if (ch === "/")
 {
-terminated = true;
+end = index;
+break loop;
+}
+case "[":
+classMarker = true;
+break;
+case "]":
+classMarker = false;
 break;
 }
-else
-if (ch === "[")
+}
+if (end === null)
+unexpected ("Invalid regular expression: missing /");
+while (index < length && identifierPart (source [index]))
+index++;
+try{
+new RegExp(source.substring (start + 1, end - 1), source.substring (end, index));
+}catch (e){
+throw new Error("Invalid regular expression");
+}
+return regexpLiteral (source.substring (start, index));
+}
+function readStringLiteral (){
+var quote = source [index], start = index++;
+while (index < length && source [index] !== quote)
+index += source [index] === "\\" ? 2 : 1;
+if (source [index++] !== quote)
+unexpected ();
+return {"type":Token.StringLiteral,"value":source.substring (start, index),"lineNumber":lineNumber,"range":[start,index]};
+}
+var tabSize = 4, tabSpaces = new Array(tabSize + 1).join (" ");
+function readMultilineString (){
+var start = index++;
+while (index < length && source [index] !== "`")
+index += source [index] === "\\" ? 2 : 1;
+if (source [index++] !== "`")
+unexpected ();
+var result = source.substring (start + 1, index - 1), spaces = result.match (/\n([\t ]*)/g);
+if (spaces)
 {
-classMarker = true;
+spaces = spaces.concat (source.substring (source.lastIndexOf ("\n", start), start + 1).replace (/[^\n\t ]/g, " ")).map (function (arg){
+return [].reduce.call (arg.replace (/^\n/, ""), function (a,b){
+return a += b === "\t" ? tabSize : 1;
+}, 0);
+}).reduce (function (a,b){
+return a < b ? a : b;
+});
+var regExp = new RegExp("\\n(?:\\t|" + tabSpaces + "){" + Math.floor (spaces / tabSize) + "}" + tabSpaces.substr (0, spaces % tabSize), "g");
+result = result.replace (regExp, "\n");
 }
-else
-if (isLineTerminator (ch))
-throwError ({}, Messages.UnterminatedRegExp);
+return {"type":Token.StringLiteral,"value":JSON.stringify (result.replace (/\\`/g, "`")),"lineNumber":lineNumber,"range":[start,index]};
 }
-if (! terminated)
-throwError ({}, Messages.UnterminatedRegExp);
-pattern = str.substr (1, str.length - 2);
-flags = "";
+function skipComments (){
+var blockComment = false, lineComment = false;
 while (index < length)
 {
-ch = source [index];
-if (! isIdentifierPart (ch))
+var character = source [index];
+if (character === " " || character === "\t" || character === " ")
+{
+index++;
+}
+else
+if (character === "\n")
+{
+index++;
+lineNumber++;
+if (lineComment)
+lineComment = false;
+}
+else
+if (lineComment)
+{
+index++;
+}
+else
+if (blockComment)
+{
+if (character === "*" && source [index + 1] === "/")
+{
+index += 2;
+blockComment = false;
+}
+else
+index++;
+}
+else
+if (character === "/")
+{
+character = source [index + 1];
+if (character === "/")
+{
+index += 2;
+lineComment = true;
+}
+else
+if (character === "*")
+{
+index += 2;
+blockComment = true;
+}
+else
 break;
-++ index;
-if (ch === "\\" && index < length)
-{
-ch = source [index];
-if (ch === "u")
-{
-++ index;
-restore = index;
-ch = scanHexEscape ("u");
-if (ch)
-{
-flags += ch;
-str += "\\u";
-for (; 
-restore < index; ++ restore)
-str += source [restore];
 }
 else
-{
-index = restore;
-flags += "u";
-str += "\\u";
+break;
 }
+if (index === length && blockComment)
+unexpected ();
 }
-else
-str += "\\";
-}
-else
-{
-flags += ch;
-str += ch;
-}
-}
-try{
-value = new RegExp(pattern, flags);
-}catch (e){
-throwError ({}, Messages.InvalidRegExp);
-}
-return {"literal":str,"value":value,"range":[start,index]};
-}
-function ParseError (filename,lineNumber,message){
-var result, name = "ParseError";
-if (arguments [3])
-{
-name = filename;
-filename = lineNumber;
-lineNumber = message;
-message = arguments [3];
-}
-if (typeof filename === "object")
-{
-message = lineNumber;
-this.lineNumber = filename.lineNumber;
-this.filename = filename.filename;
-}
-else
-{
-this.lineNumber = lineNumber;
-this.filename = filename;
-}
-result = new Error(message + " [" + filename + ":" + lineNumber + "]");
+function JsExtError (name,message,location){
+var filename = location && location.filename || options && options.filename || "<unknown file>", lineNumber = location && location.lineNumber || lineNumber || "<unknown line>", result = new Error(message + " [" + filename + ":" + lineNumber + "]");
 result.name = name;
 return result;
 }
 ;
-function throwError (token,messageFormat){
-var args = Array.prototype.slice.call (arguments, 2), msg = messageFormat.replace (/%(\d)/g, function (whole,index){
-return args [index] || "";
-}), filename = options.filename;
-if (typeof token.filename === "string")
-filename = token.filename;
-throw new ParseError(token && token.filename || options.filename, token ? token.lineNumber : lineNumber, msg);
+var SyntaxError = JsExtError.bind (null, "SyntaxError"), TypeError = JsExtError.bind (null, "TypeError"), ReferenceError = JsExtError.bind (null, "ReferenceError");
+function unexpected (what){
+var message;
+if (! what)
+{
+message = "Illegal token";
 }
-function throwUnexpected (token){
-throwError (token, token.type === Token.EOF ? Messages.UnexpectedEOS : token.type === Token.NumericLiteral ? Messages.UnexpectedNumber : token.type === Token.StringLiteral ? Messages.UnexpectedString : token.type === Token.Identifier ? Messages.UnexpectedIdentifier : token.type === Token.Keyword && isFutureReservedWord (token.value) ? Messages.UnexpectedReserved : Messages.UnexpectedToken, token.value);
+else
+if (what.value)
+{
+message = "Unexpected " + (what.value [0] === "\"" || what.value [0] === "'" ? what.value : "\"" + what.value + "\"");
 }
-function sliceSource (from,to){
-return source.slice (from, to);
+else
+if (TokenName [what.type])
+{
+message = "Unexpected " + TokenName [what.type].toLowerCase ();
 }
-function isDecimalDigit (ch){
-return "0123456789".indexOf (ch) >= 0;
+else
+message = "Unexpected token";
+throw new SyntaxError(message, what);
 }
-function isHexDigit (ch){
-return "0123456789abcdefABCDEF".indexOf (ch) >= 0;
+var ch0 = "0".charCodeAt (0), ch1 = "1".charCodeAt (0), ch7 = "7".charCodeAt (0), ch9 = "9".charCodeAt (0), cha = "a".charCodeAt (0), chf = "f".charCodeAt (0), chz = "z".charCodeAt (0), chA = "A".charCodeAt (0), chF = "F".charCodeAt (0), chZ = "Z".charCodeAt (0);
+function decimalDigit (c){
+c = c.charCodeAt (0);
+return ch0 <= c && c <= ch9;
 }
-function isOctalDigit (ch){
-return "01234567".indexOf (ch) >= 0;
+function hexDigit (c){
+c = c.charCodeAt (0);
+return ch0 <= c && c <= ch9 || cha <= c && c <= chf || chA <= c && c <= chF;
 }
-function isIdentifierName (token){
-return token.type === Token.Identifier || token.type === Token.Keyword || token.type === Token.BooleanLiteral || token.type === Token.NullLiteral;
+function identifierStart (c){
+var v = c.charCodeAt (0);
+return cha <= v && v <= chz || chA <= v && v <= chZ || c === "$" || c === "_";
 }
-var newIdentifier = (function (arg){
-function busy (str){
-return source.indexOf (str) !== - 1;
+function identifierPart (c){
+var v = c.charCodeAt (0);
+return cha <= v && v <= chz || chA <= v && v <= chZ || ch0 <= v && v <= ch9 || c === "$" || c === "_";
 }
 var lastIdentifier = 0;
-return function (arg){
-var str;
-if (arg)
-{
-if (busy (arg))
-for (var i = 0; 
-busy (str = arg + (lastIdentifier++).toString (32)); i++)
-;
-else
-str = arg;
+function newIdentifier (){
+return "__" + (lastIdentifier++).toString (32);
 }
-else
-while (busy (str = "_" + (lastIdentifier++).toString (32)))
-;
-return str;
-};
-}) ();
 function saveAll (){
-return $.extend ({}, {"source":source,"index":index,"lineNumber":lineNumber,"lineStart":lineStart,"length":length,"buffer":buffer,"state":state,"options":options,"helpers":helpers});
+return {"index":index,"lineNumber":lineNumber,"buffer":buffer};
 }
 function restoreAll (obj){
-source = obj.source;
 index = obj.index;
 lineNumber = obj.lineNumber;
-lineStart = obj.lineStart;
-length = obj.length;
 buffer = obj.buffer;
-state = obj.state;
-options = obj.options;
-helpers = obj.helpers;
 }
 function attemptTo (firstFn,secondFn,forceSecond){
 if (forceSecond)
 {
-return secondFn ();
+return typeof secondFn === "function" ? secondFn () : secondFn;
 }
 else
 {
 saved = saveAll ();
 try{
-return firstFn ();
+return typeof firstFn === "function" ? firstFn () : firstFn;
 }catch (e){
 if (e instanceof Error && /^Unexpected .+? \[.+?\:\d+\]$/.test (e.message))
 {
 restoreAll (saved);
-return secondFn ();
+return typeof secondFn === "function" ? secondFn () : secondFn;
 }
 else
 throw e;
@@ -2364,71 +1956,66 @@ throw e;
 }
 }
 function advance (){
-var ch, token;
-skipComment ();
+skipComments ();
 if (index >= length)
-return {"type":Token.EOF,"lineNumber":lineNumber,"lineStart":lineStart,"range":[index,index]};
-token = scanPunctuator ();
+return {"type":Token.EOF,"lineNumber":lineNumber,"range":[index,index]};
+var token = readPunctuator ();
 if (token !== undefined)
 return token;
-ch = source [index];
-if (ch === "'" || ch === "\"" || ch === "`")
-return scanStringLiteral ();
-if (ch === "." || isDecimalDigit (ch))
-return scanNumericLiteral ();
-token = scanIdentifier ();
+var character = source [index];
+if (character === "'" || character === "\"")
+return readStringLiteral ();
+if (character === "`")
+return readMultilineString ();
+if (character === "." || decimalDigit (character))
+return readNumericLiteral ();
+token = readIdentifier ();
 if (token !== undefined)
 return token;
-throwError ({}, Messages.UnexpectedToken, "ILLEGAL");
+unexpected ();
 }
 function lex (){
-var token;
 if (buffer)
 {
 index = buffer.range [1];
 lineNumber = buffer.lineNumber;
-lineStart = buffer.lineStart;
-token = buffer;
+var token = buffer;
 buffer = null;
 return token;
 }
+else
+{
 buffer = null;
 return advance ();
 }
+}
 function lookahead (){
-var pos, line, start;
-if (buffer !== null)
-return buffer;
-pos = index;
-line = lineNumber;
-start = lineStart;
+if (buffer === null)
+{
+var currentIndex = index, currentLineNumber = lineNumber;
 buffer = advance ();
-index = pos;
-lineNumber = line;
-lineStart = start;
+index = currentIndex;
+lineNumber = currentLineNumber;
+}
 return buffer;
 }
 function peekLineTerminator (){
-var pos, line, start, found;
-pos = index;
-line = lineNumber;
-start = lineStart;
-skipComment ();
+var pos = index, line = lineNumber, found;
+skipComments ();
 found = lineNumber !== line;
 index = pos;
 lineNumber = line;
-lineStart = start;
 return found;
 }
 function expect (value){
 var token = lex ();
 if (token.type !== Token.Punctuator || token.value !== value)
-throwUnexpected (token);
+unexpected (token);
 }
 function expectKeyword (keyword){
 var token = lex ();
 if (token.type !== Token.Keyword || token.value !== keyword)
-throwUnexpected (token);
+unexpected (token);
 }
 function match (value){
 var token = lookahead ();
@@ -2438,67 +2025,64 @@ function matchKeyword (keyword){
 var token = lookahead ();
 return token.type === Token.Keyword && token.value === keyword;
 }
-function matchKeywordAndLex (keyword){
-var token = lookahead (), result = token.type === Token.Keyword && token.value === keyword;
-if (result)
-lex ();
-return result;
+function matchLex (value){
+var token = lookahead ();
+if (token.type === Token.Punctuator && token.value === value)
+return lex ();
+else
+return false;
+}
+function matchKeywordLex (keyword){
+var token = lookahead ();
+if (token.type === Token.Keyword && token.value === keyword)
+return lex ();
+else
+return false;
 }
 function consumeSemicolon (){
-var token, line;
 if (source [index] === ";")
 {
 lex ();
 return;
 }
-line = lineNumber;
-skipComment ();
+var line = lineNumber;
+skipComments ();
 if (lineNumber !== line)
 return;
-if (match (";"))
-{
-lex ();
+if (matchLex (";"))
 return;
+if (! state.preventSequence && ! match ("}") && lookahead ().type !== Token.EOF)
+unexpected (buffer);
 }
-if (! state.preventSequence)
-{
-token = lookahead ();
-if (token.type !== Token.EOF && ! match ("}"))
-throwUnexpected (token);
-}
-}
-function isLeftHandSide (expr){
-return expr.type === Syntax.Identifier || expr.type === Syntax.MemberExpression;
-}
-function isWhiteSpace (ch){
-return ch === " " || ch === "\t" || ch === "\u000b" || ch === "\f" || ch === " " || ch.charCodeAt (0) >= 5760 && " ᠎             　﻿".indexOf (ch) >= 0;
-}
-function isLineTerminator (ch){
-return ch === "\n" || ch === "\r";
+function leftSideOnly (expression){
+if (! expression || expression.type !== Syntax.Identifier && expression.type !== Syntax.MemberExpression)
+throw new SyntaxError("Invalid left-hand side", expression);
+else
+return expression;
 }
 function addClass (classEntry){
 if (byName (classEntry.id.name))
-throwError (classEntry.id, Messages.ClassAlreadyDefined, classEntry.id.name);
+throw new TypeError("Class \"" + classEntry.id.name + "\" already declared", classEntry.id);
 classEntry.classObject = true;
-{ var _25ppsl_46 = classEntry.members; for (var name in _25ppsl_46){
-var value = _25ppsl_46[name];
+{ var _35nl1vr_47 = classEntry.members; for (var name in _35nl1vr_47){
+var value = _35nl1vr_47[name];
 value.className = classEntry.id;
 }}
 var constructor = classEntry.members ["@constructor"];
 if (constructor === undefined)
 {
-constructor = updateMember (functionDeclaration ("@constructor"), classEntry);
+constructor = updateMember (functionExpression ("@constructor", [], blockStatement ([])), classEntry);
 constructor.autocreated = true;
 }
 var initializer = classEntry.members ["@initializer"];
 if (initializer === undefined)
 {
-initializer = updateMember (functionDeclaration ("@initializer"), classEntry);
+initializer = updateMember (functionExpression ("@initializer", [], blockStatement ([])), classEntry);
 initializer.static = true;
 initializer.autocreated = true;
 }
-{ var _70749ap_47 = classEntry.members; for (var name in _70749ap_47){
-var member = _70749ap_47[name];
+{ var _3svcdff_48 = classEntry.members; for (var name in _3svcdff_48){
+var member = _3svcdff_48[name];
 updateMember (member, classEntry);
 }}
 var fields = filter (classEntry.members, function (arg){
@@ -2517,7 +2101,7 @@ classEntry.members [member.id.name] = member;
 if (! member.hasOwnProperty ("publicMode") || member.publicMode === null)
 member.publicMode = classEntry.publicMode || "private";
 member.className = classEntry.id;
-member.method = member.type === Syntax.FunctionDeclaration;
+member.method = member.type === Syntax.FunctionExpression;
 member.processed = false;
 return member;
 }
@@ -2528,20 +2112,20 @@ var entry = byName (id.name);
 if (entry)
 {
 if (id.name in current)
-throwError (id, Messages.CyclicDependencyDetected, id.name);
+throw new TypeError("Circular dependency", id);
 current [id.name] = true;
 if (entry.dependsOn.parent)
 checkClassForCircular (entry.dependsOn.parent);
-{ var _8rvsqjm_28 = entry.dependsOn.uses; for (var _7qticov_29 = 0; _7qticov_29 < _8rvsqjm_28.length; _7qticov_29 ++){
-var use = _8rvsqjm_28[_7qticov_29];
+{ var _611llva_97 = entry.dependsOn.uses; for (var _2smon51_98 = 0; _2smon51_98 < _611llva_97.length; _2smon51_98 ++){
+var use = _611llva_97[_2smon51_98];
 if (! entry.parent || use.name !== entry.parent.name)
 checkClassForCircular (use);
 }}
 delete current [id.name];
 }
 }
-for (var _1lfcoq0_30 = 0; _1lfcoq0_30 < classes.length; _1lfcoq0_30 ++){
-var c = classes[_1lfcoq0_30];
+for (var _a10k1h_99 = 0; _a10k1h_99 < classes.length; _a10k1h_99 ++){
+var c = classes[_a10k1h_99];
 checkClassForCircular (c.id);
 }
 }
@@ -2553,8 +2137,8 @@ return true;
 else
 if (obj && obj.body && obj.body.body)
 {
-{ var _163vd9j_19 = obj.body.body; for (var _1tecmp0_20 = 0; _1tecmp0_20 < _163vd9j_19.length; _1tecmp0_20 ++){
-var child = _163vd9j_19[_1tecmp0_20];
+{ var _407rcng_5 = obj.body.body; for (var _8en6md0_6 = 0; _8en6md0_6 < _407rcng_5.length; _8en6md0_6 ++){
+var child = _407rcng_5[_8en6md0_6];
 if (searchSuperExpression (child))
 return true;
 }}
@@ -2577,10 +2161,10 @@ if (current.dependsOn.parent !== null)
 {
 var parent = byName (current.dependsOn.parent.name);
 if (! parent)
-throwError (current.dependsOn.parent, Messages.ParentClassNotFound, current.dependsOn.parent.name);
+throw new TypeError("Parent class not found", current.dependsOn.parent);
 connectClass (parent, current);
-{ var _5arbndc_21 = parent.members; for (var id in _5arbndc_21){
-var member = _5arbndc_21[id];
+{ var _1j9nkit_7 = parent.members; for (var id in _1j9nkit_7){
+var member = _1j9nkit_7[id];
 if (! current.members.hasOwnProperty (id))
 current.members [id] = $.extend (true, {}, member, {"publicMode":member.publicMode === "private" ? "locked" : member.publicMode});
 }}
@@ -2600,21 +2184,21 @@ if (currentConstructor.autocreated || parentConstructor.params.length === 0)
 currentConstructor.body.body = [expressionStatement (superExpression (null))].concat (currentConstructor.body.body);
 }
 else
-throwError (currentConstructor, Messages.SuperConstructorCallNeeded);
+throw new TypeError("Super constructor call is required", currentConstructor);
 }
 }
 }
-{ var _72kt3o8_22 = current.dependsOn.uses; for (var _hvmos9_23 = 0; _hvmos9_23 < _72kt3o8_22.length; _hvmos9_23 ++){
-var use = _72kt3o8_22[_hvmos9_23];
+{ var _5hepqpj_8 = current.dependsOn.uses; for (var _24ngph0_9 = 0; _24ngph0_9 < _5hepqpj_8.length; _24ngph0_9 ++){
+var use = _5hepqpj_8[_24ngph0_9];
 var used = byName (use.name);
 if (! used)
-throwError (use, Messages.UsingClassNotFound, use.name);
+throw new TypeError("Used class not found", use);
 }}
 current.connected = true;
 }
 function connectClasses (){
-for (var _89elo5b_24 = 0; _89elo5b_24 < classes.length; _89elo5b_24 ++){
-var classEntry = classes[_89elo5b_24];
+for (var _89m3onc_10 = 0; _89m3onc_10 < classes.length; _89m3onc_10 ++){
+var classEntry = classes[_89m3onc_10];
 connectClass (classEntry);
 }
 }
@@ -2626,10 +2210,11 @@ function doClasses (rawClasses,callback){
 helpers = new HelpersManager();
 classes = [];
 classesByNames = {};
+options = {};
 probablyUseOtherMaxValue = 100;
-thatVariable = newIdentifier ("__that");
-for (var _3dvarjp_63 = 0; _3dvarjp_63 < rawClasses.length; _3dvarjp_63 ++){
-var rawClass = rawClasses[_3dvarjp_63];
+thatVariable = "__that";
+for (var _u96bol_37 = 0; _u96bol_37 < rawClasses.length; _u96bol_37 ++){
+var rawClass = rawClasses[_u96bol_37];
 addClass (rawClass);
 }
 if (classes.length > 0)
@@ -2640,111 +2225,125 @@ sortClasses ();
 processClassesMembers ();
 processClassesMethods ();
 processClasses ();
-callback ([variableDeclaration (classes.map (function (arg){
-return arg.element;
-}))], helpers.helpers);
+var result = [];
+for (var _7uvtdc_38 = 0; _7uvtdc_38 < classes.length; _7uvtdc_38 ++){
+var classEntry = classes[_7uvtdc_38];
+result.push.apply (result, classEntry.elements);
+}
+callback (result, helpers.helpers);
 }
 else
 callback ();
+options = null;
 }
+var OutputMode = {"Default":"Default","Static":"Static","InitializerOnly":"InitializerOnly","Empty":"Empty"};
 function processClass (classEntry){
-if (typeof classEntry === "string")
+function classMode (){
+if (classEntry.childs.length === 0 && ! classEntry.dependsOn.parent && objectMembers.length === 0 && constructor.body.body.length === 0)
 {
-classEntry = byName (classEntry);
-console.assert (classEntry, "Class not found");
+if (staticFields.length > 0 || staticMethods.length > 0)
+return OutputMode.Static;
+if (initializer.body.body.length > 0)
+return OutputMode.InitializerOnly;
+return OutputMode.Empty;
 }
-console.assert (! ("element" in classEntry), "Already processed");
+return OutputMode.Default;
+}
+console.assert (! classEntry.elements, "Already processed");
 var constructor = classEntry.members ["@constructor"], initializer = classEntry.members ["@initializer"];
 var filtered = filter (classEntry, function (arg){
 return arg.className === classEntry.id && arg.id.name [0] !== "@";
-}), objectMethods = filtered.filter (function (arg){
-return arg.method && ! arg.static;
-}), staticMethods = filtered.filter (function (arg){
-return arg.method && arg.static;
-}), objectFields = filtered.filter (function (arg){
-return ! arg.method && ! arg.static;
-}), staticFields = filtered.filter (function (arg){
-return ! arg.method && arg.static;
+}), objectMembers = filtered.filter (function (arg){
+return ! arg.static;
+}), staticMembers = filtered.filter (function (arg){
+return arg.static;
 });
-if (! classEntry.params.abstract && filter (classEntry, function (arg){
+var objectMethods = objectMembers.filter (function (arg){
+return arg.method;
+}), objectFields = objectMembers.filter (function (arg){
+return ! arg.method;
+}), staticMethods = staticMembers.filter (function (arg){
+return arg.method;
+}), staticFields = staticMembers.filter (function (arg){
+return ! arg.method;
+});
+constructor.id = null;
+initializer.id = null;
+if (! classEntry.params.abstract && objectMethods.filter (function (arg){
 return arg.abstract;
-}) [0])
+}).length > 0)
 classEntry.params.abstract = true;
-$.extend (constructor, {"id":null,"type":Syntax.FunctionExpression});
-$.extend (initializer, {"id":null,"type":Syntax.FunctionExpression});
-var mode = "default";
-if (! classEntry.childs.length && ! classEntry.dependsOn.parent && ! objectMethods.length && ! objectFields.length && ! constructor.body.body.length)
-{
-classEntry.mode = "static";
-if (! staticFields.length && ! staticMethods.length)
-classEntry.mode = initializer.body.body.length > 0 ? "initializer-only" : "empty";
-}
-if (mode === "empty")
-{
-classEntry.element = variableDeclarator (classEntry.id.name, objectExpression ());
-classEntry.uses = [];
-}
-else
-if (mode === "initializer-only")
-{
-classEntry.element = variableDeclarator (classEntry.id.name, sequenceExpression ([callExpression (classEntry.staticInitialization),objectExpression ()]));
-}
-else
-{
-var variables = [], resultFunction = [variableDeclaration (variables)];
-if (mode === "default")
-{
-variables.push (variableDeclarator (classEntry.id.name, constructor));
-if (classEntry.dependsOn.parent)
-resultFunction.push (expressionStatement (callExpression ("__pe", [classEntry.id.name,classEntry.dependsOn.parent.name])));
-for (var _5snvocp_25 = 0; _5snvocp_25 < objectMethods.length; _5snvocp_25 ++){
-var method = objectMethods[_5snvocp_25];
-if (! method.abstract || method.body.body.length > 0)
-{
-var target = memberExpression (memberExpression (classEntry.id.name, "prototype"), method.id.name), value = functionExpression (method.params, method.body);
-resultFunction.push (expressionStatement (assignmentExpression (target, value)));
-}
-else
-abstract = true;
-}
 if (classEntry.params.abstract)
-constructor.body.body = [ifStatement (binaryExpression (memberExpression (thisExpression (), "constructor"), "===", classEntry.id.name), throwStatement (newExpression ("Error", [literal ("Trying to instantiate abstract class " + classEntry.id.name)])))].concat (constructor.body.body);
-}
-else
-if (mode === "static")
-variables.push (variableDeclarator (classEntry.id.name, objectExpression ()));
-for (var _4cj3f30_26 = 0; _4cj3f30_26 < staticFields.length; _4cj3f30_26 ++){
-var field = staticFields[_4cj3f30_26];
-if (field.publicMode !== "private")
+constructor.body.body = [ifStatement (binaryExpression (memberExpression (thisExpression (), identifier ("constructor")), "===", classEntry.id.name), throwStatement (newExpression ("Error", [stringLiteralWithQuotes ("Trying to instantiate abstract class " + classEntry.id.name)])))].concat (constructor.body.body);
+var mode = classMode ();
+if (mode === OutputMode.Empty)
+return [oneVariableDeclaration (classEntry.id.name, objectExpression ([]))];
+if (mode === OutputMode.InitializerOnly)
+return [oneVariableDeclaration (classEntry.id.name, callExpression (initializer))];
+var anonymousFunction = staticMembers.filter (function (arg){
+return arg.publicMode === "private";
+}).length > 0, result, mainObj;
+if (mode === OutputMode.Default)
 {
-var temp = expressionStatement (assignmentExpression (memberExpression (classEntry.id.name, field.id), field.init || "undefined"));
-if (findByReplacement (classEntry, field.id.name).publicMode === "protected")
-temp.comment = field.id.name;
-resultFunction.push (temp);
+result = [anonymousFunction ? oneVariableDeclaration (classEntry.id, constructor) : functionDeclaration (classEntry.id, constructor.params, constructor.body)];
+if (classEntry.dependsOn.parent)
+result.push (expressionStatement (callExpression ("__prototypeExtend", [classEntry.id.name,classEntry.dependsOn.parent.name])));
+for (var _78mufqr_7 = 0; _78mufqr_7 < objectFields.length; _78mufqr_7 ++){
+var field = objectFields[_78mufqr_7];
+
+}
+for (var _8a06vnm_8 = 0; _8a06vnm_8 < objectMethods.length; _8a06vnm_8 ++){
+var method = objectMethods[_8a06vnm_8];
+if (! method.abstract)
+result.push (assignmentStatement (memberExpression (memberExpression (classEntry.id.name, "prototype"), method.id), functionExpression (null, method.params, method.body)));
+}
+for (var _hrcqab_9 = 0; _hrcqab_9 < staticFields.length; _hrcqab_9 ++){
+var field = staticFields[_hrcqab_9];
+if (field.publicMode === "private")
+result [0].declarations.push (field);
+else
+result.push (assignmentStatement (memberExpression (classEntry.id.name, field.id), field.init || "undefined"));
+}
+for (var _7d7llno_10 = 0; _7d7llno_10 < staticMethods.length; _7d7llno_10 ++){
+var method = staticMethods[_7d7llno_10];
+if (method.publicMode === "private")
+result.push (method);
+else
+result.push (expressionStatement (assignmentExpression (memberExpression (classEntry.id.name, method.id), functionExpression (null, method.params, method.body))));
+}
 }
 else
-variables.push (field);
-}
-for (var _12497m0_27 = 0; _12497m0_27 < staticMethods.length; _12497m0_27 ++){
-var method = staticMethods[_12497m0_27];
-if (method.publicMode !== "private")
 {
-var temp = expressionStatement (assignmentExpression (memberExpression (classEntry.id.name, method.id), functionExpression (method.params, method.body)));
-resultFunction.push (temp);
-}
+var properties = [];
+result = [oneVariableDeclaration (classEntry.id, objectExpression (properties))];
+for (var _865r3qm_11 = 0; _865r3qm_11 < staticFields.length; _865r3qm_11 ++){
+var field = staticFields[_865r3qm_11];
+if (field.publicMode === "private")
+result [0].declarations.push (field);
 else
-resultFunction.push (method);
+properties.push (property (field.id, field.init || "undefined"));
 }
-if (initializer && initializer.body.body.length > 0)
-resultFunction.push (expressionStatement (callExpression (initializer)));
-resultFunction.push (returnStatement (classEntry.id.name));
-classEntry.element = variableDeclarator (classEntry.id, callExpression (functionExpression ([], resultFunction)));
+for (var _419btqc_12 = 0; _419btqc_12 < staticMethods.length; _419btqc_12 ++){
+var method = staticMethods[_419btqc_12];
+if (method.publicMode === "private")
+result.push (method);
+else
+properties.push (property (method.id, functionExpression (null, method.params, method.body)));
 }
+}
+if (initializer.body.body.length > 0)
+result.push (expressionStatement (callExpression (initializer)));
+if (anonymousFunction)
+{
+result.push (returnStatement (classEntry.id.name));
+return [oneVariableDeclaration (classEntry.id, callFunctionExpression (result))];
+}
+return result;
 }
 function processClasses (){
-for (var _5t6hu9q_28 = 0; _5t6hu9q_28 < classes.length; _5t6hu9q_28 ++){
-var classEntry = classes[_5t6hu9q_28];
-processClass (classEntry);
+for (var _7jph0ei_13 = 0; _7jph0ei_13 < classes.length; _7jph0ei_13 ++){
+var classEntry = classes[_7jph0ei_13];
+classEntry.elements = processClass (classEntry);
 }
 }
 function rename (name,member){
@@ -2781,15 +2380,15 @@ function processClassMember (classEntry,name,parentMember){
 var newPublicMode = parentMember.publicMode, targetMembers = [parentMember], argument, updatedName;
 function testChilds (currentClass){
 var childMember;
-{ var _7t6cm53_78 = currentClass.childs; for (var _4d39556_79 = 0; _4d39556_79 < _7t6cm53_78.length; _4d39556_79 ++){
-var childClass = _7t6cm53_78[_4d39556_79];
+{ var _41vqr4_73 = currentClass.childs; for (var _6aof8hd_74 = 0; _6aof8hd_74 < _41vqr4_73.length; _6aof8hd_74 ++){
+var childClass = _41vqr4_73[_6aof8hd_74];
 if (childClass.members.hasOwnProperty (name))
 {
 childMember = childClass.members [name];
 if (testBadOverride (parentMember, childMember))
-throwError (childMember.id, "Invalid public mode (\"" + childMember.publicMode + "\" instead of \"" + parentMember.publicMode + "\" for member \"" + name + "\" of class \"" + childClass.id.name + "\" which extends \"" + currentClass.id.name + "\")");
+throw new TypeError("Invalid public mode (\"" + childMember.publicMode + "\" instead of \"" + parentMember.publicMode + "\" for member \"" + name + "\" of class \"" + childClass.id.name + "\" which extends \"" + currentClass.id.name + "\")", childMember.id);
 if (parentMember.method !== childMember.method)
-throwError (childMember.id, "Invalid override (" + (childMember.method ? "method" : "field") + " instead of " + (parentMember.method ? "method" : "field") + " for member \"" + name + "\" of class \"" + childClass.id.name + "\" which extends \"" + currentClass.id.name + "\")");
+throw new TypeError("Invalid override (" + (childMember.method ? "method" : "field") + " instead of " + (parentMember.method ? "method" : "field") + " for member \"" + name + "\" of class \"" + childClass.id.name + "\" which extends \"" + currentClass.id.name + "\")", childMember.id);
 newPublicMode = morePublicMode (newPublicMode, childMember.publicMode);
 targetMembers.push (childMember);
 }
@@ -2802,23 +2401,23 @@ argument = $.extend ({}, parentMember, {"publicMode":newPublicMode});
 else
 argument = parentMember;
 updatedName = rename (name, argument);
-for (var _8gnhb9u_80 = 0; _8gnhb9u_80 < targetMembers.length; _8gnhb9u_80 ++){
-var targetMember = targetMembers[_8gnhb9u_80];
+for (var _398husi_75 = 0; _398husi_75 < targetMembers.length; _398husi_75 ++){
+var targetMember = targetMembers[_398husi_75];
 targetMember.id.name = updatedName;
 targetMember.processed = true;
 }
 }
 function processClassMembers (classEntry){
 var replace, childMember;
-{ var _5spe49u_81 = classEntry.members; for (var name in _5spe49u_81){
-var member = _5spe49u_81[name];
+{ var _7g46r1q_76 = classEntry.members; for (var name in _7g46r1q_76){
+var member = _7g46r1q_76[name];
 if (name [0] !== "@" && ! member.processed)
 processClassMember (classEntry, name, member);
 }}
 }
 function processClassesMembers (){
-for (var _4088k5a_82 = 0; _4088k5a_82 < classes.length; _4088k5a_82 ++){
-var classEntry = classes[_4088k5a_82];
+for (var _84rg4ir_77 = 0; _84rg4ir_77 < classes.length; _84rg4ir_77 ++){
+var classEntry = classes[_84rg4ir_77];
 processClassMembers (classEntry);
 }
 }
@@ -2845,8 +2444,8 @@ if (typeof obj === "object" && obj !== null)
 {
 if (obj instanceof Array)
 {
-for (var _3j7ftcg_83 = 0; _3j7ftcg_83 < obj.length; _3j7ftcg_83 ++){
-var child = obj[_3j7ftcg_83];
+for (var _686pg24_76 = 0; _686pg24_76 < obj.length; _686pg24_76 ++){
+var child = obj[_686pg24_76];
 lookForExclusions (child, target);
 }
 }
@@ -2880,7 +2479,7 @@ process (obj.body.body, obj);
 if (usingThat && methodEntry === obj)
 {
 var temp = [variableDeclarator (thatVariable, thisExpression ())];
-if (0 in obj.body && obj.body.body [0].type === Syntax.VariableDeclaration)
+if (obj.body.body [0] && obj.body.body [0].type === Syntax.VariableDeclaration)
 obj.body.body [0].declarations = temp.concat (obj.body.body [0].declarations);
 else
 obj.body.body = [variableDeclaration (temp)].concat (obj.body.body);
@@ -2894,15 +2493,13 @@ process (obj.value, parent);
 function processIdentifier (obj,parent){
 function replaceObject (member){
 if (methodEntry.static)
-throwError (obj, Messages.ObjectAccessError, obj.name);
-if (member.publicMode === "locked")
-throwError (obj, Messages.PrivateAccessError, obj.name);
+throw new TypeError("Member \"" + obj.name + "\" is static", obj);
 var that = getThis ();
 var result;
 if (member.method && parent.type !== Syntax.CallExpression)
 {
 helpers.set ("bindOnce", obj);
-result = callExpression ("__bo", [that,literal (member.id.name)]);
+result = callExpression ("__bindOnce", [that,stringLiteralWithQuotes (member.id.name)]);
 }
 else
 {
@@ -2911,8 +2508,6 @@ result = memberExpression (that, member.id.name);
 return result;
 }
 function replaceStatic (member){
-if (member.publicMode === "locked")
-throwError (obj, Messages.PrivateAccessError, obj.name);
 var className = member.className;
 return memberExpression (className.name, member.id.name);
 }
@@ -2922,6 +2517,8 @@ var result = null, member;
 if (obj.name in classEntry.members)
 {
 member = classEntry.members [obj.name];
+if (member.publicMode === "locked")
+throw new TypeError("Member \"" + obj.name + "\" has private access", obj);
 if (! member.static)
 result = replaceObject (member);
 else
@@ -2960,14 +2557,15 @@ if (obj.object.type === Syntax.ThisExpression)
 obj.property.name = member.id.name;
 }
 else
-if (member.publicMode !== "public")
+if (0 && member.publicMode !== "public")
 {
 if (parent instanceof Array && preparent)
 parent = preparent;
 if (obj.object.type === Syntax.Identifier)
 {
 obj.computed = true;
-obj.property = conditionalExpression (binaryExpression (obj.object, "instanceof", member.className.name), literal (member.id.name), literal (obj.property.name));
+obj.property = conditionalExpression (binaryExpression (obj.object, "instanceof", member.className.name), stringLiteralWithQuotes (member.id.name), stringLiteralWithQuotes (obj.property.name));
+process (obj.object, obj);
 }
 else
 if (parent.type === Syntax.AssignmentExpression)
@@ -2976,16 +2574,16 @@ second = $.extend (true, {}, parent);
 for (var key in parent){
 var value = parent[key];
 if (value === obj)
-second [key] = memberExpression ("__", conditionalExpression (binaryExpression ("__", "instanceof", member.className.name), literal (member.id.name), literal (obj.property.name)), true);
+second [key] = memberExpression ("__", conditionalExpression (binaryExpression ("__", "instanceof", member.className.name), stringLiteralWithQuotes (member.id.name), stringLiteralWithQuotes (obj.property.name)), true);
 }
-process (obj.object, obj);
 set (parent, sequenceExpression ([assignmentExpression ("__", obj.object),second]));
+process (obj.object, obj);
 temp = true;
 }
 else
 {
-process (obj.object, obj);
-set (obj, sequenceExpression ([assignmentExpression ("__", obj.object),memberExpression ("__", conditionalExpression (binaryExpression ("__", "instanceof", member.className.name), literal (member.id.name), literal (obj.property.name)), true)]));
+set (obj, sequenceExpression ([assignmentExpression ("__", obj.object),memberExpression ("__", conditionalExpression (binaryExpression ("__", "instanceof", member.className.name), stringLiteralWithQuotes (member.id.name), stringLiteralWithQuotes (obj.property.name)), true)]));
+process (obj);
 if (parent.type === Syntax.CallExpression && obj === parent.callee)
 {
 parent.callee = memberExpression (parent.callee, "call");
@@ -3008,20 +2606,20 @@ process (obj.property, obj);
 }
 function processSuperExpression (obj,parent){
 if (currentFunction !== methodEntry && obj.callee === null)
-throwError (obj, Messages.WtfMan);
+throw new Error("Not implemented");
 var currentClass = classEntry;
 for (var i = 0; 
 i < obj ["super"]; i++)
 {
 currentClass = byName (currentClass.dependsOn.parent.name);
 if (! currentClass)
-throwError (obj, Messages.SuperMethodIsNotAvailable);
+throw new TypeError("Super method isn't available", obj);
 }
 var method = obj.callee ? currentClass.members [obj.callee.name] : findByReplacement (currentClass, methodEntry.id.name);
 if (! method)
-throwError (obj, membersOut (currentClass) + "; " + membersOut (classEntry), "Attempt to call undefined method");
+throw new TypeError("Super method not found", obj);
 if (method.static)
-throwError (obj, "Attempt to call static method");
+throw new TypeError("This method is static", obj);
 var target;
 if (method.id.name [0] !== "@")
 {
@@ -3046,8 +2644,8 @@ if (typeof obj === "object" && obj !== null)
 {
 if (obj instanceof Array)
 {
-for (var _3bbf7q9_84 = 0; _3bbf7q9_84 < obj.length; _3bbf7q9_84 ++){
-var child = obj[_3bbf7q9_84];
+for (var _6kl8evv_77 = 0; _6kl8evv_77 < obj.length; _6kl8evv_77 ++){
+var child = obj[_6kl8evv_77];
 process (child, obj, parent);
 }
 }
@@ -3087,15 +2685,15 @@ process (methodEntry);
 }
 function processClassMethods (classEntry){
 var replace, childMember;
-{ var _32ns1dt_85 = classEntry.members; for (var name in _32ns1dt_85){
-var member = _32ns1dt_85[name];
-if (member.method && member.className === classEntry.id)
+{ var _2cncvhn_78 = classEntry.members; for (var name in _2cncvhn_78){
+var member = _2cncvhn_78[name];
+if (member.method && ! member.abstract && member.className === classEntry.id)
 processClassMethod (classEntry, member);
 }}
 }
 function processClassesMethods (){
-for (var _6tka36b_86 = 0; _6tka36b_86 < classes.length; _6tka36b_86 ++){
-var classEntry = classes[_6tka36b_86];
+for (var _4kfvjpl_79 = 0; _4kfvjpl_79 < classes.length; _4kfvjpl_79 ++){
+var classEntry = classes[_4kfvjpl_79];
 processClassMethods (classEntry);
 }
 }
@@ -3111,14 +2709,14 @@ return current.weight;
 current.weight = current.probablyUseOther ? 1 + Math.min (current.probablyUseOther, probablyUseOtherMaxValue) / (probablyUseOtherMaxValue + 1) : 1;
 if (current.dependsOn.parent)
 current.weight += getWeight (current.dependsOn.parent.name);
-{ var _3ds5kin_42 = current.dependsOn.uses; for (var _36p2lqp_43 = 0; _36p2lqp_43 < _3ds5kin_42.length; _36p2lqp_43 ++){
-var use = _3ds5kin_42[_36p2lqp_43];
+{ var _ja3tqq_99 = current.dependsOn.uses; for (var _2lg0f0n_100 = 0; _2lg0f0n_100 < _ja3tqq_99.length; _2lg0f0n_100 ++){
+var use = _ja3tqq_99[_2lg0f0n_100];
 current.weight += getWeight (use.name);
 }}
 return current.weight;
 }
-for (var _8j5n143_44 = 0; _8j5n143_44 < classes.length; _8j5n143_44 ++){
-var current = classes[_8j5n143_44];
+for (var _6oe5f0f_101 = 0; _6oe5f0f_101 < classes.length; _6oe5f0f_101 ++){
+var current = classes[_6oe5f0f_101];
 getWeight (current);
 }
 classes.sort (function (a,b){
@@ -3166,8 +2764,8 @@ return arg.id && arg.id.name === replacement;
 }
 function membersOut (classObject){
 var arg = [];
-{ var _2b5phpi_35 = classObject.members; for (var key in _2b5phpi_35){
-var value = _2b5phpi_35[key];
+{ var _41fverb_102 = classObject.members; for (var key in _41fverb_102){
+var value = _41fverb_102[key];
 arg.push (key + ":" + value.id);
 }}
 console.log (classObject.id.name + ": " + arg.join (", "));
@@ -3228,8 +2826,8 @@ put (function (arg){
 return arg.l == s.slice (2);
 });
 else
-{ var _28f975o_99 = s.slice (1); for (var _934c9j2_100 = 0; _934c9j2_100 < _28f975o_99.length; _934c9j2_100 ++){
-var k = _28f975o_99[_934c9j2_100];
+{ var _cue7pu_103 = s.slice (1); for (var _8lus2ef_104 = 0; _8lus2ef_104 < _cue7pu_103.length; _8lus2ef_104 ++){
+var k = _cue7pu_103[_8lus2ef_104];
 put (function (arg){
 return arg.s == k;
 });
@@ -3242,7 +2840,7 @@ if (result.h)
 {
 console.log ("Available args:");
 args.forEach (function (arg){
-return console.log (" -{0} (--{1})".format (arg.s, arg.l));
+return console.log (" -" + arg.s + " (--" + arg.l + ")");
 });
 process.exit (0);
 }
@@ -3338,8 +2936,8 @@ return [temp];
 current = path.dirname (current);
 }
 }
-{ var _3o8q67u_61 = this instanceof File ? [{"root":this.root,"dirname":this.dirname}].concat (lookingAt) : lookingAt; for (var _okotl8_62 = 0; _okotl8_62 < _3o8q67u_61.length; _okotl8_62 ++){
-var entry = _3o8q67u_61[_okotl8_62];
+{ var _8nfbont_68 = this instanceof File ? [{"root":this.root,"dirname":this.dirname}].concat (lookingAt) : lookingAt; for (var _2bkn7v8_69 = 0; _2bkn7v8_69 < _8nfbont_68.length; _2bkn7v8_69 ++){
+var entry = _8nfbont_68[_2bkn7v8_69];
 var temp = findInFolder (entry.root, entry.dirname, child);
 if (temp)
 return temp.map (function (arg){
@@ -3382,7 +2980,6 @@ callback ();
 File.prototype.parsing = function (callback){
 console.assert (this.state == File.STATE_MACROS, "Wrong state (" + this.state + ")");
 this.state = File.STATE_WAITING;
-try{
 jsxParse (this.content, {"filename":this.filename,"initializationAllowed":true}, function (parsed,helpers){
 this.log ("parsing processed");
 this.state = File.STATE_FINISHED;
@@ -3390,9 +2987,6 @@ this.parsed = parsed;
 this.helpers = helpers;
 callback ();
 }.bind (this));
-}catch (e){
-console.fatal ("Parsing failed (" + this.filename + ")" + (File.DEBUG_MODE ? ("\n" + this.content.trim ()).replace (/\n/g, "\n> ") + "\n" : "") + "\n" + e.stack);
-}
 };
 File.prototype.process = function (callback){
 new Queue(this, Queue.MODE_SEQUENT).description ("file process").add (this.load).add (this.macros).add (this.parsing).run (function (arg){
@@ -3424,8 +3018,8 @@ console.assert (! this.exists (file), "File already added");
 this.files.push (file);
 };
 FileStorage.prototype.has = function (fn){
-{ var _7t4src5_39 = this.files; for (var _8hsia7n_40 = 0; _8hsia7n_40 < _7t4src5_39.length; _8hsia7n_40 ++){
-var file = _7t4src5_39[_8hsia7n_40];
+{ var _1sejb85_107 = this.files; for (var _5mr1kib_108 = 0; _5mr1kib_108 < _1sejb85_107.length; _5mr1kib_108 ++){
+var file = _1sejb85_107[_5mr1kib_108];
 if (fn (file.state))
 return true;
 }}
@@ -3539,20 +3133,29 @@ return oneline;
 function sub (obj){
 return obj.type === Syntax.BlockStatement ? child (obj) : obj.type === Syntax.EmptyStatement ? ";" : indent (obj);
 }
+if (! node)
+{
+console.json (parent);
+throw new Error("Node = " + node);
+}
 if (niceMode && comment === null && node.filename)
 comment = node.filename + ":" + node.lineNumber;
 var result, temp;
 switch (node.type){
+case Syntax.BooleanLiteral:
+
+case Syntax.NullLiteral:
+
+case Syntax.NumericLiteral:
+
+case Syntax.RegexpLiteral:
+
+case Syntax.StringLiteral:
+
+case Syntax.UndefinedLiteral:
+return node.value;
 case Syntax.Identifier:
 return node.name;
-case Syntax.Literal:
-if (typeof node.raw === "string")
-return node.raw;
-else
-if (typeof node.value === "string")
-return "'" + JSON.stringify (node.value).slice (1, - 1).replace (/'/g, "\\'") + "'";
-else
-return String (node.value);
 case Syntax.Property:
 return child (node.key) + ": " + child (node.value);
 case Syntax.ThisExpression:
@@ -3621,11 +3224,21 @@ return "var " + temp + ";";
 case Syntax.VariableDeclarator:
 return node.init ? child (node.id) + " = " + child (node.init) : child (node.id);
 case Syntax.BlockStatement:
-if (node.body.length > 0)
-{
+temp = node.body.length > 0;
 result = "{" + end () + "\t";
+if (parent.type === Syntax.FunctionDeclaration || parent.type === Syntax.FunctionExpression)
+{ var _85dcbnp_69 = parent.params; for (var _32r0vup_70 = 0; _32r0vup_70 < _85dcbnp_69.length; _32r0vup_70 ++){
+var param = _85dcbnp_69[_32r0vup_70];
+if (param.defaultValue)
+{
+result += "if (" + child (param) + " === undefined)" + end () + "\t\t" + child (param) + " = " + child (param.defaultValue) + ";" + end () + "\n\t" + tabs;
+temp = true;
+}
+}}
 result += mapArray (node.body, "", true);
 result += end () + "}";
+if (temp)
+{
 return result;
 }
 else
@@ -3640,6 +3253,8 @@ case Syntax.EmptyStatement:
 return ";";
 case Syntax.LabeledStatement:
 return child (node.label) + ": " + child (node.body);
+case Syntax.NotImplementedStatement:
+return "console.warn ('Not implemented at " + node.lineNumber + " line of " + node.filename + "');";
 case Syntax.ReturnStatement:
 return "return" + (node.argument ? " " + child (node.argument) : "") + ";";
 case Syntax.BreakStatement:
@@ -3675,8 +3290,8 @@ result += sub (node.alternate);
 return result;
 case Syntax.SwitchStatement:
 result = "switch (" + child (node.discriminant) + "){";
-{ var _48psuep_81 = node.cases; for (var _95ueb8a_82 = 0; _95ueb8a_82 < _48psuep_81.length; _95ueb8a_82 ++){
-var obj = _48psuep_81[_95ueb8a_82];
+{ var _7i7dol5_71 = node.cases; for (var _8vg9nl9_72 = 0; _8vg9nl9_72 < _7i7dol5_71.length; _8vg9nl9_72 ++){
+var obj = _7i7dol5_71[_8vg9nl9_72];
 result += indent (obj);
 }}
 return result + end () + "}";
@@ -3709,8 +3324,8 @@ case Syntax.ForInStatement:
 return "for (" + child (node.left) + " in " + child (node.right) + ")" + sub (node.body);
 case Syntax.TryStatement:
 result = "try " + sub (node.block) + " ";
-{ var _4fltmp8_83 = node.handlers; for (var _1ncfsna_84 = 0; _1ncfsna_84 < _4fltmp8_83.length; _1ncfsna_84 ++){
-var handler = _4fltmp8_83[_1ncfsna_84];
+{ var _809prti_73 = node.handlers; for (var _7l18em8_74 = 0; _7l18em8_74 < _809prti_73.length; _7l18em8_74 ++){
+var handler = _809prti_73[_7l18em8_74];
 result += child (handler) + " ";
 }}
 if (node.finalizer)
@@ -3725,8 +3340,8 @@ return "debugger;";
 case Syntax.Program:
 result = "";
 temp = node.body [0].type;
-{ var _2q7g6hv_85 = node.body; for (var index = 0; index < _2q7g6hv_85.length; index ++){
-var childNode = _2q7g6hv_85[index];
+{ var _mr3i9b_75 = node.body; for (var index = 0; index < _mr3i9b_75.length; index ++){
+var childNode = _mr3i9b_75[index];
 if (index > 0)
 {
 if (temp !== childNode.type || childNode.type !== Syntax.ExpressionStatement)
@@ -3795,9 +3410,17 @@ this.debugMode = false;
 this.binded = [];
 }
 LiteParser.EOF = 1;
-LiteParser.prototype.__defineGetter__ ("current", function (arg){
+Object.defineProperty (LiteParser.prototype, "lineNumber", {"get":function (){
+var result = 1;
+for (var i = 0, d = this.data, n = Math.min (d.length, this.index); 
+i < n; i++)
+if (d [i] === "\n")
+result++;
+return result;
+}});
+Object.defineProperty (LiteParser.prototype, "current", {"get":function (arg){
 return this.data [this.index];
-});
+}});
 LiteParser.prototype.replace = function (from,to,by){
 if (by === undefined)
 by = "";
@@ -3816,14 +3439,6 @@ return delta;
 LiteParser.prototype.substring = function (from,to){
 return this.data.substring (from, to);
 };
-Object.defineProperty (LiteParser.prototype, "lineNumber", {"get":function (){
-var result = 1;
-for (var i = 0, d = this.data, n = Math.min (d.length, this.index); 
-i < n; i++)
-if (d [i] === "\n")
-result++;
-return result;
-}});
 LiteParser.prototype.getPosition = function (data,delta){
 return {"index":this.index,"lineNumber":this.lineNumber};
 };
@@ -3842,8 +3457,8 @@ var args = [].slice.call (arguments), comment, handler;
 if (typeof args [args.length - 2] === "function")
 comment = args.pop ();
 handler = args.pop ();
-for (var _4qclqnq_89 = 0; _4qclqnq_89 < args.length; _4qclqnq_89 ++){
-var entry = args[_4qclqnq_89];
+for (var _3a91uio_72 = 0; _3a91uio_72 < args.length; _3a91uio_72 ++){
+var entry = args[_3a91uio_72];
 this.binded.push ({"match":entry,"handler":handler,"comment":comment});
 }
 return this;
@@ -3908,8 +3523,8 @@ else
 console.assert (true, "Invalid argument type");
 }
 var value = {"index":Number.POSITIVE_INFINITY}, oldIndex = this.index, bindedObj, result, temp;
-{ var _rsfrnh_90 = this.binded; for (var i = 0; i < _rsfrnh_90.length; i ++){
-var arg = _rsfrnh_90[i];
+{ var _3n9qjfc_73 = this.binded; for (var i = 0; i < _3n9qjfc_73.length; i ++){
+var arg = _3n9qjfc_73[i];
 temp = indexOfExt (this.data, arg.match, this.index, i);
 if (temp.index !== - 1 && temp.index < value.index)
 {
@@ -4004,8 +3619,8 @@ Macro.Defaults = {"fs":fs,"path":path,"params":paramsManager,"ReturnType":Macro.
 Macro.globalStorage = {};
 Macro.prototype.defaults = function (context){
 var result = {}, obj = {"name":this.name,"context":context,"macroContext":this.context};
-{ var _1tq4kdc_94 = Macro.Defaults; for (var key in _1tq4kdc_94){
-var value = _1tq4kdc_94[key];
+{ var _4867aed_116 = Macro.Defaults; for (var key in _4867aed_116){
+var value = _4867aed_116[key];
 if (typeof value === "function")
 result [key] = value.call (obj);
 else
@@ -4056,8 +3671,8 @@ variables.push ("require = this.require");
 variables.push ("defineMacro = this.defineMacro.bind (this)");
 for (var key in Macro.Defaults)
 variables.push (key + " = this.defaults." + key);
-{ var _1880cjo_95 = phase.used; for (var _1fvf0jb_96 = 0; _1fvf0jb_96 < _1880cjo_95.length; _1fvf0jb_96 ++){
-var entry = _1880cjo_95[_1fvf0jb_96];
+{ var _70smvsp_117 = phase.used; for (var _330dsjk_118 = 0; _330dsjk_118 < _70smvsp_117.length; _330dsjk_118 ++){
+var entry = _70smvsp_117[_330dsjk_118];
 queue.add (macroStorage.get, entry.macro, this.level);
 variables.push (entry.name + " = function (){ return this.macros." + entry.macro + ".call (this.context, [].slice.call (arguments)) }.bind (this)");
 }}
@@ -4092,8 +3707,8 @@ arguments = [];
 macroStorage.add (new Macro(name, that.level, that.context, typeof arguments === "string" ? arguments.split (",").map (Function.prototype.call.bind (String.prototype.trim)) : arguments, body));
 }};
 try{
-{ var _6ga9r4q_97 = this.arguments; for (var id = 0; id < _6ga9r4q_97.length; id ++){
-var arg = _6ga9r4q_97[id];
+{ var _2qlkdkp_119 = this.arguments; for (var id = 0; id < _2qlkdkp_119.length; id ++){
+var arg = _2qlkdkp_119[id];
 if (arg.type === "callback" && typeof args [id] !== "function")
 throw new MacroError(this.name, args, "Callback requested");
 }}
@@ -4190,8 +3805,8 @@ default:macrosProcess (value, this.level, this.context, nextStep);
 }
 }
 var queue = new Queue(this, Queue.MODE_PARALLEL).description ("macro call arguments prepare");
-{ var _181gjl9_68 = this.arguments; for (var i = 0; i < _181gjl9_68.length; i ++){
-var arg = _181gjl9_68[i];
+{ var _4dhh93b_120 = this.arguments; for (var i = 0; i < _4dhh93b_120.length; i ++){
+var arg = _4dhh93b_120[i];
 queue.add (cast, this.macro.arguments [i], arg);
 }}
 queue.run (function (arg){
@@ -4309,16 +3924,13 @@ MacroNotFoundError.prototype = Error.prototype;
 var anonymousMacroId = + new Date();
 function macrosParse (source,level,context){
 console.assert (context instanceof Context, "Context required");
-function throwError (position,messageFormat){
-var args = Array.prototype.slice.call (arguments, 2), msg = messageFormat.replace (/%(\d)/g, function (whole,index){
-return args [index] || "";
-});
-throw new ParseError("MacroParseError", context.file.filename, position.lineNumber ? position.lineNumber : liteParser.lineNumber, msg);
+function throwError (message){
+throw new Error(["MacroParseError",context.file.filename,liteParser.lineNumber,message]);
 }
 function parseMacroDefine (){
 var name = found.raw [1], splitted = name.split (":"), position, argument, arguments, blockMode, temp, body, converted, insertCall = false, from;
 if (splitted [0] === "macro")
-throwError ({}, Messages.UnexpectedReserved);
+throwError ("Unexpected reserved word");
 temp = liteParser.whatNext (/[^\s]/);
 from = liteParser.index;
 if (temp.value === "(")
@@ -4341,13 +3953,13 @@ break;
 }
 else
 if (arguments.length || temp.value === ",")
-throwError ({}, Messages.UnexpectedToken, temp.value);
+throwError ("Unexpected token " + temp.value);
 position = liteParser.index;
 if (temp.value === ")")
 break;
 }
 if (! temp)
-throwError ({}, Messages.UnexpectedEOS);
+throwError ("Unexpected end of file");
 temp = liteParser.whatNext (/[^\s]/);
 }
 else
@@ -4363,7 +3975,7 @@ else
 temp = liteParser.findHere (";", LiteParser.EOF);
 if (! temp || temp.value === LiteParser.EOF)
 {
-throwError ({}, Messages.UnexpectedEOS);
+throwError ("Unexpected end of file");
 }
 else
 if (temp.value === "}")
@@ -4394,7 +4006,7 @@ macroStorage.add (macro);
 function parseMacroCall (){
 var name = found.raw [1], arguments = [], position, argument, quotesCount, temp;
 if (name === "macro")
-throwError ({}, Messages.UnexpectedReserved);
+throwError ("Unexpected reserved word");
 temp = liteParser.whatNext (/[^\s]/);
 if (temp && (temp.value === "{" || temp.value === "("))
 {
@@ -4413,7 +4025,7 @@ temp = liteParser.findSimple (new Array(quotesCount + 1).join ("}"));
 else
 temp = liteParser.findHere (["{"], "}");
 if (! temp)
-throwError ({}, Messages.UnexpectedEOS);
+throwError ("Unexpected end of file");
 argument = liteParser.substring (position, liteParser.index - 1);
 arguments.push (argument);
 }
@@ -4427,14 +4039,14 @@ if (argument.length)
 arguments.push (argument);
 else
 if (arguments.length || temp.value === ",")
-throwError ({}, Messages.UnexpectedToken, temp.value);
+throwError ("Unexpected token " + temp.value);
 if (temp.value === ")")
 break;
 else
 position = liteParser.index;
 }
 if (! temp)
-throwError ({}, Messages.UnexpectedEOS);
+throwError ("Unexpected end of file");
 }
 }
 var replacement = "@__call(" + calls.length + ")";
@@ -4496,13 +4108,13 @@ level = "";
 console.assert (context instanceof Context, "Context required");
 console.assert (typeof callback === "function", "Function required");
 var temp = macrosParse (data, level, context), queue = new Queue(Queue.MODE_PARALLEL).description ("macros process");
-{ var _63i0aj5_40 = temp.calls; for (var _5mvlscj_41 = 0; _5mvlscj_41 < _63i0aj5_40.length; _5mvlscj_41 ++){
-var call = _63i0aj5_40[_5mvlscj_41];
+{ var _6nk431s_74 = temp.calls; for (var _d9mfe2_75 = 0; _d9mfe2_75 < _6nk431s_74.length; _d9mfe2_75 ++){
+var call = _6nk431s_74[_d9mfe2_75];
 queue.add (call, call.process.bind (call));
 }}
 queue.run (function (arg){
-for (var _4no8mm4_42 = 0; _4no8mm4_42 < arg.length; _4no8mm4_42 ++){
-var entry = arg[_4no8mm4_42];
+for (var _6lblova_76 = 0; _6lblova_76 < arg.length; _6lblova_76 ++){
+var entry = arg[_6lblova_76];
 temp.data = temp.data.split (entry.data.replacement).join (entry.result [0]);
 }
 callback (temp.data);
@@ -4520,8 +4132,8 @@ if (! this.macros [macro.name])
 this.macros [macro.name] = [macro];
 else
 this.macros [macro.name].push (macro);
-{ var _5m6ll5b_24 = this.requests; for (var pos = 0; pos < _5m6ll5b_24.length; pos ++){
-var request = _5m6ll5b_24[pos];
+{ var _8vjij1o_124 = this.requests; for (var pos = 0; pos < _8vjij1o_124.length; pos ++){
+var request = _8vjij1o_124[pos];
 if (request [0] === macro.name && this.get (request))
 this.requests.splice (pos--, 1);
 }}
@@ -4537,8 +4149,8 @@ name = name [0];
 else
 this.log ("requested @" + name + (level ? " (at " + level + ")" : "") + "");
 if (this.macros [name])
-{ var _4nh6821_25 = this.macros [name]; for (var _3e08m5_26 = 0; _3e08m5_26 < _4nh6821_25.length; _3e08m5_26 ++){
-var macro = _4nh6821_25[_3e08m5_26];
+{ var _67og10a_125 = this.macros [name]; for (var _90a6mn6_126 = 0; _90a6mn6_126 < _67og10a_125.length; _90a6mn6_126 ++){
+var macro = _67og10a_125[_90a6mn6_126];
 if (macro.level.length >= max && macro.level.length <= level.length && level.substring (0, macro.level.length) === macro.level)
 {
 result = macro;
@@ -4791,8 +4403,8 @@ Worker.prototype.start = function (callback){
 console.assert (this.state == Worker.STATE_INITIAL, "Wrong state (" + this.state + ")");
 this.state = Worker.STATE_WAITING;
 this.log ("started");
-{ var _34i9bue_73 = File.find ("default/*") || []; for (var _9ro2gf_74 = 0; _9ro2gf_74 < _34i9bue_73.length; _9ro2gf_74 ++){
-var file = _34i9bue_73[_9ro2gf_74];
+{ var _94pjnpn_75 = File.find ("default/*") || []; for (var _8bb8ttu_76 = 0; _8bb8ttu_76 < _94pjnpn_75.length; _8bb8ttu_76 ++){
+var file = _94pjnpn_75[_8bb8ttu_76];
 file.process ();
 }}
 this.mainFile = new File(this.path);
@@ -4807,8 +4419,8 @@ callback ();
 Worker.prototype.collect = function (callback){
 console.assert (this.state == Worker.STATE_STARTED, "Wrong state (" + this.state + ")");
 this.state = Worker.STATE_WAITING;
-{ var _62s9eiu_75 = fileStorage.files; for (var _3d2t6dg_76 = 0; _3d2t6dg_76 < _62s9eiu_75.length; _3d2t6dg_76 ++){
-var file = _62s9eiu_75[_3d2t6dg_76];
+{ var _6t1vsc4_77 = fileStorage.files; for (var _5erfki6_78 = 0; _5erfki6_78 < _6t1vsc4_77.length; _5erfki6_78 ++){
+var file = _6t1vsc4_77[_5erfki6_78];
 $.extend (this.data.helpers, file.helpers);
 Array.prototype.push.apply (this.data.statements, file.parsed.body);
 Array.prototype.push.apply (this.data.classes, file.parsed.classes);

@@ -1,27 +1,20 @@
-	// 12.5 If statement
+function parseIfStatement (){
+	expectKeyword ('if');
+	expect ('(');
 
-	function parseIfStatement (){
-		var test, consequent, alternate;
+	var test = parseExpression (),
+		consequent,
+		alternate;
 
-		expectKeyword ('if');
-		expect ('(');
+	expect (')');
 
-		test = parseExpression ();
+	consequent = parseStatement ();
 
-		expect (')');
+	if (matchKeyword ('else')){
+		lex ();
+		alternate = parseStatement ();
+	} else 
+		alternate = null;
 
-		consequent = parseStatement ();
-
-		if (matchKeyword ('else')){
-			lex ();
-			alternate = parseStatement ();
-		} else 
-			alternate = null;
-
-		return {
-			type: Syntax.IfStatement,
-			test: test,
-			consequent: consequent,
-			alternate: alternate
-		};
-	}
+	return ifStatement (test, consequent, alternate);
+}

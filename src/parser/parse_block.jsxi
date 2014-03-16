@@ -20,7 +20,7 @@
 		expect ('}');
 
 		state.preventSequence = oldPreventSequence;
-		return mark (blockStatement (block), token);
+		return blockStatement (block);
 	}
 
 	function parseBlockOrNotBlock (){
@@ -28,5 +28,5 @@
 		if (token.value === '{')
 			return parseBlock ();
 		else
-			return mark (blockStatement ([ parseStatement () ], true), token);
+			return blockStatement ([ parseStatement () ], true);
 	}

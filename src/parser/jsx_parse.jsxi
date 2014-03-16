@@ -1,23 +1,50 @@
-// TODO: Add license information and stuff
-// Taken from https://github.com/ariya/esprima
-// Author: Ariya Hidayat
+// TODO: Лицензия?
 
-var source, index, lineNumber, lineStart, length, buffer, state, information, options, helpers;
+// Исходный код (в виде строки)
+var source;
+
+// Общая длина кода
+var length;
+
+// Текущая позиция парсера
+var index;
+
+// Номер текущей линии
+var lineNumber;
+
+// Следующий токен время от времени то сохраняется сюда, то читается отсюда
+var buffer;
+
+// Текущее состояние парсера (для всяких отметок вроде «inClass»)
+var state;
+
+// Опции, переданные парсеру (имя файла, втыкать ли "return" и всё такое)
+var options;
+
+// Здесь ставятся отметки, нужны ли будут коду какие-то вспомогательные функции.
+var helpers;
+
+// TODO: Переделать всё нормально
 
 function jsxParse (code, args, callback){
-	source          = String (code);
+	source          = String (code).replace (/\r\n?/g, '\n') + '\n';
+	length          = source.length;
 	index           = 0;
 	lineNumber      = source.length ? 1 : 0;
-	lineStart       = 0;
-	length          = source.length;
 	buffer          = null;
 	state 			= { allowIn: true, inClass: false, parsingComplete: false, preventSequence: false, classes: [] };
 	options		    = args || { filename: '[ not a file ]', insertReturn: false, initializationAllowed: false };
 	helpers 		= new HelpersManager ();
 
-	var result = parseProgram ();
+	var result 		= parseProgram ();
 
-	// TODO: Reset variables like "lineNumber"
+	source 			= length 
+					= index 
+					= lineNumber 
+					= buffer 
+					= state 
+					= options 
+					= null;
 	
 	if (typeof callback === 'function')
 		callback (result, helpers.helpers);

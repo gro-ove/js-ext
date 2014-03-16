@@ -65,12 +65,12 @@ function processClassMember (classEntry, name, parentMember){
 				childMember = childClass.members [name];
 
 				if (testBadOverride (parentMember, childMember))
-					throwError (childMember.id, 'Invalid public mode ("' + childMember.publicMode + '" instead of "' + parentMember.publicMode 
-						+ '" for member "' + name + '" of class "' + childClass.id.name + '" which extends "' + currentClass.id.name + '")');
+					throw new TypeError ('Invalid public mode ("' + childMember.publicMode + '" instead of "' + parentMember.publicMode 
+						+ '" for member "' + name + '" of class "' + childClass.id.name + '" which extends "' + currentClass.id.name + '")', childMember.id);
 
 				if (parentMember.method !== childMember.method)
-					throwError (childMember.id, 'Invalid override (' + (childMember.method ? 'method' : 'field') + ' instead of ' + (parentMember.method ? 'method' : 'field')
-						+ ' for member "' + name + '" of class "' + childClass.id.name + '" which extends "' + currentClass.id.name + '")');
+					throw new TypeError ('Invalid override (' + (childMember.method ? 'method' : 'field') + ' instead of ' + (parentMember.method ? 'method' : 'field')
+						+ ' for member "' + name + '" of class "' + childClass.id.name + '" which extends "' + currentClass.id.name + '")', childMember.id);
 
 				newPublicMode = morePublicMode (newPublicMode, childMember.publicMode);
 				targetMembers.push (childMember);

@@ -23,7 +23,7 @@ function connectClass (current, from){
 		var parent = byName (current.dependsOn.parent.name);
 
 		if (!parent)
-			throwError (current.dependsOn.parent, Messages.ParentClassNotFound, current.dependsOn.parent.name);
+			throw new TypeError ('Parent class not found', current.dependsOn.parent);
 
 		connectClass (parent, current);
 
@@ -65,8 +65,8 @@ function connectClass (current, from){
 					].concat (currentConstructor.body.body);
 
 				// Иначе сообщаем об ошибке
-				} else 
-					throwError (currentConstructor, Messages.SuperConstructorCallNeeded);
+				} else
+					throw new TypeError ('Super constructor call is required', currentConstructor);
 			}
 		}
 	}
@@ -74,7 +74,7 @@ function connectClass (current, from){
 	for (var use in-array current.dependsOn.uses){
 		var used = byName (use.name);
 		if (!used)
-			throwError (use, Messages.UsingClassNotFound, use.name);
+			throw new TypeError ('Used class not found', use);
 	}
 
 	current.connected = true;

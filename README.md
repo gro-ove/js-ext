@@ -1,148 +1,133 @@
-# js-ext
+**Js-Ext** is another preprocessor, which adds syntactic sugar to the regular
+JavaScript. It has some cool features like macros or classes, some of them are
+described below.
 
-### Disclaimer
+**Js-Ext** written in Js-Ext and runs on [Node.js](http://nodejs.org/).
 
-I'm really sorry for russian in comments, but right now I trying to implement a lot of new features, fix a lot of bugs and optimize everything, 
-so I can't look aside to search, how one or another word is writed in English.
+### Usage
 
-After all I'll remove a lot of these comments and translate to English remaining.
-
-### What this is
-
-This is a another preprocessor for JavaScript. Based on [Esprima](https://github.com/ariya/esprima) and using [UglifyJS2](https://github.com/mishoo/UglifyJS2) to compress result.
-
-### Project status
-
-New version is coming soon, with new features.
+Coming soon.
 
 ### Features
 
-#### 1. Lambda-functions
-
-	setTimeout (lambda doSomething (argument), 1000);
-	
-	[ 1, 2, 3 ].map (lambda arg * 2);     
-	// [2, 4, 6]
-	
-	[ 1, 2, 3 ].forEach (lambda (v, i) console.log (i + ': ' + v))
-	// 0: 1, 1: 2, 2: 3
-
-#### 2. Default argument values
-
-	function test (a = 100, b = getValue ()){
-		...
-	}
-
-#### 3. Multiline strings
-
-	var text = `bla-bla-bla
-				bla-bla-bla`;
-	
-#### 4. Different way to write
-
-	try
-		throw new Error ();
-		
-	try
-		throw new Error ();
-	catch
-		console.log (e);
-		
-	function sqr (v)
-		v * v;
-
-#### 5. More cycles
-
-	for (var key, value in { a: 1, b: 2, c: 3, d: 4 })
-		console.log (key + ' → ' + value); 
-
-	for (var value in-array [ 'a', 'b', 'c' ])
-		console.log (value);
-
-	for (var i, value in-array [ 'a', 'b', 'c' ])
-		console.log (i, value);
-
-#### 6. Macros
+##### 1. Macros
 ###### NEW
+
+	/*
+		Executing on preprocessing.
+	*/
 
 	@macro const 20;
 
 	console.log (@const);
 
-	@macro loadFromFile (file){
-		return {
-			type: 	ReturnType.String,
-			value: 	fs.readFileSync (path.resolve (context.file.dirname, file))
-		}
+	@macro logFromFile:raw (file, callback){
+		fs.readFile (file, function (error, data){
+			if (!error)
+				callback ('console.log (' + JSON.stringify (data) + ');');
+			else
+				callback ('');
+		});
 	}
 
-	console.log (@loadFromFile ('../release-notes.txt'));
-				
-#### 7. Classes 
+	@logFromFile ('../release-notes.txt');
+
+##### 2. Classes
 ###### NEW
 
-	class Test use Main {
-		static public var something = Main.value + 'value';
+	/*
+		Almost like Java classes; will be converted to JavaScript templates.
+	*/
 
-		protected var a = 'protected';
+	class Parent uses Previous {
+		static public parentStaticField = Previous.value;
+
+		protected parentField = 'protected field';
 		
-		private function get (){
-			console.log (something);
+		private get (){
+			console.log (parentStaticField);
 		}
 		
 		(){
+			console.log ('Parent constructor');
 			get ();
 		}
 	}
 	
-	class Other extends Text {
+	class Child extends Parent {
 		static {
-			something = 'modified';
+			parentStaticField = 'modified';
 		}
 
 		var value;
 		
 		(value){
 			this.value = value;
-			console.log (a, Main.staticFunction ());
+			console.log (
+				'Child constructor', 
+				parentField, 
+				Previous.staticMethod ());
 		}
 	}
 
-	static class Main {
-		public var value = 'mainValue';
+	static class Previous {
+		public var value = 'valueFromPrevious';
 
-		public function staticFunction (){
-			return 'Hello from Main';
-		}
+		public staticMethod ()
+			return 'Hello from Previous';
 	}
 
 	{
-		console.log (new Other () instanceof Other);
-		// true
+		console.log (new Child () instanceof Parent);
 	}
 		
-#### 8. Build-in string formatting 
+#### 3. Build-in string formatting 
 ###### NEW
-	
-	console.log ('Something: %0, "%1", (%2), \'%3\'.' (firstValue, secondValue, thirdValue, forthValue));
 
-#### 9. Cool operator from Perl 
-###### NEW
+	/*
+		Transforming to concatenation.
+	*/
 	
-	if (featureNotImplemented)
-		...
-
-#### 10. Arrays initialization:
-###### NEW
+	console.log ('Something: %0, "%1", (%2), \'%3\'.' (a, b, c, d));
 	
-	var zeroToTen 	= [ 0 .. 10 ],
-		aToZ 		= [ 'a' .. 'z' ],
-		oneToVar 	= [ 1 .. value ];
+#### 4. Shorter ways to write
+	
+	[ 1 .. 10 ] 				 	// array with elements from 1 to 10
+		.map (lambda arg * 2) 	  	// shorter way to create anonymous function
+		.concat (lambda (a, b){     // lambdas can have arguments and body
+			... 					// operator from perl
+		}); 
 		
-#### 11. Full backward compatibility (with default JavaScript):
+	function sqr (v)				// functions can contain only one statement
+		v * v;
 
-	Of course, if you are not going to use such keywords as "lambda", "class", "use" or something else.
+	function test (a = 100, b){		// and can have default values of arguments
 
-### Usage, documentation, how to install
+		try 						// in my view, it is convenient
+			throw new Error (); 	// but use it carefully
+			
+		try 						// that one is better
+			throw new Error ();
+		catch
+			console.log (e);
 
-	Coming soon.
+	}
+
+	for (var k, v in { 				// and new loops
+			a: 	1, 
+			b: 	2, 
+			c: 	3, 
+			d: 	4 
+		})
+		console.log (key + ' → ' + value); 
+
+	for (var v in-array [ 'a' .. 'z' ])
+		console.log (v);
+
+	for (var i, v in-array [ 1 .. numberVariable ])
+		console.log (i, v);
+
+##### 5. Almost full backward compatibility with regular JavaScript Code
+
+	Of course, if you are not going to use such keywords as "uses", "class",
+	"lambda" or something like those.

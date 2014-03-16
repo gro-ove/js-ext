@@ -121,7 +121,7 @@
 		console.assert (this.state == File.STATE_MACROS, 'Wrong state (' + this.state + ')');
 		this.state = File.STATE_WAITING;
 
-		try {
+		// TODO: try {
 			jsxParse (this.content, {
 				filename: 				this.filename,
 				initializationAllowed: 	true
@@ -134,10 +134,10 @@
 
 				callback ();
 			}.bind (this));
-		} catch 
-			console.fatal ('Parsing failed (' + this.filename + ')' 
-				+ (File.DEBUG_MODE ? ('\n' + this.content.trim ()).replace (/\n/g, '\n> ') + '\n' : '')
-				+ '\n' + e.stack);
+		// } catch 
+		// 	console.fatal ('Parsing failed (' + this.filename + ')' 
+		// 		+ (File.DEBUG_MODE ? ('\n' + this.content.trim ()).replace (/\n/g, '\n> ') + '\n' : '')
+		// 		+ '\n' + e.stack);
 	}
 
 	File.prototype.process = function (callback){

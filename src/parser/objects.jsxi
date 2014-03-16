@@ -1,340 +1,356 @@
-	function markAll (obj, arg){
-		if (obj.lineNumber)
-			mark (obj, arg);
+function identifier (arg){
+	return typeof arg === 'string' ? {
+		type: 				Syntax.Identifier,
+		name: 				arg
+	} : arg || null;
+}
 
-		for (var key, value in obj){
-			if (value !== null && typeof value === 'object')
-				markAll (value, arg);
-		}
+function booleanLiteral (value){
+	console.assert (value === 'true' || value === 'false', 'bad boolean literal');
 
-		return obj;
+	return {
+		type: 				Syntax.BooleanLiteral,
+		value: 				value
+	}
+}
+
+function nullLiteral (){
+	return {
+		type: 				Syntax.NullLiteral,
+		value: 				'null'
+	}
+}
+
+function numericLiteral (value){
+	if (typeof value === 'number')
+		value = String (value);
+
+	console.assert (typeof value === 'string', 'bad numeric literal');
+
+	return {
+		type: 				Syntax.NumericLiteral,
+		value: 				value
+	}
+}
+
+function regexpLiteral (value){
+	console.assert (typeof value === 'string', 'bad regexp literal');
+
+	return {
+		type: 				Syntax.RegexpLiteral,
+		value: 				value
+	}
+}
+
+function stringLiteral (value){
+	console.assert (typeof value === 'string' && value.length > 1 && (value [0] === '\'' || value [0] === '"') && value [0] === value [value.length - 1], 'bad string literal');
+
+	return {
+		type: 				Syntax.StringLiteral,
+		value: 				value
+	}
+}
+
+// TODO
+function stringLiteralWithQuotes (value)
+	return stringLiteral ('\'' + value.replace (/(^|[^\\])'/g, '$1\\\'') + '\'');
+
+// TODO
+function stringLiteralValue (literal){
+	console.assert (literal.value.length >= 2, 'Bad literal');
+	return literal.value.slice (1, -1);
+}
+
+// TODO
+function stringLiteralEmpty (literal){
+	console.assert (literal.value.length >= 2, 'Bad literal');
+	return literal.value.length === 2;
+}
+
+function undefinedLiteral (){
+	return {
+		type: 				Syntax.UndefinedLiteral,
+		value: 				'undefined'
+	}
+}
+
+function property (key, value, kind = 'init')
+	return {
+		type: 				Syntax.Property,
+		key: 				identifier (key),
+		value: 				identifier (value),
+		kind: 				kind
 	}
 
-	function mark (obj, arg)
-		if (arg !== undefined){
-			obj.filename 		= arg.filename || options.filename;
-			obj.lineNumber 		= arg.lineNumber || lineNumber;
-			obj.lineStart 		= arg.lineStart || lineStart;
-			obj.index 			= arg.index || index;
-			return obj;
-		} else if (index > length || obj && obj.filename){
-			return obj || {};
-		} else if (obj && obj.lineNumber){
-			return $.extend (obj, { filename: options.filename });
-		} else 
-			return $.extend (obj || {}, {
-				filename:     	options.filename,
-				lineNumber: 	lineNumber,
-				lineStart: 	 	lineStart,
-				index: 		 	index
-			});
-
-	function literal (value)
-		return typeof value === 'object' && value ? {
-			type: 				Syntax.Literal,
-			value: 				value.value,
-			raw: 				value.raw,
-			lineNumber: 		value.lineNumber,
-			filename:     		options.filename
-		} : mark ({
-			type: 				Syntax.Literal,
-			value: 				value
-		})
-
-	function identifier (arg)
-		return typeof arg === 'string' ? mark ({
-			type: 				Syntax.Identifier,
-			name: 				arg
-		}) : arg || null
-
-	function property (key, value, kind = 'init')
-		return {
-			type: 				Syntax.Property,
-			key: 				identifier (key),
-			value: 				identifier (value),
-			kind: 				kind
-		}
-
-	function objectExpression (properties = [])
-		return {
-			type: 				Syntax.ObjectExpression,
-			properties: 		properties
-		}
-
-	function memberExpression (obj, property, computed = false)
-		return {
-			type: 				Syntax.MemberExpression,
-			computed: 			computed,
-			object: 			identifier (obj),
-			property: 			identifier (property)
-		}
-
-	function callExpression (name, arguments = []){
-		if (name 
-			&& name.type === Syntax.MemberExpression 
-			&& name.property.type === Syntax.Identifier
-			&& name.object.type === Syntax.MemberExpression 
-			&& name.object.property.type === Syntax.Identifier 
-			&& (name.property.name === 'call' || name.property.name === 'apply')){
-
-			var obj = name.object.object;
-
-			if (obj.type === Syntax.ArrayExpression && obj.elements.length === 0)
-				name.object.object = memberExpression ('Array', 'prototype');
-
-			else if (obj.type === Syntax.ObjectExpression && obj.properties.length === 0)
-				name.object.object = memberExpression ('Object', 'prototype');
-		}
-
-		return {
-			type: 				Syntax.CallExpression,
-			callee: 			identifier (name),
-			arguments: 			arguments.map (identifier)
-		}
+function objectExpression (properties)
+	return {
+		type: 				Syntax.ObjectExpression,
+		properties: 		properties
 	}
 
-	function superExpression (name, args, level)
-		return {
-			type: 				Syntax.CallExpression,
-			callee: 			identifier (name),
-			arguments: 			args || null,
-			'super': 			level || 1
-		}
-
-	function thisExpression ()
-		return mark ({
-			type: 				Syntax.ThisExpression
-		})
-
-	function arrayExpression (elements)
-		return {
-			type:       		Syntax.ArrayExpression,
-			elements:   		elements
-		}
-
-	function assignmentExpression (left, operator, right)
-		return typeof operator !== 'string' || operator [operator.length - 1] !== '=' ? {
-			type: 				Syntax.AssignmentExpression,
-			operator: 			'=',
-			left: 				identifier (left),
-			right: 				identifier (operator)
-		} : {
-			type: 				Syntax.AssignmentExpression,
-			operator: 			operator,
-			left: 				identifier (left),
-			right: 				identifier (right)
-		}
-
-	function newExpression (callee, args = [])
-		return {
-			type: 				Syntax.NewExpression,
-			callee: 			identifier (callee),
-			arguments: 			args.map (identifier)
-		}
-
-	function sequenceExpression (expressions)
-		return {
-			type: 				Syntax.SequenceExpression,
-			expressions: 		expressions
-		}
-
-	function conditionalExpression (test, trueExpression, falseExpression)
-		return {
-			type: 				Syntax.ConditionalExpression,
-			test: 				test,
-			consequent: 		identifier (trueExpression),
-			alternate: 			identifier (falseExpression)
-		}
-
-	function logicalExpression (left, operator, right)
-		return {
-			type: 				Syntax.LogicalExpression,
-			operator: 			operator,
-			left: 				identifier (left),
-			right: 				identifier (right)
-		}
-
-	function binaryExpression (left, operator, right)
-		return {
-			type: 				Syntax.BinaryExpression,
-			operator: 			operator,
-			left: 				identifier (left),
-			right: 				identifier (right)
-		}
-
-	function unaryExpression (argument, operator, prefix = false)
-		return {
-			type: 				Syntax.UnaryExpression,
-			operator: 			operator,
-			argument: 			identifier (argument),
-			prefix: 			prefix
-		}
-
-	function blockStatement (body = [], single)
-		return body instanceof Array ? {
-			type: 				Syntax.BlockStatement,
-			body: 				body,
-			single:         	single
-		} : body
-
-	function expressionStatement (expression)
-		return {
-			type: 				Syntax.ExpressionStatement,
-			expression: 		expression
-		}
-
-	function ifStatement (test, trueStatement, falseStatement = null)
-		return {
-			type: 				Syntax.IfStatement,
-			test: 				identifier (test),
-			consequent: 		trueStatement,
-			alternate: 			falseStatement
-		}
-
-	function whileStatement (test, body)
-		return {
-			type: 				Syntax.WhileStatement,
-			test: 				test,
-			body: 				body
-		}
-
-	function doWhileStatement (body, test)
-		return {
-			type: 				Syntax.DoWhileStatement,
-			body: 				body,
-			test: 				test
-		}
-
-	function doWhileStatement (body, test)
-		return {
-			type: 				Syntax.DoWhileStatement,
-			body: 				body,
-			test: 				test
-		}
-
-	function forStatement (left, test, update, body)
-		return {
-			type: 				Syntax.ForStatement,
-			init: 				left,
-			test: 				test,
-			update: 			update,
-			body: 				blockStatement (body)
-		}
-
-	function forInStatement (left, right, body)
-		return {
-			type: 				Syntax.ForInStatement,
-			left: 				left,
-			right: 				right,
-			body: 				body,
-			each: 				false
-		}
-
-	function labeledStatement (label, statement)
-		return {
-			type: 				Syntax.LabeledStatement,
-			label: 				identifier (label),
-			body: 				statement
-		}
-
-	function catchClause (param, body)
-		return {
-			type:   			Syntax.CatchClause,
-			param:  			identifier (param),
-			body:  				body
-		}
-
-	function tryStatement (block, handlers, finalizer)
-		return {
-			type:               Syntax.TryStatement,
-			block:              block,
-			guardedHandlers:    [],
-			handlers:           handlers,
-			finalizer:          finalizer
-		}
-
-	function returnStatement (arg)
-		return {
-			type: 				Syntax.ReturnStatement,
-			argument: 			identifier (arg)
-		}
-
-	function throwStatement (arg)
-		return mark ({
-			type: 				Syntax.ThrowStatement,
-			argument: 			identifier (arg)
-		})
-
-	function breakStatement (arg)
-		return mark ({
-			type: 				Syntax.BreakStatement,
-			label: 				identifier (arg)
-		})
-
-	function continueStatement (arg)
-		return mark ({
-			type: 				Syntax.ContinueStatement,
-			label: 				identifier (arg)
-		})
-
-	function debuggerStatement ()
-		return mark ({ 
-			type: 				Syntax.DebuggerStatement
-		})
-
-	var tempId = 0;
-
-	function functionExpression (name, params, body){
-		if (name instanceof Array){
-			body = params;
-			params = name;
-			name = null;
-		}
-
-		return {
-			type: 				Syntax.FunctionExpression,
-			id: 				identifier (name),
-			params: 			params ? params.map (identifier) : [],
-			defaults: 			[],
-			body: 				blockStatement (body),
-			rest: 				null,
-			generator: 			false,
-			expression: 		false,
-			number: 			name + tempId ++
-		};
+function memberExpression (obj, property, computed = false)
+	return {
+		type: 				Syntax.MemberExpression,
+		computed: 			computed,
+		object: 			identifier (obj),
+		property: 			identifier (property)
 	}
 
-	function functionDeclaration (name, params = [], body)
-		return {
-			type: 				Syntax.FunctionDeclaration,
-			id: 				identifier (name),
-			params: 			params.map (identifier),
-			defaults: 			[],
-			body: 				blockStatement (body),
-			rest: 				null,
-			generator: 			false,
-			expression: 		false,
-			number: 			name + tempId ++
-		}
+function callExpression (name, arguments = []){
+	if (name 
+		&& name.type === Syntax.MemberExpression 
+		&& name.property.type === Syntax.Identifier
+		&& name.object.type === Syntax.MemberExpression 
+		&& name.object.property.type === Syntax.Identifier 
+		&& (name.property.name === 'call' || name.property.name === 'apply')){
 
-	function variableDeclarator (name, value)
-		return {
-			type: 				Syntax.VariableDeclarator,
-			id: 				identifier (name),
-			init: 				identifier (value)
-		}
+		var obj = name.object.object;
 
-	function variableDeclaration (variables)
-		return {
-			type: 				Syntax.VariableDeclaration,
-			declarations: 		variables,
-			kind: 				'var'
-		}
+		if (obj.type === Syntax.ArrayExpression && obj.elements.length === 0)
+			name.object.object = memberExpression ('Array', 'prototype');
 
-	function program (elements, classes, initializations)
-		return {
-			type: 				Syntax.Program,
-			body: 				elements,
-			classes: 			classes,
-			initializations: 	initializations
-		}
+		else if (obj.type === Syntax.ObjectExpression && obj.properties.length === 0)
+			name.object.object = memberExpression ('Object', 'prototype');
+	}
+
+	return {
+		type: 				Syntax.CallExpression,
+		callee: 			identifier (name),
+		arguments: 			arguments.map (identifier)
+	}
+}
+
+function superExpression (name, args, level)
+	return {
+		type: 				Syntax.CallExpression,
+		callee: 			identifier (name),
+		arguments: 			args || null,
+		'super': 			level || 1
+	}
+
+function thisExpression ()
+	return {
+		type: 				Syntax.ThisExpression
+	}
+
+function arrayExpression (elements)
+	return {
+		type:       		Syntax.ArrayExpression,
+		elements:   		elements
+	}
+
+function assignmentExpression (left, operator, right)
+	return typeof operator !== 'string' || operator [operator.length - 1] !== '=' ? {
+		type: 				Syntax.AssignmentExpression,
+		operator: 			'=',
+		left: 				identifier (left),
+		right: 				identifier (operator)
+	} : {
+		type: 				Syntax.AssignmentExpression,
+		operator: 			operator,
+		left: 				identifier (left),
+		right: 				identifier (right)
+	}
+
+function newExpression (callee, args = [])
+	return {
+		type: 				Syntax.NewExpression,
+		callee: 			identifier (callee),
+		arguments: 			args.map (identifier)
+	}
+
+function sequenceExpression (expressions)
+	return {
+		type: 				Syntax.SequenceExpression,
+		expressions: 		expressions
+	}
+
+function conditionalExpression (test, trueExpression, falseExpression)
+	return {
+		type: 				Syntax.ConditionalExpression,
+		test: 				test,
+		consequent: 		identifier (trueExpression),
+		alternate: 			identifier (falseExpression)
+	}
+
+function logicalExpression (left, operator, right)
+	return {
+		type: 				Syntax.LogicalExpression,
+		operator: 			operator,
+		left: 				identifier (left),
+		right: 				identifier (right)
+	}
+
+function binaryExpression (left, operator, right)
+	return {
+		type: 				Syntax.BinaryExpression,
+		operator: 			operator,
+		left: 				identifier (left),
+		right: 				identifier (right)
+	}
+
+function unaryExpression (argument, operator, prefix = false)
+	return {
+		type: 				Syntax.UnaryExpression,
+		operator: 			operator,
+		argument: 			identifier (argument),
+		prefix: 			prefix
+	}
+
+function blockStatement (body = [], single) // TODO
+	return body instanceof Array ? {
+		type: 				Syntax.BlockStatement,
+		body: 				body,
+		single:         	single
+	} : body
+
+function expressionStatement (expression)
+	return {
+		type: 				Syntax.ExpressionStatement,
+		expression: 		expression
+	}
+
+function ifStatement (test, consequent, alternate = null)
+	return {
+		type: 				Syntax.IfStatement,
+		test: 				identifier (test),
+		consequent: 		consequent,
+		alternate: 			alternate
+	}
+
+function whileStatement (test, body)
+	return {
+		type: 				Syntax.WhileStatement,
+		test: 				test,
+		body: 				body
+	}
+
+function doWhileStatement (body, test)
+	return {
+		type: 				Syntax.DoWhileStatement,
+		body: 				body,
+		test: 				test
+	}
+
+function doWhileStatement (body, test)
+	return {
+		type: 				Syntax.DoWhileStatement,
+		body: 				body,
+		test: 				test
+	}
+
+function forStatement (left, test, update, body)
+	return {
+		type: 				Syntax.ForStatement,
+		init: 				left,
+		test: 				test,
+		update: 			update,
+		body: 				blockStatement (body)
+	}
+
+function forInStatement (left, right, body)
+	return {
+		type: 				Syntax.ForInStatement,
+		left: 				left,
+		right: 				right,
+		body: 				body,
+		each: 				false
+	}
+
+function labeledStatement (label, statement)
+	return {
+		type: 				Syntax.LabeledStatement,
+		label: 				identifier (label),
+		body: 				statement
+	}
+
+function catchClause (param, body)
+	return {
+		type:   			Syntax.CatchClause,
+		param:  			identifier (param),
+		body:  				body
+	}
+
+function tryStatement (block, handlers, finalizer)
+	return {
+		type:               Syntax.TryStatement,
+		block:              block,
+		guardedHandlers:    [],
+		handlers:           handlers,
+		finalizer:          finalizer
+	}
+
+function returnStatement (arg){
+	return {
+		type: 				Syntax.ReturnStatement,
+		argument: 			identifier (arg)
+	}
+}
+
+function throwStatement (arg){
+	return {
+		type: 				Syntax.ThrowStatement,
+		argument: 			identifier (arg)
+	}
+}
+
+function breakStatement (arg){
+	return {
+		type: 				Syntax.BreakStatement,
+		label: 				identifier (arg)
+	}
+}
+
+function continueStatement (arg){
+	return {
+		type: 				Syntax.ContinueStatement,
+		label: 				identifier (arg)
+	}
+}
+
+function debuggerStatement (){
+	return {
+		type: 				Syntax.DebuggerStatement
+	}
+}
+
+function functionExpression (name, params, body){
+	return {
+		type: 				Syntax.FunctionExpression,
+		id: 				identifier (name),
+		params: 			params.map (identifier),
+		body: 				body
+	};
+}
+
+function functionDeclaration (name, params, body){
+	return {
+		type: 				Syntax.FunctionDeclaration,
+		id: 				identifier (name),
+		params: 			params.map (identifier),
+		body: 				body
+	}
+}
+
+function variableDeclarator (id, value){
+	return {
+		type: 				Syntax.VariableDeclarator,
+		id: 				identifier (id),
+		init: 				identifier (value)
+	}
+}
+
+function variableDeclaration (variables){
+	return {
+		type: 				Syntax.VariableDeclaration,
+		declarations: 		identifier (variables)
+	}
+}
+
+function program (elements, classes, initializations)
+	return {
+		type: 				Syntax.Program,
+		body: 				elements,
+		classes: 			classes,
+		initializations: 	initializations
+	}

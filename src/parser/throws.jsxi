@@ -1,48 +1,27 @@
-	function ParseError (filename, lineNumber, message){
-		var result,
-			name = 'ParseError';
+	function JsExtError (name, message, location){
+		var filename = location && location.filename || options && options.filename || '<unknown file>',
+			lineNumber = location && location.lineNumber || lineNumber || '<unknown line>',
+			result = new Error (message + ' [' + filename + ':' + lineNumber + ']');
 
-		if (arguments [3]){
-			name = filename;
-			filename = lineNumber;
-			lineNumber = message;
-			message = arguments [3];
-		}
-
-		if (typeof filename === 'object'){
-			message 			= lineNumber;
-
-			this.lineNumber 	= filename.lineNumber;
-			this.filename 		= filename.filename;
-			// this.index 		= filename.range [0];
-			// this.column 		= filename.range [0] - filename.lineStart + 1;
-		} else {
-			this.lineNumber 	= lineNumber;
-			this.filename 		= filename;
-		}
-
-		result = new Error (message + ' [' + filename + ':' + lineNumber + ']');
 		result.name = name;
-
 		return result;
 	};
 
-	function throwError (token, messageFormat){
-		var args 		= Array.prototype.slice.call (arguments, 2),
-			msg 		= messageFormat.replace (/%(\d)/g, lambda (whole, index) args [index] || ''),
-			filename 	= options.filename;
+	var SyntaxError 	= JsExtError.bind (null, 'SyntaxError'),
+		TypeError 		= JsExtError.bind (null, 'TypeError'),
+		ReferenceError 	= JsExtError.bind (null, 'ReferenceError');
 
-		if (typeof token.filename === 'string')
-			filename = token.filename;
+	function unexpected (what){
+		var message;
 
-		throw new ParseError (token && token.filename || options.filename, token ? token.lineNumber : lineNumber, msg);
+		if (!what){
+			message = 'Illegal token';
+		} else if (what.value){
+			message = 'Unexpected ' + (what.value [0] === '"' || what.value [0] === '\'' ? what.value : '"' + what.value + '"');
+		} else if (TokenName [what.type]){
+			message = 'Unexpected ' + TokenName [what.type].toLowerCase ();
+		} else 
+			message = 'Unexpected token';
+
+		throw new SyntaxError (message, what);
 	}
-
-	function throwUnexpected (token)
-		throwError (token, 
-			token.type === Token.EOF ? Messages.UnexpectedEOS : 
-			token.type === Token.NumericLiteral ? Messages.UnexpectedNumber :
-			token.type === Token.StringLiteral ? Messages.UnexpectedString :
-			token.type === Token.Identifier ? Messages.UnexpectedIdentifier :
-			token.type === Token.Keyword && isFutureReservedWord (token.value) ? Messages.UnexpectedReserved : 
-			Messages.UnexpectedToken, token.value);

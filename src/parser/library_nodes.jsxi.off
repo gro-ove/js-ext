@@ -1,0 +1,82 @@
+var NodesLibrary = {
+
+	Identifier: lambda (id)
+		typeof id === 'object' ? id : { 
+			type: 				Syntax.Identifier, 
+			name: 				id 
+		},
+
+	StringLiteral: lambda (string)
+		typeof string === 'object' ? string : {
+			type: 				Syntax.StringLiteral,
+			value: 				'\'' + value.replace (/(^|[^\\])'/g, '$1\\\'') + '\''
+		},
+
+	MemberExpression: lambda (object, property, computed)
+		{
+			type: 				Syntax.MemberExpression,
+			object: 			NodesLibrary.Identifier (object),
+			property: 			NodesLibrary.Identifier (property),
+			computed: 			computed || false,
+		},
+
+	ThisExpression: lambda ()
+		{
+			type: 				Syntax.ThisExpression
+		},
+
+	ObjectExpression: lambda (properties)
+		{ 
+			type: 				Syntax.ObjectExpression, 
+			properties: 		properties || [] 
+		},
+
+	CallStatement: lambda (callee, args)
+		{ 
+			type: 				Syntax.ExpressionStatement,
+			expression: { 
+				type: 			Syntax.CallExpression, 
+				callee: 		NodesLibrary.Identifier (callee),
+				arguments: 		args.map (NodesLibrary.Identifier) || [] 
+			}
+		},
+
+	VariableDeclaration: lambda (id, init) 
+		{
+			type: 				Syntax.VariableDeclaration,
+			declarations: {
+				type: 			Syntax.VariableDeclarator,
+				id: 			NodesLibrary.Identifier (id),
+				init: 			NodesLibrary.Identifier (init)
+			}
+		},
+
+	ThrowStatement: lambda (error)
+		{
+			type: 				Syntax.ThrowStatement,
+			argument: {
+				type: 			Syntax.NewExpression,
+				callee: 		NodesLibrary.Identifier ('Error'),
+				arguments: 		NodesLibrary.StringLiteral (error)
+			}
+		},
+
+	AssignmentToProperty: lambda (object, property, value)
+		NodesLibrary.CallStatement ('__prototypeExtend', [ childName, parentName ]),
+
+	PrototypeExtend: lambda (childName, parentName)
+		NodesLibrary.CallStatement ('__prototypeExtend', [ childName, parentName ]),
+
+	AbstractClassTest: lambda (className)
+		{
+			type: 				Syntax.IfStatement,
+			test: {
+				type: 			Syntax.BinaryExpression,
+				operator: 		'===',
+				left:           NodesLibrary.MemberExpression (NodesLibrary.ThisExpression (), 'constructor'),
+				right: 			NodesLibrary.Identifier (className)
+			},
+			consequent: 		NodesLibrary.ThrowStatement ('Trying to instantiate abstract class ' + className),
+			alternate: 			null
+		},
+};

@@ -1,130 +1,157 @@
+var OutputMode = {
+	Default: 				'Default',
+	Static: 				'Static',
+	InitializerOnly: 		'InitializerOnly',
+	Empty: 					'Empty'
+};
+
 // Ключевая функция для обработки класса (конвертирует его в стандартное AST-дерево)
 function processClass (classEntry){
-	if (typeof classEntry === 'string'){
-		classEntry = byName (classEntry);
-		console.assert (classEntry, 'Class not found');
-	}
+	// Функция для определения режима конвертации
+	function classMode (){
+		// Если нет дочерних или родительских классов, нет объектных членов, а конструктор пустой
+		if (classEntry.childs.length === 0 && !classEntry.dependsOn.parent 
+			&& objectMembers.length === 0 && constructor.body.body.length === 0){
 
-	console.assert (!('element' in classEntry), 'Already processed');
+			// Есть статическое поле или метод
+			if (staticFields.length > 0 || staticMethods.length > 0)
+				return OutputMode.Static;
 
-	// Находим конструкторы
-	var constructor 				= classEntry.members ['@constructor'],
-		initializer 				= classEntry.members ['@initializer'];
+			// В инициализаторе что-то есть
+			if (initializer.body.body.length > 0)
+				return OutputMode.InitializerOnly;
 
-	// И поля с методами
-	var filtered 					= filter (classEntry, lambda arg.className === classEntry.id && arg.id.name [0] !== '@'),
-		objectMethods 				= filtered.filter (lambda  arg.method && !arg.static),
-		staticMethods 				= filtered.filter (lambda  arg.method &&  arg.static),
-		objectFields 				= filtered.filter (lambda !arg.method && !arg.static),
-		staticFields 				= filtered.filter (lambda !arg.method &&  arg.static);
-
-	if (!classEntry.params.abstract && filter (classEntry, lambda arg.abstract)[0])
-		classEntry.params.abstract = true;
-
-	// Слегка меняем конструктор и инициализатор
-	$.extend (constructor, { id: null, type: Syntax.FunctionExpression });
-	$.extend (initializer, { id: null, type: Syntax.FunctionExpression });
-
-	// Режим сборки
-	var mode = 'default';
-
-	if (!classEntry.childs.length &&
-		!classEntry.dependsOn.parent && 
-		!objectMethods.length && 
-		!objectFields.length &&
-		!constructor.body.body.length){
-
-		// Для статических классов
-		classEntry.mode = 'static';
-
-		// Для пустых классов или для классов, состоящих лишь из одного иницилизатора
-		if (!staticFields.length && !staticMethods.length)
-			classEntry.mode = initializer.body.body.length > 0 ? 'initializer-only' : 'empty';
-	}
-
-	if (mode === 'empty'){
-		// Роль класса будет играть пустой объект
-		classEntry.element = variableDeclarator (classEntry.id.name, objectExpression ());
-		classEntry.uses = [];
-
-	} else if (mode === 'initializer-only'){
-		// Здесь скорее анонимная функция
-		classEntry.element = variableDeclarator (classEntry.id.name, sequenceExpression ([ 
-			callExpression (classEntry.staticInitialization),
-			objectExpression ()
-		]));
-
-	} else {
-		// А тут всё уже несколько посерьёзнее
-		var variables = [],
-			resultFunction = [ variableDeclaration (variables) ];
-
-		if (mode === 'default'){
-			// Добавляем конструктор как основную фунцию
-			variables.push (variableDeclarator (classEntry.id.name, constructor));
-
-			// Лепим муть, нужную для наследования
-			if (classEntry.dependsOn.parent)
-				resultFunction.push (expressionStatement (callExpression ('__pe', [ classEntry.id.name, classEntry.dependsOn.parent.name ])));
-
-			// Цепляем к прототипу методы объекта
-			for (var method in-array objectMethods)
-				if (!method.abstract || method.body.body.length > 0){
-					var target = memberExpression (memberExpression (classEntry.id.name, 'prototype'), method.id.name),
-						value = functionExpression (method.params, method.body);
-
-					resultFunction.push (expressionStatement (assignmentExpression (target, value)));
-				} else
-					abstract = true;
-
-			// Если класс внезапно абстрактен, ставим проверку
-			// TODO: Сделать вставку проверки опциональной
-			if (classEntry.params.abstract)
-				constructor.body.body = [ 
-					ifStatement (
-						binaryExpression (memberExpression (thisExpression (), 'constructor'), '===', classEntry.id.name),
-						throwStatement (newExpression ('Error', [ literal ('Trying to instantiate abstract class ' + classEntry.id.name) ])))
-				].concat (constructor.body.body);
-		} else if (mode === 'static')
-			// Вместо функции добавляем пустой объект
-			variables.push (variableDeclarator (classEntry.id.name, objectExpression ()));
-
-		// Добавляем статические поля ...
-		for (var field in-array staticFields)
-			if (field.publicMode !== 'private'){
-				var temp = expressionStatement (assignmentExpression (
-					memberExpression (classEntry.id.name, field.id), field.init || 'undefined'));
-
-				if (findByReplacement (classEntry, field.id.name).publicMode === 'protected')
-					temp.comment = field.id.name;
-
-				resultFunction.push (temp);
-			} else 
-				variables.push (field);
-
-		// ... после — статические методы ...
-		for (var method in-array staticMethods){
-			if (method.publicMode !== 'private'){
-				var temp = expressionStatement (assignmentExpression (
-					memberExpression (classEntry.id.name, method.id), functionExpression (method.params, method.body)))
-				resultFunction.push (temp);
-			} else
-				resultFunction.push (method);
+			return OutputMode.Empty;
 		}
 
-		// ... инициализатор ...
-		if (initializer && initializer.body.body.length > 0)
-			resultFunction.push (expressionStatement (callExpression (initializer)));
-
-		// ... и оператор «return»
-		resultFunction.push (returnStatement (classEntry.id.name));
-
-		// И втыкаем куда-нибудь получившийся кусок AST, чтобы после забрать
-		classEntry.element = variableDeclarator (classEntry.id, callExpression (functionExpression ([], resultFunction)));
+		return OutputMode.Default;
 	}
+
+	// Небольшая проверка на всякий случай
+	console.assert (!classEntry.elements, 'Already processed');
+
+	// Находим конструктор и инициализатор
+	var constructor 	= classEntry.members ['@constructor'],
+		initializer 	= classEntry.members ['@initializer'];
+
+	// Объектные и статические поля и методы данного класса
+	var filtered 		= filter (classEntry, lambda arg.className === classEntry.id && arg.id.name [0] !== '@'),
+		objectMembers 	= filtered.filter (lambda !arg.static),
+		staticMembers 	= filtered.filter (lambda  arg.static);
+
+	// Отделяем статические от объектных поля от методов
+	var objectMethods 	= objectMembers.filter (lambda  arg.method),
+		objectFields 	= objectMembers.filter (lambda !arg.method),
+		staticMethods 	= staticMembers.filter (lambda  arg.method),
+		staticFields 	= staticMembers.filter (lambda !arg.method);
+
+	// Слегка меняем конструктор и инициализатор
+	constructor.id = null;
+	initializer.id = null;
+
+	// Если хоть одно из полей абстрактно, то и класс абстрактен
+	if (!classEntry.params.abstract && objectMethods.filter (lambda arg.abstract).length > 0)
+		classEntry.params.abstract = true;
+
+	// Исключение в конструктор для абстрактных классов
+	if (classEntry.params.abstract)
+		constructor.body.body = [ 
+			ifStatement (
+				binaryExpression (memberExpression (thisExpression (), identifier ('constructor')), '===', classEntry.id.name),
+				throwStatement (newExpression ('Error', [ 
+					stringLiteralWithQuotes ('Trying to instantiate abstract class ' + classEntry.id.name) 
+				])))
+		].concat (constructor.body.body);
+
+	// Режим сборки
+	var mode = classMode ();
+
+	// Пустой объект
+	if (mode === OutputMode.Empty)
+		return [ oneVariableDeclaration (classEntry.id.name, objectExpression ([])) ];
+
+	// Одна лишь анонимная функция
+	if (mode === OutputMode.InitializerOnly)
+		return [ oneVariableDeclaration (classEntry.id.name, callExpression (initializer)) ];
+
+	// А тут всё несколько посерьёзнее
+	var anonymousFunction = staticMembers.filter (lambda arg.publicMode === 'private').length > 0,
+		result,
+		mainObj;
+
+	if (mode === OutputMode.Default){
+		// Конструктор
+		result = [ anonymousFunction 
+			? oneVariableDeclaration (classEntry.id, constructor)
+			: functionDeclaration (classEntry.id, constructor.params, constructor.body) ];
+
+		// Вызов «prototypeExtend» для наследования
+		if (classEntry.dependsOn.parent)
+			result.push (expressionStatement (callExpression ('__prototypeExtend', [ classEntry.id.name, classEntry.dependsOn.parent.name ])));
+
+		// Поля объекта (уже добавлены в конструктор)
+		for (var field in-array objectFields){}
+
+		// Методы объекта
+		for (var method in-array objectMethods){
+			if (!method.abstract)
+				result.push (assignmentStatement (
+					memberExpression (memberExpression (classEntry.id.name, 'prototype'), method.id), 
+					functionExpression (null, method.params, method.body)));
+		}
+
+		// Статические поля
+		for (var field in-array staticFields){
+			if (field.publicMode === 'private')
+				result [0].declarations.push (field);
+			else 
+				result.push (assignmentStatement (memberExpression (classEntry.id.name, field.id), field.init || 'undefined'));
+		}
+
+		// Статические методы
+		for (var method in-array staticMethods){
+			if (method.publicMode === 'private')
+				result.push (method);
+			else
+				result.push (expressionStatement (assignmentExpression (
+					memberExpression (classEntry.id.name, method.id),
+					functionExpression (null, method.params, method.body))));
+		}
+	} else {
+		var properties = [];
+		result = [ oneVariableDeclaration (classEntry.id, objectExpression (properties)) ];
+
+		// Статические поля
+		for (var field in-array staticFields){
+			if (field.publicMode === 'private')
+				result [0].declarations.push (field);
+			else 
+				properties.push (property (field.id, field.init || 'undefined'));
+		}
+
+		// Статические методы
+		for (var method in-array staticMethods){
+			if (method.publicMode === 'private')
+				result.push (method);
+			else
+				properties.push (property (method.id, functionExpression (null, method.params, method.body)));
+		}
+	}
+
+	// Инициализатор
+	if (initializer.body.body.length > 0)
+		result.push (expressionStatement (callExpression (initializer)));
+
+	// Если есть приватные статические члены, результатом будет анонимная функция
+	if (anonymousFunction){
+		result.push (returnStatement (classEntry.id.name));
+		return [ oneVariableDeclaration (classEntry.id, callFunctionExpression (result)) ];
+	}
+
+	return result;
 }
 
 function processClasses (){
 	for (var classEntry in-array classes)
-		processClass (classEntry);
+		classEntry.elements = processClass (classEntry);
 }

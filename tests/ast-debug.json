@@ -2,28 +2,18 @@
     "type": "Program",
     "body": [
         {
-            "type": "ExpressionStatement",
-            "expression": {
-                "type": "ArrayExpression",
-                "elements": [
-                    {
-                        "type": "Literal",
-                        "value": 0,
-                        "lineNumber": 2,
-                        "filename": "current.jsx"
-                    },
-                    {
-                        "type": "Literal",
-                        "value": 0.1,
-                        "lineNumber": 2,
-                        "filename": "current.jsx"
-                    }
-                ]
+            "type": "FunctionDeclaration",
+            "id": {
+                "type": "Identifier",
+                "name": "A",
+                "filename": "current.jsx",
+                "lineNumber": 1
             },
-            "filename": "current.jsx",
-            "lineNumber": 2,
-            "lineStart": 7,
-            "index": 42
+            "params": [],
+            "body": {
+                "type": "BlockStatement",
+                "body": []
+            }
         }
     ]
 }

@@ -1,64 +1,61 @@
-	// 14 Program
+function parseProgramElement (){
+	var token = lookahead (), temp, result;
 
-	function parseProgramElement (){
-		var token = lookahead (), temp, result;
+	switch (token.value){
+		case 'public':
+		case 'protected':
+		case 'private':
+		case 'static':
+		case 'abstract':
+		case 'class':
+		case 'interface':
+			return parseClassDeclaration ();
 
-		switch (token.value){
-			case 'public':
-			case 'protected':
-			case 'private':
-			case 'static':
-			case 'abstract':
-			case 'implemented':
-			case 'class':
-			case 'interface':
-				return parseClassDeclaration ();
-			case 'function':
-				return parseFunctionDeclaration ();
-		}
+		case '(':
+		case '{':
+			if (options.initializationAllowed){
+				saved = saveAll ();
 
-		if (options.initializationAllowed && token.type === Token.Punctuator && (token.value === '(' || token.value === '{')){
-			saved = saveAll ();
+				try {
+					temp 			= token.value === '(' ? parseFunctionArguments () : [];
+					result 			= expressionStatement (callExpression (functionExpression (null, temp, parseBlock ())));
+					result.after 	= true;
 
-			try {
-				temp 			= token.value === '(' ? parseFunctionArguments () : [];
-				result 			= expressionStatement (callExpression (functionExpression (null, temp, parseBlock ())));
-				result.after 	= true;
-
-				return result;
-			} catch 
-				restoreAll (saved);
-		}
-
-		if (token.type !== Token.EOF) 
-			return parseStatement ();
+					return result;
+				} catch 
+					restoreAll (saved);
+			}
 	}
 
-	function parseProgram (){
-		var sourceElements = [],
-			initializations = [],
-			temp;
+	if (token.type !== Token.EOF) 
+		return parseStatement ();
+}
 
-		while (index < length) {
-			temp = parseProgramElement ();
-			if (temp === null)
-				continue;
-			if (temp === undefined) 
-				break;
-			sourceElements.push (temp);
-		}
+function parseProgram (){
+	var sourceElements = [],
+		initializations = [],
+		temp;
 
-		state.parsingComplete = true;
-
-		if (options.insertReturn && sourceElements.length === 1)
-			setReturnStatement (sourceElements [0]);
-
-		sourceElements = sourceElements.filter (lambda 
-			if (arg.after){
-				initializations.push (arg);
-				return false;
-			} else 
-				return true);
-
-		return program (sourceElements, state.classes, initializations);	
+	while (index < length) {
+		temp = parseProgramElement ();
+		if (temp === null)
+			continue;
+		if (temp === undefined) 
+			break;
+		sourceElements.push (temp);
 	}
+
+	state.parsingComplete = true;
+
+	if (options.insertReturn && sourceElements.length === 1)
+		setReturnStatement (sourceElements [0]);
+
+	sourceElements = sourceElements.filter (lambda 
+		if (arg.after){
+			initializations.push (arg);
+			return false;
+		} else 
+			return true);
+
+	return program (sourceElements, state.classes, initializations);	
+}

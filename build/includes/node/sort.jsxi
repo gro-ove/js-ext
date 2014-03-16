@@ -1,7 +1,0 @@
-// ==Jsx==
-// @import node
-// ==/Jsx==
-
-node ('sort', lambda (element, fn){
-		Array.prototype.filter.call (element.childNodes, lambda arg.nodeType == 1).sort (fn).forEach (lambda element.appendChild (arg));
-	}, node.result.NODE);

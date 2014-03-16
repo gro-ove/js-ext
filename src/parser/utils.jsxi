@@ -1,218 +1,193 @@
-	function sliceSource (from, to) 
-		return source.slice (from, to);
+var ch0 = '0'.charCodeAt (0),
+	ch1 = '1'.charCodeAt (0),
+	ch7 = '7'.charCodeAt (0),
+	ch9 = '9'.charCodeAt (0),
+	cha = 'a'.charCodeAt (0),
+	chf = 'f'.charCodeAt (0),
+	chz = 'z'.charCodeAt (0),
+	chA = 'A'.charCodeAt (0),
+	chF = 'F'.charCodeAt (0),
+	chZ = 'Z'.charCodeAt (0);
 
-	function isDecimalDigit (ch)
-		return '0123456789'.indexOf (ch) >= 0;
+function decimalDigit (c){
+	c = c.charCodeAt (0);
+	return ch0 <= c && c <= ch9;
+}
 
-	function isHexDigit (ch)
-		return '0123456789abcdefABCDEF'.indexOf (ch) >= 0;
+function hexDigit (c){
+	c = c.charCodeAt (0);
+	return ch0 <= c && c <= ch9 || cha <= c && c <= chf || chA <= c && c <= chF;
+}
 
-	function isOctalDigit (ch)
-		return '01234567'.indexOf (ch) >= 0;
+function identifierStart (c){
+	var v = c.charCodeAt (0);
+	return cha <= v && v <= chz || chA <= v && v <= chZ || c === '$' || c === '_';
+}
 
-	function isIdentifierName (token)
-		return token.type === Token.Identifier || token.type === Token.Keyword || token.type === Token.BooleanLiteral || token.type === Token.NullLiteral;
+function identifierPart (c){
+	var v = c.charCodeAt (0);
+	return cha <= v && v <= chz || chA <= v && v <= chZ || ch0 <= v && v <= ch9 || c === '$' || c === '_';
+}
 
-	var newIdentifier = (lambda {
-		function busy (str)
-			return source.indexOf (str) !== -1;
+var lastIdentifier = 0;
 
-		var lastIdentifier = 0;
+function newIdentifier (){
+	return '__' + (lastIdentifier ++).toString (32);
+}
 
-		return lambda {
-			var str;
+/* TODO: state? helpers? */
+function saveAll ()
+	return { index: index, lineNumber: lineNumber, buffer: buffer };
 
-			if (arg){
-				if (busy (arg))
-					for (var i = 0; busy (str = arg + (lastIdentifier ++).toString (32)); i ++);
-				else 
-					str = arg;
-			} else 
-				while (busy (str = '_' + (lastIdentifier ++).toString (32)));
+function restoreAll (obj){
+	index 		= obj.index;
+	lineNumber 	= obj.lineNumber;
+	buffer 		= obj.buffer;
+}
 
-			return str;
-		}
-	})();
+function attemptTo (firstFn, secondFn, forceSecond)
+	if (forceSecond){
+		return typeof secondFn === 'function' ? secondFn () : secondFn;
+	} else {
+		saved = saveAll ();
 
-	function saveAll ()
-		return $.extend ({}, {
-			source: 		source,
-			index: 			index,
-			lineNumber: 	lineNumber,
-			lineStart: 		lineStart,
-			length: 		length,
-			buffer: 		buffer,
-			state: 		 	state,
-			options: 		options,
-			helpers: 		helpers
-		});
-
-	function restoreAll (obj){
-		source  			= obj.source;
-		index  				= obj.index;
-		lineNumber  		= obj.lineNumber;
-		lineStart  			= obj.lineStart;
-		length  			= obj.length;
-		buffer  			= obj.buffer;
-		state  		 		= obj.state;
-		options  			= obj.options;
-		helpers  			= obj.helpers;
+		try 
+			return typeof firstFn === 'function' ? firstFn () : firstFn;
+		catch
+			if (e instanceof Error && /^Unexpected .+? \[.+?\:\d+\]$/.test (e.message)){
+				restoreAll (saved);
+				return typeof secondFn === 'function' ? secondFn () : secondFn;
+			} else
+				throw e;
 	}
 
-	function attemptTo (firstFn, secondFn, forceSecond)
-		if (forceSecond){
-			return secondFn ();
-		} else {
-			saved = saveAll ();
+function advance (){
+	skipComments ();
 
-			try {
-				return firstFn ();
-			} catch {
-				if (e instanceof Error && /^Unexpected .+? \[.+?\:\d+\]$/.test (e.message)){
-					restoreAll (saved);
-					return secondFn ();
-				} else
-					throw e;
-			}
-		}
+	if (index >= length) 
+		return { type: Token.EOF, lineNumber: lineNumber, range: [ index, index ] };
 
-	function advance (){
-		var ch, token;
+	var token = readPunctuator ();
+	if (token !== undefined)
+		return token;
 
-		skipComment ();
+	var character = source [index];
+	if (character === '\'' || character === '"') 
+		return readStringLiteral ();
 
-		if (index >= length) 
-			return {
-				type:           Token.EOF,
-				lineNumber:     lineNumber,
-				lineStart:      lineStart,
-				range:          [ index, index ]
-			};
+	if (character === '`')
+		return readMultilineString ();
 
-		token = scanPunctuator ();
-		if (token !== undefined)
-			return token;
+	if (character === '.' || decimalDigit (character)) 
+		return readNumericLiteral ();
 
-		ch = source [index];
-		if (ch === '\'' || ch === '"' || ch === '`') 
-			return scanStringLiteral ();
+	token = readIdentifier ();
+	if (token !== undefined)
+		return token;
 
-		if (ch === '.' || isDecimalDigit (ch)) 
-			return scanNumericLiteral ();
+	unexpected ();
+}
 
-		token = scanIdentifier ();
-		if (token !== undefined)
-			return token;
+function lex ()
+	if (buffer){
+		index = buffer.range [1];
+		lineNumber = buffer.lineNumber;
 
-		throwError ({}, Messages.UnexpectedToken, 'ILLEGAL');
-	}
-
-	function lex (){
-		var token;
-
-		if (buffer){
-			index       = buffer.range [1];
-			lineNumber  = buffer.lineNumber;
-			lineStart   = buffer.lineStart;
-			token       = buffer;
-			buffer      = null;
-			return token;
-		}
-
+		var token = buffer;
+		buffer = null;
+		return token;
+	} else {
 		buffer = null;
 		return advance ();
 	}
 
-	function lookahead (){
-		var pos, line, start;
+function lookahead (){
+	if (buffer === null){
+		var currentIndex = index,
+			currentLineNumber = lineNumber;
 
-		if (buffer !== null)
-			return buffer;
+		buffer = advance ();
 
-		pos         = index;
-		line        = lineNumber;
-		start       = lineStart;
-		buffer      = advance ();
-		index       = pos;
-		lineNumber  = line;
-		lineStart   = start;
+		index = currentIndex;
+		lineNumber = currentLineNumber;
+	}
+	
+	return buffer;
+}
 
-		return buffer;
+function peekLineTerminator (){
+	var pos = index, 
+		line = lineNumber,
+		found;
+
+	skipComments ();
+
+	found       = lineNumber !== line;
+	index       = pos;
+	lineNumber  = line;
+
+	return found;
+}
+
+function expect (value){
+	var token = lex ();
+	if (token.type !== Token.Punctuator || token.value !== value) 
+		unexpected (token);
+}
+
+function expectKeyword (keyword){
+	var token = lex ();
+	if (token.type !== Token.Keyword || token.value !== keyword) 
+		unexpected (token);
+}
+
+function match (value){
+	var token = lookahead ();
+	return token.type === Token.Punctuator && token.value === value;
+}
+
+function matchKeyword (keyword){
+	var token = lookahead ();
+	return token.type === Token.Keyword && token.value === keyword;
+}
+
+function matchLex (value){
+	var token = lookahead ();
+	if (token.type === Token.Punctuator && token.value === value)
+		return lex ();
+	else
+		return false;
+}
+
+function matchKeywordLex (keyword){
+	var token = lookahead ();
+	if (token.type === Token.Keyword && token.value === keyword)
+		return lex ();
+	else
+		return false;
+}
+
+function consumeSemicolon (){
+	if (source [index] === ';'){
+		lex ();
+		return;
 	}
 
-	// Return true if there is a line terminator before the next token.
-	function peekLineTerminator (){
-		var pos, line, start, found;
+	var line = lineNumber;
+	skipComments ();
 
-		pos         = index;
-		line        = lineNumber;
-		start       = lineStart;
+	if (lineNumber !== line)
+		return;
 
-		skipComment ();
+	if (matchLex (';'))
+		return;
 
-		found       = lineNumber !== line;
-		index       = pos;
-		lineNumber  = line;
-		lineStart   = start;
+	if (!state.preventSequence && !match ('}') && lookahead ().type !== Token.EOF)
+		unexpected (buffer);
+}
 
-		return found;
-	}
-
-	function expect (value){
-		var token = lex ();
-		if (token.type !== Token.Punctuator || token.value !== value) 
-			throwUnexpected (token);
-	}
-
-	function expectKeyword (keyword){
-		var token = lex ();
-		if (token.type !== Token.Keyword || token.value !== keyword) 
-			throwUnexpected (token);
-	}
-
-	function match (value){
-		var token = lookahead ();
-		return token.type === Token.Punctuator && token.value === value;
-	}
-
-	function matchKeyword (keyword){
-		var token = lookahead ();
-		return token.type === Token.Keyword && token.value === keyword;
-	}
-
-	function matchKeywordAndLex (keyword){
-		var token = lookahead (),
-			result = token.type === Token.Keyword && token.value === keyword;
-		if (result)
-			lex ();
-		return result;
-	}
-
-	function consumeSemicolon (){
-		var token, line;
-
-		// Catch the very common case first.
-		if (source [index] === ';'){
-			lex ();
-			return;
-		}
-
-		line = lineNumber;
-		skipComment ();
-		if (lineNumber !== line)
-			return;
-
-		if (match (';')){
-			lex ();
-			return;
-		}
-
-		if (!state.preventSequence){
-			token = lookahead ();
-			if (token.type !== Token.EOF && !match ('}'))
-				throwUnexpected (token);
-		}
-	}
-
-	function isLeftHandSide (expr)
-		return expr.type === Syntax.Identifier || expr.type === Syntax.MemberExpression;
+function leftSideOnly (expression)
+	if (!expression || expression.type !== Syntax.Identifier && expression.type !== Syntax.MemberExpression)
+		throw new SyntaxError ('Invalid left-hand side', expression);
+	else
+		return expression;

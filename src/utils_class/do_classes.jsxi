@@ -12,8 +12,9 @@ function doClasses (rawClasses, callback){
 	helpers 					= new HelpersManager ();
 	classes 					= [];
 	classesByNames 				= {};
+	options 					= {};
 	probablyUseOtherMaxValue 	= 100;
-	thatVariable 				= newIdentifier ('__that');
+	thatVariable 				= '__that';
 
 	for (var rawClass in-array rawClasses)
 		addClass (rawClass);
@@ -26,7 +27,13 @@ function doClasses (rawClasses, callback){
 		processClassesMethods ();
 		processClasses ();
 
-		callback ([ variableDeclaration (classes.map (lambda arg.element)) ], helpers.helpers);
+		var result = [];
+		for (var classEntry in-array classes)
+			result.push.apply (result, classEntry.elements)
+
+		callback (result, helpers.helpers);
 	} else
 		callback ();
+
+	options = null;
 }

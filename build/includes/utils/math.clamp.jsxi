@@ -1,2 +1,0 @@
-Math.clamp = function (value, from = 0, to = 1)
-	return Math.min (Math.max (value, from), to);

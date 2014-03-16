@@ -4,87 +4,73 @@ function HelpersManager (){
 
 HelpersManager.prototype.set = function (key, arg){
 	if (!this.helpers.hasOwnProperty (key))
-		this.helpers [key] = typeof arg === 'object' ? $.extend (true, {}, mark (arg)) : true;
+		this.helpers [key] = true;
+}
+
+HelpersManager.prototype.get = function (key, arg){
+	return this.helpers;
 }
 
 function helperById (id, mark)
 	switch (id){
-		// case 'propertyName':
-		// 	// 	function __pa (c, o, r, u){
-		// 	// 		return c instanceof o ? r : u; 
-		// 	// 	}
-		// 	return functionDeclaration ('__pn', [ 'c', 'o', 'r', 'u' ], [
-		// 		returnStatement (conditionalExpression (binaryExpression ('o', 'instanceof', 'c'), 'r', 'u'))
-		// 	]);
-
-		// case 'findReplaced':
-		// 	return functionDeclaration ('__fr', [ 'obj', 'name' ], [
-		// 		returnStatement ('undefined')
-		// 	]);
-
 		case 'prototypeExtend':
-			// 	function __pe(c, p, t) {
-			// 	    t = function (){};
-			// 	    t.prototype = p.prototype;
-			// 	    c.prototype = new t ();
-			// 	    c.prototype.constructor = c;
-			// 	}
-			return functionDeclaration ('__pe', [ 'c', 'p', 't' ], [
-				expressionStatement (assignmentExpression ('t', functionExpression ())),
+			return functionDeclaration ('__prototypeExtend', [ 'c', 'p', 't' ], blockStatement ([
+				expressionStatement (assignmentExpression ('t', functionExpression (null, [], blockStatement ([])))),
 				expressionStatement (assignmentExpression (
 						memberExpression ('t', 'prototype'), memberExpression ('p', 'prototype'))),
 				expressionStatement (assignmentExpression (
 						memberExpression ('c', 'prototype'), newExpression ('t'))),
 				expressionStatement (assignmentExpression (
 						memberExpression (memberExpression ('c', 'prototype'), 'constructor'), 'c'))
-			]);
+			]));
 
 		case 'createArray':
-			return functionDeclaration ('__ca', [ 'from', 'to', 'result' ], [
+			// TODO: Strings length
+			return functionDeclaration ('__createArray', [ 'from', 'to', 'result' ], blockStatement ([
 				ifStatement (
-					binaryExpression (unaryExpression ('from', 'typeof', true), '===', literal ('string')), 
-					expressionStatement (assignmentExpression ('from', callExpression (memberExpression ('from', 'charCodeAt'), [ literal (0) ])))
+					binaryExpression (unaryExpression ('from', 'typeof', true), '===', stringLiteralWithQuotes ('string')), 
+					expressionStatement (assignmentExpression ('from', callExpression (memberExpression ('from', 'charCodeAt'), [ numericLiteral (0) ])))
 				),
 				ifStatement (
-					binaryExpression (unaryExpression ('to', 'typeof', true), '===', literal ('string')), 
-					expressionStatement (assignmentExpression ('to', callExpression (memberExpression ('to', 'charCodeAt'), [ literal (0) ])))
+					binaryExpression (unaryExpression ('to', 'typeof', true), '===', stringLiteralWithQuotes ('string')), 
+					expressionStatement (assignmentExpression ('to', callExpression (memberExpression ('to', 'charCodeAt'), [ numericLiteral (0) ])))
 				),
 				expressionStatement (assignmentExpression ('result', newExpression ('Array', [ 
-					binaryExpression (callExpression (memberExpression ('Math', 'abs'), [ binaryExpression ('to', '-', 'from') ]), '+', literal (1))]))),
+					binaryExpression (callExpression (memberExpression ('Math', 'abs'), [ binaryExpression ('to', '-', 'from') ]), '+', numericLiteral (1))]))),
 				ifStatement (
 					binaryExpression ('from', '<', 'to'), 
 					forStatement (
-						variableDeclaration ([ variableDeclarator ('i', literal (0)) ]),
+						variableDeclaration ([ variableDeclarator ('i', numericLiteral (0)) ]),
 						binaryExpression ('i', '<', memberExpression ('result', 'length')),
 						unaryExpression ('i', '++'),
 						expressionStatement (assignmentExpression (memberExpression ('result', 'i', true), binaryExpression ('i', '+', 'from')))
 					),
 					forStatement (
-						variableDeclaration ([ variableDeclarator ('i', binaryExpression (memberExpression ('result', 'length'), '-', literal (1))) ]),
-						binaryExpression ('i', '>=', literal (0)),
+						variableDeclaration ([ variableDeclarator ('i', binaryExpression (memberExpression ('result', 'length'), '-', numericLiteral (1))) ]),
+						binaryExpression ('i', '>=', numericLiteral (0)),
 						unaryExpression ('i', '--'),
 						expressionStatement (assignmentExpression (memberExpression ('result', 'i', true), binaryExpression ('from', '-', 'i')))
 					)
 				),
 				returnStatement ('result')
-			]);
+			]));
 
 		case 'bindOnce':
 			var bindedTable = memberExpression ('obj', '__bt'),
 				objectFunction = memberExpression ('obj', 'name', true),
 				placeInTable = memberExpression (bindedTable, 'name', true);
 
-			return functionDeclaration ('__bo', [ 'obj', 'name' ], [
+			return functionDeclaration ('__bindOnce', [ 'obj', 'name' ], blockStatement ([
 				ifStatement (
-					unaryExpression (callExpression (memberExpression ('obj', 'hasOwnProperty'), [ literal ('__bt') ]), '!', true),
-					expressionStatement (assignmentExpression (bindedTable, objectExpression ()))
+					unaryExpression (callExpression (memberExpression ('obj', 'hasOwnProperty'), [ stringLiteralWithQuotes ('__bindTable') ]), '!', true),
+					expressionStatement (assignmentExpression (bindedTable, objectExpression ([])))
 				),
 				ifStatement (
 					unaryExpression (callExpression (memberExpression (bindedTable, 'hasOwnProperty'), [ 'name' ]), '!', true),
 					expressionStatement (assignmentExpression (placeInTable, callExpression (memberExpression (objectFunction, 'bind'), [ 'obj' ])))
 				),
 				returnStatement (placeInTable)
-			]);
+			]));
 
 		default:
 			console.assert (false, 'Wrong helper id: ' + id)
@@ -97,8 +83,8 @@ function doHelpers (helpers){
 	for (var id, value in helpers)
 		if (value && typeof value !== 'function'){
 			temp = helperById (id, value);
-			if (typeof value === 'object')
-				markAll (temp, value);
+			// if (typeof value === 'object')
+			// 	markAll (temp, value);
 			result.push (temp);
 		}
 

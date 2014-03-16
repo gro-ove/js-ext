@@ -5,10 +5,10 @@ function checkClassesForCircular (){
 	function checkClassForCircular (id){
 		var entry = byName (id.name);
 
-		// Если какого-то класса не достаёт, выкинем ошибку позже, в connectClass
+		// Если класса не достаёт, выкинем ошибку позже, в connectClass
 		if (entry){
 			if (id.name in current)
-				throwError (id, Messages.CyclicDependencyDetected, id.name);
+				throw new TypeError ('Circular dependency', id);
 
 			current [id.name] = true;
 

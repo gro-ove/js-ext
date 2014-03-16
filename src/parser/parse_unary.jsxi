@@ -1,32 +1,21 @@
-	// 11.4 Unary Operators
+function parseUnaryExpression (){
+	var token = lookahead ();
 
-	function parseUnaryExpression (){
-		var token, expr, temp;
-
-		token = lookahead ();
-
-		if (token.type !== Token.Punctuator && token.type !== Token.Keyword)
-			return parsePostfixExpression ();
-
-		if (match ('++') || match ('--')){
-			token = lex ();
-			expr = parseUnaryExpression ();
-
-			if (!isLeftHandSide (expr))
-				throwError ({}, Messages.InvalidLHSInAssignment);
-
-			return unaryExpression (expr, token.value, true);
+	if (token.type === Token.Punctuator){
+		if (token.value === '++' || token.value === '--'){
+			lex ();
+			return unaryExpression (leftSideOnly (parseUnaryExpression ()), token.value, true);
 		}
 
-		if (match ('+') || match ('-') || match ('~') || match ('!')){
-			temp = lex ();
-			return unaryExpression (parseUnaryExpression (), temp.value, true);
+		if (token.value === '+' || token.value === '-' || token.value === '~' || token.value === '!'){
+			lex ();
+			return unaryExpression (parseUnaryExpression (), token.value, true);
 		}
 
-		if (matchKeyword ('delete') || matchKeyword ('void') || matchKeyword ('typeof')){
-			temp = lex ();
-			return unaryExpression (parseUnaryExpression (), temp.value, true);
-		}
-
-		return parsePostfixExpression ();
+	} else if (token.type === Token.Keyword && (token.value === 'typeof' || token.value === 'delete' || token.value === 'void')){
+		lex ();
+		return unaryExpression (parseUnaryExpression (), token.value, true);
 	}
+
+	return parsePostfixExpression ();
+}

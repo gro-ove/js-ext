@@ -2,7 +2,7 @@
 function addClass (classEntry){
 	// Если класс с таким именем уже есть, вываливаемся
 	if (byName (classEntry.id.name))
-		throwError (classEntry.id, Messages.ClassAlreadyDefined, classEntry.id.name);
+		throw new TypeError ('Class "' + classEntry.id.name + '" already declared', classEntry.id);
 
 	// Вспомогательный атрибут на будущее
 	classEntry.classObject = true;
@@ -14,14 +14,14 @@ function addClass (classEntry){
 	// Находим, а если понадобится, то создаём конструктор
 	var constructor = classEntry.members ['@constructor'];
 	if (constructor === undefined){
-		constructor = updateMember (functionDeclaration ('@constructor'), classEntry);
+		constructor = updateMember (functionExpression ('@constructor', [], blockStatement ([])), classEntry);
 		constructor.autocreated = true;
 	}
 
 	// Аналогично со статическим инициализатором
 	var initializer = classEntry.members ['@initializer'];
 	if (initializer === undefined){
-		initializer = updateMember (functionDeclaration ('@initializer'), classEntry);
+		initializer = updateMember (functionExpression ('@initializer', [], blockStatement ([])), classEntry);
 		initializer.static = true;
 		initializer.autocreated = true;
 	}
@@ -58,7 +58,7 @@ function updateMember (member, classEntry){
 
 	// И добавляем пару вспомогательных атрибутов
 	member.className = classEntry.id;
-	member.method = member.type === Syntax.FunctionDeclaration;
+	member.method = member.type === Syntax.FunctionExpression;
 	member.processed = false;
 
 	return member;

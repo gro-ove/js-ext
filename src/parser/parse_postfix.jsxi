@@ -1,17 +1,16 @@
 	// 11.3 Postfix Expressions
 	
 	function parsePostfixExpression (){
-		var expr = parseLeftHandSideExpressionAllowCall (), token;
+		var expression = parseLeftHandSideExpressionAllowCall (), token;
 
 		token = lookahead ();
 		if (token.type !== Token.Punctuator)
-			return expr;
+			return expression;
 
 		if ((match ('++') || match ('--')) && !peekLineTerminator ()){
-			if (!isLeftHandSide (expr))
-				throwError ({}, Messages.InvalidLHSInAssignment);
-			expr = unaryExpression (expr, lex ().value, false);
+			leftSideOnly (expression);
+			expression = unaryExpression (expression, lex ().value, false);
 		}
 
-		return expr;
+		return expression;
 	}

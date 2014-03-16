@@ -1,25 +1,25 @@
-	function parseSuperExpression (){
-		var level = 1, 
-			name = null, 
-			temp, 
-			token = lookahead ();
+function parseSuperExpression (){
+	var level = 1, 
+		name = null, 
+		temp, 
+		token = lookahead ();
 
-		expectKeyword ('super');
+	expectKeyword ('super');
 
-		if (!state.superAvailable)
-			throwError (token, 'Super can be used in class functions only');
+	if (!state.superAvailable)
+		throw new TypeError ('Super can be used in class functions only', token);
 
-		while (match ('.')){
+	while (match ('.')){
+		lex ();
+
+		if (matchKeyword ('super')){
+			level ++;
 			lex ();
-
-			if (matchKeyword ('super')){
-				level ++;
-				lex ();
-			} else {
-				name = parseClassIdentifier ();
-				break;
-			}
+		} else {
+			name = parseIdentifier ();
+			break;
 		}
-
-		return mark (superExpression (name, match ('(') ? parseArguments () : null, level), token);
 	}
+
+	return superExpression (name, match ('(') ? parseArguments () : null, level);
+}

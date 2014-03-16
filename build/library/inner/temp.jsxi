@@ -1,2 +1,0 @@
-@import ('just_a_file')
-console.log ('TEMP');

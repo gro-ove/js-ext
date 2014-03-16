@@ -1,1 +1,0 @@
-@js-ext.cmd build.jsx -e

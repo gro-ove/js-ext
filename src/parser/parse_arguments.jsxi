@@ -22,7 +22,7 @@
 		if (state.comma === undefined)
 			state.comma = token.value === ',';
 		else if (state.comma !== (token.value === ','))
-			throwUnexpected (token);
+			unexpected (token);
 
 		if (token.value === ',')
 			lex ();

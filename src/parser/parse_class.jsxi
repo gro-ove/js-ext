@@ -1,323 +1,314 @@
-	function parseClassIdentifier ()
-		return mark (parseVariableIdentifier ());
+function parseClassParams (){
+	/*
+		Класс или интерфейс. Возможно, статический; возможно, публичный, приватный или защищённый. Класс может быть абс-
+		трактным, но в таком случае не может быть статическим.
+	*/
 
-	function parseClassParams (){
-		// Или класс, или интерфейс.
-		// Возможно, реализованный.
-		// Возможно, статический.
-		// Возможно, публичный, приватный или защищённый.
-		// Если класс, то, возможно, абстрактный.
-		// Но в таком случае ни за что не статический.
+	var token, 
+		result = { 
+			publicMode: 		null, 
+			abstract: 			false,
+			static: 			false,
+			interface: 			false
+		};
 
-		var token, 
-			result = { 
-				publicMode: 		null, 
-				abstract: 			false,
-				implemented: 		false,
-				static: 			false,
-				interface: 			false
-			};
+	do {
+		token = lex ();
 
-		do {
-			token = lookahead ();
-
-			switch (token.value){
-				case 'public':
-				case 'private':
-				case 'protected':
-					if (result.publicMode !== null)
-						throwUnexpected (token);
-
-					lex ();
-					result.publicMode = token.value;
-					break;
-
-				case 'abstract':
-				case 'static':
-					if (result.static || result.abstract)
-						throwUnexpected (token);
-
-				case 'implemented':
-					if (result [token.value])
-						throwUnexpected (token);
-
-					lex ();
-					result [token.value] = true;
-					break;
-
-				case 'interface':
-					if (result.abstract)
-						throwUnexpected (token);
-
-					lex ();
-					result.interface = token.value;
-					return result;
-
-				case 'class':
-					lex ();
-					return result;
-
-				default:
-					throwUnexpected (token);
-			}
-		} while (index < length);
-	}
-
-	function parseExtendsImplementsAndUses (mode){
-		// Родительский класс  недоступен для интерфейсов и статических классов.
-		// В интерфейсы, как и в «use», умеют все, даже статические классы.
-
-		// Конечно, статический класс может имплементить лишь статические интер-
-		// фейсы (в Java за такое ругают, но тут я главный и мне норм), а реали-
-		// зованные могут использовать лишь другие реализованные,  но эти мелочи 
-		// будут проверяться позже.
-
-		function collect (list = []){
-			do 
-				list.push (parseClassIdentifier ());
-			while (index < length && match (',') && lex ());
-			return list;
-		}
-
-		// Интерфейс суть лишь особенный класс
-		var token, result = { parent: null, implements: [], uses: [] };
-
-		do {
-			token = lookahead ();
-
-			switch (token.value){
-				case 'extends':
-					if (result.parent || mode.interface || mode.static)
-						throwUnexpected (token);
-
-					lex ();
-					result.parent = parseClassIdentifier ();
-					helpers.set ('prototypeExtend', token);
-					break;
-
-				case 'implements':
-				case 'uses':
-					lex ();
-					collect (result [token.value]);
-					break;
-
-				default:
-					return result;
-			}
-		} while (index < length);
-	}
-
-	function parseClassMembers (params, dependsOn){
-		var oldInClass = state.inClass,
-			token, 
-			result = {}, 
-			current;
-
-		function refresh ()
-			// Первый параметры можно переопределять, но остальные, если они уже
-			// выставлены у всего класса, изменить уже не выйдет.
-			current = { 
-				publicMode: 		null, 
-				abstract: 			params.abstract,
-				static: 			params.static
-			}
-
-		function set (obj){
-			var name = obj.id.name,
-				has = result.hasOwnProperty (name),
-				temp = has ? result [name] : null;
-
-			$.extend (obj, current, { publicMode: current.publicMode || params.publicMode })
-
-			if (temp instanceof Array){
-				temp.push (obj);
-			} else if (has){
-				throwError (token, 'Name "' + name + '" is already used by an another ' + (result [name].type === Syntax.VariableDeclarator ? 'field' : 'method'));
-			} else
-				result [name] = obj;
-		}
-
-		function parseField (){
-			if (matchKeyword ('var'))
-				lex ();
-
-			var token = lookahead (),
-				data = parseVariableDeclarationList ();
-
-			consumeSemicolon ();
-
-			for (var entry in-array data){
-				if (params.interface && !current.static)
-					throwError (token, 'Interface couldn\'t have object fields.');
-
-				if (params.implemented && entry.init)
-					throwError (token, 'Implemented couldn\'t have initialized fields.');
-
-				if (current.abstract)
-					throwError (token, 'Field could\'t be abstract.');
-
-				set (entry);
-			}
-
-			refresh ();
-		}
-
-		function parseMethod (){
-			if (matchKeyword ('function'))
-				lex ();
-
-			state.superAvailable = !current.static && dependsOn.parent;
-
-			if (current.publicMode === 'private' && current.abstract)
-				throwError (token, 'Private method could\'t be abstract.');
-
-			var result = parseFunction ({ keyword: null, declaration: true, empty: params.interface && !current.static || params.implemented });
-
-			if (result.id === null)
-				result.id = identifier (current.static ? '@initializer' : '@constructor');
-
-			set (result);
-
-			state.superAvailable = false;
-			refresh ();
-
-			if (match (';'))
-				lex ();
-		}
-
-		state.inClass = true;
-		expect ('{');
-		refresh ();
-
-		do {
-			token = lookahead ();
-
-			if (token.value === '}')
+		switch (token.value){
+			case 'public':
+			case 'private':
+			case 'protected':
+				if (result.publicMode !== null)
+					unexpected (token);
+				result.publicMode = token.value;
 				break;
 
-			switch (token.value){
-				case 'private':
-					if (current.abstract)
-						throwUnexpected (token);
+			case 'abstract':
+			case 'static':
+				if (result.static || result.abstract)
+					unexpected (token);
+				result [token.value] = true;
+				break;
 
-				case 'public':
-				case 'protected':
-					if (current.publicMode !== null)
-						throwUnexpected (token);
+			case 'interface':
+				if (result.abstract)
+					unexpected (token);
+				result.interface = token.value;
+				return result;
 
-					lex ();
-					current.publicMode = token.value;
-					break;
+			case 'class':
+				return result;
 
-				case 'abstract':
-					if (params.interface || current.publicMode === 'private')
-						throwUnexpected (token);
+			default:
+				unexpected (token);
+		}
+	} while (index < length);
+}
 
-				case 'static':
-					if (current.abstract || current.static)
-						throwUnexpected (token);
+function parseExtendsImplementsAndUses (mode){
+	// Родительский класс недоступен для интерфейсов и статических классов. Рас-
+	// ширять интерфейсы, как и использовать «uses», умеют все, даже статические
+	// классы (но статические могут имплементить лишь статические).
 
-					lex ();
-					current [token.value] = true;
-					break;
-
-				case 'var':
-					parseField ();
-					break;
-
-				case 'function':
-					parseMethod ();
-					break;
-
-				default:
-					if (token.type === Token.Identifier || token.value === '(' || token.value === '{'){
-						attemptTo (parseField, parseMethod);
-					} else
-						throwUnexpected (token);
-			}
-		} while (index < length);
-
-		expect ('}');
-
-		state.inClass = oldInClass;
-		return result;
+	function collect (list = []){
+		do 
+			list.push (parseIdentifier ());
+		while (index < length && match (',') && lex ());
+		return list;
 	}
 
-	function verbose (id, params, dependsOn, members){
-		var membersStrings = [], dependsOnStrings = [], beforeString = '';
-		for (var key, member in members){
-			var temp = [];
+	// Интерфейс суть лишь особенный класс
+	var token, result = { parent: null, implements: [], uses: [] };
 
-			if (member instanceof Array){
-				member = member [0];
-				if (!member)
-					continue;
-			}
+	do {
+		token = lookahead ();
 
-			for (var attribute, setted in member)
-				if (setted === true)
-					temp.push (attribute);
+		switch (token.value){
+			case 'extends':
+				if (result.parent || mode.interface || mode.static)
+					unexpected (token);
 
-			if (member.publicMode)
-				temp.push (member.publicMode);
+				lex ();
+				result.parent = parseIdentifier ();
+				helpers.set ('prototypeExtend', token);
+				break;
 
-			temp.push ({ FunctionDeclaration: 'method', VariableDeclarator: 'field' }[member.type] || member.type);
+			case 'implements':
+			case 'uses':
+				lex ();
+				collect (result [token.value]);
+				break;
 
-			if (members [key] instanceof Array)
-				temp.push (', total count: ' + members [key].length);
+			default:
+				return result;
+		}
+	} while (index < length);
+}
 
-			membersStrings.push ('	* ' + member.id.name + ' (' + temp.join (' ').replace (/ ,/g, ',') + ')');
+function parseClassMembers (params, dependsOn){
+	var oldInClass = state.inClass,
+		token, 
+		result = {}, 
+		current;
+
+	function refresh ()
+		// Первый параметры можно переопределять, но остальные, если они уже
+		// выставлены у всего класса, изменить уже не выйдет.
+		current = { 
+			publicMode: 		null, 
+			abstract: 			params.abstract,
+			static: 			params.static
 		}
 
-		var paramsString = [];
-		for (var attribute, setted in params)
+	function set (obj){
+		var name = obj.id.name,
+			has = result.hasOwnProperty (name),
+			temp = has ? result [name] : null;
+
+		$.extend (obj, current, { publicMode: current.publicMode || params.publicMode });
+
+		if (temp instanceof Array){
+			temp.push (obj);
+		} else if (has){
+			throw new SyntaxError ('Name "' + name + '" is already used by an another ' + (result [name].type === Syntax.VariableDeclarator ? 'field' : 'method'), token);
+		} else
+			result [name] = obj;
+	}
+
+	function parseField (){
+		if (params.interface && !current.static)
+			throw new TypeError ('Interface couldn\'t have object fields.');
+
+		if (current.abstract)
+			throw new TypeError ('Field could\'t be abstract.');
+
+		for (var entry in-array parseVariableDeclarators ())
+			set (entry);
+		refresh ();
+	}
+
+	function parseMethod (){
+		if (current.publicMode === 'private' && current.abstract)
+			throw new TypeError ('Private method couldn\'t be abstract.');
+
+		state.superAvailable = !current.static && dependsOn.parent;
+
+		var empty = params.interface && !current.static || current.abstract,
+			result = parseFunction ({ keyword: null, empty: empty });
+
+		set (result);
+		state.superAvailable = false;
+		refresh ();
+	}
+
+	function parseInitializerOrConstructor (){
+		if (current.publicMode)
+			throw new TypeError ('Constructor or initializer couldn\'t be ' + current.publicMode);
+
+		if (current.abstract)
+			throw new TypeError ('Constructor or initializer couldn\'t be abstract');
+
+		state.superAvailable = !current.static && dependsOn.parent;
+
+		var result = parseFunction ({ keyword: null, id: false, optionalParams: true });
+
+		result.id = identifier (current.static ? '@initializer' : '@constructor');
+		set (result);
+		state.superAvailable = false;
+		refresh ();
+	}
+
+	state.inClass = true;
+	expect ('{');
+	refresh ();
+
+	do {
+		token = lookahead ();
+
+		if (token.value === '}')
+			break;
+
+		switch (token.value){
+			case 'private':
+				if (current.abstract)
+					unexpected (token);
+
+			case 'public':
+			case 'protected':
+				if (current.publicMode !== null)
+					unexpected (token);
+
+				lex ();
+				current.publicMode = token.value;
+				break;
+
+			case 'abstract':
+				if (params.interface || current.publicMode === 'private')
+					unexpected (token);
+
+			case 'static':
+				if (current.abstract || current.static)
+					unexpected (token);
+
+				lex ();
+				current [token.value] = true;
+				break;
+
+			case 'var':
+				lex ();
+				parseField ();
+				break;
+
+			case 'function':
+				lex ();
+				parseMethod ();
+				break;
+
+			case '(':
+			case '{':
+				parseInitializerOrConstructor ();
+				break;
+
+			default:
+				if (token.type === Token.Identifier){
+					var saved = saveAll (),
+						method;
+
+					lex ();
+					method = match ('(');
+					restoreAll (saved);
+
+					if (method)
+						parseMethod ();
+					else 
+						parseField ();
+				} else
+					unexpected (token);
+		}
+	} while (index < length);
+
+	expect ('}');
+
+	state.inClass = oldInClass;
+	return result;
+}
+
+function verbose (id, params, dependsOn, members){
+	var membersStrings = [], dependsOnStrings = [], beforeString = '';
+	for (var key, member in members){
+		var temp = [];
+
+		if (member instanceof Array){
+			member = member [0];
+			if (!member)
+				continue;
+		}
+
+		for (var attribute, setted in member)
 			if (setted === true)
-				paramsString.push (attribute);
+				temp.push (attribute);
 
-		if (params.publicMode)
-			paramsString.push (params.publicMode);
+		if (member.publicMode)
+			temp.push (member.publicMode);
 
-		if (paramsString.length)
-			dependsOnStrings.push (paramsString.join (' '));
+		temp.push ({ FunctionExpression: 'method', VariableDeclarator: 'field' }[member.type] || '<something wrong: ' + member.type + '>');
 
-		if (dependsOn.parent)
-			dependsOnStrings.push ('child of ' + dependsOn.parent.name);
+		if (members [key] instanceof Array)
+			temp.push (', total count: ' + members [key].length);
 
-		if (dependsOn.implements.length)
-			dependsOnStrings.push ('implements ' + dependsOn.implements.map (lambda arg.name).join (', '));
-
-		if (dependsOn.uses.length)
-			dependsOnStrings.push ('using ' + dependsOn.uses.map (lambda arg.name).join (', '));
-
-		if (dependsOnStrings.length)
-			beforeString = ' (' + dependsOnStrings.join ('; ') + ')';
-
-		console.log (id.name + beforeString + ':\n' + membersStrings.join ('\n'));
+		membersStrings.push ('	* ' + member.id.name + ' (' + temp.join (' ').replace (/ ,/g, ',') + ')');
 	}
 
-	function parseClassDeclaration (){
-		// Получаем параметры класса, задаваемые ключевыми словами вроде «public», «abstract», «static» или «interface»
-		var params = parseClassParams ();
+	var paramsString = [];
+	for (var attribute, setted in params)
+		if (setted === true)
+			paramsString.push (attribute);
 
-		// А после — имя класса
-		var id = parseClassIdentifier ();
+	if (params.publicMode)
+		paramsString.push (params.publicMode);
 
-		// Классы, от которых зависит текущий класс (родительские, интерфейсы и используемые)
-		var dependsOn = parseExtendsImplementsAndUses (params);
+	if (paramsString.length)
+		dependsOnStrings.push (paramsString.join (' '));
 
-		// Содержимое класса
-		var members = parseClassMembers (params, dependsOn);
+	if (dependsOn.parent)
+		dependsOnStrings.push ('child of ' + dependsOn.parent.name);
 
-		// Выводим распарсенное в консоль
-		// verbose (id, params, dependsOn, members);
+	if (dependsOn.implements.length)
+		dependsOnStrings.push ('implements ' + dependsOn.implements.map (lambda arg.name).join (', '));
 
-		// Записываем новый класс
-		state.classes.push ({
-			id: 			id,
-			params: 		params,
-			dependsOn: 		dependsOn,
-			members: 		members
-		});
+	if (dependsOn.uses.length)
+		dependsOnStrings.push ('using ' + dependsOn.uses.map (lambda arg.name).join (', '));
 
-		return null;
-	}
+	if (dependsOnStrings.length)
+		beforeString = ' (' + dependsOnStrings.join ('; ') + ')';
+
+	console.info (id.name + beforeString + ':\n' + membersStrings.join ('\n'));
+}
+
+function parseClassDeclaration (){
+	// Получаем параметры класса, задаваемые ключевыми словами вроде «public», «abstract», «static» или «interface»
+	var params = parseClassParams ();
+
+	// А после — имя класса
+	var id = parseIdentifier ();
+
+	// Классы, от которых зависит текущий класс (родительские, интерфейсы и используемые)
+	var dependsOn = parseExtendsImplementsAndUses (params);
+
+	// Содержимое класса
+	var members = parseClassMembers (params, dependsOn);
+
+	// Выводим распарсенное в консоль
+	// verbose (id, params, dependsOn, members);
+
+	// Записываем новый класс
+	state.classes.push ({
+		id: 			id,
+		params: 		params,
+		dependsOn: 		dependsOn,
+		members: 		members
+	});
+
+	return null;
+}

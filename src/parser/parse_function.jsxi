@@ -1,133 +1,122 @@
-	// 13 Function Definition
+/* 	
+	options:
+		- keyword: 			ключевое слово (по умолчанию «function»), null - без ключевого слова
+		- declaration: 		true - возвращается FunctionDeclaration, false - FunctionExpression
+		- id: 				true - поиск имени обязателен, false - без имени
+		- emptyBody: 		true - функция без содержимого, после может быть «;», false - стандартный режим
+		- optionalParams:   true - аргументы функции опциональны, [ ... ] - аргументы по умолчанию
+*/
+function parseFunction (options = {}){
+	var id, params, body, token = lookahead ();
 
-	function parseFunctionArguments (defaults, noargs)
-		return attemptTo (
+	if (options.keyword !== null)
+		expectKeyword (options.keyword || 'function');
+
+	if (options.id === true || options.id !== false && lookahead ().type === Token.Identifier)
+		id = parseIdentifier ();
+	else
+		id = null;
+
+	if (options.optionalParams)
+		params = parseOptionalFunctionArguments () || (options.optionalParams === true ? [] : options.optionalParams);
+	else
+		params = parseFunctionArguments ();
+
+	if (!options.empty){
+		body = parseFunctionElements ();
+	} else {
+		body = null;
+		consumeSemicolon ();
+	}
+
+	return (options.declaration ? functionDeclarationFromToken : functionExpressionFromToken)(token, id, params, body);
+}
+
+function parseFunctionExpression ()
+	return parseFunction ();
+
+function parseFunctionDeclaration ()
+	return parseFunction ({ id: true, declaration: true });
+
+function parseLambdaExpression ()
+	return parseFunction ({ id: false, keyword: 'lambda', optionalParams: [ identifier ('arg') ] });
+
+function parseFunctionArguments (){
+	var name, params = [], comma = {};
+
+	expect ('(');
+
+	while (!match (')')){
+		if (params.length)
+			parseOptionalComma (comma);
+
+		name = parseIdentifier ();
+		if (matchLex ('='))
+			name.defaultValue = parseAssignmentExpression ();
+
+		params.push (name);
+	}
+
+	expect (')');
+	return params;
+}
+
+function parseOptionalFunctionArguments ()
+	return attemptTo (parseFunctionArguments, null, !match ('('));
+
+function parseFunctionElements (){
+	var oldPreventSequence = state.preventSequence, result;
+
+	if (match ('{')){
+		expect ('{');
+
+		attemptTo (
 			lambda {
-				var name, 
-					params = [],
-					comma = {};
-
-				expect ('(');
-
-				while (!match (')')){
-					if (params.length)
-						parseOptionalComma (comma);
-
-					name = parseVariableIdentifier ();
-
-					if (defaults && match ('=')){
-						lex ();
-						defaults.push (ifStatement (
-								binaryExpression (name.name, '===', 'undefined'),
-								expressionStatement (assignmentExpression (name.name, parseAssignmentExpression ()))));
-					}
-
-					params.push (name);
-				}
-
-				expect (')');
-				return params;
+				result = [ returnStatement (objectExpression (parseObjectContent ())) ];
+				consumeSemicolon ();
 			},
 			lambda {
-				return noargs ? [] : [ identifier ('arg') ];
+				state.preventSequence = false;
+				result = [];
+
+				while (!match ('}'))
+					result.push (parseStatement ());
 			},
-			!match ('(')
-		)
+			lookahead ().type !== Token.Literal && lookahead ().type !== Token.Identifier);
 
-	function parseFunctionSourceElements (defaults){
-		var oldPreventSequence = state.preventSequence,
-			sourceElements = defaults || [],
-			token;
+		expect ('}');
+	} else if (match (';')){
+		lex ();
+		result = [];
+	} else if (!match (']') && !match (')') && !match ('}') && !match (',')){
+		state.preventSequence = true;
+		result = [ setReturnStatement (parseStatement ()) ];
+	}
 
-		if (match ('{')){
-			expect ('{');
+	state.preventSequence = oldPreventSequence;
+	return blockStatement (result);
+}
 
-			token = lookahead ();
-
-			attemptTo (
-				lambda {
-					var object = objectExpression (parseObjectContent ()),
-						statement = returnStatement (object);
-
-					sourceElements.push (statement);
-					consumeSemicolon ();
-				},
-				lambda {
-					state.preventSequence = false;
-
-					while (!match ('}'))
-						sourceElements.push (parseStatement ());
-				},
-				token.type !== Token.Literal && token.type !== Token.Identifier
-			);
-
-			expect ('}');
-		} else if (!match (']') && !match (')') && !match ('}') && !match (',') && !match (';')){
-			state.preventSequence = true;
-			sourceElements.push (setReturnStatement (parseStatement ()));
+function setReturnStatement (data){
+	if (data)
+		if (data.type === Syntax.ExpressionStatement){
+			data.type = Syntax.ReturnStatement;
+			data.argument = data.expression;
+			delete data.expression;
+		} else if (data.type === Syntax.IfStatement){
+			setReturnStatement (data.consequent);
+			setReturnStatement (data.alternate);
+		} else if (data.type === Syntax.LabelledStatement){
+			setReturnStatement (data.body);
+		} else if (data.type === Syntax.BlockStatement && data.single){
+			setReturnStatement (data.body [0]); 
+		} else if (data.type === Syntax.TryStatement){
+			setReturnStatement (data.block);
+			if (data.handlers && data.handlers [0])
+				setReturnStatement (data.handlers [0].body);
+			if (data.finalizer)
+				setReturnStatement (data.finalizer);
 		}
 
-		state.preventSequence = oldPreventSequence;
-		return blockStatement (sourceElements);
-	}
-
-	// 	options:
-	// 		- keyword: 		искомое ключевое слово (по умолчанию «function»)
-	// 		- declaration: 	true - режим FunctionDeclaration, false - режим FunctionExpression
-	// 		- name: 		true - поиск имени обязателен, false - поиска имени не будет
-	// 		- empty: 		true - функция без содержимого, false - и с содержимым
-	function parseFunction (options = {}){
-		var id = null, 
-			params, 
-			defaults = [], 
-			body = null,
-			pos = lookahead ();
-
-		if (options.keyword !== null)
-			expectKeyword (options.keyword || 'function');
-
-		if (options.name === true || options.name !== false && lookahead ().type === Token.Identifier)
-			id = parseVariableIdentifier ();
-
-		params = parseFunctionArguments (defaults);
-
-		if (options.empty)
-			consumeSemicolon ();
-		else
-			body = parseFunctionSourceElements (defaults);
-
-		return mark ((options.declaration ? functionDeclaration : functionExpression)(id, params, body), pos);
-	}
-
-	function parseFunctionExpression ()
-		return parseFunction ();
-
-	function parseFunctionDeclaration ()
-		return parseFunction ({ name: true, declaration: true });
-
-	function parseLambdaExpression ()
-		return parseFunction ({ name: false, keyword: 'lambda' });
-
-	function setReturnStatement (data){
-		if (data)
-			if (data.type === Syntax.ExpressionStatement){
-				data.type = Syntax.ReturnStatement;
-				data.argument = data.expression;
-				delete data.expression;
-			} else if (data.type === Syntax.IfStatement){
-				setReturnStatement (data.consequent);
-				setReturnStatement (data.alternate);
-			} else if (data.type === Syntax.LabelledStatement){
-				setReturnStatement (data.body);
-			} else if (data.type === Syntax.BlockStatement && data.single){
-				setReturnStatement (data.body [0]); 
-			} else if (data.type === Syntax.TryStatement){
-				setReturnStatement (data.block);
-				if (data.handlers && data.handlers [0])
-					setReturnStatement (data.handlers [0].body);
-				if (data.finalizer)
-					setReturnStatement (data.finalizer);
-			}
-
-		return data;
-	}
+	return data;
+}

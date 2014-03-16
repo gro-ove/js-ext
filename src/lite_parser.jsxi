@@ -7,7 +7,20 @@
 
 	LiteParser.EOF = 1;
 
-	LiteParser.prototype.__defineGetter__ ('current', lambda this.data [this.index]);
+	Object.defineProperty (LiteParser.prototype, 'lineNumber', {
+		get: function (){
+			var result = 1;
+
+			for (var i = 0, d = this.data, n = Math.min (d.length, this.index); 
+				i < n; i ++)
+				if (d [i] === '\n')
+					result ++;
+
+			return result;
+		}
+	});
+
+	Object.defineProperty (LiteParser.prototype, 'current', { get: lambda this.data [this.index] });
 
 	LiteParser.prototype.replace = function (from, to, by = ''){
 		console.assert (from <= to, 'Invalid args');
@@ -30,19 +43,6 @@
 	LiteParser.prototype.substring = function (from, to){
 		return this.data.substring (from, to);
 	}
-
-	Object.defineProperty (LiteParser.prototype, 'lineNumber', {
-		get: function (){
-			var result = 1;
-
-			for (var i = 0, d = this.data, n = Math.min (d.length, this.index); 
-				i < n; i ++)
-				if (d [i] === '\n')
-					result ++;
-
-			return result;
-		}
-	});
 
 	LiteParser.prototype.getPosition = function (data, delta)
 		return {

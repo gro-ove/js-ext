@@ -1,5 +1,6 @@
 	// 12.10 The swith statement
 
+	// TODO: 'More than one default clause in switch statement'
 	function parseSwitchCase (){
 		var test,
 			consequent = [],
@@ -20,7 +21,7 @@
 				break;
 
 			statement = parseStatement ();
-			if (typeof statement === 'undefined')
+			if (statement === undefined)
 				break;
 
 			consequent.push (statement);

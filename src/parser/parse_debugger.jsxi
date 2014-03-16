@@ -1,7 +1,0 @@
-	// 12.15 The debugger statement
-
-	function parseDebuggerStatement (){
-		expectKeyword ('debugger');
-		consumeSemicolon ();
-		return debuggerStatement ();
-	}

@@ -1,0 +1,91 @@
+function keyword (id)
+	switch (id.length){
+		case 2:
+			return id === 'if' || id === 'in' || id === 'do';
+		case 3:
+			return id === 'var' || id === 'for' || id === 'new' || id === 'try' || id === 'uses';
+		case 4:
+			return id === 'this' || id === 'else' || id === 'case' || id === 'void' || id === 'with' || id === 'enum';
+		case 5:
+			return id === 'while' || id === 'break' || id === 'catch' || id === 'throw' || id === 'class' || id === 'super';
+		case 6:
+			return id === 'return' || id === 'typeof' || id === 'delete' || id === 'switch' || id === 'lambda' || id === 'static' || id === 'public';
+		case 7:
+			return id === 'default' || id === 'finally' || id === 'private' || id === 'extends';
+		case 8:
+			return id === 'function' || id === 'continue' || id === 'debugger' || id === 'abstract';
+		case 9:
+			return id === 'protected' || id === 'interface';
+		case 10:
+			return id === 'instanceof' || id === 'implements';
+	}
+
+function readIdentifier (){
+	var start = index,
+		identifier;
+
+	if (identifierStart (source [index])){
+		do 
+			index ++;
+		while (identifierPart (source [index]));
+
+		if (index - start === 1)
+			return {
+				type:           Token.Identifier,
+				value:          source [start],
+				lineNumber:     lineNumber,
+				range:          [ start, index ]
+			};
+
+		identifier = source.substring (start, index);
+
+		if (keyword (identifier)){
+			if (identifier === 'in' && source [index] === '-'){
+				while (identifierPart (source [++ index]));
+				identifier = source.substring (start, index);
+
+				if (identifier !== 'in-object' && identifier !== 'in-array')
+					unexpected ();
+			}
+
+			return {
+				type:           Token.Keyword,
+				value:          identifier,
+				lineNumber:     lineNumber,
+				range:          [ start, index ]
+			};
+		}
+
+		if (identifier === 'null')
+			return {
+				type:           Token.NullLiteral,
+				value:          identifier,
+				lineNumber:     lineNumber,
+				range:          [ start, index ]
+			};
+
+		if (identifier === 'true' || identifier === 'false')
+			return {
+				type:           Token.BooleanLiteral,
+				value:          identifier,
+				lineNumber:     lineNumber,
+				range:          [ start, index ]
+			};
+
+		if (identifier === 'undefined')
+			return {
+				type:           Token.UndefinedLiteral,
+				value:          identifier,
+				lineNumber:     lineNumber,
+				range:          [ start, index ]
+			};
+
+		return {
+			type:           Token.Identifier,
+			value:          identifier,
+			lineNumber:     lineNumber,
+			range:          [ start, index ]
+		};
+	} else if (source [index] === '@')
+		throw new Error ('Unexpected macro');
+}

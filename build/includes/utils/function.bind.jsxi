@@ -1,4 +1,0 @@
-Function.prototype.bind = lambda (scope){
-    var fn = this;
-    return lambda fn.apply (scope, arguments);
-};

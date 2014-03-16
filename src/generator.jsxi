@@ -1,11 +1,16 @@
+/*
+	Генератор принимает объект, являющийся корнем AST (чаще всего у этого объек-
+	та поле «type» равняется Syntax.Program).
+
+	Формат AST схож с Mozilla Parser AST, но имеет несколько отличий.
+*/
+
 function niceGeneratorMode (value)
 	niceMode = value;
 
 // TODO: Проверить, не ломает ли генератор строки или регекспы
 var niceMode = true,
 	generate = function (){
-		// https://developer.mozilla.org/ru/docs/JavaScript/Reference/Operators/
-		// Operator_Precedence
 		var priorities = [
 				Syntax.MemberExpression, 
 				Syntax.NewExpression,
@@ -142,23 +147,28 @@ var niceMode = true,
 			function sub (obj)
 				return obj.type === Syntax.BlockStatement ? child (obj) : obj.type === Syntax.EmptyStatement ? ';' : indent (obj);
 
+			if (!node){
+				console.json (parent);
+				throw new Error ('Node = ' + node);
+			}
+
 			if (niceMode && comment === null && node.filename)
 				comment = node.filename + ':' + node.lineNumber /** /+ ' [' + node.type + ']'/**/;
 
 			var result, temp;
 
 			switch (node.type){
-				/* Simpliest */
+				/* Simpliest types */
+				case Syntax.BooleanLiteral:
+				case Syntax.NullLiteral:
+				case Syntax.NumericLiteral:
+				case Syntax.RegexpLiteral:
+				case Syntax.StringLiteral:
+				case Syntax.UndefinedLiteral:
+					return node.value;
+
 				case Syntax.Identifier:
 					return node.name;
-
-				case Syntax.Literal:
-					if (typeof node.raw === 'string')
-						return node.raw;
-					else if (typeof node.value === 'string')
-						return '\'' + JSON.stringify (node.value).slice (1, -1).replace (/'/g, '\\\'') + '\'';
-					else
-						return String (node.value);
 
 				case Syntax.Property:
 					return child (node.key) + ': ' + child (node.value);
@@ -249,10 +259,21 @@ var niceMode = true,
 
 				/* Statements: Base */
 				case Syntax.BlockStatement:
-					if (node.body.length > 0){
-						result = '{' + end () + '\t';
-						result += mapArray (node.body, '', true);
-						result += end () + '}';
+					temp = node.body.length > 0;
+
+					result = '{' + end () + '\t';
+
+					if (parent.type === Syntax.FunctionDeclaration || parent.type === Syntax.FunctionExpression)
+						for (var param in-array parent.params)
+							if (param.defaultValue){
+								result += 'if (' + child (param) + ' === undefined)' + end () + '\t\t' + child (param) + ' = ' + child (param.defaultValue) + ';' + end () + '\n\t' + tabs;
+								temp = true;
+							}
+
+					result += mapArray (node.body, '', true);
+					result += end () + '}';
+
+					if (temp){
 						return result;
 					} else
 						return '{}';
@@ -269,6 +290,9 @@ var niceMode = true,
 
 				case Syntax.LabeledStatement:
 					return child (node.label) + ': ' + child (node.body);
+
+				case Syntax.NotImplementedStatement:
+					return 'console.warn (\'Not implemented at ' + node.lineNumber + ' line of ' + node.filename + '\');';
 
 				/* Statements: Control */
 				case Syntax.ReturnStatement:

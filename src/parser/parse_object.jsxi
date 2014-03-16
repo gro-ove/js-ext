@@ -1,36 +1,27 @@
-	// 11.1.5 Object Initialiser
-
 	function parsePropertyFunction (param, first)
 		return {
 			type: 			Syntax.FunctionExpression,
 			id: 			null,
 			params: 		param,
-			defaults: 		[],
-			body: 			parseFunctionSourceElements (),
-			rest: 			null,
-			generator: 		false,
-			expression: 	false
+			body: 			parseFunctionElements ()
 		};
 
 	function parseObjectPropertyKey (){
 		var token = lex ();
 
-		// Note: This function is called only from parseObjectProperty(), where
-		// EOF and Punctuator tokens are already filtered out.
-		if (token.type === Token.StringLiteral || token.type === Token.NumericLiteral)
-			return literal (token);
-
-		return identifier (token.value);
+		if (token.type === Token.StringLiteral)
+			return stringLiteralFromToken (token);
+		else
+			return identifierFromToken (token);
 	}
 
 	function parseObjectProperty (){
-		var token, key, id, param, from;
+		var token, key, id, param;
 
 		token = lookahead ();
 
 		if (token.type === Token.Identifier){
 			id = parseObjectPropertyKey ();
-			from = mark ();
 
 			// Property Assignment: Getter and Setter.
 			if (token.value === 'get' && !match (':')){
@@ -45,10 +36,10 @@
 
 				if (token.type !== Token.Identifier){
 					expect (')');
-					throwError (token, Messages.UnexpectedToken, token.value);
+					unexpected (token);
 					return property (key, parsePropertyFunction ([]), 'set');
 				} else {
-					param = [ parseVariableIdentifier () ];
+					param = [ parseIdentifier () ];
 					expect (')');
 					return property (key, parsePropertyFunction (param, token), 'set');
 				}
@@ -57,7 +48,7 @@
 				return property (id, parseAssignmentExpression ());
 			}
 		} else if (token.type === Token.EOF || token.type === Token.Punctuator){
-			throwUnexpected (token);
+			unexpected (token);
 		} else {
 			key = parseObjectPropertyKey ();
 			expect (':');
@@ -69,11 +60,12 @@
 		var properties = [], property, name, kind, map = {}, comma = {};
 
 		while (!match ('}')){
-			if (properties.length)
+			if (properties.length){
 				parseOptionalComma (comma);
 
-			if (match ('}'))
-				break;
+				if (match ('}'))
+					break;
+			}
 
 			property = parseObjectProperty ();
 
@@ -87,16 +79,24 @@
 					? PropertyKind.Get 
 					: PropertyKind.Set;
 
+			/*
+				TODO: 
+					'Object literal may not have data and accessor property with the same name'
+					'Object literal may not have multiple get/set accessors with the same name'
+			*/
+
 			if (Object.prototype.hasOwnProperty.call (map, name)){
-				if (map [name] === PropertyKind.Data){
-					if (kind !== PropertyKind.Data)
-						throwError ({}, Messages.AccessorDataProperty);
-				} else {
-					if (kind === PropertyKind.Data) 
-						throwError ({}, Messages.AccessorDataProperty);
-					else if (map [name] & kind) 
-						throwError ({}, Messages.AccessorGetSet);
-				}
+				throw new JsExtError ('NotImplementedError', 'Getters and setters', lookahead ());
+
+				// if (map [name] === PropertyKind.Data){
+				// 	if (kind !== PropertyKind.Data)
+				// 		throwError ({}, Messages.AccessorDataProperty);
+				// } else {
+				// 	if (kind === PropertyKind.Data) 
+				// 		throwError ({}, Messages.AccessorDataProperty);
+				// 	else if (map [name] & kind) 
+				// 		throwError ({}, Messages.AccessorGetSet);
+				// }
 
 				map [name] |= kind;
 			} else

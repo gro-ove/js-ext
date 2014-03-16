@@ -4,13 +4,14 @@ function processClassMethod (classEntry, methodEntry){
 
 	options.filename = methodEntry.filename;
 
-	// Тут будут лежать имена локальных переменных — им не нужно будет подставлять «this»
+	// Тут будут лежать имена локальных переменных
 	var exclusions = {};
 
 	// Ссылка на ноду AST текущей обрабатываемой функции
 	var currentFunction;
 
-	// Если какому-то из кусков AST понадобится ссылка на this, он поменяет эту переменную
+	// Если какому-то из кусков AST понадобится ссылка на this,  он поменяет эту
+	// переменную
 	var usingThat = false;
 
 	// Заменяем содержимое одного объекта содержимым другого
@@ -21,7 +22,8 @@ function processClassMethod (classEntry, methodEntry){
 			to [n] = from [n];
 	}
 
-	// Получаем «this» или «that» в зависимости от того, какая функция сейчас обрабатывается
+	// Возвращает «this» или «that» в зависимости от того,  какая функция сейчас
+	// обрабатывается
 	function getThis (){
 		// Определяем, дочерняя ли эта функция по отношению к основной обрабатываемой
 		var childFunction = currentFunction !== methodEntry;
@@ -74,11 +76,11 @@ function processClassMethod (classEntry, methodEntry){
 		// Обновляем содержимое
 		process (obj.body.body, obj);
 
-		// Если кто-то попросил ссылку на «this», а мы — главная функция, обеспечим ссылку.
+		// Если кто-то попросил ссылку на «this», а мы — главная функция, добавим её.
 		if (usingThat && methodEntry === obj){
 			var temp = [ variableDeclarator (thatVariable, thisExpression ()) ];
 
-			if (0 in obj.body && obj.body.body [0].type === Syntax.VariableDeclaration)
+			if (obj.body.body [0] && obj.body.body [0].type === Syntax.VariableDeclaration)
 				// Если первым идёт список переменных, кидаем в начало списка
 				obj.body.body [0].declarations = temp.concat (obj.body.body [0].declarations);
 			else
@@ -99,14 +101,11 @@ function processClassMethod (classEntry, methodEntry){
 		// Несколько адовая функция
 
 		function replaceObject (member){
-			// Из статичных свойств обращаться к свойствам объекта как-то неправильно (methodEntry -
-			// нода AST основной обрабатываемой функции, на неё и смотрим)
+			// Из статичных свойств обращаться к свойствам объекта как-то непра-
+			// вильно (methodEntry  -  нода AST основной обрабатываемой функции,
+			// на неё и смотрим)
 			if (methodEntry.static)
-				throwError (obj, Messages.ObjectAccessError, obj.name);
-
-			// Не даём обращаться и к скрытым полям
-			if (member.publicMode === 'locked')
-				throwError (obj, Messages.PrivateAccessError, obj.name);
+				throw new TypeError ('Member "' + obj.name + '" is static', obj);
 
 			// Получаем ссылку на «this» (или «that»)
 			var that = getThis ();
@@ -117,7 +116,7 @@ function processClassMethod (classEntry, methodEntry){
 			// Если обращались к функции и при этом она не вызывается, имеет смысл привязать её к объекту
 			if (member.method && parent.type !== Syntax.CallExpression){
 				helpers.set ('bindOnce', obj);
-				result = callExpression ('__bo', [ that, literal (member.id.name) ]);
+				result = callExpression ('__bindOnce', [ that, stringLiteralWithQuotes (member.id.name) ]);
 			} else {
 				result = memberExpression (that, member.id.name);
 			}
@@ -127,10 +126,6 @@ function processClassMethod (classEntry, methodEntry){
 
 		function replaceStatic (member){
 			// Да, тут всё куда проще
-
-			// Бьём по рукам за попытку обратиться к скрытому
-			if (member.publicMode === 'locked')
-				throwError (obj, Messages.PrivateAccessError, obj.name);
 
 			// Имя класса, в котором определено то нечто, к чему мы обращаемся
 			var className = member.className;
@@ -146,19 +141,24 @@ function processClassMethod (classEntry, methodEntry){
 				member;
 
 			if (obj.name in classEntry.members){
-				// Обрабатываем метод или поле (приватные статические методы или поля ставятся 
-				// иначе, и замена для них не нужна)
+				// Обрабатываем метод или поле (приватные статические методы или
+				// поля ставятся иначе, и замена для них не нужна)
 
 				member = classEntry.members [obj.name];
+
+				// Не даём обращаться и к скрытым полям
+				if (member.publicMode === 'locked')
+					throw new TypeError ('Member "' + obj.name + '" has private access', obj);
+
 				if (!member.static)
 					result = replaceObject (member);
 				else if (member.publicMode !== 'private')
 					result = replaceStatic (member);
 
 			} else if (classesByNames [obj.name])
-				// Если внезапно нашли имя другого класса, отмечаем, что, вероятно, обрабатываемый класс 
-				// использует этот другой класс и имело бы смысл по возможности поместить обрабатываемый 
-				// класс ниже
+				// Если внезапно нашли имя другого класса, отмечаем, что, вероя-
+				// тно, обрабатываемый класс использует этот другой класс и име-
+				// ло бы смысл по возможности поместить его ниже
 				classEntry.probablyUseOther ++;
 
 			// Меняем объект, если что-то нашлось
@@ -189,36 +189,45 @@ function processClassMethod (classEntry, methodEntry){
 					}
 				} else if (obj.object.type === Syntax.ThisExpression){
 					obj.property.name = member.id.name;
-				} else if (member.publicMode !== 'public'){
+				} else if (0 && member.publicMode !== 'public'){
 					if (parent instanceof Array && preparent)
 						parent = preparent;
 
 					if (obj.object.type === Syntax.Identifier){
 						obj.computed = true;
-						obj.property = conditionalExpression (binaryExpression (obj.object, 'instanceof', member.className.name), literal (member.id.name), literal (obj.property.name));
+						obj.property = conditionalExpression (
+							binaryExpression (obj.object, 'instanceof', member.className.name), 
+							stringLiteralWithQuotes (member.id.name), 
+							stringLiteralWithQuotes (obj.property.name));
+
+						process (obj.object, obj);
 					} else if (parent.type === Syntax.AssignmentExpression){
 						second = $.extend (true, {}, parent);
 						for (var key, value in parent)
 							if (value === obj)
 								second [key] = memberExpression ('__', conditionalExpression (
-									binaryExpression ('__', 'instanceof', member.className.name), literal (member.id.name), literal (obj.property.name)), true);
-
-						process (obj.object, obj);
+									binaryExpression ('__', 'instanceof', member.className.name), 
+									stringLiteralWithQuotes (member.id.name), 
+									stringLiteralWithQuotes (obj.property.name)), true);
 
 						set (parent, sequenceExpression ([
 							assignmentExpression ('__', obj.object), 
 							second
 						]));
 
-						temp = true;
-					} else {
 						process (obj.object, obj);
 
+						temp = true;
+					} else {
 						set (obj, sequenceExpression ([
 							assignmentExpression ('__', obj.object), 
 							memberExpression ('__', conditionalExpression (
-						 			binaryExpression ('__', 'instanceof', member.className.name), literal (member.id.name), literal (obj.property.name)), true)
+						 			binaryExpression ('__', 'instanceof', member.className.name), 
+						 			stringLiteralWithQuotes (member.id.name), 
+						 			stringLiteralWithQuotes (obj.property.name)), true)
 						]));
+
+						process (obj);
 
 						if (parent.type === Syntax.CallExpression && obj === parent.callee){
 							parent.callee = memberExpression (parent.callee, 'call');
@@ -252,7 +261,7 @@ function processClassMethod (classEntry, methodEntry){
 		// Либо «super» используется в корне одной из функций объекта, или у него есть
 		// имя вызываемого супер-метода
 		if (currentFunction !== methodEntry && obj.callee === null)
-			throwError (obj, Messages.WtfMan);
+			throw new Error ('Not implemented'); // TODO
 
 		// Ищем название нужного класса, идя по дереву классов
 		var currentClass = classEntry;
@@ -263,17 +272,17 @@ function processClassMethod (classEntry, methodEntry){
 
 			// Если вдруг родителей не хватает, вываливаемся
 			if (!currentClass)
-				throwError (obj, Messages.SuperMethodIsNotAvailable);
+				throw new TypeError ('Super method isn\'t available', obj);
 		}
 
 		// Вызываемый метод
 		var method = obj.callee ? currentClass.members [obj.callee.name] : findByReplacement (currentClass, methodEntry.id.name);
 
 		if (!method)
-			throwError (obj, membersOut (currentClass) + '; ' + membersOut (classEntry), 'Attempt to call undefined method');
+			throw new TypeError ('Super method not found', obj);
 
 		if (method.static)
-			throwError (obj, 'Attempt to call static method');
+			throw new TypeError ('This method is static', obj);
 
 		// У кого вызывать метод
 		var target;
@@ -341,7 +350,7 @@ function processClassMethod (classEntry, methodEntry){
 
 					default:
 						for (var key, value in obj){
-							// console.log (key, value);
+							// TODO: Optimize by key filtering?
 							process (value, obj);
 						}
 				}
@@ -358,13 +367,11 @@ function processClassMethods (classEntry){
 
 	// Проходим по всем методам именно этого класса
 	for (var name, member in classEntry.members)
-		if (member.method && member.className === classEntry.id)
+		if (member.method && !member.abstract && member.className === classEntry.id)
 			processClassMethod (classEntry, member);
 }
 
 function processClassesMethods (){
-	for (var classEntry in-array classes){
-		// membersOut (classEntry);
+	for (var classEntry in-array classes)
 		processClassMethods (classEntry);
-	}
 }

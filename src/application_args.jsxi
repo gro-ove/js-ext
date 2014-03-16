@@ -32,7 +32,7 @@
 
 		if (result.h){
 			console.log ('Available args:')
-			args.forEach (lambda console.log (' -{0} (--{1})'.format (arg.s, arg.l)));
+			args.forEach (lambda console.log (' -' + arg.s + ' (--' + arg.l + ')'));
 			process.exit (0);
 		} else
 			return result;

@@ -1,277 +1,243 @@
-	function parseNonComputedProperty (){
-		var token = lex ();
+function parseNonComputedProperty (){
+	var token = lex ();
+	if (token.type !== Token.Identifier && token.type !== Token.Keyword && token.type !== Token.BooleanLiteral && token.type !== Token.NullLiteral)
+		unexpected (token);
+	return identifierFromToken (token);
+}
 
-		if (!isIdentifierName (token))
-			throwUnexpected (token);
+function parseNonComputedMember (){
+	expect ('.');
+	return parseNonComputedProperty ();
+}
 
-		return identifier (token.value);
+function parseComputedMember (){
+	expect ('[');
+	var temp = parseExpression ();
+	expect (']');
+
+	return temp;
+}
+
+function parseNewExpression (){
+	expectKeyword ('new');
+	return newExpression (parseLeftHandSideExpression (), match ('(') ? parseArguments () : []);
+}
+
+function parseLeftHandSideExpressionTemp ()
+	return matchKeyword ('new') ? parseNewExpression () : matchKeyword ('super') ? parseSuperExpression () : parsePrimaryExpression ();
+
+function parseLeftHandSideExpressionAllowCall (){
+	var expression = parseLeftHandSideExpressionTemp (), token;
+
+	while (index < length){
+		token = lookahead ();
+
+		if (token.value === '('){
+			expression = callExpression (expression, parseArguments ());
+		} else if (token.value === '['){
+			expression = memberExpression (expression, parseComputedMember (), true);
+		} else if (token.value === '.' && source [token.range [0] + 1] !== '.'){
+			expression = memberExpression (expression, parseNonComputedMember (), false);
+		} else
+			break;
 	}
 
-	function parseNonComputedMember (){
-		expect ('.');
-		return parseNonComputedProperty ();
+	return expression;
+}
+
+function parseLeftHandSideExpression (){
+	var expression = parseLeftHandSideExpressionTemp ();
+
+	while (match ('.') || match ('['))
+		if (match ('['))
+			expression = memberExpression (expression, parseComputedMember (), true);
+		else 
+			expression = memberExpression (expression, parseNonComputedMember (), false);
+
+	return expression;
+}
+
+function parseMultiplicativeExpression (){
+	var expression = parseUnaryExpression ();
+
+	while (match ('*') || match ('/') || match ('%'))
+		expression = binaryExpression (expression, lex ().value, parseUnaryExpression ());
+
+	return expression;
+}
+
+function parseAdditiveExpression (){
+	var expression = parseMultiplicativeExpression ();
+
+	while (match ('+') || match ('-'))
+		expression = binaryExpression (expression, lex ().value, parseMultiplicativeExpression ());
+
+	return expression;
+}
+
+function parseShiftExpression (){
+	var expression = parseAdditiveExpression ();
+
+	while (match ('<<') || match ('>>') || match ('>>>'))
+		expression = binaryExpression (expression, lex ().value, parseAdditiveExpression ());
+
+	return expression;
+}
+
+function parseRelationalExpression (){
+	var inverse, expression, previousAllowIn;
+
+	previousAllowIn 	= state.allowIn;
+	state.allowIn 		= true;
+	expression 			= parseShiftExpression ();
+
+	while (index < length){
+		if (match ('!') && source [lookahead ().range [0] + 1] === 'i'){
+			inverse = saveAll ();
+			lex ();
+		}
+
+		if (match ('<') || match ('>') || match ('<=') || match ('>=') || previousAllowIn && matchKeyword ('in') || matchKeyword ('instanceof')){
+			expression = binaryExpression (expression, lex ().value, parseShiftExpression ());
+		} else if (previousAllowIn && (matchKeyword ('in-object') || matchKeyword ('in-array'))){
+			lex ();
+			expression = callExpression (memberExpression (parseShiftExpression (), 'hasOwnProperty'), [ expression ]);
+		} else {
+			if (inverse)
+				restoreAll (inverse);
+			break;
+		}
+
+		if (inverse){
+			expression = unaryExpression (expression, '!', true);
+			inverse = false;
+		}
 	}
 
-	function parseComputedMember (){
-		expect ('[');
-		var temp = parseExpression ();
-		expect (']');
+	state.allowIn 		= previousAllowIn;
+	return expression;
+}
 
-		return temp;
+function parseEqualityExpression (){
+	var expression = parseRelationalExpression ();
+
+	while (match ('==') || match ('!=') || match ('===') || match ('!=='))
+		expression = binaryExpression (expression, lex ().value, parseRelationalExpression ());
+
+	return expression;
+}
+
+function parseBitwiseANDExpression (){
+	var expression = parseEqualityExpression ();
+
+	while (match ('&')){
+		lex ();
+		expression = binaryExpression (expression, '&', parseEqualityExpression ());
 	}
 
-	function parseNewExpression (){
-		var token = lookahead ();
-		expectKeyword ('new');
-		return mark (newExpression (parseLeftHandSideExpression (), match ('(') ? parseArguments () : []), token);
+	return expression;
+}
+
+function parseBitwiseXORExpression (){
+	var expression = parseBitwiseANDExpression ();
+
+	while (match ('^')){
+		lex ();
+		expression = binaryExpression (expression, '^', parseBitwiseANDExpression ());
 	}
 
-	function parseLeftHandSideExpressionTemp ()
-		return matchKeyword ('new') ? parseNewExpression () : matchKeyword ('super') ? parseSuperExpression () : parsePrimaryExpression ();
+	return expression;
+}
 
-	function parseLeftHandSideExpressionAllowCall (){
-		var temp = parseLeftHandSideExpressionTemp (),
-			token;
+function parseBitwiseORExpression (){
+	var expression = parseBitwiseXORExpression ();
 
-		while (match ('.') || match ('[') || match ('('))
-			if (match ('(')){
-				temp = callExpression (temp, parseArguments ());
-			} else if (match ('[')){
-				temp = memberExpression (temp, parseComputedMember (), true);
-			} else {
-				token = lookahead ();
-				if (source [token.range [0] + 1] !== '.')
-					temp = memberExpression (temp, parseNonComputedMember (), false);
-				else
-					break;
-			}
-
-		return temp;
+	while (match ('|')){
+		lex ();
+		expression = binaryExpression (expression, '|', parseBitwiseXORExpression ());
 	}
 
-	function parseLeftHandSideExpression (){
-		var temp = parseLeftHandSideExpressionTemp ();
+	return expression;
+}
 
-		while (match ('.') || match ('['))
-			if (match ('['))
-				temp = memberExpression (temp, parseComputedMember (), true);
-			else 
-				temp = memberExpression (temp, parseNonComputedMember (), false);
+function parseLogicalANDExpression (){
+	var expression = parseBitwiseORExpression ();
 
-		return temp;
+	while (match ('&&')){
+		lex ();
+		expression = logicalExpression (expression, '&&', parseBitwiseORExpression ());
 	}
 
-	// 11.5 Multiplicative Operators
+	return expression;
+}
 
-	function parseMultiplicativeExpression (){
-		var temp = parseUnaryExpression ();
+function parseLogicalORExpression (){
+	var expression = parseLogicalANDExpression ();
 
-		while (match ('*') || match ('/') || match ('%'))
-			temp = binaryExpression (temp, lex ().value, parseUnaryExpression ());
-
-		return temp;
+	while (match ('||')){
+		lex ();
+		expression = logicalExpression (expression, '||', parseLogicalANDExpression ());
 	}
 
-	// 11.6 Additive Operators
+	return expression;
+}
 
-	function parseAdditiveExpression (){
-		var temp = parseMultiplicativeExpression ();
+function parseConditionalExpression (){
+	var expression, previousAllowIn, consequent;
 
-		while (match ('+') || match ('-'))
-			temp = binaryExpression (temp, lex ().value, parseMultiplicativeExpression ());
+	expression = parseLogicalORExpression ();
 
-		return temp;
-	}
-
-	// 11.7 Bitwise Shift Operators
-
-	function parseShiftExpression (){
-		var temp = parseAdditiveExpression ();
-
-		while (match ('<<') || match ('>>') || match ('>>>'))
-			temp = binaryExpression (temp, lex ().value, parseAdditiveExpression ());
-
-		return temp;
-	}
-
-	// 11.8 Relational Operators
-
-	function parseRelationalExpression (){
-		var inverse, temp, previousAllowIn;
-
+	if (match ('?')){
+		lex ();
 		previousAllowIn 	= state.allowIn;
 		state.allowIn 		= true;
-		temp 				= parseShiftExpression ();
+		consequent 			= parseAssignmentExpression ();
+		state.allowIn 		= previousAllowIn;
+		expect (':');
+
+		expression = conditionalExpression (expression, consequent, parseAssignmentExpression ());
+	}
+
+	return expression;
+}
+
+function parseAssignmentExpression (){
+	var expression = parseConditionalExpression (),
+		token = lookahead ();
+
+	if (token.type === Token.Punctuator 
+		&& (token.value === '=' 
+		 || token.value === '*=' 
+		 || token.value === '/=' 
+		 || token.value === '%=' 
+		 || token.value === '+=' 
+		 || token.value === '-=' 
+		 || token.value === '<<=' 
+		 || token.value === '>>=' 
+		 || token.value === '>>>=' 
+		 || token.value === '&=' 
+		 || token.value === '^=' 
+		 || token.value === '|=')){
+		leftSideOnly (expression);
+		expression = assignmentExpression (expression, lex ().value, parseAssignmentExpression ());
+	}
+
+	return expression;
+}
+
+function parseExpression (){
+	var expression = parseAssignmentExpression ();
+
+	if (!state.preventSequence && match (',')){
+		expression = sequenceExpression ([ expression ]);
 
 		while (index < length){
-			if (match ('!') && source [lookahead ().range [0] + 1] === 'i'){
-				inverse = saveAll ();
-				lex ();
-			}
-
-			if (match ('<') || match ('>') || match ('<=') || match ('>=') || previousAllowIn && matchKeyword ('in') || matchKeyword ('instanceof')){
-				temp = binaryExpression (temp, lex ().value, parseShiftExpression ());
-			} else if (previousAllowIn && (matchKeyword ('in-object') || matchKeyword ('in-array'))){
-				lex ();
-				temp = callExpression (memberExpression (parseShiftExpression (), 'hasOwnProperty'), [ temp ]);
-			} else {
-				if (inverse)
-					restoreAll (inverse);
+			if (!match (',')) 
 				break;
-			}
-
-			if (inverse){
-				temp = unaryExpression (temp, '!', true);
-				inverse = false;
-			}
-		}
-
-		state.allowIn 		= previousAllowIn;
-		return temp;
-	}
-
-	// 11.9 Equality Operators
-
-	function parseEqualityExpression (){
-		var temp = parseRelationalExpression ();
-
-		while (match ('==') || match ('!=') || match ('===') || match ('!=='))
-			temp = binaryExpression (temp, lex ().value, parseRelationalExpression ());
-
-		return temp;
-	}
-
-	// 11.10 Binary Bitwise Operators
-
-	function parseBitwiseANDExpression (){
-		var temp = parseEqualityExpression ();
-
-		while (match ('&')){
 			lex ();
-			temp = binaryExpression (temp, '&', parseEqualityExpression ());
+			expression.expressions.push (parseAssignmentExpression ());
 		}
-
-		return temp;
 	}
 
-	function parseBitwiseXORExpression (){
-		var temp = parseBitwiseANDExpression ();
-
-		while (match ('^')){
-			lex ();
-			temp = binaryExpression (temp, '^', parseBitwiseANDExpression ());
-		}
-
-		return temp;
-	}
-
-	function parseBitwiseORExpression (){
-		var temp = parseBitwiseXORExpression ();
-
-		while (match ('|')){
-			lex ();
-			temp = binaryExpression (temp, '|', parseBitwiseXORExpression ());
-		}
-
-		return temp;
-	}
-
-	// 11.11 Binary Logical Operators
-
-	function parseLogicalANDExpression (){
-		var temp = parseBitwiseORExpression ();
-
-		while (match ('&&')){
-			lex ();
-			temp = logicalExpression (temp, '&&', parseBitwiseORExpression ());
-		}
-
-		return temp;
-	}
-
-	function parseLogicalORExpression (){
-		var temp = parseLogicalANDExpression ();
-
-		while (match ('||')){
-			lex ();
-			temp = logicalExpression (temp, '||', parseLogicalANDExpression ());
-		}
-
-		return temp;
-	}
-
-	// 11.12 Conditional Operator
-
-	function parseConditionalExpression (){
-		var temp, previousAllowIn, consequent;
-
-		temp = parseLogicalORExpression ();
-
-		if (match ('?')){
-			lex ();
-			previousAllowIn 	= state.allowIn;
-			state.allowIn 		= true;
-			consequent 			= parseAssignmentExpression ();
-			state.allowIn 		= previousAllowIn;
-			expect (':');
-
-			temp = conditionalExpression (temp, consequent, parseAssignmentExpression ());
-		}
-
-		return temp;
-	}
-
-	function matchAssign (){
-		var token = lookahead (),
-			op = token.value;
-
-		if (token.type !== Token.Punctuator)
-			return false;
-
-		return op === '=' ||
-			   op === '*=' ||
-			   op === '/=' ||
-			   op === '%=' ||
-			   op === '+=' ||
-			   op === '-=' ||
-			   op === '<<=' ||
-			   op === '>>=' ||
-			   op === '>>>=' ||
-			   op === '&=' ||
-			   op === '^=' ||
-			   op === '|=';
-	}
-	
-	function parseAssignmentExpression (){
-		var token, temp;
-
-		token 	= lookahead ();
-		temp 	= parseConditionalExpression ();
-
-		if (matchAssign ()){
-			if (!isLeftHandSide (temp))
-				throwError ({}, Messages.InvalidLHSInAssignment);
-			temp = assignmentExpression (temp, lex ().value, parseAssignmentExpression ());
-		}
-
-		return temp;
-	}
-
-	// 11.14 Comma Operator
-
-	function parseExpression (){
-		var temp = parseAssignmentExpression ();
-
-		if (!state.preventSequence && match (',')){
-			temp = sequenceExpression ([ temp ]);
-
-			while (index < length){
-				if (!match (',')) 
-					break;
-				lex ();
-				temp.expressions.push (parseAssignmentExpression ());
-			}
-		}
-
-		return temp;
-	}
+	return expression;
+}

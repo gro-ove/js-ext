@@ -1,9 +1,0 @@
-// ==Jsx==
-// @import node
-// ==/Jsx==
-
-node ('next', lambda (element)
-		if (element.parentNode){
-			var c = element.parentNode.childNodes;
-			return c [Array.prototype.indexOf.call (c, element) + 1];
-		});

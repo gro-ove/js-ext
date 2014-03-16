@@ -1,4 +1,0 @@
-Function.prototype.callNow = lambda {
-	this.apply (this, arguments);
-	return this;
-};

@@ -1,40 +1,50 @@
-	// 11.1.4 Array Initialiser
+	var maxCountForInline = 10;
 
-	function parseArrayPerlInitializer (elements, from){
-		expect ('..');
-
-		var from = elements [0],
-			to = parseAssignmentExpression ();
+	function parseArrayPerlInitializer (elements){
+		var firstElement = elements [0],
+			secondElement = parseAssignmentExpression (),
+			from, to, delta, chars;
 
 		expect (']');
 
-		if (from.type === Syntax.Literal && to.type === Syntax.Literal){
-			var nfrom 	= +from.value,
-				nto 	= +to.value;
+		if (firstElement.type === Syntax.NumericLiteral && secondElement.type === Syntax.NumericLiteral){
+			from 	= +firstElement.value;
+			to 		= +secondElement.value;
 
-			if (Number.isNaN (nfrom))
-				nfrom = String (from.value).charCodeAt (0);
+		} else if (firstElement.type === Syntax.StringLiteral && secondElement.type === Syntax.StringLiteral){
+			from 	= stringLiteralValue (firstElement);
+			to 		= stringLiteralValue (secondElement);
 
-			if (Number.isNaN (nto))
-				nto = String (to.value).charCodeAt (0);
+			if (from === null || from.length > 1)
+				unexpected (firstElement);
 
-			if (Math.abs (nto - nfrom) < 10){
-				if (nto > nfrom)
-					for (nfrom ++; nfrom <= nto; nfrom ++)
-						elements.push (literal (nfrom));
-				else
-					for (nfrom --; nfrom >= nto; nfrom --)
-						elements.push (literal (nfrom));
-				return arrayExpression (elements);
-			}
+			if (to === null || to.length > 1)
+				unexpected (secondElement);
+
+			from 	= from.charCodeAt (0);
+			to 		= to.charCodeAt (0);
+			chars 	= true;
 		}
 
-		helpers.set ('createArray', from);
-		return callExpression ('__ca', [ from, to ]);
+		if (from !== undefined && Math.abs (from - to) < 10){
+			delta = from < to ? 1 : -1;
+
+			while (from !== to){
+				from += delta;
+				elements.push (chars 
+					? stringLiteralWithQuotes (String.fromCharCode (from))
+					: numericLiteral (from));
+			}
+
+			return arrayExpression (elements);
+		} else {
+			helpers.set ('createArray', firstElement);
+			return callExpression ('__createArray', [ firstElement, secondElement ]);
+		}
 	}
 	
 	function parseArrayInitialiser (){
-		var elements = [], comma = {}, token = lookahead ();
+		var elements = [], comma = {};
 
 		expect ('[');
 
@@ -45,8 +55,10 @@
 			} else {
 				elements.push (parseAssignmentExpression ());
 
-				if (elements.length === 1 && match ('..'))
-					return mark (parseArrayPerlInitializer (elements), token);
+				if (elements.length === 1 && match ('..')){
+					lex ();
+					return parseArrayPerlInitializer (elements);
+				}
 
 				if (!match (']'))
 					parseOptionalComma (comma);

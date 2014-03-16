@@ -1,3 +1,0 @@
-// ==Jsx==
-// @test value
-// ==/Jsx==

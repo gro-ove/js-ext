@@ -1,0 +1,40 @@
+function skipComments (){
+	var blockComment = false,
+		lineComment = false;
+
+	while (index < length){
+		var character = source [index];
+
+		if (character === ' ' || character === '\t' || character === '\u00A0'){
+			index ++;
+		} else if (character === '\n'){
+			index ++;
+			lineNumber ++;
+			if (lineComment)
+				lineComment = false;
+		} else if (lineComment){
+			index ++;
+		} else if (blockComment){
+			if (character === '*' && source [index + 1] === '/'){
+				index += 2;
+				blockComment = false;
+			} else
+				index ++;
+		} else if (character === '/'){
+			character = source [index + 1];
+
+			if (character === '/'){
+				index += 2;
+				lineComment = true;
+			} else if (character === '*'){
+				index += 2;
+				blockComment = true;
+			} else 
+				break;
+		} else 
+			break;
+	}
+
+	if (index === length && blockComment)
+		unexpected ();
+}

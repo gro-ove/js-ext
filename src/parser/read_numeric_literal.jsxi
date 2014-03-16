@@ -1,0 +1,48 @@
+function readNumericLiteral (){
+	var start = index;
+
+	if (source [index] === '0' && (source [index + 1] === 'x' || source [index + 1] === 'X')){
+		index += 2;
+
+		while (index < length && hexDigit (source [index]))
+			index ++;
+
+		if (index === start + 2)
+			unexpected ();
+	} else {
+		if (source [index] !== '.')
+			while (index < length && decimalDigit (source [index]))
+				index ++;
+
+		if (source [index] === '.' && source [index + 1] !== '.'){
+			index ++;
+
+			while (index < length && decimalDigit (source [index]))
+				index ++;
+		}
+
+		if (source [index] === 'e' || source [index] === 'E'){
+			index ++;
+
+			if (source [index] === '+' || source [index] === '-')
+				index ++;
+
+			if (!decimalDigit (source [index]))
+				unexpected ();
+
+			index ++;
+			while (index < length && decimalDigit (source [index]))
+				index ++;
+		}
+	}
+
+	if (index < length && identifierStart (source [index]))
+		unexpected ();
+
+	return {
+		type:           Token.NumericLiteral,
+		value:          source.substring (start, index),
+		lineNumber:     lineNumber,
+		range:          [ start, index ]
+	};
+}
