@@ -54,14 +54,13 @@ function parseClassParams (){
 }
 
 function parseExtendsImplementsAndUses (mode){
-	// Родительский класс недоступен для интерфейсов и статических классов. Рас-
-	// ширять интерфейсы, как и использовать «uses», умеют все, даже статические
-	// классы (но статические могут имплементить лишь статические).
+	// Родительский класс не для интерфейсов и статических классов. Имплементить интерфейсы и использовать «uses», умеют
+	// все, даже статические классы (но статические могут имплементить лишь статические).
 
 	function collect (list = []){
 		do 
 			list.push (parseIdentifier ());
-		while (index < length && match (',') && lex ());
+		while (index < length && matchLex (','));
 		return list;
 	}
 
@@ -99,11 +98,9 @@ function parseClassMembers (params, dependsOn, result = {}){
 		current;
 
 	function refresh ()
-		// Первый параметры можно переопределять, но остальные, если они уже
-		// выставлены у всего класса, изменить уже не выйдет.
+		// Параметр «publicMode» можно переопределить
 		current = { 
-			publicMode: 		null, 
-			abstract: 			params.abstract,
+			publicMode: 		null,
 			static: 			params.static
 		}
 
@@ -172,11 +169,8 @@ function parseClassMembers (params, dependsOn, result = {}){
 	expect ('{');
 	refresh ();
 
-	do {
+	loop: do {
 		token = lookahead ();
-
-		if (token.value === '}')
-			break;
 
 		switch (token.value){
 			case 'private':
@@ -218,6 +212,9 @@ function parseClassMembers (params, dependsOn, result = {}){
 			case '{':
 				parseInitializerOrConstructor ();
 				break;
+
+			case '}':
+				break loop;
 
 			default:
 				if (token.type === Token.Identifier){

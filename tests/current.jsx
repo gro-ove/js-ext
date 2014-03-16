@@ -1,11 +1,33 @@
-partial class Menu {
+// abstract class A {
+// 	(){
+// 		console.log ('created');
+// 	}
+
+// 	method (){
+// 		console.log ('created');
+// 	}
+// }
+
+// class Ac extends A {
+
+// }
+
+class Parent {
 	(){
-		console.log ('created');
+		console.log ('Created: ' + method ());
+	}
+
+	method (){
+		return 'Ok.';
 	}
 }
 
-partial class Menu {
+class Child extends Parent {
 	method (){
-		console.log ('created');
+		return 'Fail.';
 	}
+}
+
+{
+	new Child ();
 }

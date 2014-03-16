@@ -38,8 +38,9 @@
 		V throw error if 'return' found in contructor
 		V not use functionexpression unnecessarily
 		V partial classes
+		V change abstract members to java-style
 		C if default fields initializations
-		- change abstract members to java-style
+		- abstract fields
 		- when possible, use "className.prototype = { methog: ... }"
 		- classes from other ".jsx" for 'extends' or 'implement' (instead of 'implemented' take data from others ".jsxo"; see "caching")
 		L interfaces

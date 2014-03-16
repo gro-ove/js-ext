@@ -398,7 +398,7 @@ if (list === undefined)
 list = [];
 do
 list.push (parseIdentifier ());
- while (index < length && match (",") && lex ());
+ while (index < length && matchLex (","));
 return list;
 }
 var token, result = {"parent":null,"implements":[],"uses":[]};
@@ -429,7 +429,7 @@ if (result === undefined)
 result = {};
 var oldInClass = state.inClass, token, current;
 function refresh (){
-current = {"publicMode":null,"abstract":params.abstract,"static":params.static};
+current = {"publicMode":null,"static":params.static};
 }
 function set (obj){
 var name = obj.id.name, has = result.hasOwnProperty (name), temp = has ? result [name] : null;
@@ -451,8 +451,8 @@ if (params.interface && ! current.static)
 throw new TypeError("Interface couldn't have object fields.");
 if (current.abstract)
 throw new TypeError("Field could't be abstract.");
-{ var _3iimg29_55 = parseVariableDeclarators (); for (var _2hu03gk_56 = 0; _2hu03gk_56 < _3iimg29_55.length; _2hu03gk_56 ++){
-var entry = _3iimg29_55[_2hu03gk_56];
+{ var _8tbmchv_67 = parseVariableDeclarators (); for (var _61vbpif_68 = 0; _61vbpif_68 < _8tbmchv_67.length; _61vbpif_68 ++){
+var entry = _8tbmchv_67[_61vbpif_68];
 set (entry);
 }}
 refresh ();
@@ -483,11 +483,9 @@ state.noReturn = false;
 state.inClass = true;
 expect ("{");
 refresh ();
-do
+loop:do
 {
 token = lookahead ();
-if (token.value === "}")
-break;
 switch (token.value){
 case "private":
 if (current.abstract)
@@ -522,6 +520,8 @@ case "(":
 case "{":
 parseInitializerOrConstructor ();
 break;
+case "}":
+break loop;
 default:if (token.type === Token.Identifier)
 {
 var saved = saveAll (), method;
@@ -609,8 +609,8 @@ throw new TypeError("Different \"extends\" param", id);
 else
 if (JSON.stringify (dependsOn.implements) !== JSON.stringify (previous.dependsOn.implements))
 throw new TypeError("Different \"implements\" param", id);
-{ var _1c18tfe_57 = dependsOn.uses; for (var _435b6uj_58 = 0; _435b6uj_58 < _1c18tfe_57.length; _435b6uj_58 ++){
-var temp = _1c18tfe_57[_435b6uj_58];
+{ var _192rrho_69 = dependsOn.uses; for (var _2s762cp_70 = 0; _2s762cp_70 < _192rrho_69.length; _2s762cp_70 ++){
+var temp = _192rrho_69[_2s762cp_70];
 if (previous.dependsOn.uses.indexOf (temp) === - 1)
 previous.dependsOn.uses.push (temp);
 }}
