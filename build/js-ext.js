@@ -2176,8 +2176,8 @@ return true;
 else
 if (obj && obj.body && obj.body.body)
 {
-{ var _4nu52a3_56 = obj.body.body; for (var _5f0m21n_57 = 0; _5f0m21n_57 < _4nu52a3_56.length; _5f0m21n_57 ++){
-var child = _4nu52a3_56[_5f0m21n_57];
+{ var _75d04u7_44 = obj.body.body; for (var _ngo4da_45 = 0; _ngo4da_45 < _75d04u7_44.length; _ngo4da_45 ++){
+var child = _75d04u7_44[_ngo4da_45];
 if (searchSuperExpression (child))
 return true;
 }}
@@ -2202,8 +2202,8 @@ var parent = byName (current.dependsOn.parent.name);
 if (! parent)
 throw new TypeError("Parent class not found", current.dependsOn.parent);
 connectClass (parent, current);
-{ var _72ersna_58 = parent.members; for (var id in _72ersna_58){
-var member = _72ersna_58[id];
+{ var _7fgarhk_46 = parent.members; for (var id in _7fgarhk_46){
+var member = _7fgarhk_46[id];
 if (! current.members.hasOwnProperty (id))
 current.members [id] = $.extend (true, {}, member, {"publicMode":member.publicMode === "private" ? "locked" : member.publicMode});
 }}
@@ -2213,23 +2213,21 @@ if (parentConstructor.body.body.length > 0 && ! searchSuperExpression (construct
 if (constructor.autocreated || parentConstructor.params.length === 0)
 {
 var updated = [];
-{ var _2kk9tqf_59 = constructor.body.body; for (var _1klbirs_60 = 0; _1klbirs_60 < _2kk9tqf_59.length; _1klbirs_60 ++){
-var statement = _2kk9tqf_59[_1klbirs_60];
+{ var _q65qll_47 = constructor.body.body; for (var _17vrf59_48 = 0; _17vrf59_48 < _q65qll_47.length; _17vrf59_48 ++){
+var statement = _q65qll_47[_17vrf59_48];
 if (statement.autocreated)
 updated.push (statement);
 else
 break;
 }}
-updated.push (expressionStatement (superExpression (null)));
-[].push.apply (updated, constructor.body.body.slice (updated.length));
-constructor.body.body = updated;
+constructor.body.body = updated.concat (expressionStatement (superExpression (null))).concat (constructor.body.body.slice (updated.length));
 }
 else
 throw new TypeError("Super constructor call is required", constructor);
 }
 }
-{ var _8kst8ab_61 = current.dependsOn.uses; for (var _4amsog3_62 = 0; _4amsog3_62 < _8kst8ab_61.length; _4amsog3_62 ++){
-var use = _8kst8ab_61[_4amsog3_62];
+{ var _62itnk4_49 = current.dependsOn.uses; for (var _35dtgf7_50 = 0; _35dtgf7_50 < _62itnk4_49.length; _35dtgf7_50 ++){
+var use = _62itnk4_49[_35dtgf7_50];
 var used = byName (use.name);
 if (! used)
 throw new TypeError("Used class \"" + use.name + "\" not found", use);
@@ -2237,8 +2235,8 @@ throw new TypeError("Used class \"" + use.name + "\" not found", use);
 current.connected = true;
 }
 function connectClasses (){
-for (var _2i80sgd_63 = 0; _2i80sgd_63 < classes.length; _2i80sgd_63 ++){
-var classEntry = classes[_2i80sgd_63];
+for (var _8etu1r_51 = 0; _8etu1r_51 < classes.length; _8etu1r_51 ++){
+var classEntry = classes[_8etu1r_51];
 connectClass (classEntry);
 }
 }
@@ -2479,8 +2477,8 @@ if (typeof obj === "object" && obj !== null)
 {
 if (obj instanceof Array)
 {
-for (var _4jn3v13_50 = 0; _4jn3v13_50 < obj.length; _4jn3v13_50 ++){
-var child = obj[_4jn3v13_50];
+for (var _8a8jhpj_44 = 0; _8a8jhpj_44 < obj.length; _8a8jhpj_44 ++){
+var child = obj[_8a8jhpj_44];
 lookForExclusions (child, target);
 }
 }
@@ -2662,7 +2660,7 @@ target = memberExpression (memberExpression (currentClass.id, "prototype"), meth
 }
 else
 {
-target = currentClass.id;
+target = currentClass.id.name;
 }
 if (obj.arguments === null)
 {
@@ -2679,8 +2677,8 @@ if (typeof obj === "object" && obj !== null)
 {
 if (obj instanceof Array)
 {
-for (var _74gngjc_51 = 0; _74gngjc_51 < obj.length; _74gngjc_51 ++){
-var child = obj[_74gngjc_51];
+for (var _87rgl4u_45 = 0; _87rgl4u_45 < obj.length; _87rgl4u_45 ++){
+var child = obj[_87rgl4u_45];
 process (child, obj, parent);
 }
 }
@@ -2720,15 +2718,15 @@ process (methodEntry);
 }
 function processClassMethods (classEntry){
 var replace, childMember;
-{ var _76ss5vj_52 = classEntry.members; for (var name in _76ss5vj_52){
-var member = _76ss5vj_52[name];
+{ var _37d32q5_46 = classEntry.members; for (var name in _37d32q5_46){
+var member = _37d32q5_46[name];
 if (member.method && ! member.abstract && member.className === classEntry.id)
 processClassMethod (classEntry, member);
 }}
 }
 function processClassesMethods (){
-for (var _8enlq5a_53 = 0; _8enlq5a_53 < classes.length; _8enlq5a_53 ++){
-var classEntry = classes[_8enlq5a_53];
+for (var _9renkn_47 = 0; _9renkn_47 < classes.length; _9renkn_47 ++){
+var classEntry = classes[_9renkn_47];
 processClassMethods (classEntry);
 }
 }

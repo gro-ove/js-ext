@@ -45,10 +45,9 @@ function connectClass (current, from){
 						break;
 				}
 
-				updated.push (expressionStatement (superExpression (null)) );
-				[].push.apply (updated, constructor.body.body.slice (updated.length));
-
-				constructor.body.body = updated;
+				constructor.body.body = updated
+					.concat (expressionStatement (superExpression (null)))
+					.concat (constructor.body.body.slice (updated.length));
 			} else
 				throw new TypeError ('Super constructor call is required', constructor);
 		}

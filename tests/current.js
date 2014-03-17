@@ -16,9 +16,10 @@ function A (){                           // current.jsx:1
 
 /* Definition of class "B" */
 
-function B (){                           // current.jsx:9
+function B (a){                          // current.jsx:9
 	this.__value = 10;
-	A.apply (this, arguments);           // current.jsx:1
+	A.apply (this, arguments);
+	this.__B_a = a;                      // current.jsx:13
 }
 
 __prototypeExtend (B, A);
@@ -26,5 +27,5 @@ __prototypeExtend (B, A);
 /* Global initializer */
 
 (function (){
-	new B ();                            // current.jsx:14
+	new B (20);                          // current.jsx:20
 }());

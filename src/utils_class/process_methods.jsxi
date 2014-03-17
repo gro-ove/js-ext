@@ -292,7 +292,7 @@ function processClassMethod (classEntry, methodEntry){
 			target = memberExpression (memberExpression (currentClass.id, 'prototype'), method.id.name);
 		} else {
 			// Иначе вызываем конструктор
-			target = currentClass.id;
+			target = currentClass.id.name;
 		}
 
 		// Если вызов без скобок, подставляем все аргументы
