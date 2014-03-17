@@ -4,8 +4,8 @@ var classes = [], helpers = new HelpersManager(), thatVariable = "__that";
 var OutputMode = {"Default":"Default","Static":"Static","InitializerOnly":"InitializerOnly","Empty":"Empty"};
 function filter (classEntry,filter){
 var result = [];
-{ var _fa8emf_76 = classEntry.members; for (var key in _fa8emf_76){
-var value = _fa8emf_76[key];
+{ var _4n10l2p_58 = classEntry.members; for (var key in _4n10l2p_58){
+var value = _4n10l2p_58[key];
 if (filter (value, key))
 result.push (value);
 }}
@@ -14,8 +14,8 @@ return result;
 function byName (name,path){
 console.assert (typeof name === "string" && typeof path === "string", "Wrong args");
 var length, min = - 1, result;
-for (var _87k9941_77 = 0; _87k9941_77 < classes.length; _87k9941_77 ++){
-var classEntry = classes[_87k9941_77];
+for (var _6o6l8nt_59 = 0; _6o6l8nt_59 < classes.length; _6o6l8nt_59 ++){
+var classEntry = classes[_6o6l8nt_59];
 length = classEntry.path.length;
 if (classEntry.id.name === name && path.substr (0, length) === classEntry.path && min < length)
 {
@@ -63,10 +63,42 @@ obj [key] = {"type":Syntax.EmptyStatement};
 }) (statements, {"root":statements,"path":""});
 return array;
 }
-function addClass (classEntry){
-if (byName (classEntry.id.name, classEntry.path))
-throw new TypeError("Class \"" + classEntry.id.name + "\" already declared", classEntry.id);
-classes.push (classEntry);
+function addClass (current){
+var previous = byName (current.id.name, current.path);
+function equals (a,b){
+for (var n in a)
+if (a [n] !== b [n])
+return false;
+for (var n in b)
+if (a [n] !== b [n])
+return false;
+return true;
+}
+if (previous)
+{
+if (! current.params.partial)
+throw new TypeError("Class \"" + current.id.name + "\" already declared", current.id);
+if (! equals (current.params, previous.params))
+throw new TypeError("Params of classes are different", id);
+if ((current.dependsOn.parent && current.dependsOn.parent.name) !== (previous.dependsOn.parent && previous.dependsOn.parent.name))
+throw new TypeError("Params \"extends\" of classes are different", id);
+if (current.dependsOn.implements.map (function (arg){
+return arg.name;
+}).join () !== previous.dependsOn.implements.map (function (arg){
+return arg.name;
+}).join ())
+throw new TypeError("Params \"implements\" of classes are different", id);
+{ var _jrnrh0_60 = current.dependsOn.uses; for (var _v7vfg7_61 = 0; _v7vfg7_61 < _jrnrh0_60.length; _v7vfg7_61 ++){
+var entry = _jrnrh0_60[_v7vfg7_61];
+if (previous.dependsOn.uses.filter (function (arg){
+return arg.name === entry.name;
+}).length === 0)
+previous.dependsOn.uses.push (entry);
+}}
+$.extend (previous.members, current.members);
+}
+else
+classes.push (current);
 }
 function preprocessClasses (){
 function preprocessClass (classEntry){
@@ -79,8 +111,8 @@ member.processed = false;
 return member;
 }
 classEntry.classObject = true;
-{ var _5fjsdlc_78 = classEntry.members; for (var name in _5fjsdlc_78){
-var value = _5fjsdlc_78[name];
+{ var _8t410up_62 = classEntry.members; for (var name in _8t410up_62){
+var value = _8t410up_62[name];
 value.className = classEntry.id;
 }}
 var constructor = classEntry.members ["@constructor"];
@@ -96,8 +128,8 @@ initializer = updateMember (functionExpression ("@initializer", [], blockStateme
 initializer.static = true;
 initializer.autocreated = true;
 }
-{ var _5ikjdpb_79 = classEntry.members; for (var name in _5ikjdpb_79){
-var member = _5ikjdpb_79[name];
+{ var _7pl8c51_63 = classEntry.members; for (var name in _7pl8c51_63){
+var member = _7pl8c51_63[name];
 updateMember (member);
 }}
 var fields = filter (classEntry, function (arg){
@@ -110,8 +142,8 @@ return $.extend (expressionStatement (assignmentExpression (memberExpression (th
 classEntry.childs = [];
 classEntry.probablyUseOther = 0;
 }
-for (var _6h4d4oi_80 = 0; _6h4d4oi_80 < classes.length; _6h4d4oi_80 ++){
-var classEntry = classes[_6h4d4oi_80];
+for (var _ph8tlt_64 = 0; _ph8tlt_64 < classes.length; _ph8tlt_64 ++){
+var classEntry = classes[_ph8tlt_64];
 preprocessClass (classEntry);
 }
 }
@@ -125,8 +157,8 @@ return true;
 else
 if (obj && obj.body && obj.body.body)
 {
-{ var _4rco7cb_81 = obj.body.body; for (var _vq1cgm_82 = 0; _vq1cgm_82 < _4rco7cb_81.length; _vq1cgm_82 ++){
-var child = _4rco7cb_81[_vq1cgm_82];
+{ var _35plk5u_65 = obj.body.body; for (var _298tqa5_66 = 0; _298tqa5_66 < _35plk5u_65.length; _298tqa5_66 ++){
+var child = _35plk5u_65[_298tqa5_66];
 if (searchSuperExpression (child))
 return true;
 }}
@@ -157,8 +189,8 @@ throw new TypeError("Parent class \"" + current.dependsOn.parent.name + "\" not 
 current.dependsOn.parent = parent;
 connectClass (parent, current);
 current.weight += parent.weight;
-{ var _51kj2mr_83 = parent.members; for (var id in _51kj2mr_83){
-var member = _51kj2mr_83[id];
+{ var _8qc5pqa_67 = parent.members; for (var id in _8qc5pqa_67){
+var member = _8qc5pqa_67[id];
 if (! current.members.hasOwnProperty (id))
 current.members [id] = $.extend (true, {}, member, {"publicMode":member.publicMode === "private" ? "locked" : member.publicMode});
 }}
@@ -167,8 +199,8 @@ if (parentConstructor.body.body.length > 0 && ! searchSuperExpression (construct
 {
 if (constructor.autocreated || parentConstructor.params.length === 0)
 {
-{ var _7493poe_84 = constructor.body.body; for (var autocreated = 0; autocreated < _7493poe_84.length; autocreated ++){
-var statement = _7493poe_84[autocreated];
+{ var _8sn3hp7_68 = constructor.body.body; for (var autocreated = 0; autocreated < _8sn3hp7_68.length; autocreated ++){
+var statement = _8sn3hp7_68[autocreated];
 if (! statement.autocreated)
 break;
 }}
@@ -178,8 +210,8 @@ else
 throw new TypeError("Super constructor call is required", constructor);
 }
 }
-{ var _28h1orm_85 = current.dependsOn.uses; for (var index = 0; index < _28h1orm_85.length; index ++){
-var usedName = _28h1orm_85[index];
+{ var _6u3o3mn_69 = current.dependsOn.uses; for (var index = 0; index < _6u3o3mn_69.length; index ++){
+var usedName = _6u3o3mn_69[index];
 var used = byName (usedName.name, current.path);
 if (! used)
 throw new TypeError("Used class \"" + usedName.name + "\" not found", usedName);
@@ -189,8 +221,8 @@ current.weight += used.weight;
 }}
 delete active [current.id.name];
 }
-for (var _1rcl8qt_86 = 0; _1rcl8qt_86 < classes.length; _1rcl8qt_86 ++){
-var current = classes[_1rcl8qt_86];
+for (var _3b7gpg4_70 = 0; _3b7gpg4_70 < classes.length; _3b7gpg4_70 ++){
+var current = classes[_3b7gpg4_70];
 connectClass (current);
 }
 }
@@ -226,8 +258,8 @@ return modes [maxId];
 function processClassMember (current,name,member){
 var publicMode = member.publicMode, members = [member], updated;
 function testChilds (current){
-{ var _7v2kavg_87 = current.childs; for (var _87ernau_88 = 0; _87ernau_88 < _7v2kavg_87.length; _87ernau_88 ++){
-var child = _7v2kavg_87[_87ernau_88];
+{ var _558v139_71 = current.childs; for (var _6cj84f4_72 = 0; _6cj84f4_72 < _558v139_71.length; _6cj84f4_72 ++){
+var child = _558v139_71[_6cj84f4_72];
 if (child.members.hasOwnProperty (name))
 {
 var childMember = child.members [name];
@@ -244,8 +276,8 @@ testChilds (child);
 if (publicMode === "protected" || publicMode === "public")
 testChilds (current);
 updated = rename (name, member, publicMode);
-for (var _3hp5jut_89 = 0; _3hp5jut_89 < members.length; _3hp5jut_89 ++){
-var targetMember = members[_3hp5jut_89];
+for (var _4rdhhl5_73 = 0; _4rdhhl5_73 < members.length; _4rdhhl5_73 ++){
+var targetMember = members[_4rdhhl5_73];
 targetMember.id.name = updated;
 targetMember.processed = true;
 }
@@ -253,14 +285,14 @@ targetMember.processed = true;
 function processClassMembers (current){
 if (current.dependsOn.parent)
 processClassMembers (current.dependsOn.parent);
-{ var _89bu1ag_90 = current.members; for (var name in _89bu1ag_90){
-var member = _89bu1ag_90[name];
+{ var _g5ik42_74 = current.members; for (var name in _g5ik42_74){
+var member = _g5ik42_74[name];
 if (name [0] !== "@" && ! member.processed)
 processClassMember (current, name, member);
 }}
 }
-for (var _32p8jcf_91 = 0; _32p8jcf_91 < classes.length; _32p8jcf_91 ++){
-var current = classes[_32p8jcf_91];
+for (var _66qo1v1_75 = 0; _66qo1v1_75 < classes.length; _66qo1v1_75 ++){
+var current = classes[_66qo1v1_75];
 processClassMembers (current);
 }
 }
@@ -281,8 +313,8 @@ if (typeof obj === "object" && obj !== null)
 {
 if (obj instanceof Array)
 {
-for (var _88sghpr_92 = 0; _88sghpr_92 < obj.length; _88sghpr_92 ++){
-var child = obj[_88sghpr_92];
+for (var _2avi5mv_76 = 0; _2avi5mv_76 < obj.length; _2avi5mv_76 ++){
+var child = obj[_2avi5mv_76];
 lookForExclusions (child, target);
 }
 }
@@ -482,8 +514,8 @@ if (typeof obj === "object" && obj !== null)
 {
 if (obj instanceof Array)
 {
-for (var _734baio_93 = 0; _734baio_93 < obj.length; _734baio_93 ++){
-var child = obj[_734baio_93];
+for (var _1moc41v_77 = 0; _1moc41v_77 < obj.length; _1moc41v_77 ++){
+var child = obj[_1moc41v_77];
 process (child, obj, parent);
 }
 }
@@ -523,14 +555,14 @@ process (methodEntry);
 }
 function processClassMethods (classEntry){
 var replace, childMember;
-{ var _5subcuj_94 = classEntry.members; for (var name in _5subcuj_94){
-var member = _5subcuj_94[name];
+{ var _6dv8uig_78 = classEntry.members; for (var name in _6dv8uig_78){
+var member = _6dv8uig_78[name];
 if (member.method && ! member.abstract && member.className === classEntry.id)
 processClassMethod (classEntry, member);
 }}
 }
-for (var _8nc62m6_95 = 0; _8nc62m6_95 < classes.length; _8nc62m6_95 ++){
-var classEntry = classes[_8nc62m6_95];
+for (var _91gmcdo_79 = 0; _91gmcdo_79 < classes.length; _91gmcdo_79 ++){
+var classEntry = classes[_91gmcdo_79];
 processClassMethods (classEntry);
 }
 }
@@ -586,24 +618,24 @@ if (mode === OutputMode.Default)
 result = [anonymousFunction ? oneVariableDeclaration (classEntry.id, constructor) : functionDeclaration (classEntry.id, constructor.params, constructor.body)];
 if (classEntry.dependsOn.parent)
 result.push (expressionStatement (callExpression ("__prototypeExtend", [classEntry.id.name,classEntry.dependsOn.parent.id.name])));
-for (var _2hcn3mj_96 = 0; _2hcn3mj_96 < objectFields.length; _2hcn3mj_96 ++){
-var field = objectFields[_2hcn3mj_96];
+for (var _3rjbugs_80 = 0; _3rjbugs_80 < objectFields.length; _3rjbugs_80 ++){
+var field = objectFields[_3rjbugs_80];
 
 }
-for (var _7r7p90k_97 = 0; _7r7p90k_97 < objectMethods.length; _7r7p90k_97 ++){
-var method = objectMethods[_7r7p90k_97];
+for (var _28nnruo_81 = 0; _28nnruo_81 < objectMethods.length; _28nnruo_81 ++){
+var method = objectMethods[_28nnruo_81];
 if (! method.abstract)
 result.push (assignmentStatement (memberExpression (memberExpression (classEntry.id.name, "prototype"), method.id), functionExpression (null, method.params, method.body)));
 }
-for (var _98ln3bn_98 = 0; _98ln3bn_98 < staticFields.length; _98ln3bn_98 ++){
-var field = staticFields[_98ln3bn_98];
+for (var _5q2fgo2_82 = 0; _5q2fgo2_82 < staticFields.length; _5q2fgo2_82 ++){
+var field = staticFields[_5q2fgo2_82];
 if (field.publicMode === "private")
 result [0].declarations.push (field);
 else
 result.push (assignmentStatement (memberExpression (classEntry.id.name, field.id), field.init || "undefined"));
 }
-for (var _3lsj69b_99 = 0; _3lsj69b_99 < staticMethods.length; _3lsj69b_99 ++){
-var method = staticMethods[_3lsj69b_99];
+for (var _98cqr3n_83 = 0; _98cqr3n_83 < staticMethods.length; _98cqr3n_83 ++){
+var method = staticMethods[_98cqr3n_83];
 if (method.publicMode === "private")
 result.push (method);
 else
@@ -614,15 +646,15 @@ else
 {
 var properties = [];
 result = [oneVariableDeclaration (classEntry.id, objectExpression (properties))];
-for (var _5rlve0f_100 = 0; _5rlve0f_100 < staticFields.length; _5rlve0f_100 ++){
-var field = staticFields[_5rlve0f_100];
+for (var _7praqv1_84 = 0; _7praqv1_84 < staticFields.length; _7praqv1_84 ++){
+var field = staticFields[_7praqv1_84];
 if (field.publicMode === "private")
 result [0].declarations.push (field);
 else
 properties.push (property (field.id, field.init || "undefined"));
 }
-for (var _qgcp0f_101 = 0; _qgcp0f_101 < staticMethods.length; _qgcp0f_101 ++){
-var method = staticMethods[_qgcp0f_101];
+for (var _8579f7h_85 = 0; _8579f7h_85 < staticMethods.length; _8579f7h_85 ++){
+var method = staticMethods[_8579f7h_85];
 if (method.publicMode === "private")
 result.push (method);
 else
@@ -638,21 +670,21 @@ return [oneVariableDeclaration (classEntry.id, callFunctionExpression (result))]
 }
 return result;
 }
-for (var _7i4s4io_102 = 0; _7i4s4io_102 < classes.length; _7i4s4io_102 ++){
-var classEntry = classes[_7i4s4io_102];
+for (var _7l7ssdj_86 = 0; _7l7ssdj_86 < classes.length; _7l7ssdj_86 ++){
+var classEntry = classes[_7l7ssdj_86];
 classEntry.statements = processClass (classEntry);
 }
 }
 function sortAndInsertClasses (){
-{ var _5ikce8b_103 = classes.sort (function (a,b){
+{ var _2c66eg3_87 = classes.sort (function (a,b){
 return b.weight - a.weight;
-}); for (var _42vlutn_104 = 0; _42vlutn_104 < _5ikce8b_103.length; _42vlutn_104 ++){
-var current = _5ikce8b_103[_42vlutn_104];
+}); for (var _12dg4tf_88 = 0; _12dg4tf_88 < _2c66eg3_87.length; _12dg4tf_88 ++){
+var current = _2c66eg3_87[_12dg4tf_88];
 current.root.unshift ({"type":Syntax.ClassDeclaration,"name":current.id.name,"statements":current.statements});
 }}
 }
-{ var _1ffq38k_105 = collectRawClasses (statements); for (var _5ps5at_106 = 0; _5ps5at_106 < _1ffq38k_105.length; _5ps5at_106 ++){
-var found = _1ffq38k_105[_5ps5at_106];
+{ var _5dmo0k1_89 = collectRawClasses (statements); for (var _74hq902_90 = 0; _74hq902_90 < _5dmo0k1_89.length; _74hq902_90 ++){
+var found = _5dmo0k1_89[_74hq902_90];
 addClass (found);
 }}
 if (classes.length > 0)

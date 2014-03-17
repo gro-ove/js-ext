@@ -30,16 +30,9 @@ A.prototype.__fn = function (){                                 // current.jsx:2
 	return 'Hello from "A".';                                   // current.jsx:22
 };
 
-/* Class "C2" declaration */
-function C2 (){                                                 // current.jsx:71
-	this.__value = '<ccc>';                                     // current.jsx:72
-	A.apply (this, arguments);
-}
-__prototypeExtend (C2, A);
-
 /* Class "C" declaration */
 function C (){                                                  // current.jsx:65
-	this.__value = '<ccc>';                                     // current.jsx:68
+	this.__value = '<partial>';                                 // current.jsx:71
 	A.apply (this, arguments);
 }
 __prototypeExtend (C, A);
@@ -92,11 +85,11 @@ if (1){}
 
 if (0);
 
-console.log ('[C]',                                             // current.jsx:75
+console.log ('[C]',                                             // current.jsx:74
 	new C ().method ({                                          // ...
 		key: 'value',                                           // ...
-		0: '0',                                                 // current.jsx:77
-		null: 'null',                                           // current.jsx:78
-		true: 'true',                                           // current.jsx:79
+		0: '0',                                                 // current.jsx:76
+		null: 'null',                                           // current.jsx:77
+		true: 'true',                                           // current.jsx:78
 		'string': 'string'
 	}));

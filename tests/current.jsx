@@ -65,11 +65,10 @@ if (0)
 partial public class C extends A {
 	method ()
 		'Sub';
-	protected value = '<ccc>';
 }
 
-partial public class C2 extends A {
-	protected value = '<ccc>';
+partial public class C extends A {
+	protected value = '<partial>';
 }
 
 console.log ('[C]', new C ().method ({

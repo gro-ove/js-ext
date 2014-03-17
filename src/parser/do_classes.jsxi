@@ -68,11 +68,39 @@ function doClasses (statements, callback){
 		return array;
 	}
 
-	function addClass (classEntry){
-		if (byName (classEntry.id.name, classEntry.path))
-			throw new TypeError ('Class "' + classEntry.id.name + '" already declared', classEntry.id);
+	function addClass (current){
+		var previous = byName (current.id.name, current.path);
 
-		classes.push (classEntry);
+		function equals (a, b){
+			for (var n in a)
+				if (a [n] !== b [n])
+					return false;
+			for (var n in b)
+				if (a [n] !== b [n])
+					return false;
+			return true;
+		}
+
+		if (previous){
+			if (!current.params.partial)
+				throw new TypeError ('Class "' + current.id.name + '" already declared', current.id);
+			
+			if (!equals (current.params, previous.params))
+				throw new TypeError ('Params of classes are different', id);
+
+			if ((current.dependsOn.parent && current.dependsOn.parent.name) !== (previous.dependsOn.parent && previous.dependsOn.parent.name))
+				throw new TypeError ('Params "extends" of classes are different', id);
+
+			if (current.dependsOn.implements.map (lambda arg.name).join () !== previous.dependsOn.implements.map (lambda arg.name).join ())
+				throw new TypeError ('Params "implements" of classes are different', id);
+
+			for (var entry in-array current.dependsOn.uses)
+				if (previous.dependsOn.uses.filter (lambda arg.name === entry.name).length === 0)
+					previous.dependsOn.uses.push (entry);
+
+			$.extend (previous.members, current.members);
+		} else
+			classes.push (current);
 	}
 
 	function preprocessClasses (){
