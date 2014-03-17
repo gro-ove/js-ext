@@ -110,7 +110,7 @@ function parseClassMembers (params, dependsOn, result = {}){
 	function parseField (){
 		if (params.interface && !current.static)
 			throw new TypeError ('Interface cannot have object fields');
-		
+
 		if (current.abstract && (current.publicMode || params.publicMode) === 'private')
 			throw new TypeError ('Abstract member cannot be private');
 
@@ -307,13 +307,18 @@ function parseClassDeclaration (){
 	// verbose (id, params, dependsOn, members);
 
 	// Записываем новый класс
-	if (!previous)
+	if (!previous){
+		var placeholder = expressionStatement (stringLiteralWithQuotes ('class "' + id.name + '"'));
+
 		state.classes.push ({
 			id: 			id,
 			params: 		params,
 			dependsOn: 		dependsOn,
-			members: 		members
+			members: 		members,
+			placeholder: 	placeholder
 		});
 
-	return null;
+		return placeholder;
+	} else
+		return expressionStatement (stringLiteralWithQuotes ('not implemented'));
 }

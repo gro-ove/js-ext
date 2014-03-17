@@ -88,7 +88,6 @@
 		V anonynous macros
 		V macros definion in macros
 		F remove "{ ... }" from macros bodies after parsing
-		- fix macro parsing errors (filename, linenumber, etc.)
 		- macros order
 		- instruction for get how many characters are argument
 			/*
@@ -100,6 +99,7 @@
 
 				// and the whole file will be used as argument for macro
 			*/
+		L fix macro parsing errors (filename, linenumber, etc.)
 		? parsing with awesome parser
 
 	* parser and generator
@@ -187,8 +187,8 @@
 		? move functions to the begin of their block
 
 	* other
+		V replace names of helpers by nice and long ones
 		- getters and setters for objects
-		- replace names of helpers by nice and long ones
 		- params:
 			- target
 			- debug mode

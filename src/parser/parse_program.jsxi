@@ -2,16 +2,6 @@ function parseProgramElement (){
 	var token = lookahead (), temp, result;
 
 	switch (token.value){
-		case 'public':
-		case 'protected':
-		case 'private':
-		case 'static':
-		case 'abstract':
-		case 'class':
-		case 'interface':
-		case 'partial':
-			return parseClassDeclaration ();
-
 		case '(':
 		case '{':
 			if (options.initializationAllowed){
@@ -38,10 +28,8 @@ function parseProgram (){
 		initializations = [],
 		temp;
 
-	while (index < length) {
+	while (index < length){
 		temp = parseProgramElement ();
-		if (temp === null)
-			continue;
 		if (temp === undefined) 
 			break;
 		sourceElements.push (temp);

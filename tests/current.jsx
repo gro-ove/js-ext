@@ -11,11 +11,18 @@ class B extends A {
 
 	(a){
 		this.a = a;
+		console.log ('[B]', this.a);
 	}
 
 	protected value = 10;
 }
 
 {
-	new B (20);
+	class C extends B {
+		(a){
+			super (a * 10);
+		}
+	}
+
+	new C (20);
 }

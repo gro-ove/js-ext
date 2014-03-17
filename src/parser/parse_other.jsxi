@@ -20,7 +20,13 @@ function parseComputedMember (){
 
 function parseNewExpression (){
 	expectKeyword ('new');
-	return newExpression (parseLeftHandSideExpression (), match ('(') ? parseArguments () : []);
+	var result = newExpression (parseLeftHandSideExpression (), match ('(') ? parseArguments () : []);
+
+	// if (match ('{'))
+	// 	return parseAnonymousClass ();
+	// 	console.log (parseBlock ());
+
+	return result;
 }
 
 function parseLeftHandSideExpressionTemp ()

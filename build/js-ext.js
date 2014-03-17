@@ -447,8 +447,8 @@ if (params.interface && ! current.static)
 throw new TypeError("Interface cannot have object fields");
 if (current.abstract && (current.publicMode || params.publicMode) === "private")
 throw new TypeError("Abstract member cannot be private");
-{ var _95i5oqp_25 = parseVariableDeclarators (); for (var _1dcj7f3_26 = 0; _1dcj7f3_26 < _95i5oqp_25.length; _1dcj7f3_26 ++){
-var entry = _95i5oqp_25[_1dcj7f3_26];
+{ var _38qvdov_50 = parseVariableDeclarators (); for (var _3ka82fg_51 = 0; _3ka82fg_51 < _38qvdov_50.length; _3ka82fg_51 ++){
+var entry = _38qvdov_50[_3ka82fg_51];
 set (entry);
 }}
 refresh ();
@@ -601,16 +601,20 @@ throw new TypeError("Different \"extends\" param", id);
 else
 if (JSON.stringify (dependsOn.implements) !== JSON.stringify (previous.dependsOn.implements))
 throw new TypeError("Different \"implements\" param", id);
-{ var _1bessj0_27 = dependsOn.uses; for (var _36evbd6_28 = 0; _36evbd6_28 < _1bessj0_27.length; _36evbd6_28 ++){
-var temp = _1bessj0_27[_36evbd6_28];
+{ var _4akjm8r_52 = dependsOn.uses; for (var _6qqirta_53 = 0; _6qqirta_53 < _4akjm8r_52.length; _6qqirta_53 ++){
+var temp = _4akjm8r_52[_6qqirta_53];
 if (previous.dependsOn.uses.indexOf (temp) === - 1)
 previous.dependsOn.uses.push (temp);
 }}
 }
 var members = parseClassMembers (params, dependsOn, previous ? previous.members : {});
 if (! previous)
+{
 state.classes.push ({"id":id,"params":params,"dependsOn":dependsOn,"members":members});
-return null;
+return expressionStatement (stringLiteralWithQuotes ("class \"" + id.name + "\""));
+}
+else
+return expressionStatement (stringLiteralWithQuotes ("partial class \"" + id.name + "\""));
 }
 
 function parseFunction (options){
@@ -1016,7 +1020,8 @@ return temp;
 }
 function parseNewExpression (){
 expectKeyword ("new");
-return newExpression (parseLeftHandSideExpression (), match ("(") ? parseArguments () : []);
+var result = newExpression (parseLeftHandSideExpression (), match ("(") ? parseArguments () : []);
+return result;
 }
 function parseLeftHandSideExpressionTemp (){
 return matchKeyword ("new") ? parseNewExpression () : matchKeyword ("super") ? parseSuperExpression () : parsePrimaryExpression ();
@@ -1347,22 +1352,6 @@ default:unexpected (token);
 function parseProgramElement (){
 var token = lookahead (), temp, result;
 switch (token.value){
-case "public":
-
-case "protected":
-
-case "private":
-
-case "static":
-
-case "abstract":
-
-case "class":
-
-case "interface":
-
-case "partial":
-return parseClassDeclaration ();
 case "(":
 
 case "{":
@@ -1388,8 +1377,6 @@ var sourceElements = [], initializations = [], temp;
 while (index < length)
 {
 temp = parseProgramElement ();
-if (temp === null)
-continue;
 if (temp === undefined)
 break;
 sourceElements.push (temp);
@@ -1433,6 +1420,22 @@ return {"type":Syntax.NotImplementedStatement,"lineNumber":lineNumber,"filename"
 }
 if (token.type === Token.Keyword)
 switch (token.value){
+case "public":
+
+case "protected":
+
+case "private":
+
+case "static":
+
+case "abstract":
+
+case "class":
+
+case "interface":
+
+case "partial":
+return parseClassDeclaration ();
 case "function":
 return parseFunctionDeclaration ();
 case "if":
