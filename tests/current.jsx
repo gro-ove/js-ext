@@ -25,11 +25,15 @@ class A uses L {
 	class C extends B {
 		(a){
 			super (a * 10);
-			console.log ('[C]', a + '.', value + '.', fn (), tmp (), new D ());
+			console.log ('[C]', a + '.', value + '.', fn (), tmp (), '' + new D ());
 
 			class D {
 				(){
 					console.log ('[D]');
+				}
+
+				public toString (){
+					return '[D] as string.'
 				}
 			}
 		}
@@ -41,6 +45,13 @@ class A uses L {
 	new C (20);
 })();
 
+if (1){
+	public static class Sub {
+		method ()
+			'Sub';
+	}
+}
+
 if (0)
 	static class L {
 		public var temp = 'static variable';
@@ -49,13 +60,6 @@ if (0)
 			console.log ('[L]', Sub.method ());
 		}
 	}
-
-if (1){
-	public static class Sub {
-		method ()
-			'Sub';
-	}
-}
 
 public class C extends A {
 	method ()

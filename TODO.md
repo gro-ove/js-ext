@@ -195,6 +195,8 @@
 			- target
 			- debug mode
 			- disable warnings
+		L saving order for import
+		L fullpath for param 'import'
 		L regular code to asynchronous
 			V write theoretical examples
 				/*

@@ -70,14 +70,14 @@ function processClassMethod (classEntry, methodEntry){
 
 		// Если кто-то попросил ссылку на «this», а мы — главная функция, добавим её.
 		if (usingThat && methodEntry === obj){
-			var temp = [ variableDeclarator (thatVariable, thisExpression ()) ];
+			var temp = variableDeclarator (thatVariable, thisExpression ());
 
 			if (obj.body.body [0] && obj.body.body [0].type === Syntax.VariableDeclaration)
 				// Если первым идёт список переменных, кидаем в начало списка
-				obj.body.body [0].declarations = temp.concat (obj.body.body [0].declarations);
+				obj.body.body [0].declarations.unshift (temp);
 			else
 				// Иначе — в начало функции
-				obj.body.body = [ variableDeclaration (temp) ].concat (obj.body.body);
+				obj.body.body.unshift (variableDeclaration ([ temp ]));
 		}
 
 		// Возвращаем старые значения
@@ -150,7 +150,7 @@ function processClassMethod (classEntry, methodEntry){
 			} else if (byName (obj.name, classEntry.path)){
 				// Если внезапно нашли имя другого класса, отмечаем, что, вероятно, обрабатываемый класс использует этот
 				// другой класс и имело бы смысл по возможности поместить его ниже.
-				classEntry.probablyUseOther ++;
+				classEntry.weight += 0.0001;
 			}
 
 			// Меняем объект, если что-то нашлось
@@ -223,14 +223,14 @@ function processClassMethod (classEntry, methodEntry){
 
 						if (parent.type === Syntax.CallExpression && obj === parent.callee){
 							parent.callee = memberExpression (parent.callee, 'call');
-							parent.arguments = [ identifier ('__') ].concat (parent.arguments);
+							parent.arguments.unshift (identifier ('__'));
 						}
 
 						temp = true;
 					}
 
 					if (temp && !currentFunction.hasTempVariable){
-						currentFunction.body.body = [ variableDeclaration ([ variableDeclarator ('__') ]) ].concat (currentFunction.body.body);
+						currentFunction.body.body.unshift (oneVariableDeclaration ('__'));
 						currentFunction.hasTempVariable = true;
 					}
 
@@ -290,15 +290,12 @@ function processClassMethod (classEntry, methodEntry){
 		// Если вызов без скобок, подставляем все аргументы
 		if (obj.arguments === null){
 			obj.callee = memberExpression (target, 'apply');
-			obj.arguments = identifier ('arguments');
+			obj.arguments = [ identifier ('arguments') ];
 		} else 
 			obj.callee = memberExpression (target, 'call');
 
-		// Получаем ссылку на «this»
-		var that = getThis ();
-
 		// Не забываем добавить «this» в аргументы
-		obj.arguments = [ that ].concat (obj.arguments);
+		obj.arguments.unshift (getThis ());
 	}
 
 	function process (obj, parent, preparent){

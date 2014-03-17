@@ -32,12 +32,11 @@ function addClass (classEntry){
 	var fields = filter (classEntry.members, lambda !arg.method && !arg.static && arg.init);
 
 	// Собираем присваивания для инициализации
-	var initialization = fields.map (lambda $.extend (
-			expressionStatement (assignmentExpression (memberExpression (thisExpression (), arg.id.name), arg.init || 'undefined')),
-			{ comment: arg.id.name, autocreated: true }));
+	var initialization = fields.map (lambda 
+		$.extend (expressionStatement (assignmentExpression (memberExpression (thisExpression (), arg.id.name), arg.init || 'undefined')), { autocreated: true }));
 
 	// Запихиваем присваивания в начало конструктора
-	constructor.body.body = initialization.concat (constructor.body.body);
+	[].unshift.apply (constructor.body.body, initialization);
 
 	// Всякие мелочи
 	classEntry.childs = [];

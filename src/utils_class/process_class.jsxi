@@ -55,13 +55,12 @@ function processClass (classEntry){
 
 	// Исключение в конструктор для абстрактных классов
 	if (classEntry.params.abstract)
-		constructor.body.body = [ 
+		constructor.body.body.unshift (
 			ifStatement (
 				binaryExpression (memberExpression (thisExpression (), identifier ('constructor')), '===', classEntry.id.name),
 				throwStatement (newExpression ('Error', [ 
 					stringLiteralWithQuotes ('Trying to instantiate abstract class ' + classEntry.id.name) 
-				])))
-		].concat (constructor.body.body);
+				]))));
 
 	// Режим сборки
 	var mode = classMode ();

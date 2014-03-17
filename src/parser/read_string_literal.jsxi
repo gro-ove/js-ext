@@ -34,7 +34,7 @@ function readMultilineString (){
 		spaces = result.match (/\n([\t ]*)/g);
 
 	if (spaces){
-		// TODO: Cache for regular expressions?
+		// TODO: Cache regular expressions?
 
 		spaces = spaces
 			.concat (source.substring (source.lastIndexOf ('\n', start), start + 1).replace (/[^\n\t ]/g, ' '))

@@ -122,7 +122,7 @@ function parseComplexString (token){
 		});
 
 	if (splitted [0].type !== Syntax.StringLiteral && (splitted.length === 1 || splitted [1].type !== Syntax.StringLiteral))
-		splitted = [ stringLiteral ('\'\'') ].concat (splitted);
+		splitted.unshift (stringLiteral ('\'\''));
 
 	result = splitted [0];
 

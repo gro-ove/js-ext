@@ -99,7 +99,7 @@ function parseForStatement (){
 					memberExpression (right, identifierMode ? left.declarations [0].id : left.expressions [0], true))) ]);
 
 		if (temp.type === Syntax.BlockStatement)
-			body.body = body.body.concat (temp.body);
+			[].push.apply (body.body, temp.body);
 		else
 			body.body.push (temp);
 
@@ -113,7 +113,7 @@ function parseForStatement (){
 		body.body [0].declarations [0].init = memberExpression (right, left.declarations [0].id, true);
 
 		if (temp.type === Syntax.BlockStatement)
-			body.body = body.body.concat (temp.body);
+			[].push.apply (body.body, temp.body);
 		else
 			body.body.push (temp);
 

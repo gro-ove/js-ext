@@ -1,7 +1,5 @@
 var classes, 
-	probablyUseOtherMaxValue, 
-	thatVariable,
-	tempId = 0;
+	thatVariable;
 
 // Получить ближайший класс по имени и пути
 function byName (name, path){
@@ -21,71 +19,47 @@ function byName (name, path){
 	return result;
 }
 
-// function moveClasses (statements){
-// 	var classes = [];
+function collectRawClasses (statements){
+	var array = [], rootId = 0;
 
-// 	function collectClasses (obj)
-// 		if (obj instanceof Array){
-// 			for (var index, child in-array obj)
-// 				if (child.type === Syntax.ClassDeclaration){
-// 					classes.push (child);
-// 					obj [index] = null;
-// 				} else
-// 					collectClasses (child);
+	(function fromObj (obj, location){
+		if (obj instanceof Array){
+			set (obj, obj.filter (lambda (child){
+				fromObj (child, location);
 
-// 			set (obj, obj.filter (lambda arg));
-// 		} else if (obj && typeof obj === 'object' && obj.type !== Syntax.FunctionDeclaration && obj.type !== Syntax.FunctionExpression){
-// 			for (var key, child in obj)
-// 				if (child && child.type === Syntax.ClassDeclaration){
-// 					classes.push (child);
-// 					obj [key] = { type: Syntax.EmptyStatement };
-// 				} else
-// 					collectClasses (child);
-// 		}
-
-// 	collectClasses (statements);
-// 	set (statements, classes.sort (lambda (a, b) byName (a.name).weight - byName (b.name).weight).concat (statements));
-// }
-
-function collectRawClasses (obj, location = { root: obj, path: '' }, array = []){
-	if (obj instanceof Array){
-		set (obj, obj.filter (lambda (child){
-			collectRawClasses (child, location, array);
-
-			if (child.type === Syntax.RawClassDeclaration){
-				array.push ($.extend (child, location));
-				return false;
-			} else
-				return true;
-		}));
-	} else if (obj && typeof obj === 'object'){
-		if (obj.type === Syntax.FunctionDeclaration || obj.type === Syntax.FunctionExpression){
-			if (obj.body)
-				collectRawClasses (obj.body.body, { root: obj.body.body, path: location.path + '/' + ++ tempId }, array);
-		} else
-			for (var key, child in obj){
-				collectRawClasses (child, location, array);
-
-				if (child && child.type === Syntax.RawClassDeclaration){
+				if (child.type === Syntax.RawClassDeclaration){
 					array.push ($.extend (child, location));
-					obj [key] = { type: Syntax.EmptyStatement };
+					return false;
+				} else
+					return true;
+			}));
+		} else if (obj && typeof obj === 'object'){
+			if (obj.type === Syntax.FunctionDeclaration || obj.type === Syntax.FunctionExpression){
+				if (obj.body)
+					fromObj (obj.body.body, { root: obj.body.body, path: location.path + '/' + ++ rootId });
+			} else
+				for (var key, child in obj){
+					fromObj (child, location);
+
+					if (child && child.type === Syntax.RawClassDeclaration){
+						array.push ($.extend (child, location));
+						obj [key] = { type: Syntax.EmptyStatement };
+					}
 				}
-			}
-	}
+		}
+	})(statements, { root: statements, path: '' });
 
 	return array;
 }
 
-function sortAndInsertClasses (){
+function sortAndInsertClasses ()
 	for (var current in-array classes.sort (lambda (a, b) b.weight - a.weight)){
-		console.log (current.statements);
 		current.root.unshift ({
 			type: 			Syntax.ClassDeclaration,
 			name: 			current.id.name,
 			statements: 	current.statements
 		});
 	}
-}
 
 // Обрабатываем все классы
 function doClasses (statements, callback){
@@ -105,16 +79,10 @@ function doClasses (statements, callback){
 		processClasses ();
 		sortAndInsertClasses ();
 
-		console.log (classes.map (lambda arg.id.name + ':' + arg.weight + (arg.childs.length ? ' (' + arg.childs.map (lambda arg.id.name).join (', ') + ')' : '')).join ('; '));
-
-		// connectClasses ();
-		// sortClasses ();
-		// processClassesMembers ();
-		// processClassesMethods ();
-		// processClasses ();
-		// sortClasses ();
-
-		// moveClasses (statements);
+		console.info (classes
+			.sort (lambda (a, b) a.weight - b.weight)
+			.map (lambda arg.id.name + ':' + arg.weight + (arg.childs.length ? ' (' + arg.childs.map (lambda arg.id.name).join (', ') + ')' : ''))
+			.join ('; '));
 
 		callback (helpers.helpers);
 	} else

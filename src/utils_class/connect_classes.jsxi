@@ -49,18 +49,12 @@ function connectClasses (){
 
 			if (parentConstructor.body.body.length > 0 && !searchSuperExpression (constructor)){
 				if (constructor.autocreated || parentConstructor.params.length === 0){
-					var updated = [];
-
-					for (var statement in-array constructor.body.body){
-						if (statement.autocreated)
-							updated.push (statement);
-						else
+					for (var autocreated, statement in-array constructor.body.body){
+						if (!statement.autocreated)
 							break;
 					}
 
-					constructor.body.body = updated
-						.concat (expressionStatement (superExpression (null)))
-						.concat (constructor.body.body.slice (updated.length));
+					constructor.body.body.splice (autocreated, 0, expressionStatement (superExpression (null)));
 				} else
 					throw new TypeError ('Super constructor call is required', constructor);
 			}
