@@ -21,10 +21,6 @@ function connectClass (current, from){
 
 	if (current.dependsOn.parent !== null){
 		var parent = byName (current.dependsOn.parent.name);
-
-		if (!parent)
-			throw new TypeError ('Parent class not found', current.dependsOn.parent);
-
 		connectClass (parent, current);
 
 		for (var id, member in parent.members)
@@ -62,7 +58,7 @@ function connectClass (current, from){
 	current.connected = true;
 }
 
-function connectClasses (){
+function connectClassesOld (){
 	for (var classEntry in-array classes)
 		connectClass (classEntry);
 }

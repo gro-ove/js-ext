@@ -87,7 +87,7 @@ function processClass (classEntry){
 
 		// Вызов «prototypeExtend» для наследования
 		if (classEntry.dependsOn.parent)
-			result.push (expressionStatement (callExpression ('__prototypeExtend', [ classEntry.id.name, classEntry.dependsOn.parent.name ])));
+			result.push (expressionStatement (callExpression ('__prototypeExtend', [ classEntry.id.name, classEntry.dependsOn.parent.id.name ])));
 
 		// Поля объекта (уже добавлены в конструктор)
 		for (var field in-array objectFields){}
@@ -152,8 +152,6 @@ function processClass (classEntry){
 }
 
 function processClasses (){
-	for (var classEntry in-array classes){
-		classEntry.elements = processClass (classEntry);
-		classEntry.elements [0].headerComment = '/* Definition of class "' + classEntry.id.name + '" */';
-	}
+	for (var classEntry in-array classes)
+		classEntry.statements = processClass (classEntry);
 }

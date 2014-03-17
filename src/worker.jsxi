@@ -60,10 +60,7 @@
 
 		for (var file in-array fileStorage.files){
 			$.extend (this.data.helpers, file.helpers);
-
-			Array.prototype.push.apply (this.data.statements, file.parsed.body);
-			Array.prototype.push.apply (this.data.classes, file.parsed.classes);
-			Array.prototype.push.apply (this.data.initializations, file.parsed.initializations);
+			[].push.apply (this.data.statements, file.parsed.body);
 		}
 
 		this.log ('parsed stuff collected');
@@ -76,12 +73,10 @@
 		console.assert (this.state == Worker.STATE_COLLECTED, 'Wrong state (' + this.state + ')');
 		this.state = Worker.STATE_WAITING;
 
-		doClasses (this.data.classes, lambda (classes = [], helpers){
+		doClasses (this.data.statements, lambda (helpers){
 			this.log ('classes processed');
+			this.state 	= Worker.STATE_CLASSES;
 			$.extend (this.data.helpers, helpers);
-
-			this.state 				= Worker.STATE_CLASSES;
-			this.data.classes 	 	= classes;
 
 			callback ();
 		}.bind (this));
@@ -91,11 +86,8 @@
 		console.assert (this.state == Worker.STATE_CLASSES, 'Wrong state (' + this.state + ')');
 		this.state = Worker.STATE_WAITING;
 
-		var elements 	= doHelpers (this.data.helpers)
-							.concat (this.data.statements)
-							.concat (this.data.classes)
-							.concat (this.data.initializations),
-			ast 		= program (elements),
+		var elements 	= doHelpers (this.data.helpers).concat (this.data.statements),
+			ast 		= { type: Syntax.Program, body: elements },
 			temp 		= path.resolve (__dirname, '../tests/ast-debug.json');
 		if (!fs.existsSync (temp))
 			fs.writeFileSync (temp, JSON.stringify (ast, false, 4));

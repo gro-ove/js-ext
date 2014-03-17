@@ -14,14 +14,6 @@ function processClassMethod (classEntry, methodEntry){
 	// переменную
 	var usingThat = false;
 
-	// Заменяем содержимое одного объекта содержимым другого
-	function set (to, from){
-		for (var n in to)
-			delete to [n];
-		for (var n in from)
-			to [n] = from [n];
-	}
-
 	// Возвращает «this» или «that» в зависимости от того,  какая функция сейчас
 	// обрабатывается
 	function getThis (){
@@ -155,11 +147,11 @@ function processClassMethod (classEntry, methodEntry){
 				else if (member.publicMode !== 'private')
 					result = replaceStatic (member);
 
-			} else if (classesByNames [obj.name])
-				// Если внезапно нашли имя другого класса, отмечаем, что, вероя-
-				// тно, обрабатываемый класс использует этот другой класс и име-
-				// ло бы смысл по возможности поместить его ниже
+			} else if (byName (obj.name, classEntry.path)){
+				// Если внезапно нашли имя другого класса, отмечаем, что, вероятно, обрабатываемый класс использует этот
+				// другой класс и имело бы смысл по возможности поместить его ниже.
 				classEntry.probablyUseOther ++;
+			}
 
 			// Меняем объект, если что-то нашлось
 			if (result)
@@ -268,11 +260,11 @@ function processClassMethod (classEntry, methodEntry){
 
 		// В поле «super» хранится, на сколько нужно подняться
 		for (var i = 0; i < obj ['super']; i ++){
-			currentClass = byName (currentClass.dependsOn.parent.name);
+			currentClass = currentClass.dependsOn.parent;
 
 			// Если вдруг родителей не хватает, вываливаемся
 			if (!currentClass)
-				throw new TypeError ('Super method isn\'t available', obj);
+				throw new TypeError ('Super method is not available', obj);
 		}
 
 		// Вызываемый метод

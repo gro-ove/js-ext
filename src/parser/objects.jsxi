@@ -346,11 +346,3 @@ function variableDeclaration (variables){
 		declarations: 		identifier (variables)
 	}
 }
-
-function program (elements, classes, initializations)
-	return {
-		type: 				Syntax.Program,
-		body: 				elements,
-		classes: 			classes,
-		initializations: 	initializations
-	}

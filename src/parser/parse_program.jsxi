@@ -1,51 +1,14 @@
-function parseProgramElement (){
-	var token = lookahead (), temp, result;
-
-	switch (token.value){
-		case '(':
-		case '{':
-			if (options.initializationAllowed){
-				saved = saveAll ();
-
-				try {
-					temp 					= token.value === '(' ? parseFunctionArguments () : [];
-					result 					= expressionStatement (callExpression (functionExpression (null, temp, parseBlock ())));
-					result.after 			= true;
-					result.headerComment	= '/* Global initializer */';
-
-					return result;
-				} catch 
-					restoreAll (saved);
-			}
-	}
-
-	if (token.type !== Token.EOF) 
-		return parseStatement ();
-}
-
 function parseProgram (){
-	var sourceElements = [],
-		initializations = [],
-		temp;
+	var elements = [];
 
-	while (index < length){
-		temp = parseProgramElement ();
-		if (temp === undefined) 
-			break;
-		sourceElements.push (temp);
+	while (lookahead ().type !== Token.EOF)
+		elements.push (parseStatement ());
+
+	if (options.insertReturn && elements.length === 1)
+		setReturnStatement (elements [0]);
+
+	return {
+		type: 				Syntax.Program,
+		body: 				elements
 	}
-
-	state.parsingComplete = true;
-
-	if (options.insertReturn && sourceElements.length === 1)
-		setReturnStatement (sourceElements [0]);
-
-	sourceElements = sourceElements.filter (lambda 
-		if (arg.after){
-			initializations.push (arg);
-			return false;
-		} else 
-			return true);
-
-	return program (sourceElements, state.classes, initializations);	
 }

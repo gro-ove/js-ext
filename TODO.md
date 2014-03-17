@@ -41,13 +41,15 @@
 		V change abstract members to java-style
 		V initialize object fields before automatically super call
 		V abstract fields
+		V local classes
 		F change error "member 'field' has private access" to warning (what if 'field' is global variable?)
+		F not allow to use same classes in 'uses' and 'extends' or only 'uses'
 		C if default fields initializations
+		- improve private members
 		- when possible, use "className.prototype = { methog: ... }"
 		- classes from other ".jsx" for 'extends' or 'implement' (instead of 'implemented' take data from others ".jsxo"; see "caching")
 		L interfaces
 		L inner classes
-		L local classes
 		L anonymous classes
 		? creating new instance with something like constructor (depends on realization of anonymous classes)
 			/*

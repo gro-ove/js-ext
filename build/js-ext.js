@@ -47,7 +47,7 @@ length = source.length;
 index = 0;
 lineNumber = source.length ? 1 : 0;
 buffer = null;
-state = {"allowIn":true,"inClass":false,"parsingComplete":false,"preventSequence":false,"classes":[]};
+state = {"allowIn":true,"inClass":false,"parsingComplete":false,"preventSequence":false};
 options = args || {"filename":"[ not a file ]","insertReturn":false,"initializationAllowed":false};
 helpers = new HelpersManager();
 var result = parseProgram ();
@@ -57,7 +57,7 @@ callback (result, helpers.helpers);
 else
 return result;
 }
-var Token = {"Punctuator":0,"Identifier":1,"Keyword":2,"BooleanLiteral":3,"NullLiteral":4,"NumericLiteral":5,"StringLiteral":6,"UndefinedLiteral":7,"EOF":8}, TokenName = ["Punctuator","Identifier","Keyword","Boolean","Null","Numeric","String","Undefined","<end>"], Syntax = {"AssignmentExpression":"AssignmentExpression","ArrayExpression":"ArrayExpression","BlockStatement":"BlockStatement","BinaryExpression":"BinaryExpression","BreakStatement":"BreakStatement","CallExpression":"CallExpression","CatchClause":"CatchClause","ConditionalExpression":"ConditionalExpression","ContinueStatement":"ContinueStatement","DoWhileStatement":"DoWhileStatement","DebuggerStatement":"DebuggerStatement","EmptyStatement":"EmptyStatement","ExpressionStatement":"ExpressionStatement","ForStatement":"ForStatement","ForInStatement":"ForInStatement","FunctionDeclaration":"FunctionDeclaration","FunctionExpression":"FunctionExpression","Identifier":"Identifier","IfStatement":"IfStatement","LabeledStatement":"LabeledStatement","LogicalExpression":"LogicalExpression","MemberExpression":"MemberExpression","NewExpression":"NewExpression","ObjectExpression":"ObjectExpression","Program":"Program","Property":"Property","ReturnStatement":"ReturnStatement","SequenceExpression":"SequenceExpression","SwitchStatement":"SwitchStatement","SwitchCase":"SwitchCase","ThisExpression":"ThisExpression","ThrowStatement":"ThrowStatement","TryStatement":"TryStatement","UnaryExpression":"UnaryExpression","VariableDeclaration":"VariableDeclaration","VariableDeclarator":"VariableDeclarator","WhileStatement":"WhileStatement","WithStatement":"WithStatement","BooleanLiteral":"BooleanLiteral","NullLiteral":"NullLiteral","NumericLiteral":"NumericLiteral","RegexpLiteral":"RegexpLiteral","StringLiteral":"StringLiteral","UndefinedLiteral":"UndefinedLiteral","NotImplementedStatement":"NotImplementedStatement"}, PropertyKind = {"Data":1,"Get":2,"Set":4};
+var Token = {"Punctuator":0,"Identifier":1,"Keyword":2,"BooleanLiteral":3,"NullLiteral":4,"NumericLiteral":5,"StringLiteral":6,"UndefinedLiteral":7,"EOF":8}, TokenName = ["Punctuator","Identifier","Keyword","Boolean","Null","Numeric","String","Undefined","<end>"], Syntax = {"AssignmentExpression":"AssignmentExpression","ArrayExpression":"ArrayExpression","BlockStatement":"BlockStatement","BinaryExpression":"BinaryExpression","BreakStatement":"BreakStatement","CallExpression":"CallExpression","CatchClause":"CatchClause","ConditionalExpression":"ConditionalExpression","ContinueStatement":"ContinueStatement","DoWhileStatement":"DoWhileStatement","DebuggerStatement":"DebuggerStatement","EmptyStatement":"EmptyStatement","ExpressionStatement":"ExpressionStatement","ForStatement":"ForStatement","ForInStatement":"ForInStatement","FunctionDeclaration":"FunctionDeclaration","FunctionExpression":"FunctionExpression","Identifier":"Identifier","IfStatement":"IfStatement","LabeledStatement":"LabeledStatement","LogicalExpression":"LogicalExpression","MemberExpression":"MemberExpression","NewExpression":"NewExpression","ObjectExpression":"ObjectExpression","Program":"Program","Property":"Property","ReturnStatement":"ReturnStatement","SequenceExpression":"SequenceExpression","SwitchStatement":"SwitchStatement","SwitchCase":"SwitchCase","ThisExpression":"ThisExpression","ThrowStatement":"ThrowStatement","TryStatement":"TryStatement","UnaryExpression":"UnaryExpression","VariableDeclaration":"VariableDeclaration","VariableDeclarator":"VariableDeclarator","WhileStatement":"WhileStatement","WithStatement":"WithStatement","BooleanLiteral":"BooleanLiteral","NullLiteral":"NullLiteral","NumericLiteral":"NumericLiteral","RegexpLiteral":"RegexpLiteral","StringLiteral":"StringLiteral","UndefinedLiteral":"UndefinedLiteral","NotImplementedStatement":"NotImplementedStatement","ClassDeclaration":"ClassDeclaration","RawClassDeclaration":"RawClassDeclaration"}, PropertyKind = {"Data":1,"Get":2,"Set":4};
 function identifier (arg){
 return typeof arg === "string" ? {"type":Syntax.Identifier,"name":arg} : arg || null;
 }
@@ -220,9 +220,6 @@ return {"type":Syntax.VariableDeclarator,"id":identifier (id),"init":identifier 
 }
 function variableDeclaration (variables){
 return {"type":Syntax.VariableDeclaration,"declarations":identifier (variables)};
-}
-function program (elements,classes,initializations){
-return {"type":Syntax.Program,"body":elements,"classes":classes,"initializations":initializations};
 }
 function callFunctionExpression (body){
 return callExpression (functionExpression (null, [], body instanceof Array ? blockStatement (body) : body), []);
@@ -426,10 +423,8 @@ unexpected ();
 }
 return result;
 }
-function parseClassMembers (params,dependsOn,result){
-if (result === undefined)
-result = {};
-var oldInClass = state.inClass, token, current;
+function parseClassMembers (params,dependsOn){
+var oldInClass = state.inClass, token, current, result = {};
 function refresh (){
 current = {"publicMode":null,"static":params.static};
 }
@@ -447,8 +442,8 @@ if (params.interface && ! current.static)
 throw new TypeError("Interface cannot have object fields");
 if (current.abstract && (current.publicMode || params.publicMode) === "private")
 throw new TypeError("Abstract member cannot be private");
-{ var _38qvdov_50 = parseVariableDeclarators (); for (var _3ka82fg_51 = 0; _3ka82fg_51 < _38qvdov_50.length; _3ka82fg_51 ++){
-var entry = _38qvdov_50[_3ka82fg_51];
+{ var _2eeh4rk_30 = parseVariableDeclarators (); for (var _1avsi0r_31 = 0; _1avsi0r_31 < _2eeh4rk_30.length; _1avsi0r_31 ++){
+var entry = _2eeh4rk_30[_1avsi0r_31];
 set (entry);
 }}
 refresh ();
@@ -585,36 +580,8 @@ function parseClassDeclaration (){
 var params = parseClassParams ();
 var id = parseIdentifier ();
 var dependsOn = parseExtendsImplementsAndUses (params);
-var previous = state.classes.filter (function (arg){
-return arg.id.name === id.name;
-}) [0];
-if (previous)
-{
-if (! params.partial)
-throw new TypeError("Class \"" + id.name + "\" already declared", id);
-else
-if (JSON.stringify (params) !== JSON.stringify (previous.params))
-throw new TypeError("Different class params", id);
-else
-if (JSON.stringify (dependsOn.parent) !== JSON.stringify (previous.dependsOn.parent))
-throw new TypeError("Different \"extends\" param", id);
-else
-if (JSON.stringify (dependsOn.implements) !== JSON.stringify (previous.dependsOn.implements))
-throw new TypeError("Different \"implements\" param", id);
-{ var _4akjm8r_52 = dependsOn.uses; for (var _6qqirta_53 = 0; _6qqirta_53 < _4akjm8r_52.length; _6qqirta_53 ++){
-var temp = _4akjm8r_52[_6qqirta_53];
-if (previous.dependsOn.uses.indexOf (temp) === - 1)
-previous.dependsOn.uses.push (temp);
-}}
-}
-var members = parseClassMembers (params, dependsOn, previous ? previous.members : {});
-if (! previous)
-{
-state.classes.push ({"id":id,"params":params,"dependsOn":dependsOn,"members":members});
-return expressionStatement (stringLiteralWithQuotes ("class \"" + id.name + "\""));
-}
-else
-return expressionStatement (stringLiteralWithQuotes ("partial class \"" + id.name + "\""));
+var members = parseClassMembers (params, dependsOn);
+return {"type":Syntax.RawClassDeclaration,"id":id,"params":params,"dependsOn":dependsOn,"members":members};
 }
 
 function parseFunction (options){
@@ -1349,51 +1316,13 @@ return readRegexp ();
 default:unexpected (token);
 }
 }
-function parseProgramElement (){
-var token = lookahead (), temp, result;
-switch (token.value){
-case "(":
-
-case "{":
-if (options.initializationAllowed)
-{
-saved = saveAll ();
-try{
-temp = token.value === "(" ? parseFunctionArguments () : [];
-result = expressionStatement (callExpression (functionExpression (null, temp, parseBlock ())));
-result.after = true;
-result.headerComment = "/* Global initializer */";
-return result;
-}catch (e){
-restoreAll (saved);
-}
-}
-}
-if (token.type !== Token.EOF)
-return parseStatement ();
-}
 function parseProgram (){
-var sourceElements = [], initializations = [], temp;
-while (index < length)
-{
-temp = parseProgramElement ();
-if (temp === undefined)
-break;
-sourceElements.push (temp);
-}
-state.parsingComplete = true;
-if (options.insertReturn && sourceElements.length === 1)
-setReturnStatement (sourceElements [0]);
-sourceElements = sourceElements.filter (function (arg){
-if (arg.after)
-{
-initializations.push (arg);
-return false;
-}
-else
-return true;
-});
-return program (sourceElements, state.classes, initializations);
+var elements = [];
+while (lookahead ().type !== Token.EOF)
+elements.push (parseStatement ());
+if (options.insertReturn && elements.length === 1)
+setReturnStatement (elements [0]);
+return {"type":Syntax.Program,"body":elements};
 }
 function parseStatement (){
 var token = lookahead ();
@@ -2105,10 +2034,10 @@ else
 return expression;
 }
 function addClass (classEntry){
-console.assert (! byName (classEntry.id.name), "Already declared");
+console.assert (! byName (classEntry.id.name, classEntry.path), "Already declared");
 classEntry.classObject = true;
-{ var _8k48gap_29 = classEntry.members; for (var name in _8k48gap_29){
-var value = _8k48gap_29[name];
+{ var _3c5h106_56 = classEntry.members; for (var name in _3c5h106_56){
+var value = _3c5h106_56[name];
 value.className = classEntry.id;
 }}
 var constructor = classEntry.members ["@constructor"];
@@ -2124,8 +2053,8 @@ initializer = updateMember (functionExpression ("@initializer", [], blockStateme
 initializer.static = true;
 initializer.autocreated = true;
 }
-{ var _933g976_30 = classEntry.members; for (var name in _933g976_30){
-var member = _933g976_30[name];
+{ var _268m2ps_57 = classEntry.members; for (var name in _268m2ps_57){
+var member = _268m2ps_57[name];
 updateMember (member, classEntry);
 }}
 var fields = filter (classEntry.members, function (arg){
@@ -2135,8 +2064,9 @@ var initialization = fields.map (function (arg){
 return $.extend (expressionStatement (assignmentExpression (memberExpression (thisExpression (), arg.id.name), arg.init || "undefined")), {"comment":arg.id.name,"autocreated":true});
 });
 constructor.body.body = initialization.concat (constructor.body.body);
-classesByNames [classEntry.id.name] = $.extend (classEntry, {"childs":[],"probablyUseOther":0});
-classes.push (classesByNames [classEntry.id.name]);
+classEntry.childs = [];
+classEntry.probablyUseOther = 0;
+classes.push (classEntry);
 }
 function updateMember (member,classEntry){
 if (! classEntry.members.hasOwnProperty (member.id.name))
@@ -2146,31 +2076,6 @@ member.method = member.type === Syntax.FunctionExpression;
 member.processed = false;
 return member;
 }
-function checkClassesForCircular (){
-var current = {};
-function checkClassForCircular (current){
-if (typeof current === "string")
-current = byName (current);
-if (current)
-{
-if (current.id.name in current)
-throw new TypeError("Circular dependency", id);
-current [current.id.name] = true;
-if (current.dependsOn.parent)
-checkClassForCircular (current.dependsOn.parent.name);
-{ var _c4q5b2_32 = current.dependsOn.uses; for (var _863nv0_33 = 0; _863nv0_33 < _c4q5b2_32.length; _863nv0_33 ++){
-var use = _c4q5b2_32[_863nv0_33];
-if (! current.parent || use.name !== current.parent.name)
-checkClassForCircular (use.name);
-}}
-delete current [current.id.name];
-}
-}
-for (var _8v9rmhj_34 = 0; _8v9rmhj_34 < classes.length; _8v9rmhj_34 ++){
-var classEntry = classes[_8v9rmhj_34];
-checkClassForCircular (classEntry);
-}
-}
 function searchSuperExpression (obj){
 if (obj.type === Syntax.CallExpression && "super" in obj && obj.callee === null)
 {
@@ -2179,8 +2084,8 @@ return true;
 else
 if (obj && obj.body && obj.body.body)
 {
-{ var _75d04u7_44 = obj.body.body; for (var _ngo4da_45 = 0; _ngo4da_45 < _75d04u7_44.length; _ngo4da_45 ++){
-var child = _75d04u7_44[_ngo4da_45];
+{ var _1qh19uo_78 = obj.body.body; for (var _7rh4svv_79 = 0; _7rh4svv_79 < _1qh19uo_78.length; _7rh4svv_79 ++){
+var child = _1qh19uo_78[_7rh4svv_79];
 if (searchSuperExpression (child))
 return true;
 }}
@@ -2194,19 +2099,27 @@ return true;
 }
 }
 }
-function connectClass (current,from){
-if (from !== undefined)
+function connectClasses (){
+var active = {};
+function process (current,from){
+if (active [current.id.name] === true)
+throw new TypeError("Circular dependency", current.id);
+if (from)
 current.childs.push (from);
-if (current.connected)
+if (current.weight)
 return;
-if (current.dependsOn.parent !== null)
+active [current.id.name] = true;
+current.weight = 1;
+if (current.dependsOn.parent)
 {
-var parent = byName (current.dependsOn.parent.name);
+var parent = byName (current.dependsOn.parent.name, current.path);
 if (! parent)
-throw new TypeError("Parent class not found", current.dependsOn.parent);
-connectClass (parent, current);
-{ var _7fgarhk_46 = parent.members; for (var id in _7fgarhk_46){
-var member = _7fgarhk_46[id];
+throw new TypeError("Parent class \"" + current.dependsOn.parent.name + "\" not found", current.dependsOn.parent);
+current.dependsOn.parent = parent;
+process (parent, current);
+current.weight += parent.weight;
+{ var _6afjcm5_80 = parent.members; for (var id in _6afjcm5_80){
+var member = _6afjcm5_80[id];
 if (! current.members.hasOwnProperty (id))
 current.members [id] = $.extend (true, {}, member, {"publicMode":member.publicMode === "private" ? "locked" : member.publicMode});
 }}
@@ -2216,8 +2129,8 @@ if (parentConstructor.body.body.length > 0 && ! searchSuperExpression (construct
 if (constructor.autocreated || parentConstructor.params.length === 0)
 {
 var updated = [];
-{ var _q65qll_47 = constructor.body.body; for (var _17vrf59_48 = 0; _17vrf59_48 < _q65qll_47.length; _17vrf59_48 ++){
-var statement = _q65qll_47[_17vrf59_48];
+{ var _1f5lp01_81 = constructor.body.body; for (var _5gl9ibf_82 = 0; _5gl9ibf_82 < _1f5lp01_81.length; _5gl9ibf_82 ++){
+var statement = _1f5lp01_81[_5gl9ibf_82];
 if (statement.autocreated)
 updated.push (statement);
 else
@@ -2229,49 +2142,108 @@ else
 throw new TypeError("Super constructor call is required", constructor);
 }
 }
-{ var _62itnk4_49 = current.dependsOn.uses; for (var _35dtgf7_50 = 0; _35dtgf7_50 < _62itnk4_49.length; _35dtgf7_50 ++){
-var use = _62itnk4_49[_35dtgf7_50];
-var used = byName (use.name);
+{ var _40t7qgd_83 = current.dependsOn.uses; for (var index = 0; index < _40t7qgd_83.length; index ++){
+var usedName = _40t7qgd_83[index];
+var used = byName (usedName.name, current.path);
 if (! used)
-throw new TypeError("Used class \"" + use.name + "\" not found", use);
+throw new TypeError("Used class \"" + usedName.name + "\" not found", usedName);
+current.dependsOn.uses [index] = used;
+process (used);
+current.weight += used.weight;
 }}
-current.connected = true;
+delete active [current.id.name];
 }
-function connectClasses (){
-for (var _8etu1r_51 = 0; _8etu1r_51 < classes.length; _8etu1r_51 ++){
-var classEntry = classes[_8etu1r_51];
-connectClass (classEntry);
+for (var _84jm4k3_84 = 0; _84jm4k3_84 < classes.length; _84jm4k3_84 ++){
+var current = classes[_84jm4k3_84];
+process (current);
 }
 }
-var classes, classesByNames, probablyUseOtherMaxValue, thatVariable;
-function byName (name){
-return classesByNames [name];
+var classes, probablyUseOtherMaxValue, thatVariable, tempId = 0;
+function byName (name,path){
+console.assert (typeof name === "string" && typeof path === "string", "Wrong args");
+var length, min = - 1, result;
+for (var _8vtqc6k_2 = 0; _8vtqc6k_2 < classes.length; _8vtqc6k_2 ++){
+var classEntry = classes[_8vtqc6k_2];
+length = classEntry.path.length;
+if (classEntry.id.name === name && path.substr (0, length) === classEntry.path && min < length)
+{
+min = length;
+result = classEntry;
 }
-function doClasses (rawClasses,callback){
+}
+return result;
+}
+function collectRawClasses (obj,location,array){
+if (location === undefined)
+location = {"root":obj,"path":""};
+if (array === undefined)
+array = [];
+if (obj instanceof Array)
+{
+set (obj, obj.filter (function (child){
+collectRawClasses (child, location, array);
+if (child.type === Syntax.RawClassDeclaration)
+{
+array.push ($.extend (child, location));
+return false;
+}
+else
+return true;
+}));
+}
+else
+if (obj && typeof obj === "object")
+{
+if (obj.type === Syntax.FunctionDeclaration || obj.type === Syntax.FunctionExpression)
+{
+if (obj.body)
+collectRawClasses (obj.body.body, {"root":obj.body.body,"path":location.path + "/" + ++ tempId}, array);
+}
+else
+for (var key in obj){
+var child = obj[key];
+collectRawClasses (child, location, array);
+if (child && child.type === Syntax.RawClassDeclaration)
+{
+array.push ($.extend (child, location));
+obj [key] = {"type":Syntax.EmptyStatement};
+}
+}
+}
+return array;
+}
+function sortAndInsertClasses (){
+{ var _1uc42mv_3 = classes.sort (function (a,b){
+return b.weight - a.weight;
+}); for (var _971bbl0_4 = 0; _971bbl0_4 < _1uc42mv_3.length; _971bbl0_4 ++){
+var current = _1uc42mv_3[_971bbl0_4];
+console.log (current.statements);
+current.root.unshift ({"type":Syntax.ClassDeclaration,"name":current.id.name,"statements":current.statements});
+}}
+}
+function doClasses (statements,callback){
 helpers = new HelpersManager();
 classes = [];
-classesByNames = {};
 options = {};
 probablyUseOtherMaxValue = 100;
 thatVariable = "__that";
-for (var _u96bol_37 = 0; _u96bol_37 < rawClasses.length; _u96bol_37 ++){
-var rawClass = rawClasses[_u96bol_37];
-addClass (rawClass);
-}
+{ var _2dkoc8c_5 = collectRawClasses (statements); for (var _6d7d235_6 = 0; _6d7d235_6 < _2dkoc8c_5.length; _6d7d235_6 ++){
+var found = _2dkoc8c_5[_6d7d235_6];
+addClass (found);
+}}
 if (classes.length > 0)
 {
-checkClassesForCircular ();
 connectClasses ();
-sortClasses ();
 processClassesMembers ();
 processClassesMethods ();
 processClasses ();
-var result = [];
-for (var _7uvtdc_38 = 0; _7uvtdc_38 < classes.length; _7uvtdc_38 ++){
-var classEntry = classes[_7uvtdc_38];
-result.push.apply (result, classEntry.elements);
-}
-callback (result, helpers.helpers);
+sortAndInsertClasses ();
+console.log (classes.map (function (arg){
+return arg.id.name + ":" + arg.weight + (arg.childs.length ? " (" + arg.childs.map (function (arg){
+return arg.id.name;
+}).join (", ") + ")" : "");
+}).join ("; "));
+callback (helpers.helpers);
 }
 else
 callback ();
@@ -2328,25 +2300,25 @@ if (mode === OutputMode.Default)
 {
 result = [anonymousFunction ? oneVariableDeclaration (classEntry.id, constructor) : functionDeclaration (classEntry.id, constructor.params, constructor.body)];
 if (classEntry.dependsOn.parent)
-result.push (expressionStatement (callExpression ("__prototypeExtend", [classEntry.id.name,classEntry.dependsOn.parent.name])));
-for (var _5b85gpu_41 = 0; _5b85gpu_41 < objectFields.length; _5b85gpu_41 ++){
-var field = objectFields[_5b85gpu_41];
+result.push (expressionStatement (callExpression ("__prototypeExtend", [classEntry.id.name,classEntry.dependsOn.parent.id.name])));
+for (var _rqtnqr_92 = 0; _rqtnqr_92 < objectFields.length; _rqtnqr_92 ++){
+var field = objectFields[_rqtnqr_92];
 
 }
-for (var _8odo5ot_42 = 0; _8odo5ot_42 < objectMethods.length; _8odo5ot_42 ++){
-var method = objectMethods[_8odo5ot_42];
+for (var _8etbui1_93 = 0; _8etbui1_93 < objectMethods.length; _8etbui1_93 ++){
+var method = objectMethods[_8etbui1_93];
 if (! method.abstract)
 result.push (assignmentStatement (memberExpression (memberExpression (classEntry.id.name, "prototype"), method.id), functionExpression (null, method.params, method.body)));
 }
-for (var _7fm772f_43 = 0; _7fm772f_43 < staticFields.length; _7fm772f_43 ++){
-var field = staticFields[_7fm772f_43];
+for (var _5cov7fg_94 = 0; _5cov7fg_94 < staticFields.length; _5cov7fg_94 ++){
+var field = staticFields[_5cov7fg_94];
 if (field.publicMode === "private")
 result [0].declarations.push (field);
 else
 result.push (assignmentStatement (memberExpression (classEntry.id.name, field.id), field.init || "undefined"));
 }
-for (var _35r8932_44 = 0; _35r8932_44 < staticMethods.length; _35r8932_44 ++){
-var method = staticMethods[_35r8932_44];
+for (var _4f8t256_95 = 0; _4f8t256_95 < staticMethods.length; _4f8t256_95 ++){
+var method = staticMethods[_4f8t256_95];
 if (method.publicMode === "private")
 result.push (method);
 else
@@ -2357,15 +2329,15 @@ else
 {
 var properties = [];
 result = [oneVariableDeclaration (classEntry.id, objectExpression (properties))];
-for (var _2qkdjrs_45 = 0; _2qkdjrs_45 < staticFields.length; _2qkdjrs_45 ++){
-var field = staticFields[_2qkdjrs_45];
+for (var _132tgbs_96 = 0; _132tgbs_96 < staticFields.length; _132tgbs_96 ++){
+var field = staticFields[_132tgbs_96];
 if (field.publicMode === "private")
 result [0].declarations.push (field);
 else
 properties.push (property (field.id, field.init || "undefined"));
 }
-for (var _ose0ra_46 = 0; _ose0ra_46 < staticMethods.length; _ose0ra_46 ++){
-var method = staticMethods[_ose0ra_46];
+for (var _6hb57qb_97 = 0; _6hb57qb_97 < staticMethods.length; _6hb57qb_97 ++){
+var method = staticMethods[_6hb57qb_97];
 if (method.publicMode === "private")
 result.push (method);
 else
@@ -2382,10 +2354,9 @@ return [oneVariableDeclaration (classEntry.id, callFunctionExpression (result))]
 return result;
 }
 function processClasses (){
-for (var _5io6lo0_47 = 0; _5io6lo0_47 < classes.length; _5io6lo0_47 ++){
-var classEntry = classes[_5io6lo0_47];
-classEntry.elements = processClass (classEntry);
-classEntry.elements [0].headerComment = "/* Definition of class \"" + classEntry.id.name + "\" */";
+for (var _6gspn5s_98 = 0; _6gspn5s_98 < classes.length; _6gspn5s_98 ++){
+var classEntry = classes[_6gspn5s_98];
+classEntry.statements = processClass (classEntry);
 }
 }
 function processClassesMembers (){
@@ -2417,15 +2388,14 @@ function morePublicMode (firstMode,secondMode){
 var modes = ["locked","private","protected","public"], firstId = modes.indexOf (firstMode), secondId = modes.indexOf (secondMode), maxId = Math.max (firstId, secondId);
 return modes [maxId];
 }
-function processClassMember (classEntry,name,member){
+function processClassMember (current,name,member){
 var publicMode = member.publicMode, members = [member], updated;
 function testChilds (current){
-var childMember;
-{ var _7isrs84_45 = current.childs; for (var _335kss_46 = 0; _335kss_46 < _7isrs84_45.length; _335kss_46 ++){
-var child = _7isrs84_45[_335kss_46];
+{ var _5roftrl_28 = current.childs; for (var _20nskrc_29 = 0; _20nskrc_29 < _5roftrl_28.length; _20nskrc_29 ++){
+var child = _5roftrl_28[_20nskrc_29];
 if (child.members.hasOwnProperty (name))
 {
-childMember = child.members [name];
+var childMember = child.members [name];
 if (badOverride (member, childMember))
 throw new TypeError("Invalid public mode", childMember.id);
 if (member.method !== childMember.method)
@@ -2437,24 +2407,26 @@ testChilds (child);
 }}
 }
 if (publicMode === "protected" || publicMode === "public")
-testChilds (classEntry);
+testChilds (current);
 updated = rename (name, member, publicMode);
-for (var _at4c96_47 = 0; _at4c96_47 < members.length; _at4c96_47 ++){
-var targetMember = members[_at4c96_47];
+for (var _ruodh5_30 = 0; _ruodh5_30 < members.length; _ruodh5_30 ++){
+var targetMember = members[_ruodh5_30];
 targetMember.id.name = updated;
 targetMember.processed = true;
 }
 }
-function processClassMembers (classEntry){
-{ var _4fveu00_48 = classEntry.members; for (var name in _4fveu00_48){
-var member = _4fveu00_48[name];
+function processClassMembers (current){
+if (current.dependsOn.parent)
+processClassMembers (current.dependsOn.parent);
+{ var _6k69koq_31 = current.members; for (var name in _6k69koq_31){
+var member = _6k69koq_31[name];
 if (name [0] !== "@" && ! member.processed)
-processClassMember (classEntry, name, member);
+processClassMember (current, name, member);
 }}
 }
-for (var _1mqj98b_49 = 0; _1mqj98b_49 < classes.length; _1mqj98b_49 ++){
-var classEntry = classes[_1mqj98b_49];
-processClassMembers (classEntry);
+for (var _1i542kc_32 = 0; _1i542kc_32 < classes.length; _1i542kc_32 ++){
+var current = classes[_1i542kc_32];
+processClassMembers (current);
 }
 }
 function processClassMethod (classEntry,methodEntry){
@@ -2463,12 +2435,6 @@ options.filename = methodEntry.filename;
 var exclusions = {};
 var currentFunction;
 var usingThat = false;
-function set (to,from){
-for (var n in to)
-delete to [n];
-for (var n in from)
-to [n] = from [n];
-}
 function getThis (){
 var childFunction = currentFunction !== methodEntry;
 if (childFunction)
@@ -2480,8 +2446,8 @@ if (typeof obj === "object" && obj !== null)
 {
 if (obj instanceof Array)
 {
-for (var _8a8jhpj_44 = 0; _8a8jhpj_44 < obj.length; _8a8jhpj_44 ++){
-var child = obj[_8a8jhpj_44];
+for (var _6phfcjj_92 = 0; _6phfcjj_92 < obj.length; _6phfcjj_92 ++){
+var child = obj[_6phfcjj_92];
 lookForExclusions (child, target);
 }
 }
@@ -2562,8 +2528,10 @@ if (member.publicMode !== "private")
 result = replaceStatic (member);
 }
 else
-if (classesByNames [obj.name])
+if (byName (obj.name, classEntry.path))
+{
 classEntry.probablyUseOther++;
+}
 if (result)
 set (obj, result);
 }
@@ -2647,9 +2615,9 @@ var currentClass = classEntry;
 for (var i = 0; 
 i < obj ["super"]; i++)
 {
-currentClass = byName (currentClass.dependsOn.parent.name);
+currentClass = currentClass.dependsOn.parent;
 if (! currentClass)
-throw new TypeError("Super method isn't available", obj);
+throw new TypeError("Super method is not available", obj);
 }
 var method = obj.callee ? currentClass.members [obj.callee.name] : findByReplacement (currentClass, methodEntry.id.name);
 if (! method)
@@ -2680,8 +2648,8 @@ if (typeof obj === "object" && obj !== null)
 {
 if (obj instanceof Array)
 {
-for (var _87rgl4u_45 = 0; _87rgl4u_45 < obj.length; _87rgl4u_45 ++){
-var child = obj[_87rgl4u_45];
+for (var _756de16_93 = 0; _756de16_93 < obj.length; _756de16_93 ++){
+var child = obj[_756de16_93];
 process (child, obj, parent);
 }
 }
@@ -2721,15 +2689,15 @@ process (methodEntry);
 }
 function processClassMethods (classEntry){
 var replace, childMember;
-{ var _37d32q5_46 = classEntry.members; for (var name in _37d32q5_46){
-var member = _37d32q5_46[name];
+{ var _71nraub_94 = classEntry.members; for (var name in _71nraub_94){
+var member = _71nraub_94[name];
 if (member.method && ! member.abstract && member.className === classEntry.id)
 processClassMethod (classEntry, member);
 }}
 }
 function processClassesMethods (){
-for (var _9renkn_47 = 0; _9renkn_47 < classes.length; _9renkn_47 ++){
-var classEntry = classes[_9renkn_47];
+for (var _2jj99g0_95 = 0; _2jj99g0_95 < classes.length; _2jj99g0_95 ++){
+var classEntry = classes[_2jj99g0_95];
 processClassMethods (classEntry);
 }
 }
@@ -2745,19 +2713,40 @@ return current.weight;
 current.weight = current.probablyUseOther ? 1 + Math.min (current.probablyUseOther, probablyUseOtherMaxValue) / (probablyUseOtherMaxValue + 1) : 1;
 if (current.dependsOn.parent)
 current.weight += getWeight (current.dependsOn.parent.name);
-{ var _8ck4vb_58 = current.dependsOn.uses; for (var _6ocevk6_59 = 0; _6ocevk6_59 < _8ck4vb_58.length; _6ocevk6_59 ++){
-var use = _8ck4vb_58[_6ocevk6_59];
+{ var _49866j0_74 = current.dependsOn.uses; for (var _7ggv9h_75 = 0; _7ggv9h_75 < _49866j0_74.length; _7ggv9h_75 ++){
+var use = _49866j0_74[_7ggv9h_75];
 current.weight += getWeight (use.name);
 }}
 return current.weight;
 }
-for (var _5b3168m_60 = 0; _5b3168m_60 < classes.length; _5b3168m_60 ++){
-var current = classes[_5b3168m_60];
+for (var _4vqllfk_76 = 0; _4vqllfk_76 < classes.length; _4vqllfk_76 ++){
+var current = classes[_4vqllfk_76];
+delete current.weight;
+}
+for (var _1ofum2d_77 = 0; _1ofum2d_77 < classes.length; _1ofum2d_77 ++){
+var current = classes[_1ofum2d_77];
 getWeight (current);
 }
 classes.sort (function (a,b){
 return a.weight - b.weight;
 });
+}
+function set (to,from){
+if (to instanceof Array && from instanceof Array)
+{
+to.length = from.length;
+for (var index = 0; index < from.length; index ++){
+var element = from[index];
+to [index] = element;
+}
+}
+else
+{
+for (var n in to)
+delete to [n];
+for (var n in from)
+to [n] = from [n];
+}
 }
 var EachMode = {"FILTER_MODE":"filterMode","MAP_MODE":"mapMode","FIRST_HIT_MODE":"firstHitMode"};
 function each (members,filter,callback,mode){
@@ -2800,8 +2789,8 @@ return arg.id && arg.id.name === replacement;
 }
 function membersOut (classObject){
 var arg = [];
-{ var _41fverb_102 = classObject.members; for (var key in _41fverb_102){
-var value = _41fverb_102[key];
+{ var _1mpp7n9_20 = classObject.members; for (var key in _1mpp7n9_20){
+var value = _1mpp7n9_20[key];
 arg.push (key + ":" + value.id);
 }}
 console.log (classObject.id.name + ": " + arg.join (", "));
@@ -3174,21 +3163,9 @@ if (! node)
 console.json (parent);
 throw new Error("Node = " + node);
 }
-var result, temp;
-if (niceMode)
-{
-if (comment === null && node.filename)
-{
+if (niceMode && comment === null && node.filename)
 comment = node.filename + ":" + node.lineNumber;
-}
-else
-if (node.headerComment)
-{
-result = node.headerComment;
-node.headerComment = false;
-return result + "\n\n" + tabs + generate (node, tabs, parent);
-}
-}
+var result, temp;
 switch (node.type){
 case Syntax.BooleanLiteral:
 
@@ -3259,6 +3236,13 @@ result = "function " + child (node.id) + " (";
 else
 result = "function (";
 return result + mapArray (node.params, ", ") + ")" + child (node.body);
+case Syntax.ClassDeclaration:
+result = "/* Class \"" + node.name + "\" declaration */";
+{ var _2bbmc5j_48 = node.statements; for (var _2rje7oa_49 = 0; _2rje7oa_49 < _2bbmc5j_48.length; _2rje7oa_49 ++){
+var statement = _2bbmc5j_48[_2rje7oa_49];
+result += end () + generate (statement, tabs, parent);
+}}
+return result;
 case Syntax.FunctionDeclaration:
 return "function " + child (node.id) + " (" + mapArray (node.params, ", ") + ")" + child (node.body);
 case Syntax.VariableDeclaration:
@@ -3275,8 +3259,8 @@ case Syntax.BlockStatement:
 temp = node.body.length > 0;
 result = "{" + end () + "\t";
 if (parent.type === Syntax.FunctionDeclaration || parent.type === Syntax.FunctionExpression)
-{ var _4inl008_21 = parent.params; for (var _j0c7pr_22 = 0; _j0c7pr_22 < _4inl008_21.length; _j0c7pr_22 ++){
-var param = _4inl008_21[_j0c7pr_22];
+{ var _6vrqjmb_50 = parent.params; for (var _61d02af_51 = 0; _61d02af_51 < _6vrqjmb_50.length; _61d02af_51 ++){
+var param = _6vrqjmb_50[_61d02af_51];
 if (param.defaultValue)
 {
 result += "if (" + child (param) + " === undefined)" + end () + "\t\t" + child (param) + " = " + child (param.defaultValue) + ";" + end () + "\n\t" + tabs;
@@ -3338,8 +3322,8 @@ result += sub (node.alternate);
 return result;
 case Syntax.SwitchStatement:
 result = "switch (" + child (node.discriminant) + "){";
-{ var _isf2k9_23 = node.cases; for (var _1th2jk9_24 = 0; _1th2jk9_24 < _isf2k9_23.length; _1th2jk9_24 ++){
-var obj = _isf2k9_23[_1th2jk9_24];
+{ var _7h4400v_52 = node.cases; for (var _1fhl3pi_53 = 0; _1fhl3pi_53 < _7h4400v_52.length; _1fhl3pi_53 ++){
+var obj = _7h4400v_52[_1fhl3pi_53];
 result += indent (obj);
 }}
 return result + end () + "}";
@@ -3372,8 +3356,8 @@ case Syntax.ForInStatement:
 return "for (" + child (node.left) + " in " + child (node.right) + ")" + sub (node.body);
 case Syntax.TryStatement:
 result = "try " + sub (node.block) + " ";
-{ var _7u6e05g_25 = node.handlers; for (var _4pj0s9l_26 = 0; _4pj0s9l_26 < _7u6e05g_25.length; _4pj0s9l_26 ++){
-var handler = _7u6e05g_25[_4pj0s9l_26];
+{ var _3mqbe5r_54 = node.handlers; for (var _5qb7u2m_55 = 0; _5qb7u2m_55 < _3mqbe5r_54.length; _5qb7u2m_55 ++){
+var handler = _3mqbe5r_54[_5qb7u2m_55];
 result += child (handler) + " ";
 }}
 if (node.finalizer)
@@ -3388,8 +3372,8 @@ return "debugger;";
 case Syntax.Program:
 result = "";
 temp = node.body [0].type;
-{ var _29gnqo2_27 = node.body; for (var index = 0; index < _29gnqo2_27.length; index ++){
-var childNode = _29gnqo2_27[index];
+{ var _2c09tk6_56 = node.body; for (var index = 0; index < _2c09tk6_56.length; index ++){
+var childNode = _2c09tk6_56[index];
 if (index > 0)
 {
 if (temp !== childNode.type || childNode.type !== Syntax.ExpressionStatement || childNode.headerComment)
@@ -4451,8 +4435,8 @@ Worker.prototype.start = function (callback){
 console.assert (this.state == Worker.STATE_INITIAL, "Wrong state (" + this.state + ")");
 this.state = Worker.STATE_WAITING;
 this.log ("started");
-{ var _94pjnpn_75 = File.find ("default/*") || []; for (var _8bb8ttu_76 = 0; _8bb8ttu_76 < _94pjnpn_75.length; _8bb8ttu_76 ++){
-var file = _94pjnpn_75[_8bb8ttu_76];
+{ var _56706bl_38 = File.find ("default/*") || []; for (var _16v7oir_39 = 0; _16v7oir_39 < _56706bl_38.length; _16v7oir_39 ++){
+var file = _56706bl_38[_16v7oir_39];
 file.process ();
 }}
 this.mainFile = new File(this.path);
@@ -4467,12 +4451,10 @@ callback ();
 Worker.prototype.collect = function (callback){
 console.assert (this.state == Worker.STATE_STARTED, "Wrong state (" + this.state + ")");
 this.state = Worker.STATE_WAITING;
-{ var _6t1vsc4_77 = fileStorage.files; for (var _5erfki6_78 = 0; _5erfki6_78 < _6t1vsc4_77.length; _5erfki6_78 ++){
-var file = _6t1vsc4_77[_5erfki6_78];
+{ var _4vshdvd_40 = fileStorage.files; for (var _94vopkm_41 = 0; _94vopkm_41 < _4vshdvd_40.length; _94vopkm_41 ++){
+var file = _4vshdvd_40[_94vopkm_41];
 $.extend (this.data.helpers, file.helpers);
-Array.prototype.push.apply (this.data.statements, file.parsed.body);
-Array.prototype.push.apply (this.data.classes, file.parsed.classes);
-Array.prototype.push.apply (this.data.initializations, file.parsed.initializations);
+[].push.apply (this.data.statements, file.parsed.body);
 }}
 this.log ("parsed stuff collected");
 this.state = Worker.STATE_COLLECTED;
@@ -4481,20 +4463,17 @@ callback ();
 Worker.prototype.classes = function (callback){
 console.assert (this.state == Worker.STATE_COLLECTED, "Wrong state (" + this.state + ")");
 this.state = Worker.STATE_WAITING;
-doClasses (this.data.classes, function (classes,helpers){
-if (classes === undefined)
-classes = [];
+doClasses (this.data.statements, function (helpers){
 this.log ("classes processed");
-$.extend (this.data.helpers, helpers);
 this.state = Worker.STATE_CLASSES;
-this.data.classes = classes;
+$.extend (this.data.helpers, helpers);
 callback ();
 }.bind (this));
 };
 Worker.prototype.generate = function (callback){
 console.assert (this.state == Worker.STATE_CLASSES, "Wrong state (" + this.state + ")");
 this.state = Worker.STATE_WAITING;
-var elements = doHelpers (this.data.helpers).concat (this.data.statements).concat (this.data.classes).concat (this.data.initializations), ast = program (elements), temp = path.resolve (__dirname, "../tests/ast-debug.json");
+var elements = doHelpers (this.data.helpers).concat (this.data.statements), ast = {"type":Syntax.Program,"body":elements}, temp = path.resolve (__dirname, "../tests/ast-debug.json");
 if (! fs.existsSync (temp))
 fs.writeFileSync (temp, JSON.stringify (ast, false, 4));
 var result = convert (ast, {"filename":"result"});

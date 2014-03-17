@@ -45,17 +45,15 @@ function processClassesMembers (){
 		return modes [maxId];
 	}
 
-	function processClassMember (classEntry, name, member){
+	function processClassMember (current, name, member){
 		var publicMode = member.publicMode,
 			members = [ member ],
 			updated;
 
-		function testChilds (current){
-			var childMember;
-
+		function testChilds (current)
 			for (var child in-array current.childs){
 				if (child.members.hasOwnProperty (name)){
-					childMember = child.members [name];
+					var childMember = child.members [name];
 
 					if (badOverride (member, childMember))
 						throw new TypeError ('Invalid public mode', childMember.id);
@@ -69,10 +67,9 @@ function processClassesMembers (){
 
 				testChilds (child);
 			}
-		}
 
 		if (publicMode === 'protected' || publicMode === 'public')
-			testChilds (classEntry);
+			testChilds (current);
 
 		updated = rename (name, member, publicMode);
 
@@ -82,13 +79,16 @@ function processClassesMembers (){
 		}
 	}
 
-	function processClassMembers (classEntry){
+	function processClassMembers (current){
+		if (current.dependsOn.parent)
+			processClassMembers (current.dependsOn.parent);
+
 		// Проходим по всем полям и методам класса, кроме конструктора, инициализатора и уже обработанных полей или методов
-		for (var name, member in classEntry.members)
+		for (var name, member in current.members)
 			if (name [0] !== '@' && !member.processed)
-				processClassMember (classEntry, name, member);
+				processClassMember (current, name, member);
 	}
 
-	for (var classEntry in-array classes)
-		processClassMembers (classEntry);
+	for (var current in-array classes)
+		processClassMembers (current);
 }

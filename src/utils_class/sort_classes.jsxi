@@ -20,6 +20,9 @@ function sortClasses (){
 	}
 
 	for (var current in-array classes)
+		delete current.weight;
+
+	for (var current in-array classes)
 		getWeight (current);
 
 	classes.sort (lambda (a, b) a.weight - b.weight);

@@ -1,3 +1,17 @@
+// Заменяем содержимое одного объекта содержимым другого
+function set (to, from){
+	if (to instanceof Array && from instanceof Array){
+		to.length = from.length;
+		for (var index, element in-array from)
+			to [index] = element;
+	} else {
+		for (var n in to)
+			delete to [n];
+		for (var n in from)
+			to [n] = from [n];
+	}
+}
+
 var EachMode = {
 	FILTER_MODE: 		'filterMode',
 	MAP_MODE: 			'mapMode',

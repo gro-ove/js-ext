@@ -152,17 +152,10 @@ var niceMode = true,
 				throw new Error ('Node = ' + node);
 			}
 
-			var result, temp;
+			if (niceMode && comment === null && node.filename)
+				comment = node.filename + ':' + node.lineNumber;
 
-			if (niceMode){
-				if (comment === null && node.filename){
-					comment = node.filename + ':' + node.lineNumber;
-				} else if (node.headerComment){
-					result = node.headerComment;
-					node.headerComment = false;
-					return result + '\n\n' + tabs + generate (node, tabs, parent);
-				}
-			}
+			var result, temp;
 
 			switch (node.type){
 				/* Simpliest types */
@@ -248,6 +241,12 @@ var niceMode = true,
 
 
 				/* Declarations */
+				case Syntax.ClassDeclaration:
+					result = '/* Class "' + node.name + '" declaration */';
+					for (var statement in-array node.statements)
+						result += end () + generate (statement, tabs, parent);
+					return result;
+
 				case Syntax.FunctionDeclaration:
 					return 'function ' + child (node.id) + ' (' + mapArray (node.params, ', ') + ')' + child (node.body);
 

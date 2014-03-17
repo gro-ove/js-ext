@@ -73,6 +73,10 @@ var Token = {
 		UndefinedLiteral: 				'UndefinedLiteral',
 		
 		NotImplementedStatement: 		'NotImplementedStatement',
+		ClassDeclaration: 				'ClassDeclaration',
+
+		/* Только для парсера. */
+		RawClassDeclaration: 			'RawClassDeclaration',
 	}, 
 	PropertyKind = {
 		Data: 							1,

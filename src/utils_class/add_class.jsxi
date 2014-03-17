@@ -1,6 +1,6 @@
 // Записываем класс в список
 function addClass (classEntry){
-	console.assert (!byName (classEntry.id.name), 'Already declared');
+	console.assert (!byName (classEntry.id.name, classEntry.path), 'Already declared');
 
 	// Вспомогательный атрибут на будущее
 	classEntry.classObject = true;
@@ -39,9 +39,12 @@ function addClass (classEntry){
 	// Запихиваем присваивания в начало конструктора
 	constructor.body.body = initialization.concat (constructor.body.body);
 
+	// Всякие мелочи
+	classEntry.childs = [];
+	classEntry.probablyUseOther = 0;
+
 	// И записываем результат
-	classesByNames [classEntry.id.name] = $.extend (classEntry, { childs: [], probablyUseOther: 0 });
-	classes.push (classesByNames [classEntry.id.name]);
+	classes.push (classEntry);
 }
 
 // Обновляем метод или поле
