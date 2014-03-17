@@ -110,6 +110,9 @@ function parseClassMembers (params, dependsOn, result = {}){
 	function parseField (){
 		if (params.interface && !current.static)
 			throw new TypeError ('Interface cannot have object fields');
+		
+		if (current.abstract && (current.publicMode || params.publicMode) === 'private')
+			throw new TypeError ('Abstract member cannot be private');
 
 		for (var entry in-array parseVariableDeclarators ())
 			set (entry);
@@ -117,12 +120,8 @@ function parseClassMembers (params, dependsOn, result = {}){
 	}
 
 	function parseMethod (){
-		if (current.abstract){
-			if ((current.publicMode || params.publicMode) === 'private')
-				throw new TypeError ('Abstract method cannot be private');
-			// else if (current.publicMode === null)
-			// 	current.publicMode = 'protected';
-		}
+		if (current.abstract && (current.publicMode || params.publicMode) === 'private')
+			throw new TypeError ('Abstract member cannot be private');
 
 		state.superAvailable = !current.static && dependsOn.parent;
 

@@ -35,9 +35,21 @@ function connectClass (current, from){
 			constructor = current.members ['@constructor'];
 
 		if (parentConstructor.body.body.length > 0 && !searchSuperExpression (constructor)){
-			if (constructor.autocreated || parentConstructor.params.length === 0)
-				constructor.body.body = [ expressionStatement (superExpression (null)) ].concat (constructor.body.body);
-			else
+			if (constructor.autocreated || parentConstructor.params.length === 0){
+				var updated = [];
+
+				for (var statement in-array constructor.body.body){
+					if (statement.autocreated)
+						updated.push (statement);
+					else
+						break;
+				}
+
+				updated.push (expressionStatement (superExpression (null)) );
+				[].push.apply (updated, constructor.body.body.slice (updated.length));
+
+				constructor.body.body = updated;
+			} else
 				throw new TypeError ('Super constructor call is required', constructor);
 		}
 	}

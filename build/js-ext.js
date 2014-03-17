@@ -445,18 +445,17 @@ result [obj.id.name] = obj;
 function parseField (){
 if (params.interface && ! current.static)
 throw new TypeError("Interface cannot have object fields");
-{ var _74t2fd4_68 = parseVariableDeclarators (); for (var _15bnvkt_69 = 0; _15bnvkt_69 < _74t2fd4_68.length; _15bnvkt_69 ++){
-var entry = _74t2fd4_68[_15bnvkt_69];
+if (current.abstract && (current.publicMode || params.publicMode) === "private")
+throw new TypeError("Abstract member cannot be private");
+{ var _95i5oqp_25 = parseVariableDeclarators (); for (var _1dcj7f3_26 = 0; _1dcj7f3_26 < _95i5oqp_25.length; _1dcj7f3_26 ++){
+var entry = _95i5oqp_25[_1dcj7f3_26];
 set (entry);
 }}
 refresh ();
 }
 function parseMethod (){
-if (current.abstract)
-{
-if ((current.publicMode || params.publicMode) === "private")
-throw new TypeError("Abstract method cannot be private");
-}
+if (current.abstract && (current.publicMode || params.publicMode) === "private")
+throw new TypeError("Abstract member cannot be private");
 state.superAvailable = ! current.static && dependsOn.parent;
 var empty = params.interface && ! current.static || current.abstract, result = parseFunction ({"keyword":null,"empty":empty});
 set (result);
@@ -602,8 +601,8 @@ throw new TypeError("Different \"extends\" param", id);
 else
 if (JSON.stringify (dependsOn.implements) !== JSON.stringify (previous.dependsOn.implements))
 throw new TypeError("Different \"implements\" param", id);
-{ var _6bc35u0_70 = dependsOn.uses; for (var _8ss7fhi_71 = 0; _8ss7fhi_71 < _6bc35u0_70.length; _8ss7fhi_71 ++){
-var temp = _6bc35u0_70[_8ss7fhi_71];
+{ var _1bessj0_27 = dependsOn.uses; for (var _36evbd6_28 = 0; _36evbd6_28 < _1bessj0_27.length; _36evbd6_28 ++){
+var temp = _1bessj0_27[_36evbd6_28];
 if (previous.dependsOn.uses.indexOf (temp) === - 1)
 previous.dependsOn.uses.push (temp);
 }}
@@ -2177,8 +2176,8 @@ return true;
 else
 if (obj && obj.body && obj.body.body)
 {
-{ var _48i0s5t_22 = obj.body.body; for (var _38hvdn9_23 = 0; _38hvdn9_23 < _48i0s5t_22.length; _38hvdn9_23 ++){
-var child = _48i0s5t_22[_38hvdn9_23];
+{ var _4nu52a3_56 = obj.body.body; for (var _5f0m21n_57 = 0; _5f0m21n_57 < _4nu52a3_56.length; _5f0m21n_57 ++){
+var child = _4nu52a3_56[_5f0m21n_57];
 if (searchSuperExpression (child))
 return true;
 }}
@@ -2203,8 +2202,8 @@ var parent = byName (current.dependsOn.parent.name);
 if (! parent)
 throw new TypeError("Parent class not found", current.dependsOn.parent);
 connectClass (parent, current);
-{ var _66aiktc_24 = parent.members; for (var id in _66aiktc_24){
-var member = _66aiktc_24[id];
+{ var _72ersna_58 = parent.members; for (var id in _72ersna_58){
+var member = _72ersna_58[id];
 if (! current.members.hasOwnProperty (id))
 current.members [id] = $.extend (true, {}, member, {"publicMode":member.publicMode === "private" ? "locked" : member.publicMode});
 }}
@@ -2212,13 +2211,25 @@ var parentConstructor = parent.members ["@constructor"], constructor = current.m
 if (parentConstructor.body.body.length > 0 && ! searchSuperExpression (constructor))
 {
 if (constructor.autocreated || parentConstructor.params.length === 0)
-constructor.body.body = [expressionStatement (superExpression (null))].concat (constructor.body.body);
+{
+var updated = [];
+{ var _2kk9tqf_59 = constructor.body.body; for (var _1klbirs_60 = 0; _1klbirs_60 < _2kk9tqf_59.length; _1klbirs_60 ++){
+var statement = _2kk9tqf_59[_1klbirs_60];
+if (statement.autocreated)
+updated.push (statement);
+else
+break;
+}}
+updated.push (expressionStatement (superExpression (null)));
+[].push.apply (updated, constructor.body.body.slice (updated.length));
+constructor.body.body = updated;
+}
 else
 throw new TypeError("Super constructor call is required", constructor);
 }
 }
-{ var _7favqj5_25 = current.dependsOn.uses; for (var _1atvg34_26 = 0; _1atvg34_26 < _7favqj5_25.length; _1atvg34_26 ++){
-var use = _7favqj5_25[_1atvg34_26];
+{ var _8kst8ab_61 = current.dependsOn.uses; for (var _4amsog3_62 = 0; _4amsog3_62 < _8kst8ab_61.length; _4amsog3_62 ++){
+var use = _8kst8ab_61[_4amsog3_62];
 var used = byName (use.name);
 if (! used)
 throw new TypeError("Used class \"" + use.name + "\" not found", use);
@@ -2226,8 +2237,8 @@ throw new TypeError("Used class \"" + use.name + "\" not found", use);
 current.connected = true;
 }
 function connectClasses (){
-for (var _7o9qut7_27 = 0; _7o9qut7_27 < classes.length; _7o9qut7_27 ++){
-var classEntry = classes[_7o9qut7_27];
+for (var _2i80sgd_63 = 0; _2i80sgd_63 < classes.length; _2i80sgd_63 ++){
+var classEntry = classes[_2i80sgd_63];
 connectClass (classEntry);
 }
 }
