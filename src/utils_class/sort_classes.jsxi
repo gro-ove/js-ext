@@ -1,3 +1,4 @@
+// Сортируем классы
 function sortClasses (){
 	function getWeight (current){
 		if (typeof current === 'string'){

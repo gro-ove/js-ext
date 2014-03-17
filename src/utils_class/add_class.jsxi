@@ -1,6 +1,6 @@
 // Записываем класс в список
 function addClass (classEntry){
-	console.assert (!byName (classEntry.id.name), 'already declared');
+	console.assert (!byName (classEntry.id.name), 'Already declared');
 
 	// Вспомогательный атрибут на будущее
 	classEntry.classObject = true;
@@ -49,10 +49,6 @@ function updateMember (member, classEntry){
 	// Если вдруг такого метода или поля в классе нет, добавим
 	if (!classEntry.members.hasOwnProperty (member.id.name))
 		classEntry.members [member.id.name] = member;
-
-	// Если нужно, меняем publicMode на значение по умолчанию
-	if (!member.hasOwnProperty ('publicMode') || member.publicMode === null)
-		member.publicMode = classEntry.publicMode || 'private';
 
 	// И добавляем пару вспомогательных атрибутов
 	member.className = classEntry.id;

@@ -32,14 +32,29 @@ function parseFunction (options = {}){
 	return (options.declaration ? functionDeclarationFromToken : functionExpressionFromToken)(token, id, params, body);
 }
 
-function parseFunctionExpression ()
-	return parseFunction ();
+function parseFunctionExpression (){
+	var oldNoReturn = state.noReturn, result;
+	state.noReturn = false;
+	result = parseFunction ();
+	state.noReturn = oldNoReturn;
+	return result;
+}
 
-function parseFunctionDeclaration ()
-	return parseFunction ({ id: true, declaration: true });
+function parseFunctionDeclaration (){
+	var oldNoReturn = state.noReturn, result;
+	state.noReturn = false;
+	result = parseFunction ({ id: true, declaration: true });
+	state.noReturn = oldNoReturn;
+	return result;
+}
 
-function parseLambdaExpression ()
-	return parseFunction ({ id: false, keyword: 'lambda', optionalParams: [ identifier ('arg') ] });
+function parseLambdaExpression (){
+	var oldNoReturn = state.noReturn, result;
+	state.noReturn = false;
+	result = parseFunction ({ id: false, keyword: 'lambda', optionalParams: [ identifier ('arg') ] });
+	state.noReturn = oldNoReturn;
+	return result;
+}
 
 function parseFunctionArguments (){
 	var name, params = [], comma = {};

@@ -5,22 +5,39 @@ function __prototypeExtend (c, p, t){
 	c.prototype.constructor = c;
 }
 
-function Parent (){                                        // current.jsx:15
-	console.log ('Created: ' + this.__Parent_method ());   // current.jsx:17
+/* Definition of class "Parent" */
+
+function Parent (){                                 // current.jsx:15
+	if (this.constructor === Parent)
+		throw new Error ('Trying to instantiate abstract class Parent');
+	
+	console.log ('Created: ' + this.__method ());   // current.jsx:17
+	console.log (this.__a (), this.b ());           // current.jsx:18
 }
 
-Parent.prototype.__Parent_method = function (){            // current.jsx:20
-	return 'Ok.';                                          // current.jsx:21
+Parent.prototype.b = function (){                   // current.jsx:25
+	return 'B';                                     // current.jsx:26
 };
 
-function Child (){                                         // current.jsx:25
-	Parent.apply (this, arguments);                        // current.jsx:15
+/* Definition of class "Child" */
+
+function Child (){                                  // current.jsx:29
+	Parent.apply (this, arguments);                 // current.jsx:15
 }
 
 __prototypeExtend (Child, Parent);
-Child.prototype.__Parent_method = function (){             // current.jsx:26
-	return 'Fail.';                                        // current.jsx:27
+Child.prototype.__method = function (){             // current.jsx:30
+	return 'Win.';                                  // current.jsx:31
 };
+Child.prototype.__a = function (){                  // current.jsx:34
+	return 'C-A';                                   // current.jsx:35
+};
+Child.prototype.b = function (){                    // current.jsx:37
+	return 'C-B';                                   // current.jsx:38
+};
+
+/* Global initializer */
+
 (function (){
-	new Child ();                                          // current.jsx:32
+	new Child ();                                   // current.jsx:42
 }());

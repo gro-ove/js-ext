@@ -50,7 +50,7 @@ function processClass (classEntry){
 	initializer.id = null;
 
 	// Если хоть одно из полей абстрактно, то и класс абстрактен
-	if (!classEntry.params.abstract && objectMethods.filter (lambda arg.abstract).length > 0)
+	if (!classEntry.params.abstract && filter (classEntry, lambda arg.abstract).length > 0)
 		classEntry.params.abstract = true;
 
 	// Исключение в конструктор для абстрактных классов
@@ -152,6 +152,8 @@ function processClass (classEntry){
 }
 
 function processClasses (){
-	for (var classEntry in-array classes)
+	for (var classEntry in-array classes){
 		classEntry.elements = processClass (classEntry);
+		classEntry.elements [0].headerComment = '/* Definition of class "' + classEntry.id.name + '" */';
+	}
 }

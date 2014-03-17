@@ -3,9 +3,9 @@ function keyword (id)
 		case 2:
 			return id === 'if' || id === 'in' || id === 'do';
 		case 3:
-			return id === 'var' || id === 'for' || id === 'new' || id === 'try' || id === 'uses';
+			return id === 'var' || id === 'for' || id === 'new' || id === 'try';
 		case 4:
-			return id === 'this' || id === 'else' || id === 'case' || id === 'void' || id === 'with' || id === 'enum';
+			return id === 'this' || id === 'else' || id === 'case' || id === 'void' || id === 'with' || id === 'enum' || id === 'uses';
 		case 5:
 			return id === 'while' || id === 'break' || id === 'catch' || id === 'throw' || id === 'class' || id === 'super';
 		case 6:

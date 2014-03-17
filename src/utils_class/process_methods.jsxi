@@ -366,9 +366,10 @@ function processClassMethods (classEntry){
 		childMember;
 
 	// Проходим по всем методам именно этого класса
-	for (var name, member in classEntry.members)
+	for (var name, member in classEntry.members){
 		if (member.method && !member.abstract && member.className === classEntry.id)
 			processClassMethod (classEntry, member);
+	}
 }
 
 function processClassesMethods (){

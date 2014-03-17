@@ -1,112 +1,94 @@
-// Получаем заменённое имя в зависимости от видимости переменной
-function rename (name, member){
-	// Скрытым или приватным и статическим членам имя не меняем
-	if (member.publicMode === 'locked' || member.static && member.publicMode === 'private')
-		return name;
-
-	switch (member.publicMode){
-		case 'protected':
-			return '__' + name;
-
-		case 'private':
-			return '__' + member.className.name + '_' + name;
-
-		case 'public':
+function processClassesMembers (){
+	// Получаем заменённое имя в зависимости от видимости переменной
+	function rename (name, member, publicMode){
+		// Скрытым или приватным и статическим членам имя не меняем
+		if (publicMode === 'locked' || member.static && publicMode === 'private')
 			return name;
 
-		default:
-			console.assert (false, 'Bad publicMode value');
-	}
-}
+		switch (publicMode){
+			case 'protected':
+				return '__' + name;
 
-// Проверяем, может ли поле или метод childMember перекрыть поле или метод роди-
-// тельского класса parentMember
-function testBadOverride (parentMember, childMember)
-	switch (childMember.publicMode){
-		// Как и с градусом, нельзя понижать. Я имею в виду, конечно же, уровень
-		// видимости.
+			case 'private':
+				return '__' + member.className.name + '_' + name;
 
-		case 'public':
-			return false;
+			case 'public':
+				return name;
 
-		case 'protected':
-			return parentMember.publicMode === 'public';
-
-		case 'private':
-			return parentMember.publicMode !== 'private';
-
-		case 'locked':
-			return false;
-
-		default:
-			console.assert (false, 'Bad publicMode value');
-	}
-
-function morePublicMode (firstMode, secondMode){
-	var modes = [ 'locked', 'private', 'protected', 'public' ],
-		firstId = modes.indexOf (firstMode),
-		secondId = modes.indexOf (secondMode),
-		maxId = Math.max (firstId, secondId);
-
-	return modes [maxId];
-}
-
-function processClassMember (classEntry, name, parentMember){
-	var newPublicMode = parentMember.publicMode,
-		targetMembers = [ parentMember ],
-		argument,
-		updatedName;
-
-	function testChilds (currentClass){
-		var childMember;
-
-		for (var childClass in-array currentClass.childs){
-			if (childClass.members.hasOwnProperty (name)){
-				childMember = childClass.members [name];
-
-				if (testBadOverride (parentMember, childMember))
-					throw new TypeError ('Invalid public mode ("' + childMember.publicMode + '" instead of "' + parentMember.publicMode 
-						+ '" for member "' + name + '" of class "' + childClass.id.name + '" which extends "' + currentClass.id.name + '")', childMember.id);
-
-				if (parentMember.method !== childMember.method)
-					throw new TypeError ('Invalid override (' + (childMember.method ? 'method' : 'field') + ' instead of ' + (parentMember.method ? 'method' : 'field')
-						+ ' for member "' + name + '" of class "' + childClass.id.name + '" which extends "' + currentClass.id.name + '")', childMember.id);
-
-				newPublicMode = morePublicMode (newPublicMode, childMember.publicMode);
-				targetMembers.push (childMember);
-			}
-
-			testChilds (childClass);
+			default:
+				console.assert (false, 'Bad publicMode value');
 		}
 	}
 
-	testChilds (classEntry);
+	// Проверяем, ошибочно ли перекрытие поля или метода родительского класса (нельзя понижать видимость)
+	function badOverride (parentMember, childMember)
+		switch (childMember.publicMode){
+			case 'public':
+				return false;
 
-	if (newPublicMode !== parentMember.publicMode)
-		argument = $.extend ({}, parentMember, { publicMode: newPublicMode });
-	else
-		argument = parentMember;
+			case 'protected':
+				return parentMember.publicMode === 'public';
 
-	updatedName = rename (name, argument);
+			case 'private':
+				return true;
 
-	for (var targetMember in-array targetMembers){
-		targetMember.id.name = updatedName;
-		targetMember.processed = true;
+			default:
+				console.assert (false, 'Bad publicMode value: ' + childMember.publicMode);
+		}
+
+	function morePublicMode (firstMode, secondMode){
+		var modes = [ 'locked', 'private', 'protected', 'public' ],
+			firstId = modes.indexOf (firstMode),
+			secondId = modes.indexOf (secondMode),
+			maxId = Math.max (firstId, secondId);
+
+		return modes [maxId];
 	}
-}
 
-function processClassMembers (classEntry){
-	var replace,
-		childMember;
+	function processClassMember (classEntry, name, member){
+		var publicMode = member.publicMode,
+			members = [ member ],
+			updated;
 
-	// Проходим по всем полям и методам класса,  кроме конструктора, инициализа-
-	// тора и уже обработанных полей или методов
-	for (var name, member in classEntry.members)
-		if (name [0] !== '@' && !member.processed)
-			processClassMember (classEntry, name, member);
-}
+		function testChilds (current){
+			var childMember;
 
-function processClassesMembers (){
+			for (var child in-array current.childs){
+				if (child.members.hasOwnProperty (name)){
+					childMember = child.members [name];
+
+					if (badOverride (member, childMember))
+						throw new TypeError ('Invalid public mode', childMember.id);
+
+					if (member.method !== childMember.method)
+						throw new TypeError ('Invalid override (' + (member.method ? 'method' : 'field') + ' required)', childMember.id);
+
+					publicMode = morePublicMode (publicMode, childMember.publicMode);
+					members.push (childMember);
+				}
+
+				testChilds (child);
+			}
+		}
+
+		if (publicMode === 'protected' || publicMode === 'public')
+			testChilds (classEntry);
+
+		updated = rename (name, member, publicMode);
+
+		for (var targetMember in-array members){
+			targetMember.id.name = updated;
+			targetMember.processed = true;
+		}
+	}
+
+	function processClassMembers (classEntry){
+		// Проходим по всем полям и методам класса, кроме конструктора, инициализатора и уже обработанных полей или методов
+		for (var name, member in classEntry.members)
+			if (name [0] !== '@' && !member.processed)
+				processClassMember (classEntry, name, member);
+	}
+
 	for (var classEntry in-array classes)
 		processClassMembers (classEntry);
 }

@@ -13,7 +13,7 @@ function parseClassParams (){
 			partial: 			false
 		};
 
-	do {
+	loop: do {
 		token = lex ();
 
 		switch (token.value){
@@ -42,15 +42,19 @@ function parseClassParams (){
 				if (result.abstract)
 					unexpected (token);
 				result.interface = token.value;
-				return result;
 
 			case 'class':
-				return result;
+				break loop;
 
 			default:
 				unexpected (token);
 		}
 	} while (index < length);
+
+	if (result.publicMode === null)
+		result.publicMode = 'private';
+
+	return result;
 }
 
 function parseExtendsImplementsAndUses (mode){
@@ -64,32 +68,21 @@ function parseExtendsImplementsAndUses (mode){
 		return list;
 	}
 
-	// Интерфейс суть лишь особенный класс
-	var token, result = { parent: null, implements: [], uses: [] };
+	var result = { parent: null, implements: [], uses: [] };
 
-	do {
-		token = lookahead ();
+	while (!match ('{')){
+		if (!result.parent && !mode.interface && !mode.static && matchKeywordLex ('extends')){
+			helpers.set ('prototypeExtend');
+			result.parent = parseIdentifier ();
+		} else if (matchKeywordLex ('implements')){
+			collect (result.implements);
+		} else if (matchKeywordLex ('uses')){
+			collect (result.uses);
+		} else
+			unexpected ();
+	}
 
-		switch (token.value){
-			case 'extends':
-				if (result.parent || mode.interface || mode.static)
-					unexpected (token);
-
-				lex ();
-				result.parent = parseIdentifier ();
-				helpers.set ('prototypeExtend', token);
-				break;
-
-			case 'implements':
-			case 'uses':
-				lex ();
-				collect (result [token.value]);
-				break;
-
-			default:
-				return result;
-		}
-	} while (index < length);
+	return result;
 }
 
 function parseClassMembers (params, dependsOn, result = {}){
@@ -98,33 +91,25 @@ function parseClassMembers (params, dependsOn, result = {}){
 		current;
 
 	function refresh ()
-		// Параметр «publicMode» можно переопределить
-		current = { 
-			publicMode: 		null,
-			static: 			params.static
-		}
+		current = { publicMode: null, static: params.static };
 
 	function set (obj){
-		var name = obj.id.name,
-			has = result.hasOwnProperty (name),
-			temp = has ? result [name] : null;
+		// TODO:
+		console.assert (!((result.hasOwnProperty (obj.id.name) ? result [obj.id.name] : null) instanceof Array), 'ARRAY!');
 
-		$.extend (obj, current, { publicMode: current.publicMode || params.publicMode });
+		if (result.hasOwnProperty (obj.id.name))
+			throw new SyntaxError ('Member "' + obj.id.name + '" already declared', token);
 
-		if (temp instanceof Array){
-			temp.push (obj);
-		} else if (has){
-			throw new SyntaxError ('Member "' + name + '" already declared', token);
-		} else
-			result [name] = obj;
+		obj.publicMode = current.publicMode || params.publicMode;
+		obj.static = current.static;
+		obj.abstract = current.abstract;
+
+		result [obj.id.name] = obj;
 	}
 
 	function parseField (){
 		if (params.interface && !current.static)
-			throw new TypeError ('Interface couldn\'t have object fields.');
-
-		if (current.abstract)
-			throw new TypeError ('Field could\'t be abstract.');
+			throw new TypeError ('Interface cannot have object fields');
 
 		for (var entry in-array parseVariableDeclarators ())
 			set (entry);
@@ -132,8 +117,12 @@ function parseClassMembers (params, dependsOn, result = {}){
 	}
 
 	function parseMethod (){
-		if (current.publicMode === 'private' && current.abstract)
-			throw new TypeError ('Private method couldn\'t be abstract.');
+		if (current.abstract){
+			if ((current.publicMode || params.publicMode) === 'private')
+				throw new TypeError ('Abstract method cannot be private');
+			// else if (current.publicMode === null)
+			// 	current.publicMode = 'protected';
+		}
 
 		state.superAvailable = !current.static && dependsOn.parent;
 
@@ -147,53 +136,48 @@ function parseClassMembers (params, dependsOn, result = {}){
 
 	function parseInitializerOrConstructor (){
 		if (current.publicMode)
-			throw new TypeError ('Constructor or initializer couldn\'t be ' + current.publicMode);
+			throw new TypeError ('Constructor or initializer cannot have overrided visibility');
 
 		if (current.abstract)
-			throw new TypeError ('Constructor or initializer couldn\'t be abstract');
+			throw new TypeError ('Constructor or initializer cannot be abstract');
 
 		state.superAvailable = !current.static && dependsOn.parent;
 		state.noReturn = true;
 
 		var result = parseFunction ({ keyword: null, id: false, optionalParams: true });
-
 		result.id = identifier (current.static ? '@initializer' : '@constructor');
-		set (result);
-		refresh ();
 
 		state.superAvailable = false;
 		state.noReturn = false;
+
+		set (result);
+		refresh ();
 	}
 
 	state.inClass = true;
 	expect ('{');
 	refresh ();
 
-	loop: do {
+	while (!match ('}')){
 		token = lookahead ();
 
 		switch (token.value){
 			case 'private':
-				if (current.abstract)
-					unexpected (token);
-
 			case 'public':
 			case 'protected':
 				if (current.publicMode !== null)
 					unexpected (token);
-
 				lex ();
 				current.publicMode = token.value;
 				break;
 
 			case 'abstract':
-				if (params.interface || current.publicMode === 'private')
+				if (params.interface)
 					unexpected (token);
 
 			case 'static':
 				if (current.abstract || current.static)
 					unexpected (token);
-
 				lex ();
 				current [token.value] = true;
 				break;
@@ -213,9 +197,6 @@ function parseClassMembers (params, dependsOn, result = {}){
 				parseInitializerOrConstructor ();
 				break;
 
-			case '}':
-				break loop;
-
 			default:
 				if (token.type === Token.Identifier){
 					var saved = saveAll (),
@@ -232,7 +213,7 @@ function parseClassMembers (params, dependsOn, result = {}){
 				} else
 					unexpected (token);
 		}
-	} while (index < length);
+	}
 
 	expect ('}');
 
@@ -324,7 +305,7 @@ function parseClassDeclaration (){
 	var members = parseClassMembers (params, dependsOn, previous ? previous.members : {});
 
 	// Выводим распарсенное в консоль
-	verbose (id, params, dependsOn, members);
+	// verbose (id, params, dependsOn, members);
 
 	// Записываем новый класс
 	if (!previous)

@@ -32,42 +32,13 @@ function connectClass (current, from){
 				current.members [id] = $.extend (true, {}, member, { publicMode: member.publicMode === 'private' ? 'locked' : member.publicMode });
 
 		var parentConstructor = parent.members ['@constructor'],
-			currentConstructor = current.members ['@constructor'];
+			constructor = current.members ['@constructor'];
 
-		// Если у родительского класса есть непустой конструктор, в дочернем до-
-		// лжен быть вызов супер-конструктора
-		if (parentConstructor && parentConstructor.body.body.length > 0){
-
-			// Если у дочернего класса нет конструктора, создаём
-			// TODO: Эта ветка никогда не выполнится - или переделать,  позволив 
-			// классам обходиться без конструктора, или выкинуть её к чертям
-			// TODO: Вообще, какого чёрта? Конструктор создаётся даже для стати-
-			// ческого класса?
-			if (!currentConstructor){
-
-				// Тело нового конструктора - вызов супер-конструктора
-				var body = [ expressionStatement (superExpression (null)) ];
-
-				// Добавляем конструктор классу
-				updateMember (current, functionDeclaration ('@constructor', [], body));
-
-			// Иначе,  если в конструкторе дочернего класса нет вызова конструк-
-			// тора родительского класса
-			} else if (!searchSuperExpression (currentConstructor)){
-
-				// Если  конструктор  дочернего класса  создан автоматически или
-				// конструктор родительского класса не содержит параметров,  до-
-				// бавим вызов сами
-				if (currentConstructor.autocreated || parentConstructor.params.length === 0){
-
-					currentConstructor.body.body = [ 
-						expressionStatement (superExpression (null)) 
-					].concat (currentConstructor.body.body);
-
-				// Иначе сообщаем об ошибке
-				} else
-					throw new TypeError ('Super constructor call is required', currentConstructor);
-			}
+		if (parentConstructor.body.body.length > 0 && !searchSuperExpression (constructor)){
+			if (constructor.autocreated || parentConstructor.params.length === 0)
+				constructor.body.body = [ expressionStatement (superExpression (null)) ].concat (constructor.body.body);
+			else
+				throw new TypeError ('Super constructor call is required', constructor);
 		}
 	}
 

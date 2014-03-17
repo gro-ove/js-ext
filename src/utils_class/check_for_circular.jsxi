@@ -2,27 +2,28 @@
 function checkClassesForCircular (){
 	var current = {};
 
-	function checkClassForCircular (id){
-		var entry = byName (id.name);
+	function checkClassForCircular (current){
+		if (typeof current === 'string')
+			current = byName (current);
 
-		// Если класса не достаёт, выкинем ошибку позже, в connectClass
-		if (entry){
-			if (id.name in current)
+		// Если класса нет, выкинем ошибку позже, в connectClass
+		if (current){
+			if (current.id.name in current)
 				throw new TypeError ('Circular dependency', id);
 
-			current [id.name] = true;
+			current [current.id.name] = true;
 
-			if (entry.dependsOn.parent)
-				checkClassForCircular (entry.dependsOn.parent);
+			if (current.dependsOn.parent)
+				checkClassForCircular (current.dependsOn.parent.name);
 
-			for (var use in-array entry.dependsOn.uses)
-				if (!entry.parent || use.name !== entry.parent.name)
-					checkClassForCircular (use);
+			for (var use in-array current.dependsOn.uses)
+				if (!current.parent || use.name !== current.parent.name)
+					checkClassForCircular (use.name);
 
-			delete current [id.name];
+			delete current [current.id.name];
 		}
 	}
 
-	for (var c in-array classes)
-		checkClassForCircular (c.id);
+	for (var classEntry in-array classes)
+		checkClassForCircular (classEntry);
 }

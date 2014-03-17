@@ -1,7 +1,7 @@
 	function JsExtError (name, message, location){
 		var filename = location && location.filename || options && options.filename || '<unknown file>',
-			lineNumber = location && location.lineNumber || lineNumber || '<unknown line>',
-			result = new Error (message + ' [' + filename + ':' + lineNumber + ']');
+			line = location && location.lineNumber || lineNumber || '<unknown line>',
+			result = new Error (message + ' [' + filename + ':' + line + ']');
 
 		result.name = name;
 		return result;

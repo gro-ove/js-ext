@@ -152,10 +152,17 @@ var niceMode = true,
 				throw new Error ('Node = ' + node);
 			}
 
-			if (niceMode && comment === null && node.filename)
-				comment = node.filename + ':' + node.lineNumber /** /+ ' [' + node.type + ']'/**/;
-
 			var result, temp;
+
+			if (niceMode){
+				if (comment === null && node.filename){
+					comment = node.filename + ':' + node.lineNumber;
+				} else if (node.headerComment){
+					result = node.headerComment;
+					node.headerComment = false;
+					return result + '\n\n' + tabs + generate (node, tabs, parent);
+				}
+			}
 
 			switch (node.type){
 				/* Simpliest types */
@@ -401,7 +408,7 @@ var niceMode = true,
 
 					for (var index, childNode in-array node.body){
 						if (index > 0){
-							if (temp !== childNode.type || childNode.type !== Syntax.ExpressionStatement){
+							if (temp !== childNode.type || childNode.type !== Syntax.ExpressionStatement || childNode.headerComment){
 								temp = childNode.type;
 								result += end () + '\n';
 							} else

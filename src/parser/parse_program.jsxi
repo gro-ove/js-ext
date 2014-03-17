@@ -18,9 +18,10 @@ function parseProgramElement (){
 				saved = saveAll ();
 
 				try {
-					temp 			= token.value === '(' ? parseFunctionArguments () : [];
-					result 			= expressionStatement (callExpression (functionExpression (null, temp, parseBlock ())));
-					result.after 	= true;
+					temp 					= token.value === '(' ? parseFunctionArguments () : [];
+					result 					= expressionStatement (callExpression (functionExpression (null, temp, parseBlock ())));
+					result.after 			= true;
+					result.headerComment	= '/* Global initializer */';
 
 					return result;
 				} catch 
