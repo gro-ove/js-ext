@@ -95,9 +95,6 @@ function parseClassMembers (params, dependsOn){
 		current = { publicMode: null, static: params.static };
 
 	function set (obj){
-		// TODO:
-		console.assert (!((result.hasOwnProperty (obj.id.name) ? result [obj.id.name] : null) instanceof Array), 'ARRAY!');
-
 		if (result.hasOwnProperty (obj.id.name))
 			throw new SyntaxError ('Member "' + obj.id.name + '" already declared', token);
 
@@ -158,7 +155,7 @@ function parseClassMembers (params, dependsOn){
 	expect ('{');
 	refresh ();
 
-	while (!match ('}')){
+	while (!matchLex ('}')){
 		token = lookahead ();
 
 		switch (token.value){
@@ -215,96 +212,16 @@ function parseClassMembers (params, dependsOn){
 		}
 	}
 
-	expect ('}');
-
 	state.inClass = oldInClass;
 	return result;
 }
 
-function verbose (id, params, dependsOn, members){
-	var membersStrings = [], dependsOnStrings = [], beforeString = '';
-	for (var key, member in members){
-		var temp = [];
-
-		if (member instanceof Array){
-			member = member [0];
-			if (!member)
-				continue;
-		}
-
-		for (var attribute, setted in member)
-			if (setted === true)
-				temp.push (attribute);
-
-		if (member.publicMode)
-			temp.push (member.publicMode);
-
-		temp.push ({ FunctionExpression: 'method', VariableDeclarator: 'field' }[member.type] || '<something wrong: ' + member.type + '>');
-
-		if (members [key] instanceof Array)
-			temp.push (', total count: ' + members [key].length);
-
-		membersStrings.push ('	* ' + member.id.name + ' (' + temp.join (' ').replace (/ ,/g, ',') + ')');
-	}
-
-	var paramsString = [];
-	for (var attribute, setted in params)
-		if (setted === true)
-			paramsString.push (attribute);
-
-	if (params.publicMode)
-		paramsString.push (params.publicMode);
-
-	if (paramsString.length)
-		dependsOnStrings.push (paramsString.join (' '));
-
-	if (dependsOn.parent)
-		dependsOnStrings.push ('child of ' + dependsOn.parent.name);
-
-	if (dependsOn.implements.length)
-		dependsOnStrings.push ('implements ' + dependsOn.implements.map (lambda arg.name).join (', '));
-
-	if (dependsOn.uses.length)
-		dependsOnStrings.push ('using ' + dependsOn.uses.map (lambda arg.name).join (', '));
-
-	if (dependsOnStrings.length)
-		beforeString = ' (' + dependsOnStrings.join ('; ') + ')';
-
-	console.info (id.name + beforeString + ':\n' + membersStrings.join ('\n'));
-}
-
 function parseClassDeclaration (){
-	// Получаем параметры класса, задаваемые ключевыми словами вроде «public», «abstract», «static» или «interface»
-	var params = parseClassParams ();
+	var params 		= parseClassParams (),
+		id 			= parseIdentifier (),
+		dependsOn 	= parseExtendsImplementsAndUses (params),
+		members 	= parseClassMembers (params, dependsOn);
 
-	// А после — имя класса
-	var id = parseIdentifier ();
-
-	// Классы, от которых зависит текущий класс (родительские, интерфейсы и используемые)
-	var dependsOn = parseExtendsImplementsAndUses (params);
-
-	// if (previous){
-	// 	if (!params.partial)
-	// 		throw new TypeError ('Class "' + id.name + '" already declared', id);
-	// 	else if (JSON.stringify (params) !== JSON.stringify (previous.params))
-	// 		throw new TypeError ('Different class params', id);
-	// 	else if (JSON.stringify (dependsOn.parent) !== JSON.stringify (previous.dependsOn.parent))
-	// 		throw new TypeError ('Different "extends" param', id);
-	// 	else if (JSON.stringify (dependsOn.implements) !== JSON.stringify (previous.dependsOn.implements))
-	// 		throw new TypeError ('Different "implements" param', id);
-
-	// 	for (var temp in-array dependsOn.uses)
-	// 		if (previous.dependsOn.uses.indexOf (temp) === -1)
-	// 			previous.dependsOn.uses.push (temp);
-	// }
-
-	// Содержимое класса
-	var members = parseClassMembers (params, dependsOn);
-
-	// Выводим распарсенное в консоль
-	// verbose (id, params, dependsOn, members);
-
-	// Записываем новый класс
 	return {
 		type: 			Syntax.RawClassDeclaration,
 		id: 			id,

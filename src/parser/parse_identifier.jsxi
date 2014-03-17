@@ -1,8 +1,0 @@
-function parseIdentifier (){
-	var token = lex ();
-
-	if (token.type !== Token.Identifier)
-		unexpected (token);
-
-	return identifierFromToken (token);
-}

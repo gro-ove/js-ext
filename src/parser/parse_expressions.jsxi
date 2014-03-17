@@ -1,0 +1,639 @@
+function parseArrayPerlInitializer (elements){
+	var maxCountForInline = 10,
+		firstElement = elements [0],
+		secondElement = parseAssignmentExpression (),
+		from, to, delta, chars;
+
+	expect (']');
+
+	if (firstElement.type === Syntax.NumericLiteral && secondElement.type === Syntax.NumericLiteral){
+		from 	= +firstElement.value;
+		to 		= +secondElement.value;
+
+	} else if (firstElement.type === Syntax.StringLiteral && secondElement.type === Syntax.StringLiteral){
+		from 	= stringLiteralValue (firstElement);
+		to 		= stringLiteralValue (secondElement);
+
+		if (from === null || from.length > 1)
+			unexpected (firstElement);
+
+		if (to === null || to.length > 1)
+			unexpected (secondElement);
+
+		from 	= from.charCodeAt (0);
+		to 		= to.charCodeAt (0);
+		chars 	= true;
+	}
+
+	if (from !== undefined && Math.abs (from - to) < maxCountForInline){
+		delta = from < to ? 1 : -1;
+
+		while (from !== to){
+			from += delta;
+			elements.push (chars ? stringLiteralWithQuotes (String.fromCharCode (from)) : numericLiteral (from));
+		}
+
+		return arrayExpression (elements);
+	} else {
+		helpers.set ('createArray', firstElement);
+		return callExpression ('__createArray', [ firstElement, secondElement ]);
+	}
+}
+
+function parseArrayInitialiser (){
+	var elements = [], comma = {};
+
+	expect ('[');
+
+	while (!matchLex (']'))
+		if (match (',')){
+			parseOptionalComma (comma);
+			elements.push (null);
+		} else {
+			elements.push (parseAssignmentExpression ());
+
+			if (elements.length === 1 && matchLex ('..'))
+				return parseArrayPerlInitializer (elements);
+
+			if (!match (']'))
+				parseOptionalComma (comma);
+		}
+
+	return arrayExpression (elements);
+}
+
+function parsePropertyFunction (param, first)
+	return {
+		type: 			Syntax.FunctionExpression,
+		id: 			null,
+		params: 		param,
+		body: 			parseFunctionElements ()
+	};
+
+function parseObjectPropertyKey (){
+	var token = lex ();
+	return mark (token.type === Token.StringLiteral ? { type: Syntax.StringLiteral, value: token.value } 
+		: { type: Syntax.Identifier, name: token.value }, token);
+}
+
+function parseObjectProperty (){
+	var token = lookahead (), key;
+
+	if (token.type === Token.EOF || token.type === Token.Punctuator){
+		unexpected (token);
+	} else {
+		key = parseObjectPropertyKey ();
+		expect (':');
+		return {
+			type: 		Syntax.Property,
+			key: 		key,
+			value: 		parseAssignmentExpression ()
+		};
+	}
+}
+
+function parseObjectContent (){
+	var properties = [], property, name, kind, map = {}, comma = {};
+
+	while (!match ('}')){
+		if (properties.length){
+			parseOptionalComma (comma);
+
+			if (match ('}'))
+				break;
+		}
+
+		properties.push (parseObjectProperty ());
+	}
+
+	return properties;
+}
+
+function parseObjectInitialiser (){
+	expect ('{');
+	var result = parseObjectContent ();
+	expect ('}');
+	return objectExpression (result);
+}
+
+function parseNonComputedProperty (){
+	var token = lex ();
+	if (token.type !== Token.Identifier && token.type !== Token.Keyword && token.type !== Token.BooleanLiteral && token.type !== Token.NullLiteral)
+		unexpected (token);
+	return mark ({ type: Syntax.Identifier, name: token.value }, token);
+}
+
+function parseNonComputedMember (){
+	expect ('.');
+	return parseNonComputedProperty ();
+}
+
+function parseComputedMember (){
+	expect ('[');
+	var temp = parseExpression ();
+	expect (']');
+	return temp;
+}
+
+function parseNewExpression (){
+	expectKeyword ('new');
+	var result = newExpression (parseLeftHandSideExpression (), match ('(') ? parseArguments () : []);
+
+	// if (match ('{'))
+	// 	return parseAnonymousClass ();
+	// 	console.log (parseBlock ());
+
+	return result;
+}
+
+function parseSuperExpression (){
+	var level = 1, name = null;
+
+	expectKeyword ('super');
+
+	if (!state.superAvailable)
+		throw new TypeError ('Super can be used in class functions only');
+
+	while (matchLex ('.')){
+		if (matchKeywordLex ('super')){
+			level ++;
+		} else {
+			name = parseIdentifier ();
+			break;
+		}
+	}
+
+	return superExpression (name, match ('(') ? parseArguments () : null, level);
+}
+
+function parseLeftHandSideExpressionTemp ()
+	return matchKeyword ('new') ? parseNewExpression () : matchKeyword ('super') ? parseSuperExpression () : parsePrimaryExpression ();
+
+function parseLeftHandSideExpressionAllowCall (){
+	var expression = parseLeftHandSideExpressionTemp (), token;
+
+	while (index < length){
+		token = lookahead ();
+
+		if (token.value === '('){
+			expression = callExpression (expression, parseArguments ());
+		} else if (token.value === '['){
+			expression = memberExpression (expression, parseComputedMember (), true);
+		} else if (token.value === '.' && source [token.range [0] + 1] !== '.'){
+			expression = memberExpression (expression, parseNonComputedMember (), false);
+		} else
+			break;
+	}
+
+	return expression;
+}
+
+function parseLeftHandSideExpression (){
+	var expression = parseLeftHandSideExpressionTemp ();
+
+	while (match ('.') || match ('['))
+		if (match ('['))
+			expression = memberExpression (expression, parseComputedMember (), true);
+		else 
+			expression = memberExpression (expression, parseNonComputedMember (), false);
+
+	return expression;
+}
+
+function parseMultiplicativeExpression (){
+	var expression = parseUnaryExpression ();
+
+	while (match ('*') || match ('/') || match ('%'))
+		expression = binaryExpression (expression, lex ().value, parseUnaryExpression ());
+
+	return expression;
+}
+
+function parseAdditiveExpression (){
+	var expression = parseMultiplicativeExpression ();
+
+	while (match ('+') || match ('-'))
+		expression = binaryExpression (expression, lex ().value, parseMultiplicativeExpression ());
+
+	return expression;
+}
+
+function parseShiftExpression (){
+	var expression = parseAdditiveExpression ();
+
+	while (match ('<<') || match ('>>') || match ('>>>'))
+		expression = binaryExpression (expression, lex ().value, parseAdditiveExpression ());
+
+	return expression;
+}
+
+function parseRelationalExpression (){
+	var inverse, expression, previousAllowIn;
+
+	previousAllowIn 	= state.allowIn;
+	state.allowIn 		= true;
+	expression 			= parseShiftExpression ();
+
+	while (index < length){
+		if (match ('!') && source [lookahead ().range [0] + 1] === 'i'){
+			inverse = saveAll ();
+			lex ();
+		}
+
+		if (match ('<') || match ('>') || match ('<=') || match ('>=') || previousAllowIn && matchKeyword ('in') || matchKeyword ('instanceof')){
+			expression = binaryExpression (expression, lex ().value, parseShiftExpression ());
+		} else if (previousAllowIn && (matchKeyword ('in-object') || matchKeyword ('in-array'))){
+			lex ();
+			expression = callExpression (memberExpression (parseShiftExpression (), 'hasOwnProperty'), [ expression ]);
+		} else {
+			if (inverse)
+				restoreAll (inverse);
+			break;
+		}
+
+		if (inverse){
+			expression = unaryExpression (expression, '!', true);
+			inverse = false;
+		}
+	}
+
+	state.allowIn 		= previousAllowIn;
+	return expression;
+}
+
+function parseEqualityExpression (){
+	var expression = parseRelationalExpression ();
+
+	while (match ('==') || match ('!=') || match ('===') || match ('!=='))
+		expression = binaryExpression (expression, lex ().value, parseRelationalExpression ());
+
+	return expression;
+}
+
+function parseBitwiseANDExpression (){
+	var expression = parseEqualityExpression ();
+
+	while (match ('&')){
+		lex ();
+		expression = binaryExpression (expression, '&', parseEqualityExpression ());
+	}
+
+	return expression;
+}
+
+function parseBitwiseXORExpression (){
+	var expression = parseBitwiseANDExpression ();
+
+	while (match ('^')){
+		lex ();
+		expression = binaryExpression (expression, '^', parseBitwiseANDExpression ());
+	}
+
+	return expression;
+}
+
+function parseBitwiseORExpression (){
+	var expression = parseBitwiseXORExpression ();
+
+	while (match ('|')){
+		lex ();
+		expression = binaryExpression (expression, '|', parseBitwiseXORExpression ());
+	}
+
+	return expression;
+}
+
+function parseLogicalANDExpression (){
+	var expression = parseBitwiseORExpression ();
+
+	while (match ('&&')){
+		lex ();
+		expression = logicalExpression (expression, '&&', parseBitwiseORExpression ());
+	}
+
+	return expression;
+}
+
+function parseLogicalORExpression (){
+	var expression = parseLogicalANDExpression ();
+
+	while (match ('||')){
+		lex ();
+		expression = logicalExpression (expression, '||', parseLogicalANDExpression ());
+	}
+
+	return expression;
+}
+
+function parseConditionalExpression (){
+	var expression, previousAllowIn, consequent;
+
+	expression = parseLogicalORExpression ();
+
+	if (match ('?')){
+		lex ();
+		previousAllowIn 	= state.allowIn;
+		state.allowIn 		= true;
+		consequent 			= parseAssignmentExpression ();
+		state.allowIn 		= previousAllowIn;
+		expect (':');
+
+		expression = conditionalExpression (expression, consequent, parseAssignmentExpression ());
+	}
+
+	return expression;
+}
+
+function parseAssignmentExpression (){
+	var expression = parseConditionalExpression (),
+		token = lookahead ();
+
+	if (token.type === Token.Punctuator){
+		var value = token.value;
+
+		if (value === '=' || value === '*=' || value === '/=' || value === '%=' || value === '+=' || value === '-=' 
+			|| value === '<<=' || value === '>>=' || value === '>>>=' || value === '&=' || value === '^=' || value === '|='){
+			leftSideOnly (expression);
+			expression = assignmentExpression (expression, lex ().value, parseAssignmentExpression ());
+		}
+	}
+
+	return expression;
+}
+
+function parseExpression (){
+	var expression = parseAssignmentExpression ();
+
+	if (!state.preventSequence && match (',')){
+		expression = sequenceExpression ([ expression ]);
+
+		while (index < length){
+			if (!match (',')) 
+				break;
+			lex ();
+			expression.expressions.push (parseAssignmentExpression ());
+		}
+	}
+
+	return expression;
+}
+
+// function parsePostfixExpression (){
+// 	var expression = parseLeftHandSideExpressionAllowCall (), token;
+
+// 	token = lookahead ();
+// 	if (token.type !== Token.Punctuator)
+// 		return expression;
+
+// 	if ((match ('++') || match ('--')) && !peekLineTerminator ()){
+// 		leftSideOnly (expression);
+// 		expression = unaryExpression (expression, lex ().value, false);
+// 	}
+
+// 	return expression;
+// }
+
+function parseUnaryExpression (){
+	var token = lookahead ();
+
+	if (token.type === Token.Punctuator){
+		if (token.value === '++' || token.value === '--'){
+			lex ();
+			return unaryExpression (leftSideOnly (parseUnaryExpression ()), token.value, true);
+		}
+
+		if (token.value === '+' || token.value === '-' || token.value === '~' || token.value === '!'){
+			lex ();
+			return unaryExpression (parseUnaryExpression (), token.value, true);
+		}
+
+	} else if (token.type === Token.Keyword && (token.value === 'typeof' || token.value === 'delete' || token.value === 'void')){
+		lex ();
+		return unaryExpression (parseUnaryExpression (), token.value, true);
+	}
+
+	return parsePostfixExpression ();
+}
+
+function parsePostfixExpression (){
+	var expression = parseLeftHandSideExpressionAllowCall (), token;
+
+	token = lookahead ();
+
+	if (token.type !== Token.Punctuator)
+		return expression;
+
+	if ((token.value === '++' || token.value === '--') && token.lineNumber === lineNumber){
+		leftSideOnly (expression);
+		expression = unaryExpression (expression, lex ().value, false);
+	}
+
+	return expression;
+}
+
+function parseGroupExpression (){
+	expect ('(');
+	var result = parseExpression ();
+	expect (')');
+	return result;
+}
+
+/*
+	Парсим запись вида «'string %0 %1' (a, b)», отдавая на выходе синтаксическое
+	дерево, соответствующее коду «'string ' + a + ' ' + b»
+*/
+function parseComplexString (token){
+	/*
+		Разбиваем строку по знакам процента со следующими за ними числами. Числа
+		ищем десятичные, из исключительно значащих цифр (то есть без «01»). Про-
+		пускаем знаки «%», которым предшествует символ «\». Возвращаем массив из
+		строк и чисел; пустые строки и числа, превышающие «max», исключаем.
+
+		Если бы JavaScript умел в обратный просмотр, функция бы не понадобилась.
+	*/
+	function split (string, max){
+		// Вычитаем единицу, так как искать надо лишь «%» с числом после.
+		var length = string.length,
+			index = 0, 
+			previous = 0,
+			character,
+			temp,
+			result = [];
+
+		while (index < length)
+			switch (string [index]){
+				case '\\':
+					if (string [index + 1] === '%'){
+						if (previous < index)
+							result.push (string.substring (previous, index));
+						previous = index + 1;
+					}
+
+					index += 2;
+					break;
+
+				case '%':
+					// Нашли «%», но это последний символ в строке. Пропускаем.
+					if (index + 1 === length){
+						index ++;
+						break;
+					}
+
+					// Нашли ноль, а следом число - аналогично
+					if (string [index + 1] === '0' && index + 2 < length && decimalDigit (string [index + 2])){
+						index += 2;
+						break;
+					}
+
+					// Обычный парсинг
+					if (previous < index){
+						result.push (string.substring (previous, index));
+						previous = index;
+					}
+
+					index += 2;
+
+					while (index < length && decimalDigit (string [index]))
+						index ++;
+
+					temp = +string.substring (previous + 1, index);
+
+					if (temp < max)
+						result.push (temp);
+
+					previous = index;
+					break;
+
+				default:
+					index ++;
+			}
+
+		if (previous < length)
+			result.push (string.substring (previous, length));
+
+		return result;
+	}
+
+	var string = stringLiteralValue (token),
+		args = parseArguments (),
+		splitted,
+		result;
+
+	// Со строкой короче двух символов возиться незачем
+	if (string.length <= 1)
+		return stringLiteral (token.value);
+
+	splitted = split (string, args.length)
+		// Конвертируем в куски AST-дерева
+		.map (lambda 
+			if (typeof arg === 'number'){
+				var temp = args [arg];
+
+				if (temp.type === Syntax.StringLiteral)
+					return stringLiteral (temp.value);
+
+				if (temp.type === Syntax.BooleanLiteral || temp.type === Syntax.NullLiteral 
+					|| temp.type === Syntax.NumericLiteral || temp.type === Syntax.RegexpLiteral 
+					|| temp.type === Syntax.UndefinedLiteral)
+					return stringLiteralWithQuotes (temp.value);
+
+				return temp;
+			} else
+				return stringLiteralWithQuotes (arg))
+		// Склеиваем идущие подряд строки
+		.filter (lambda (arg, index, array){
+			// Если это не строка, оставляем
+			if (arg.type !== Syntax.StringLiteral)
+				return true;
+
+			// Находим предыдущую строку
+			for (var i = index - 1, previous; i >= 0 && array [i].type === Syntax.StringLiteral; i --)
+				previous = array [i];
+
+			if (previous){
+				previous.value = stringLiteralWithQuotes (stringLiteralValue (previous) + stringLiteralValue (arg)).value;
+				return false;
+			} else
+				return true;
+		})
+		// Выкидываем пустые строки, кроме первой
+		.filter (lambda (arg, index, array){
+			return arg.type !== Syntax.StringLiteral || index === 0 || !stringLiteralEmpty (arg);
+		});
+
+	if (splitted [0].type !== Syntax.StringLiteral && (splitted.length === 1 || splitted [1].type !== Syntax.StringLiteral))
+		splitted.unshift (stringLiteral ('\'\''));
+
+	result = splitted [0];
+
+	for (var i = 1; i < splitted.length; i ++)
+		result = binaryExpression (result, '+', splitted [i]);
+
+	return result;
+}
+
+function parsePrimaryExpression (){
+	var token = lookahead ();
+
+	switch (token.type){
+		case Token.Identifier:
+			lex ();
+			return mark ({ type: Syntax.Identifier, name: token.value }, token);
+
+		case Token.Keyword:
+			if (token.value === 'this'){
+				lex ();
+				return mark ({ type: Syntax.ThisExpression }, token);
+			}
+
+			if (token.value === 'function')
+				return parseFunctionExpression ();
+
+			if (token.value === 'lambda')
+				return parseLambdaExpression ();
+
+			break;
+
+		case Token.StringLiteral:
+			lex ();
+			if (lookahead ().value === '(')
+				return parseComplexString (token);
+			else
+				return mark ({ type: Syntax.StringLiteral, value: token.value }, token);
+
+		case Token.NumericLiteral:
+			lex ();
+			return numericLiteral (token.value);
+
+		case Token.BooleanLiteral: 
+			lex ();
+			return booleanLiteral (token.value);
+
+		case Token.NullLiteral: 
+			lex ();
+			return nullLiteral ();
+
+		case Token.UndefinedLiteral: 
+			lex ();
+			return undefinedLiteral ();
+
+		case Token.Punctuator:
+			switch (token.value){
+				case '[': 
+					return parseArrayInitialiser ();
+
+				case '{':
+					return parseObjectInitialiser ();
+
+				case '(':
+					return parseGroupExpression ();
+
+				case '/':
+					lex ();
+					return readRegexp ();
+			}
+
+		default:
+			unexpected (token);
+	}
+}

@@ -1,0 +1,355 @@
+function keyword (id){
+	switch (id.length){
+		case 2: 	return id === 'if' || id === 'in' || id === 'do';
+		case 3: 	return id === 'var' || id === 'for' || id === 'new' || id === 'try';
+		case 4: 	return id === 'this' || id === 'else' || id === 'case' || id === 'void' || id === 'with' || id === 'enum' || id === 'uses';
+		case 5: 	return id === 'while' || id === 'break' || id === 'catch' || id === 'throw' || id === 'class' || id === 'super';
+		case 6: 	return id === 'return' || id === 'typeof' || id === 'delete' || id === 'switch' || id === 'lambda' || id === 'static' || id === 'public';
+		case 7: 	return id === 'default' || id === 'finally' || id === 'private' || id === 'extends' || id === 'partial';
+		case 8: 	return id === 'function' || id === 'continue' || id === 'debugger' || id === 'abstract';
+		case 9: 	return id === 'protected' || id === 'interface';
+		case 10: 	return id === 'instanceof' || id === 'implements';
+	}
+}
+
+function readIdentifier (){
+	var start = index,
+		identifier;
+
+	if (identifierStart (source [index])){
+		do 
+			index ++;
+		while (identifierPart (source [index]));
+
+		if (index - start === 1)
+			return {
+				type:           Token.Identifier,
+				value:          source [start],
+				lineNumber:     lineNumber,
+				range:          [ start, index ]
+			};
+
+		identifier = source.substring (start, index);
+
+		if (keyword (identifier)){
+			if (identifier === 'in' && source [index] === '-'){
+				while (identifierPart (source [++ index]));
+				identifier = source.substring (start, index);
+
+				if (identifier !== 'in-object' && identifier !== 'in-array')
+					unexpected ();
+			}
+
+			return {
+				type:           Token.Keyword,
+				value:          identifier,
+				lineNumber:     lineNumber,
+				range:          [ start, index ]
+			};
+		}
+
+		if (identifier === 'null')
+			return {
+				type:           Token.NullLiteral,
+				value:          identifier,
+				lineNumber:     lineNumber,
+				range:          [ start, index ]
+			};
+
+		if (identifier === 'true' || identifier === 'false')
+			return {
+				type:           Token.BooleanLiteral,
+				value:          identifier,
+				lineNumber:     lineNumber,
+				range:          [ start, index ]
+			};
+
+		if (identifier === 'undefined')
+			return {
+				type:           Token.UndefinedLiteral,
+				value:          identifier,
+				lineNumber:     lineNumber,
+				range:          [ start, index ]
+			};
+
+		return {
+			type:           Token.Identifier,
+			value:          identifier,
+			lineNumber:     lineNumber,
+			range:          [ start, index ]
+		};
+	} else if (source [index] === '@')
+		throw new Error ('Unexpected macro');
+}
+
+function readNumericLiteral (){
+	var start = index;
+
+	if (source [index] === '0' && (source [index + 1] === 'x' || source [index + 1] === 'X')){
+		index += 2;
+
+		while (index < length && hexDigit (source [index]))
+			index ++;
+
+		if (index === start + 2)
+			unexpected ();
+	} else {
+		if (source [index] !== '.')
+			while (index < length && decimalDigit (source [index]))
+				index ++;
+
+		if (source [index] === '.' && source [index + 1] !== '.'){
+			index ++;
+
+			while (index < length && decimalDigit (source [index]))
+				index ++;
+		}
+
+		if (source [index] === 'e' || source [index] === 'E'){
+			index ++;
+
+			if (source [index] === '+' || source [index] === '-')
+				index ++;
+
+			if (!decimalDigit (source [index]))
+				unexpected ();
+
+			index ++;
+			while (index < length && decimalDigit (source [index]))
+				index ++;
+		}
+	}
+
+	if (index < length && identifierStart (source [index]))
+		unexpected ();
+
+	return {
+		type:           Token.NumericLiteral,
+		value:          source.substring (start, index),
+		lineNumber:     lineNumber,
+		range:          [ start, index ]
+	};
+}
+
+function readPunctuator (){
+	var start = index,
+		ch1 = source [index],
+		ch2,
+		ch3,
+		ch4;
+
+	if (ch1 === ';' || ch1 === '{' || ch1 === '}' || ch1 === ',' || ch1 === '(' || ch1 === ')')
+		return {
+			type:           Token.Punctuator,
+			value:          ch1,
+			lineNumber:     lineNumber,
+			range:          [ start, ++ index ]
+		}
+
+	ch2 = source [index + 1];
+	ch3 = source [index + 2];
+
+	// obj.key .0 .. ...
+	if (ch1 === '.')
+		if (ch2 === '.')
+			return {
+				type:           Token.Punctuator,
+				value:          ch3 === '.' ? '...' : '..',
+				lineNumber:     lineNumber,
+				range:          [ start, index += ch3 === '.' ? 3 : 2 ]
+			}
+		else if (!decimalDigit (ch2))
+			return {
+				type:           Token.Punctuator,
+				value:          '.',
+				lineNumber:     lineNumber,
+				range:          [ start, ++ index ]
+			}
+
+	ch4 = source [index + 3];
+
+	// >>>=
+	if (ch1 === '>' && ch2 === '>' && ch3 === '>' && ch4 === '=')
+		return {
+			type:           Token.Punctuator,
+			value:          '>>>=',
+			lineNumber:     lineNumber,
+			range:          [ start, index += 4 ]
+		}
+
+	// === !== <<= >>> >>=
+	if ((ch1 === '=' || ch1 === '!') && ch2 === '=' && ch3 === '=' ||
+		ch1 === '<' && ch2 === '<' && ch3 === '=' ||
+		ch1 === '>' && ch2 === '>' && (ch3 === '>' || ch3 === '='))
+		return {
+			type:           Token.Punctuator,
+			value:          ch1 + ch2 + ch3,
+			lineNumber:     lineNumber,
+			range:          [ start, index += 3 ]
+		}
+
+	// <= >= == != ++ -- << >> && || += -= *= %= &= |= ^= /=
+	if (ch2 === '=' && '<>=!+-*%&|^/'.indexOf (ch1) >= 0 ||
+		ch1 === ch2 && '+-<>&|'.indexOf (ch1) >= 0)
+		return {
+			type:           Token.Punctuator,
+			value:          ch1 + ch2,
+			lineNumber:     lineNumber,
+			range:          [ start, index += 2 ]
+		};
+
+	// [ ] < > + - * % & | ^ ! ~ ? : = /
+	if (ch1 === '[' || ch1 === ']' || ch1 === '<' || 
+		ch1 === '>' || ch1 === '+' || ch1 === '-' || 
+		ch1 === '*' || ch1 === '%' || ch1 === '&' || 
+		ch1 === '|' || ch1 === '^' || ch1 === '!' || 
+		ch1 === '~' || ch1 === '?' || ch1 === ':' || 
+		ch1 === '=' || ch1 === '/')
+		return {
+			type:           Token.Punctuator,
+			value:          ch1,
+			lineNumber:     lineNumber,
+			range:          [ start, ++ index ]
+		}
+}
+
+function readRegexp (){
+	var start = index - 1,
+		end = null,
+		classMarker = false;
+
+	loop: while (index < length){
+		switch (source [index ++]){
+			case '\\':
+				if (source [index ++] !== '\n')
+					break;
+
+			case '\n':
+				break loop;
+
+			case '/':
+				if (classMarker){
+					continue loop;
+				} else {
+					end = index;
+					break loop;
+				}
+
+			case '[':
+				classMarker = true;
+				break;
+
+			case ']':
+				classMarker = false;
+				break;
+		}
+	}
+
+	if (end === null)
+		unexpected ('Invalid regular expression: missing /');
+
+	while (index < length && identifierPart (source [index]))
+		index ++;
+
+	// TODO: Option to disable
+	try
+		new RegExp (source.substring (start + 1, end - 1), source.substring (end, index));
+	catch 
+		throw new Error ('Invalid regular expression');
+
+	return regexpLiteral (source.substring (start, index));
+}
+
+function readStringLiteral (){
+	var quote = source [index],
+		start = index ++;
+
+	// TODO: Increase lineNumber and etc.
+	while (index < length && source [index] !== quote)
+		index += source [index] === '\\' ? 2 : 1;
+
+	if (source [index ++] !== quote) 
+		unexpected ();
+
+	return {
+		type:           Token.StringLiteral,
+		value:          source.substring (start, index),
+		lineNumber:     lineNumber,
+		range:          [ start, index ]
+	};
+}
+
+function readMultilineString (){
+	var start = index ++;
+
+	// TODO: Increase lineNumber and etc.
+	while (index < length && source [index] !== '`')
+		index += source [index] === '\\' ? 2 : 1;
+
+	if (source [index ++] !== '`') 
+		unexpected ();
+
+	var result = source.substring (start + 1, index - 1),
+		spaces = result.match (/\n([\t ]*)/g);
+
+	if (spaces){
+		var tabSize = 4,
+			tabSpaces = new Array (tabSize + 1).join (' ');
+
+		spaces = spaces
+			.concat (source.substring (source.lastIndexOf ('\n', start), start + 1).replace (/[^\n\t ]/g, ' '))
+			.map (lambda [].reduce.call (arg.replace (/^\n/, ''), lambda (a, b) a += b === '\t' ? tabSize : 1, 0))
+			.reduce (lambda (a, b) a < b ? a : b);
+
+		var regExp = new RegExp ('\\n(?:\\t|' + tabSpaces + '){' + Math.floor (spaces / tabSize) + '}' + tabSpaces.substr (0, spaces % tabSize), 'g');
+		result = result.replace (regExp, '\n');
+	}
+
+	return {
+		type:           Token.StringLiteral,
+		value:          JSON.stringify (result.replace (/\\`/g, '`')),
+		lineNumber:     lineNumber,
+		range:          [ start, index ]
+	};
+}
+
+function skipComments (){
+	var blockComment = false,
+		lineComment = false;
+
+	while (index < length){
+		var character = source [index];
+
+		if (character === ' ' || character === '\t' || character === '\u00A0'){
+			index ++;
+		} else if (character === '\n'){
+			index ++;
+			lineNumber ++;
+			if (lineComment)
+				lineComment = false;
+		} else if (lineComment){
+			index ++;
+		} else if (blockComment){
+			if (character === '*' && source [index + 1] === '/'){
+				index += 2;
+				blockComment = false;
+			} else
+				index ++;
+		} else if (character === '/'){
+			character = source [index + 1];
+
+			if (character === '/'){
+				index += 2;
+				lineComment = true;
+			} else if (character === '*'){
+				index += 2;
+				blockComment = true;
+			} else 
+				break;
+		} else 
+			break;
+	}
+
+	if (index === length && blockComment)
+		unexpected ();
+}

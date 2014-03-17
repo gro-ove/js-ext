@@ -1,9 +1,0 @@
-	// 11.1.6 The Grouping Operator
-	
-	function parseGroupExpression (){
-		expect ('(');
-		var result = parseExpression ();
-		expect (')');
-
-		return result;
-	}

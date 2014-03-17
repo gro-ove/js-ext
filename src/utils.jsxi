@@ -12,6 +12,19 @@ console.json = function (obj){
 	console.log (JSON.stringify (obj, false, 4));
 };
 
+function set (to, from){
+	if (to instanceof Array && from instanceof Array){
+		to.length = from.length;
+		for (var index, element in-array from)
+			to [index] = element;
+	} else {
+		for (var n in to)
+			delete to [n];
+		for (var n in from)
+			to [n] = from [n];
+	}
+}
+
 function convert (jsxCode, options){
 	var parsed;
 

@@ -12,9 +12,10 @@ class B extends A {
 
 class A uses L {
 	(){
-		console.log ('[A]', value);
+		console.log ('[A]', value, privateValue);
 	}
 
+	privateValue = '<pv>';
 	abstract protected value;
 
 	protected fn ()
@@ -61,13 +62,23 @@ if (0)
 		}
 	}
 
-public class C extends A {
+partial public class C extends A {
 	method ()
 		'Sub';
 	protected value = '<ccc>';
 }
 
-console.log ('[C]', new C ().method ());
+partial public class C2 extends A {
+	protected value = '<ccc>';
+}
+
+console.log ('[C]', new C ().method ({
+	key: 'value'
+	0: '0'
+	null: 'null'
+	true: 'true'
+	'string': 'string'
+}));
 
 // class D extends C {
 // 	method ()

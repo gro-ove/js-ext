@@ -51,18 +51,19 @@ function stringLiteral (value){
 	}
 }
 
-// TODO
-function stringLiteralWithQuotes (value)
+function stringLiteralWithQuotes (value){
+	// TODO
 	return stringLiteral ('\'' + value.replace (/(^|[^\\])'/g, '$1\\\'') + '\'');
+}
 
-// TODO
 function stringLiteralValue (literal){
+	// TODO
 	console.assert (literal.value.length >= 2, 'Bad literal');
 	return literal.value.slice (1, -1);
 }
 
-// TODO
 function stringLiteralEmpty (literal){
+	// TODO
 	console.assert (literal.value.length >= 2, 'Bad literal');
 	return literal.value.length === 2;
 }
@@ -74,27 +75,30 @@ function undefinedLiteral (){
 	}
 }
 
-function property (key, value, kind = 'init')
+function property (key, value, kind = 'init'){
 	return {
 		type: 				Syntax.Property,
 		key: 				identifier (key),
 		value: 				identifier (value),
 		kind: 				kind
 	}
+}
 
-function objectExpression (properties)
+function objectExpression (properties){
 	return {
 		type: 				Syntax.ObjectExpression,
 		properties: 		properties
 	}
+}
 
-function memberExpression (obj, property, computed = false)
+function memberExpression (obj, property, computed = false){
 	return {
 		type: 				Syntax.MemberExpression,
 		computed: 			computed,
 		object: 			identifier (obj),
 		property: 			identifier (property)
 	}
+}
 
 function callExpression (name, arguments = []){
 	if (name 
@@ -120,26 +124,29 @@ function callExpression (name, arguments = []){
 	}
 }
 
-function superExpression (name, args, level)
+function superExpression (name, args, level){
 	return {
 		type: 				Syntax.CallExpression,
 		callee: 			identifier (name),
 		arguments: 			args || null,
 		'super': 			level || 1
 	}
+}
 
-function thisExpression ()
+function thisExpression (){
 	return {
 		type: 				Syntax.ThisExpression
 	}
+}
 
-function arrayExpression (elements)
+function arrayExpression (elements){
 	return {
 		type:       		Syntax.ArrayExpression,
 		elements:   		elements
 	}
+}
 
-function assignmentExpression (left, operator, right)
+function assignmentExpression (left, operator, right){
 	return typeof operator !== 'string' || operator [operator.length - 1] !== '=' ? {
 		type: 				Syntax.AssignmentExpression,
 		operator: 			'=',
@@ -151,95 +158,109 @@ function assignmentExpression (left, operator, right)
 		left: 				identifier (left),
 		right: 				identifier (right)
 	}
+}
 
-function newExpression (callee, args = [])
+function newExpression (callee, args = []){
 	return {
 		type: 				Syntax.NewExpression,
 		callee: 			identifier (callee),
 		arguments: 			args.map (identifier)
 	}
+}
 
-function sequenceExpression (expressions)
+function sequenceExpression (expressions){
 	return {
 		type: 				Syntax.SequenceExpression,
 		expressions: 		expressions
 	}
+}
 
-function conditionalExpression (test, trueExpression, falseExpression)
+function conditionalExpression (test, trueExpression, falseExpression){
 	return {
 		type: 				Syntax.ConditionalExpression,
 		test: 				test,
 		consequent: 		identifier (trueExpression),
 		alternate: 			identifier (falseExpression)
 	}
+}
 
-function logicalExpression (left, operator, right)
+function logicalExpression (left, operator, right){
 	return {
 		type: 				Syntax.LogicalExpression,
 		operator: 			operator,
 		left: 				identifier (left),
 		right: 				identifier (right)
 	}
+}
 
-function binaryExpression (left, operator, right)
+function binaryExpression (left, operator, right){
 	return {
 		type: 				Syntax.BinaryExpression,
 		operator: 			operator,
 		left: 				identifier (left),
 		right: 				identifier (right)
 	}
+}
 
-function unaryExpression (argument, operator, prefix = false)
+function unaryExpression (argument, operator, prefix = false){
 	return {
 		type: 				Syntax.UnaryExpression,
 		operator: 			operator,
 		argument: 			identifier (argument),
 		prefix: 			prefix
 	}
+}
 
-function blockStatement (body = [], single) // TODO
+function blockStatement (body = [], single){
+	// TODO
 	return body instanceof Array ? {
 		type: 				Syntax.BlockStatement,
 		body: 				body,
 		single:         	single
 	} : body
+}
 
-function expressionStatement (expression)
+function expressionStatement (expression){
 	return {
 		type: 				Syntax.ExpressionStatement,
 		expression: 		expression
 	}
+}
 
-function ifStatement (test, consequent, alternate = null)
+function ifStatement (test, consequent, alternate = null){
 	return {
 		type: 				Syntax.IfStatement,
 		test: 				identifier (test),
 		consequent: 		consequent,
 		alternate: 			alternate
 	}
+}
 
-function whileStatement (test, body)
+function whileStatement (test, body){
 	return {
 		type: 				Syntax.WhileStatement,
 		test: 				test,
 		body: 				body
 	}
+}
 
-function doWhileStatement (body, test)
+function doWhileStatement (body, test){
 	return {
 		type: 				Syntax.DoWhileStatement,
 		body: 				body,
 		test: 				test
 	}
+}
 
-function doWhileStatement (body, test)
+function doWhileStatement (body, test){
 	return {
 		type: 				Syntax.DoWhileStatement,
 		body: 				body,
 		test: 				test
 	}
+}
 
-function forStatement (left, test, update, body)
+function forStatement (left, test, update, body){
 	return {
 		type: 				Syntax.ForStatement,
 		init: 				left,
@@ -247,8 +268,9 @@ function forStatement (left, test, update, body)
 		update: 			update,
 		body: 				blockStatement (body)
 	}
+}
 
-function forInStatement (left, right, body)
+function forInStatement (left, right, body){
 	return {
 		type: 				Syntax.ForInStatement,
 		left: 				left,
@@ -256,22 +278,25 @@ function forInStatement (left, right, body)
 		body: 				body,
 		each: 				false
 	}
+}
 
-function labeledStatement (label, statement)
+function labeledStatement (label, statement){
 	return {
 		type: 				Syntax.LabeledStatement,
 		label: 				identifier (label),
 		body: 				statement
 	}
+}
 
-function catchClause (param, body)
+function catchClause (param, body){
 	return {
 		type:   			Syntax.CatchClause,
 		param:  			identifier (param),
 		body:  				body
 	}
+}
 
-function tryStatement (block, handlers, finalizer)
+function tryStatement (block, handlers, finalizer){
 	return {
 		type:               Syntax.TryStatement,
 		block:              block,
@@ -279,6 +304,7 @@ function tryStatement (block, handlers, finalizer)
 		handlers:           handlers,
 		finalizer:          finalizer
 	}
+}
 
 function returnStatement (arg){
 	return {
@@ -345,4 +371,16 @@ function variableDeclaration (variables){
 		type: 				Syntax.VariableDeclaration,
 		declarations: 		identifier (variables)
 	}
+}
+
+function callFunctionExpression (body){
+	return callExpression (functionExpression (null, [], body instanceof Array ? blockStatement (body) : body), []);
+}
+
+function oneVariableDeclaration (id, init){
+	return variableDeclaration ([ variableDeclarator (id, init) ]);
+}
+
+function assignmentStatement (left, right){
+	return expressionStatement (assignmentExpression (left, right));
 }

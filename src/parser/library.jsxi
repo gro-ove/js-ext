@@ -77,9 +77,4 @@ var Token = {
 
 		/* Только для парсера. */
 		RawClassDeclaration: 			'RawClassDeclaration',
-	}, 
-	PropertyKind = {
-		Data: 							1,
-		Get: 							2,
-		Set: 							4
 	};

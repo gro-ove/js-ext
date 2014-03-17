@@ -29,7 +29,7 @@ function parseFunction (options = {}){
 		consumeSemicolon ();
 	}
 
-	return (options.declaration ? functionDeclarationFromToken : functionExpressionFromToken)(token, id, params, body);
+	return mark ((options.declaration ? functionDeclaration : functionExpression)(id, params, body), token);
 }
 
 function parseFunctionExpression (){
@@ -100,8 +100,7 @@ function parseFunctionElements (){
 			lookahead ().type !== Token.Literal && lookahead ().type !== Token.Identifier);
 
 		expect ('}');
-	} else if (match (';')){
-		lex ();
+	} else if (matchLex (';')){
 		result = [];
 	} else if (!match (']') && !match (')') && !match ('}') && !match (',')){
 		state.preventSequence = true;
