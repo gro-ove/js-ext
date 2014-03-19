@@ -95,7 +95,7 @@ function parseContinueStatement (){
 		return continueStatement ();
 
 	if (lookahead ().type === Token.Identifier)
-		label = parseVariableIdentifier ();
+		label = parseIdentifier ();
 
 	consumeSemicolon ();
 	return continueStatement (label);
@@ -115,7 +115,7 @@ function parseBreakStatement (){
 		return breakStatement ();
 
 	if (lookahead ().type === Token.Identifier)
-		label = parseVariableIdentifier ();
+		label = parseIdentifier ();
 
 	consumeSemicolon ();
 	return breakStatement (label);
@@ -141,7 +141,9 @@ function parseReturnStatement (){
 	if (!match (';') && !match ('}') && lookahead ().type !== Token.EOF)
 		argument = parseExpression ();
 
-	consumeSemicolon ();
+	if (!state.preventSequence)
+		consumeSemicolon ();
+	
 	return returnStatement (argument);
 }
 

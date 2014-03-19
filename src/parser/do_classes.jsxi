@@ -856,7 +856,8 @@ function doClasses (statements, callback){
 	}
 
 	function sortAndInsertClasses (){
-		for (var current in-array classes.sort (lambda (a, b) b.weight - a.weight))
+		var sorted = classes.sort (lambda (a, b) b.weight - a.weight);
+		for (var current in-array sorted)
 			current.root.unshift ({
 				type: 			Syntax.ClassDeclaration,
 				name: 			current.id.name,

@@ -3,8 +3,9 @@
 		- keyword: 			ключевое слово (по умолчанию «function»), null - без ключевого слова
 		- declaration: 		true - возвращается FunctionDeclaration, false - FunctionExpression
 		- id: 				true - поиск имени обязателен, false - без имени
-		- emptyBody: 		true - функция без содержимого, после может быть «;», false - стандартный режим
+		- empty: 			true - функция без содержимого, после может быть «;», false - стандартный режим
 		- optionalParams:   true - аргументы функции опциональны, [ ... ] - аргументы по умолчанию
+		- noSemicolon: 		true - не искать «;» на конце функций в одну строку
 */
 function parseFunction (options = {}){
 	var id, params, body, token = lookahead ();
@@ -23,7 +24,7 @@ function parseFunction (options = {}){
 		params = parseFunctionArguments ();
 
 	if (!options.empty){
-		body = parseFunctionElements ();
+		body = parseFunctionElements (options.noSemicolon);
 	} else {
 		body = null;
 		consumeSemicolon ();
@@ -51,7 +52,7 @@ function parseFunctionDeclaration (){
 function parseLambdaExpression (){
 	var oldNoReturn = state.noReturn, result;
 	state.noReturn = false;
-	result = parseFunction ({ id: false, keyword: 'lambda', optionalParams: [ identifier ('arg') ] });
+	result = parseFunction ({ id: false, keyword: 'lambda', optionalParams: [ identifier ('arg') ], noSemicolon: true });
 	state.noReturn = oldNoReturn;
 	return result;
 }
@@ -79,7 +80,7 @@ function parseFunctionArguments (){
 function parseOptionalFunctionArguments ()
 	return attemptTo (parseFunctionArguments, null, !match ('('));
 
-function parseFunctionElements (){
+function parseFunctionElements (noSemicolon){
 	var oldPreventSequence = state.preventSequence, result;
 
 	if (match ('{')){
@@ -106,6 +107,9 @@ function parseFunctionElements (){
 		state.preventSequence = true;
 		result = [ setReturnStatement (parseStatement ()) ];
 	}
+
+	if (!noSemicolon)
+		matchLex (';');
 
 	state.preventSequence = oldPreventSequence;
 	return blockStatement (result);

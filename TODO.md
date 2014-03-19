@@ -137,8 +137,9 @@
 		V convert "[ 'a' .. 'c' ]" to "[ 'a', 'b', 'c' ]"
 		V retrieve multiline strings support
 			V skiping of spaces
+		V generating code for "a - (b - c)"
 		F fix for getting value of stringliteral
-		C regular expressions like "/=something/"
+		F regular expressions like "/=something/"
 		C constructions like "a < b < c < d"
 		C state (restorations of old values are missing in some places)
 		- new 'for-in-object' loop
@@ -164,6 +165,7 @@
 		- move creating of 'switch' to "src/parser/objects.jsxi"
 		- somehow save special comments to result file
 		L optional transforming '==' to '===' and '!=' to '!=='
+		L partial functions
 		L 'enum'
 		L 'const'
 		L option to set size of tabs (for multiline strings and etc.) 

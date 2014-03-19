@@ -37,7 +37,8 @@ var niceMode = true,
 			], 
 			spaces = new Array (300).join (' '),
 			badMode = 0, 
-			comment = null;
+			comment = null,
+			comments = [];
 
 		function findPriority (type, operator)
 			for (var priority, group in-array priorities){
@@ -51,7 +52,7 @@ var niceMode = true,
 		function generate (node, tabs, parent){
 			function end ()
 				if (comment !== null){
-					var result = ' //__ ' + comment + '\n' + tabs;
+					var result = '//' + (comments.push (comment) - 1) + '\n' + tabs;
 					comment = null;
 					return result; 
 				} else 
@@ -68,9 +69,8 @@ var niceMode = true,
 					var nodePriority = findPriority (node.type, node.operator),
 						parentPriority = findPriority (parent.type, parent.operator);
 
-					if (parentPriority !== undefined && nodePriority > parentPriority){
+					if (parentPriority !== undefined && nodePriority > parentPriority || (nodePriority === parentPriority && node === parent.right))
 						return '(' + arg + ')';
-					}
 				}
 
 				return arg;
@@ -120,7 +120,7 @@ var niceMode = true,
 
 				// Если переносы необязательны, попробуем их вырезать
 				if (!forceWrap)
-					oneline = result.replace (/(?: *\/\/__ [^\n]+)?\n\t*/g, '');
+					oneline = result.replace (/\/\/\d+\n\t*/g, '');
 
 				// Если же они нужны (или после их удаления строка остаётся сли-
 				// шком длинной), оставляем как есть
@@ -147,7 +147,7 @@ var niceMode = true,
 			function sub (obj)
 				return obj.type === Syntax.BlockStatement ? child (obj) : obj.type === Syntax.EmptyStatement ? ';' : indent (obj);
 
-			if (!node){
+			if (!node || !node.type){
 				console.json (parent);
 				throw new Error ('Node = ' + node);
 			}
@@ -402,6 +402,9 @@ var niceMode = true,
 
 				/* Stuff */
 				case Syntax.Program:
+					if (node.body.length === 0)
+						return '';
+
 					result = '';
 					temp = node.body [0].type;
 
@@ -425,6 +428,8 @@ var niceMode = true,
 		}
 
 		return lambda {
+			comments = [];
+
 			var max = -1, 
 				maxAllowed = 80, 
 				indent, 
@@ -434,25 +439,28 @@ var niceMode = true,
 				result = generate (arg, '');
 
 			if (niceMode){
-				result = result.replace (/([^\n]*?)[ \t]*( \/\/__ )([^\n]+)/g, lambda (match, begin, keyword, found){
-					var length = begin.replace (/\t/g, '    ').length;
+				result = result
+					.replace (/([^\n]*?)\/\/(\d+)\n/g, lambda (match, begin, found){
+						var length = begin.replace (/\t/g, '    ').length;
 
-					if (length > maxAllowed){
-						return begin;
-					} else {
-						if (previous !== found)
-							previous = found;
-						else
-							found = '...';
+						if (length > maxAllowed){
+							return begin + '\n';
+						} else {
+							if (previous !== found)
+								previous = found;
+							else
+								found = '...';
 
-						begins.push (length);
-						if (length > max)
-							max = length;
-						return begin + keyword + found;
-					}
-				});
+							begins.push (length);
+							if (length > max)
+								max = length;
+							return begin + '//' + found + '\n';
+						}
+					})
+					.replace (/\/\/(\d+)\n/g, lambda (match, comment)
+						spaces.substr (0, max - begins [index ++]) + '   // ' + comments [+comment] + '\n');
 			}
 
-			return result.replace (/ \/\/__ /g, lambda spaces.substr (0, max - begins [index ++]) + '   // ');
+			return result;
 		};
 	}();

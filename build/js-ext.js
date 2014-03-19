@@ -4,8 +4,8 @@ var classes = [], helpers = new HelpersManager(), thatVariable = "__that";
 var OutputMode = {"Default":"Default","Static":"Static","InitializerOnly":"InitializerOnly","Empty":"Empty"};
 function filter (classEntry,filter){
 var result = [];
-{ var _4n10l2p_58 = classEntry.members; for (var key in _4n10l2p_58){
-var value = _4n10l2p_58[key];
+{ var _6pff53g_25 = classEntry.members; for (var key in _6pff53g_25){
+var value = _6pff53g_25[key];
 if (filter (value, key))
 result.push (value);
 }}
@@ -14,8 +14,8 @@ return result;
 function byName (name,path){
 console.assert (typeof name === "string" && typeof path === "string", "Wrong args");
 var length, min = - 1, result;
-for (var _6o6l8nt_59 = 0; _6o6l8nt_59 < classes.length; _6o6l8nt_59 ++){
-var classEntry = classes[_6o6l8nt_59];
+for (var _7m5h9ls_26 = 0; _7m5h9ls_26 < classes.length; _7m5h9ls_26 ++){
+var classEntry = classes[_7m5h9ls_26];
 length = classEntry.path.length;
 if (classEntry.id.name === name && path.substr (0, length) === classEntry.path && min < length)
 {
@@ -88,8 +88,8 @@ return arg.name;
 return arg.name;
 }).join ())
 throw new TypeError("Params \"implements\" of classes are different", id);
-{ var _jrnrh0_60 = current.dependsOn.uses; for (var _v7vfg7_61 = 0; _v7vfg7_61 < _jrnrh0_60.length; _v7vfg7_61 ++){
-var entry = _jrnrh0_60[_v7vfg7_61];
+{ var _2cvvolr_27 = current.dependsOn.uses; for (var _7qip6gc_28 = 0; _7qip6gc_28 < _2cvvolr_27.length; _7qip6gc_28 ++){
+var entry = _2cvvolr_27[_7qip6gc_28];
 if (previous.dependsOn.uses.filter (function (arg){
 return arg.name === entry.name;
 }).length === 0)
@@ -111,8 +111,8 @@ member.processed = false;
 return member;
 }
 classEntry.classObject = true;
-{ var _8t410up_62 = classEntry.members; for (var name in _8t410up_62){
-var value = _8t410up_62[name];
+{ var _63dfndb_29 = classEntry.members; for (var name in _63dfndb_29){
+var value = _63dfndb_29[name];
 value.className = classEntry.id;
 }}
 var constructor = classEntry.members ["@constructor"];
@@ -128,8 +128,8 @@ initializer = updateMember (functionExpression ("@initializer", [], blockStateme
 initializer.static = true;
 initializer.autocreated = true;
 }
-{ var _7pl8c51_63 = classEntry.members; for (var name in _7pl8c51_63){
-var member = _7pl8c51_63[name];
+{ var _2kdv6na_30 = classEntry.members; for (var name in _2kdv6na_30){
+var member = _2kdv6na_30[name];
 updateMember (member);
 }}
 var fields = filter (classEntry, function (arg){
@@ -142,8 +142,8 @@ return $.extend (expressionStatement (assignmentExpression (memberExpression (th
 classEntry.childs = [];
 classEntry.probablyUseOther = 0;
 }
-for (var _ph8tlt_64 = 0; _ph8tlt_64 < classes.length; _ph8tlt_64 ++){
-var classEntry = classes[_ph8tlt_64];
+for (var _6lb7chi_31 = 0; _6lb7chi_31 < classes.length; _6lb7chi_31 ++){
+var classEntry = classes[_6lb7chi_31];
 preprocessClass (classEntry);
 }
 }
@@ -157,8 +157,8 @@ return true;
 else
 if (obj && obj.body && obj.body.body)
 {
-{ var _35plk5u_65 = obj.body.body; for (var _298tqa5_66 = 0; _298tqa5_66 < _35plk5u_65.length; _298tqa5_66 ++){
-var child = _35plk5u_65[_298tqa5_66];
+{ var _85thjj5_32 = obj.body.body; for (var _642jmg5_33 = 0; _642jmg5_33 < _85thjj5_32.length; _642jmg5_33 ++){
+var child = _85thjj5_32[_642jmg5_33];
 if (searchSuperExpression (child))
 return true;
 }}
@@ -189,8 +189,8 @@ throw new TypeError("Parent class \"" + current.dependsOn.parent.name + "\" not 
 current.dependsOn.parent = parent;
 connectClass (parent, current);
 current.weight += parent.weight;
-{ var _8qc5pqa_67 = parent.members; for (var id in _8qc5pqa_67){
-var member = _8qc5pqa_67[id];
+{ var _6nj7uto_34 = parent.members; for (var id in _6nj7uto_34){
+var member = _6nj7uto_34[id];
 if (! current.members.hasOwnProperty (id))
 current.members [id] = $.extend (true, {}, member, {"publicMode":member.publicMode === "private" ? "locked" : member.publicMode});
 }}
@@ -199,8 +199,8 @@ if (parentConstructor.body.body.length > 0 && ! searchSuperExpression (construct
 {
 if (constructor.autocreated || parentConstructor.params.length === 0)
 {
-{ var _8sn3hp7_68 = constructor.body.body; for (var autocreated = 0; autocreated < _8sn3hp7_68.length; autocreated ++){
-var statement = _8sn3hp7_68[autocreated];
+{ var _7gu33u_35 = constructor.body.body; for (var autocreated = 0; autocreated < _7gu33u_35.length; autocreated ++){
+var statement = _7gu33u_35[autocreated];
 if (! statement.autocreated)
 break;
 }}
@@ -210,8 +210,8 @@ else
 throw new TypeError("Super constructor call is required", constructor);
 }
 }
-{ var _6u3o3mn_69 = current.dependsOn.uses; for (var index = 0; index < _6u3o3mn_69.length; index ++){
-var usedName = _6u3o3mn_69[index];
+{ var _t2e61t_36 = current.dependsOn.uses; for (var index = 0; index < _t2e61t_36.length; index ++){
+var usedName = _t2e61t_36[index];
 var used = byName (usedName.name, current.path);
 if (! used)
 throw new TypeError("Used class \"" + usedName.name + "\" not found", usedName);
@@ -221,8 +221,8 @@ current.weight += used.weight;
 }}
 delete active [current.id.name];
 }
-for (var _3b7gpg4_70 = 0; _3b7gpg4_70 < classes.length; _3b7gpg4_70 ++){
-var current = classes[_3b7gpg4_70];
+for (var _10ma0gf_37 = 0; _10ma0gf_37 < classes.length; _10ma0gf_37 ++){
+var current = classes[_10ma0gf_37];
 connectClass (current);
 }
 }
@@ -258,8 +258,8 @@ return modes [maxId];
 function processClassMember (current,name,member){
 var publicMode = member.publicMode, members = [member], updated;
 function testChilds (current){
-{ var _558v139_71 = current.childs; for (var _6cj84f4_72 = 0; _6cj84f4_72 < _558v139_71.length; _6cj84f4_72 ++){
-var child = _558v139_71[_6cj84f4_72];
+{ var _391hon5_38 = current.childs; for (var _1pkd7oa_39 = 0; _1pkd7oa_39 < _391hon5_38.length; _1pkd7oa_39 ++){
+var child = _391hon5_38[_1pkd7oa_39];
 if (child.members.hasOwnProperty (name))
 {
 var childMember = child.members [name];
@@ -276,8 +276,8 @@ testChilds (child);
 if (publicMode === "protected" || publicMode === "public")
 testChilds (current);
 updated = rename (name, member, publicMode);
-for (var _4rdhhl5_73 = 0; _4rdhhl5_73 < members.length; _4rdhhl5_73 ++){
-var targetMember = members[_4rdhhl5_73];
+for (var _8mtrkv3_40 = 0; _8mtrkv3_40 < members.length; _8mtrkv3_40 ++){
+var targetMember = members[_8mtrkv3_40];
 targetMember.id.name = updated;
 targetMember.processed = true;
 }
@@ -285,14 +285,14 @@ targetMember.processed = true;
 function processClassMembers (current){
 if (current.dependsOn.parent)
 processClassMembers (current.dependsOn.parent);
-{ var _g5ik42_74 = current.members; for (var name in _g5ik42_74){
-var member = _g5ik42_74[name];
+{ var _8aph0jt_41 = current.members; for (var name in _8aph0jt_41){
+var member = _8aph0jt_41[name];
 if (name [0] !== "@" && ! member.processed)
 processClassMember (current, name, member);
 }}
 }
-for (var _66qo1v1_75 = 0; _66qo1v1_75 < classes.length; _66qo1v1_75 ++){
-var current = classes[_66qo1v1_75];
+for (var _1rlbo97_42 = 0; _1rlbo97_42 < classes.length; _1rlbo97_42 ++){
+var current = classes[_1rlbo97_42];
 processClassMembers (current);
 }
 }
@@ -313,8 +313,8 @@ if (typeof obj === "object" && obj !== null)
 {
 if (obj instanceof Array)
 {
-for (var _2avi5mv_76 = 0; _2avi5mv_76 < obj.length; _2avi5mv_76 ++){
-var child = obj[_2avi5mv_76];
+for (var _2j6bkat_43 = 0; _2j6bkat_43 < obj.length; _2j6bkat_43 ++){
+var child = obj[_2j6bkat_43];
 lookForExclusions (child, target);
 }
 }
@@ -514,8 +514,8 @@ if (typeof obj === "object" && obj !== null)
 {
 if (obj instanceof Array)
 {
-for (var _1moc41v_77 = 0; _1moc41v_77 < obj.length; _1moc41v_77 ++){
-var child = obj[_1moc41v_77];
+for (var _3n9gkva_44 = 0; _3n9gkva_44 < obj.length; _3n9gkva_44 ++){
+var child = obj[_3n9gkva_44];
 process (child, obj, parent);
 }
 }
@@ -555,14 +555,14 @@ process (methodEntry);
 }
 function processClassMethods (classEntry){
 var replace, childMember;
-{ var _6dv8uig_78 = classEntry.members; for (var name in _6dv8uig_78){
-var member = _6dv8uig_78[name];
+{ var _6obs95s_45 = classEntry.members; for (var name in _6obs95s_45){
+var member = _6obs95s_45[name];
 if (member.method && ! member.abstract && member.className === classEntry.id)
 processClassMethod (classEntry, member);
 }}
 }
-for (var _91gmcdo_79 = 0; _91gmcdo_79 < classes.length; _91gmcdo_79 ++){
-var classEntry = classes[_91gmcdo_79];
+for (var _8fgvc10_46 = 0; _8fgvc10_46 < classes.length; _8fgvc10_46 ++){
+var classEntry = classes[_8fgvc10_46];
 processClassMethods (classEntry);
 }
 }
@@ -618,24 +618,24 @@ if (mode === OutputMode.Default)
 result = [anonymousFunction ? oneVariableDeclaration (classEntry.id, constructor) : functionDeclaration (classEntry.id, constructor.params, constructor.body)];
 if (classEntry.dependsOn.parent)
 result.push (expressionStatement (callExpression ("__prototypeExtend", [classEntry.id.name,classEntry.dependsOn.parent.id.name])));
-for (var _3rjbugs_80 = 0; _3rjbugs_80 < objectFields.length; _3rjbugs_80 ++){
-var field = objectFields[_3rjbugs_80];
+for (var _69gk0co_47 = 0; _69gk0co_47 < objectFields.length; _69gk0co_47 ++){
+var field = objectFields[_69gk0co_47];
 
 }
-for (var _28nnruo_81 = 0; _28nnruo_81 < objectMethods.length; _28nnruo_81 ++){
-var method = objectMethods[_28nnruo_81];
+for (var _4nj4tpl_48 = 0; _4nj4tpl_48 < objectMethods.length; _4nj4tpl_48 ++){
+var method = objectMethods[_4nj4tpl_48];
 if (! method.abstract)
 result.push (assignmentStatement (memberExpression (memberExpression (classEntry.id.name, "prototype"), method.id), functionExpression (null, method.params, method.body)));
 }
-for (var _5q2fgo2_82 = 0; _5q2fgo2_82 < staticFields.length; _5q2fgo2_82 ++){
-var field = staticFields[_5q2fgo2_82];
+for (var _rcl2i_49 = 0; _rcl2i_49 < staticFields.length; _rcl2i_49 ++){
+var field = staticFields[_rcl2i_49];
 if (field.publicMode === "private")
 result [0].declarations.push (field);
 else
 result.push (assignmentStatement (memberExpression (classEntry.id.name, field.id), field.init || "undefined"));
 }
-for (var _98cqr3n_83 = 0; _98cqr3n_83 < staticMethods.length; _98cqr3n_83 ++){
-var method = staticMethods[_98cqr3n_83];
+for (var _5e9ko20_50 = 0; _5e9ko20_50 < staticMethods.length; _5e9ko20_50 ++){
+var method = staticMethods[_5e9ko20_50];
 if (method.publicMode === "private")
 result.push (method);
 else
@@ -646,15 +646,15 @@ else
 {
 var properties = [];
 result = [oneVariableDeclaration (classEntry.id, objectExpression (properties))];
-for (var _7praqv1_84 = 0; _7praqv1_84 < staticFields.length; _7praqv1_84 ++){
-var field = staticFields[_7praqv1_84];
+for (var _94qs286_51 = 0; _94qs286_51 < staticFields.length; _94qs286_51 ++){
+var field = staticFields[_94qs286_51];
 if (field.publicMode === "private")
 result [0].declarations.push (field);
 else
 properties.push (property (field.id, field.init || "undefined"));
 }
-for (var _8579f7h_85 = 0; _8579f7h_85 < staticMethods.length; _8579f7h_85 ++){
-var method = staticMethods[_8579f7h_85];
+for (var _98stgm2_52 = 0; _98stgm2_52 < staticMethods.length; _98stgm2_52 ++){
+var method = staticMethods[_98stgm2_52];
 if (method.publicMode === "private")
 result.push (method);
 else
@@ -670,21 +670,22 @@ return [oneVariableDeclaration (classEntry.id, callFunctionExpression (result))]
 }
 return result;
 }
-for (var _7l7ssdj_86 = 0; _7l7ssdj_86 < classes.length; _7l7ssdj_86 ++){
-var classEntry = classes[_7l7ssdj_86];
+for (var _26cvk41_53 = 0; _26cvk41_53 < classes.length; _26cvk41_53 ++){
+var classEntry = classes[_26cvk41_53];
 classEntry.statements = processClass (classEntry);
 }
 }
 function sortAndInsertClasses (){
-{ var _2c66eg3_87 = classes.sort (function (a,b){
+var sorted = classes.sort (function (a,b){
 return b.weight - a.weight;
-}); for (var _12dg4tf_88 = 0; _12dg4tf_88 < _2c66eg3_87.length; _12dg4tf_88 ++){
-var current = _2c66eg3_87[_12dg4tf_88];
+});
+for (var _7k7rb4l_54 = 0; _7k7rb4l_54 < sorted.length; _7k7rb4l_54 ++){
+var current = sorted[_7k7rb4l_54];
 current.root.unshift ({"type":Syntax.ClassDeclaration,"name":current.id.name,"statements":current.statements});
-}}
 }
-{ var _5dmo0k1_89 = collectRawClasses (statements); for (var _74hq902_90 = 0; _74hq902_90 < _5dmo0k1_89.length; _74hq902_90 ++){
-var found = _5dmo0k1_89[_74hq902_90];
+}
+{ var _66hcqho_55 = collectRawClasses (statements); for (var _35o9dub_56 = 0; _35o9dub_56 < _66hcqho_55.length; _35o9dub_56 ++){
+var found = _66hcqho_55[_35o9dub_56];
 addClass (found);
 }}
 if (classes.length > 0)
@@ -1022,8 +1023,8 @@ if (params.interface && ! current.static)
 throw new TypeError("Interface cannot have object fields");
 if (current.abstract && (current.publicMode || params.publicMode) === "private")
 throw new TypeError("Abstract member cannot be private");
-{ var _27g0sl5_2 = parseVariableDeclarators (); for (var _u9hggb_3 = 0; _u9hggb_3 < _27g0sl5_2.length; _u9hggb_3 ++){
-var entry = _27g0sl5_2[_u9hggb_3];
+{ var _6rlah4k_12 = parseVariableDeclarators (); for (var _81mc4tm_13 = 0; _81mc4tm_13 < _6rlah4k_12.length; _81mc4tm_13 ++){
+var entry = _6rlah4k_12[_81mc4tm_13];
 set (entry);
 }}
 refresh ();
@@ -1032,8 +1033,7 @@ function parseMethod (){
 if (current.abstract && (current.publicMode || params.publicMode) === "private")
 throw new TypeError("Abstract member cannot be private");
 state.superAvailable = ! current.static && dependsOn.parent;
-var empty = params.interface && ! current.static || current.abstract, result = parseFunction ({"keyword":null,"empty":empty});
-set (result);
+set (parseFunction ({"keyword":null,"empty":params.interface && ! current.static || current.abstract}));
 state.superAvailable = false;
 refresh ();
 }
@@ -1623,7 +1623,7 @@ else
 params = parseFunctionArguments ();
 if (! options.empty)
 {
-body = parseFunctionElements ();
+body = parseFunctionElements (options.noSemicolon);
 }
 else
 {
@@ -1649,7 +1649,7 @@ return result;
 function parseLambdaExpression (){
 var oldNoReturn = state.noReturn, result;
 state.noReturn = false;
-result = parseFunction ({"id":false,"keyword":"lambda","optionalParams":[identifier ("arg")]});
+result = parseFunction ({"id":false,"keyword":"lambda","optionalParams":[identifier ("arg")],"noSemicolon":true});
 state.noReturn = oldNoReturn;
 return result;
 }
@@ -1671,7 +1671,7 @@ return params;
 function parseOptionalFunctionArguments (){
 return attemptTo (parseFunctionArguments, null, ! match ("("));
 }
-function parseFunctionElements (){
+function parseFunctionElements (noSemicolon){
 var oldPreventSequence = state.preventSequence, result;
 if (match ("{"))
 {
@@ -1698,6 +1698,8 @@ if (! match ("]") && ! match (")") && ! match ("}") && ! match (","))
 state.preventSequence = true;
 result = [setReturnStatement (parseStatement ())];
 }
+if (! noSemicolon)
+matchLex (";");
 state.preventSequence = oldPreventSequence;
 return blockStatement (result);
 }
@@ -1904,7 +1906,7 @@ return continueStatement ();
 if (peekLineTerminator ())
 return continueStatement ();
 if (lookahead ().type === Token.Identifier)
-label = parseVariableIdentifier ();
+label = parseIdentifier ();
 consumeSemicolon ();
 return continueStatement (label);
 }
@@ -1919,7 +1921,7 @@ return breakStatement ();
 if (peekLineTerminator ())
 return breakStatement ();
 if (lookahead ().type === Token.Identifier)
-label = parseVariableIdentifier ();
+label = parseIdentifier ();
 consumeSemicolon ();
 return breakStatement (label);
 }
@@ -1938,6 +1940,7 @@ if (peekLineTerminator ())
 return returnStatement ();
 if (! match (";") && ! match ("}") && lookahead ().type !== Token.EOF)
 argument = parseExpression ();
+if (! state.preventSequence)
 consumeSemicolon ();
 return returnStatement (argument);
 }
@@ -2846,7 +2849,7 @@ function niceGeneratorMode (value){
 niceMode = value;
 }
 var niceMode = true, generate = function (){
-var priorities = [Syntax.MemberExpression,Syntax.NewExpression,Syntax.CallExpression,["++","--"],Syntax.UnaryExpression,["*","/","%"],["+","-"],["<<",">>",">>>"],["<","<=",">",">=","in","instanceof"],["==","!=","===","!=="],["&"],["^"],["|"],["&&"],["||"],Syntax.ConditionalExpression,Syntax.AssignmentExpression,Syntax.SequenceExpression], spaces = new Array(300).join (" "), badMode = 0, comment = null;
+var priorities = [Syntax.MemberExpression,Syntax.NewExpression,Syntax.CallExpression,["++","--"],Syntax.UnaryExpression,["*","/","%"],["+","-"],["<<",">>",">>>"],["<","<=",">",">=","in","instanceof"],["==","!=","===","!=="],["&"],["^"],["|"],["&&"],["||"],Syntax.ConditionalExpression,Syntax.AssignmentExpression,Syntax.SequenceExpression], spaces = new Array(300).join (" "), badMode = 0, comment = null, comments = [];
 function findPriority (type,operator){
 for (var priority = 0; priority < priorities.length; priority ++){
 var group = priorities[priority];
@@ -2864,7 +2867,7 @@ function generate (node,tabs,parent){
 function end (){
 if (comment !== null)
 {
-var result = " //__ " + comment + "\n" + tabs;
+var result = "//" + (comments.push (comment) - 1) + "\n" + tabs;
 comment = null;
 return result;
 }
@@ -2881,10 +2884,8 @@ else
 if (parent.type !== Syntax.MemberExpression || node === parent.object)
 {
 var nodePriority = findPriority (node.type, node.operator), parentPriority = findPriority (parent.type, parent.operator);
-if (parentPriority !== undefined && nodePriority > parentPriority)
-{
+if (parentPriority !== undefined && nodePriority > parentPriority || (nodePriority === parentPriority && node === parent.right))
 return "(" + arg + ")";
-}
 }
 return arg;
 }
@@ -2922,7 +2923,7 @@ forceWrap = true;
 return indented;
 }, joinString);
 if (! forceWrap)
-oneline = result.replace (/(?: *\/\/__ [^\n]+)?\n\t*/g, "");
+oneline = result.replace (/\/\/\d+\n\t*/g, "");
 if (forceWrap || ! oneline || oneline.length > 60)
 {
 if (insertSpaces)
@@ -2945,7 +2946,7 @@ return oneline;
 function sub (obj){
 return obj.type === Syntax.BlockStatement ? child (obj) : obj.type === Syntax.EmptyStatement ? ";" : indent (obj);
 }
-if (! node)
+if (! node || ! node.type)
 {
 console.json (parent);
 throw new Error("Node = " + node);
@@ -3025,8 +3026,8 @@ result = "function (";
 return result + mapArray (node.params, ", ") + ")" + child (node.body);
 case Syntax.ClassDeclaration:
 result = "/* Class \"" + node.name + "\" declaration */";
-{ var _2bbmc5j_48 = node.statements; for (var _2rje7oa_49 = 0; _2rje7oa_49 < _2bbmc5j_48.length; _2rje7oa_49 ++){
-var statement = _2bbmc5j_48[_2rje7oa_49];
+{ var _5fa74lg_66 = node.statements; for (var _cdp4m8_67 = 0; _cdp4m8_67 < _5fa74lg_66.length; _cdp4m8_67 ++){
+var statement = _5fa74lg_66[_cdp4m8_67];
 result += end () + generate (statement, tabs, parent);
 }}
 return result;
@@ -3046,8 +3047,8 @@ case Syntax.BlockStatement:
 temp = node.body.length > 0;
 result = "{" + end () + "\t";
 if (parent.type === Syntax.FunctionDeclaration || parent.type === Syntax.FunctionExpression)
-{ var _6vrqjmb_50 = parent.params; for (var _61d02af_51 = 0; _61d02af_51 < _6vrqjmb_50.length; _61d02af_51 ++){
-var param = _6vrqjmb_50[_61d02af_51];
+{ var _5sb45v1_68 = parent.params; for (var _3t2p5s6_69 = 0; _3t2p5s6_69 < _5sb45v1_68.length; _3t2p5s6_69 ++){
+var param = _5sb45v1_68[_3t2p5s6_69];
 if (param.defaultValue)
 {
 result += "if (" + child (param) + " === undefined)" + end () + "\t\t" + child (param) + " = " + child (param.defaultValue) + ";" + end () + "\n\t" + tabs;
@@ -3109,8 +3110,8 @@ result += sub (node.alternate);
 return result;
 case Syntax.SwitchStatement:
 result = "switch (" + child (node.discriminant) + "){";
-{ var _7h4400v_52 = node.cases; for (var _1fhl3pi_53 = 0; _1fhl3pi_53 < _7h4400v_52.length; _1fhl3pi_53 ++){
-var obj = _7h4400v_52[_1fhl3pi_53];
+{ var _12fdft9_70 = node.cases; for (var _86eh6au_71 = 0; _86eh6au_71 < _12fdft9_70.length; _86eh6au_71 ++){
+var obj = _12fdft9_70[_86eh6au_71];
 result += indent (obj);
 }}
 return result + end () + "}";
@@ -3143,8 +3144,8 @@ case Syntax.ForInStatement:
 return "for (" + child (node.left) + " in " + child (node.right) + ")" + sub (node.body);
 case Syntax.TryStatement:
 result = "try " + sub (node.block) + " ";
-{ var _3mqbe5r_54 = node.handlers; for (var _5qb7u2m_55 = 0; _5qb7u2m_55 < _3mqbe5r_54.length; _5qb7u2m_55 ++){
-var handler = _3mqbe5r_54[_5qb7u2m_55];
+{ var _3koe57v_72 = node.handlers; for (var _82j082k_73 = 0; _82j082k_73 < _3koe57v_72.length; _82j082k_73 ++){
+var handler = _3koe57v_72[_82j082k_73];
 result += child (handler) + " ";
 }}
 if (node.finalizer)
@@ -3157,10 +3158,12 @@ return "throw " + child (node.argument) + ";";
 case Syntax.DebuggerStatement:
 return "debugger;";
 case Syntax.Program:
+if (node.body.length === 0)
+return "";
 result = "";
 temp = node.body [0].type;
-{ var _2c09tk6_56 = node.body; for (var index = 0; index < _2c09tk6_56.length; index ++){
-var childNode = _2c09tk6_56[index];
+{ var _13oetpj_74 = node.body; for (var index = 0; index < _13oetpj_74.length; index ++){
+var childNode = _13oetpj_74[index];
 if (index > 0)
 {
 if (temp !== childNode.type || childNode.type !== Syntax.ExpressionStatement || childNode.headerComment)
@@ -3178,14 +3181,15 @@ default:throw new Error("Unsupported type: " + node.type);
 }
 }
 return function (arg){
+comments = [];
 var max = - 1, maxAllowed = 80, indent, begins = [], previous, index = 0, result = generate (arg, "");
 if (niceMode)
 {
-result = result.replace (/([^\n]*?)[ \t]*( \/\/__ )([^\n]+)/g, function (match,begin,keyword,found){
+result = result.replace (/([^\n]*?)\/\/(\d+)\n/g, function (match,begin,found){
 var length = begin.replace (/\t/g, "    ").length;
 if (length > maxAllowed)
 {
-return begin;
+return begin + "\n";
 }
 else
 {
@@ -3196,30 +3200,15 @@ found = "...";
 begins.push (length);
 if (length > max)
 max = length;
-return begin + keyword + found;
+return begin + "//" + found + "\n";
 }
+}).replace (/\/\/(\d+)\n/g, function (match,comment){
+return spaces.substr (0, max - begins [index++]) + "   // " + comments [+ comment] + "\n";
 });
 }
-return result.replace (/ \/\/__ /g, function (arg){
-return spaces.substr (0, max - begins [index++]) + "   // ";
-});
+return result;
 };
 } ();
-function getParams (data){
-var all = data.match (/(?:^|[\r\n])[ \t]*\/\/[ \t]*==([a-zA-Z]+)==[\s\S]+?[\r\n][ \t]*\/\/[ \t]*==\/\1==/g), result = {"jsx":{}};
-if (all)
-all.forEach (function (arg){
-var temp = {};
-arg.replace (/[\r\n][ \t]*\/\/[ \t]*@[ \t]*([^\s]+)(?:[ \t]+([^\n\r]+))?/g, function (s,k,v){
-k = k.trim ();
-if (! temp [k])
-temp [k] = [];
-temp [k].push (v ? v.trim () : true);
-});
-result [arg.match (/==([a-zA-Z]+)==/) [1].toLowerCase ()] = temp;
-});
-return result;
-}
 function LiteParser (data,index){
 if (index === undefined)
 index = 0;
@@ -3240,19 +3229,17 @@ return result;
 Object.defineProperty (LiteParser.prototype, "current", {"get":function (arg){
 return this.data [this.index];
 }});
-LiteParser.prototype.replace = function (from,to,by){
-if (by === undefined)
-by = "";
+LiteParser.prototype.replace = function (from,to,replacement){
+if (replacement === undefined)
+replacement = "";
 console.assert (from <= to, "Invalid args");
-if (typeof by !== "string")
-by = "" + by;
-var delta = by.length - (to - from);
+var delta = String (replacement).length - to + from;
 if (this.index >= to)
 this.index += delta;
 else
 if (this.index > from)
 this.update (from);
-this.update (this.data = this.data.substr (0, from) + by + this.data.substr (to));
+this.update (this.data = this.data.substr (0, from) + replacement + this.data.substr (to));
 return delta;
 };
 LiteParser.prototype.substring = function (from,to){
@@ -3276,8 +3263,8 @@ var args = [].slice.call (arguments), comment, handler;
 if (typeof args [args.length - 2] === "function")
 comment = args.pop ();
 handler = args.pop ();
-for (var _3a91uio_72 = 0; _3a91uio_72 < args.length; _3a91uio_72 ++){
-var entry = args[_3a91uio_72];
+for (var _7g9agdf_98 = 0; _7g9agdf_98 < args.length; _7g9agdf_98 ++){
+var entry = args[_7g9agdf_98];
 this.binded.push ({"match":entry,"handler":handler,"comment":comment});
 }
 return this;
@@ -3342,8 +3329,8 @@ else
 console.assert (true, "Invalid argument type");
 }
 var value = {"index":Number.POSITIVE_INFINITY}, oldIndex = this.index, bindedObj, result, temp;
-{ var _3n9qjfc_73 = this.binded; for (var i = 0; i < _3n9qjfc_73.length; i ++){
-var arg = _3n9qjfc_73[i];
+{ var _8kviejh_99 = this.binded; for (var i = 0; i < _8kviejh_99.length; i ++){
+var arg = _8kviejh_99[i];
 temp = indexOfExt (this.data, arg.match, this.index, i);
 if (temp.index !== - 1 && temp.index < value.index)
 {
@@ -3624,8 +3611,8 @@ default:macrosProcess (value, this.level, this.context, nextStep);
 }
 }
 var queue = new Queue(this, Queue.MODE_PARALLEL).description ("macro call arguments prepare");
-{ var _4dhh93b_120 = this.arguments; for (var i = 0; i < _4dhh93b_120.length; i ++){
-var arg = _4dhh93b_120[i];
+{ var _2ak7185_51 = this.arguments; for (var i = 0; i < _2ak7185_51.length; i ++){
+var arg = _2ak7185_51[i];
 queue.add (cast, this.macro.arguments [i], arg);
 }}
 queue.run (function (arg){
@@ -3927,13 +3914,13 @@ level = "";
 console.assert (context instanceof Context, "Context required");
 console.assert (typeof callback === "function", "Function required");
 var temp = macrosParse (data, level, context), queue = new Queue(Queue.MODE_PARALLEL).description ("macros process");
-{ var _6nk431s_74 = temp.calls; for (var _d9mfe2_75 = 0; _d9mfe2_75 < _6nk431s_74.length; _d9mfe2_75 ++){
-var call = _6nk431s_74[_d9mfe2_75];
+{ var _8lqvsds_20 = temp.calls; for (var _1i7oa2f_21 = 0; _1i7oa2f_21 < _8lqvsds_20.length; _1i7oa2f_21 ++){
+var call = _8lqvsds_20[_1i7oa2f_21];
 queue.add (call, call.process.bind (call));
 }}
 queue.run (function (arg){
-for (var _6lblova_76 = 0; _6lblova_76 < arg.length; _6lblova_76 ++){
-var entry = arg[_6lblova_76];
+for (var _6phgvhb_22 = 0; _6phgvhb_22 < arg.length; _6phgvhb_22 ++){
+var entry = arg[_6phgvhb_22];
 temp.data = temp.data.split (entry.data.replacement).join (entry.result [0]);
 }
 callback (temp.data);

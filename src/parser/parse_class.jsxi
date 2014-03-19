@@ -114,6 +114,7 @@ function parseClassMembers (params, dependsOn){
 
 		for (var entry in-array parseVariableDeclarators ())
 			set (entry);
+
 		refresh ();
 	}
 
@@ -122,12 +123,9 @@ function parseClassMembers (params, dependsOn){
 			throw new TypeError ('Abstract member cannot be private');
 
 		state.superAvailable = !current.static && dependsOn.parent;
-
-		var empty = params.interface && !current.static || current.abstract,
-			result = parseFunction ({ keyword: null, empty: empty });
-
-		set (result);
+		set (parseFunction ({ keyword: null, empty: params.interface && !current.static || current.abstract }));
 		state.superAvailable = false;
+
 		refresh ();
 	}
 
