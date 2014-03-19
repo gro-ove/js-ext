@@ -1,18 +1,17 @@
-function test (){
-	b + c || d;
-	b - c - d;
-	b - (c - d);
-	a + (c, d);
-	(a | b + c) + d;
-	a + b | c + d;
-	a + (b | c) + d;
-}
+(function test (){
+	console.log ('Hello world!')
+}).call ();
+(function test (){
+	console.log ('Hello world!')
+}).call.call;
 
-var a = JSON.stringify (' ' + '//' + ' '),
-	b = JSON.stringify (' // ');
+if (0)
+	(function a (){});
 
-'//112'
+var c = function b (){};
 
-console.log (a, b);
-console.log ('a, b, a, b, a, b, a, b, a, b, a, b, a, b, a, b, a, b, a, b, a, b, a, b');
-console.log (a, b);
+q = function (){};
+q (function (){});
+a = function (){}.call;
+
+@buildTo ('./temp/current.js')

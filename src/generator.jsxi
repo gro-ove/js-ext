@@ -111,8 +111,6 @@ var niceMode = true,
 						return indented;
 					} : lambda {
 						var indented = generate (arg, localTabs, array);
-						if (!indented)
-							console.log ('fail', arg);
 						if (!forceWrap && indented.indexOf ('\n') !== -1)
 							forceWrap = true;
 						return indented;
@@ -237,7 +235,12 @@ var niceMode = true,
 						result = 'function ' + child (node.id) + ' (';
 					else
 						result = 'function (';
-					return result + mapArray (node.params, ', ') + ')' + child (node.body);
+					result += mapArray (node.params, ', ') + ')' + child (node.body);
+
+					if (parent.type === Syntax.VariableDeclarator || parent.type === Syntax.AssignmentExpression || parent instanceof Array)
+						return result;
+					else
+						return '(' + result + ')';
 
 
 				/* Declarations */

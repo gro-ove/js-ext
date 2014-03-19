@@ -138,6 +138,7 @@
 		V retrieve multiline strings support
 			V skiping of spaces
 		V generating code for "a - (b - c)"
+		V make function 'identifier' more simple
 		F fix for getting value of stringliteral
 		F regular expressions like "/=something/"
 		C constructions like "a < b < c < d"
@@ -162,14 +163,13 @@
 				- replace local
 				? replace global
 				? replace properties
-		- move creating of 'switch' to "src/parser/objects.jsxi"
-		- somehow save special comments to result file
+		L somehow save special comments to result file
+		L 'enum'
 		L optional transforming '==' to '===' and '!=' to '!=='
 		L partial functions
-		L 'enum'
-		L 'const'
 		L option to set size of tabs (for multiline strings and etc.) 
-		? make function 'identifier' more simple
+		L 'const'
+		? move creating of 'switch' to "src/parser/objects.jsxi"
 		? "for (var i, obj in-array array) console.log (i, obj);" => "for (var i, obj; obj = array [i], i < array.length; i ++) console.log (i, obj);"
 		? for compatible with regular js disable detection of new keywords if they are using, but using wrong
 			/*

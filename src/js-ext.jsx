@@ -1,5 +1,3 @@
-// ==Jsx==
-// @target node
-// @import parser/*
-// @import *
-// ==/Jsx==
+@import ('./parser/*')
+@import ('./*')
+@buildTo ('../build/js-ext-new.js')
