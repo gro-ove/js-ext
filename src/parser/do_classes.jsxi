@@ -521,6 +521,8 @@ function doClasses (statements, callback){
 							}
 						} else if (obj.object.type === Syntax.ThisExpression){
 							obj.property.name = member.id.name;
+							if (currentFunction !== methodEntry)
+								obj.object = getThis ();
 						} else if (member.publicMode !== 'public'){
 							if (parent instanceof Array && preparent)
 								parent = preparent;

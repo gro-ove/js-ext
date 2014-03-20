@@ -493,6 +493,23 @@
 	new B ('first').staticTest ({ privateStatic: 'arg' });
 });
 
+@test ('Access through __that', {
+	[ '[A]', 'ok-a', 'ok-ok-ok-b' ]
+	[ '[B]', 'ok-a', 'ok-b' ]
+}, {
+	class A {
+		var a = 'ok-a', b = 'ok-b';
+		(){
+			Function.prototype.call.call (lambda {
+				@output { '[A]', this.a, this ['b'] };
+			}.bind ({ b: 'ok-ok-ok-b' }), 10);
+			@output { '[B]', this.a, this.b };
+		}
+	}
+
+	new A ();
+});
+
 @test ('For parser and generator', {
 	[ 'hi' ]
 	[ 134, 'test', '\n\r\t', 'multiline\tstring', 'qqq\'qqq', 'a', '%~' ]
@@ -593,3 +610,4 @@
 	@output { disabled + '\n' };
 	@output { symbols };
 });
+

@@ -578,7 +578,16 @@ function parsePrimaryExpression (){
 	switch (token.type){
 		case Token.Identifier:
 			lex ();
-			return mark ({ type: Syntax.Identifier, name: token.value }, token);
+			if (state.asynchronous && token.value === 'asynchronous'){
+				var next = parseExpression ();
+
+				if (next.type === Syntax.CallExpression){
+					next.asynchronous = true;
+					return next;
+				} else
+					unexpected (token);
+			} else 
+				return mark ({ type: Syntax.Identifier, name: token.value }, token);
 
 		case Token.Keyword:
 			if (token.value === 'this'){

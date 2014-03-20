@@ -8,7 +8,7 @@
 		- noSemicolon: 		true - не искать «;» на конце функций в одну строку
 */
 function parseFunction (options = {}){
-	var id, params, body, token = lookahead ();
+	var id, params, body, asynchronous = false, token = lookahead ();
 
 	if (options.keyword !== null)
 		expectKeyword (options.keyword || 'function');
@@ -18,13 +18,29 @@ function parseFunction (options = {}){
 	else
 		id = null;
 
-	if (options.optionalParams)
+	if (options.optionalParams){
 		params = parseOptionalFunctionArguments () || (options.optionalParams === true ? [] : options.optionalParams);
-	else
+	} else {
 		params = parseFunctionArguments ();
 
+		if (lookahead ().value === 'asynchronous'){
+			lex ();
+			asynchronous = true;
+		}
+	}
+
 	if (!options.empty){
+		var oldAsynchronous = state.asynchronous;
+		state.asynchronous = asynchronous;
+
 		body = parseFunctionElements (options.noSemicolon);
+
+		if (asynchronous){
+			params.push (identifier ('__callback'));
+			makeAsyncronious (body);
+		}
+
+		state.asynchronous = oldAsynchronous;
 	} else {
 		body = null;
 		consumeSemicolon ();

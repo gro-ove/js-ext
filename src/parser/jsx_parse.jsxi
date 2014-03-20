@@ -32,7 +32,7 @@ function jsxParse (code, args, callback){
 	index           = 0;
 	lineNumber      = source.length ? 1 : 0;
 	buffer          = null;
-	state 			= { allowIn: true, inClass: false, parsingComplete: false, preventSequence: false };
+	state 			= { allowIn: true, inClass: false, parsingComplete: false, preventSequence: false, asynchronous: false };
 	options		    = args || { filename: '[ not a file ]', insertReturn: false, initializationAllowed: false };
 	helpers 		= new HelpersManager ();
 

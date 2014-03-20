@@ -1154,6 +1154,51 @@ function __prototypeExtend (c,
 	var missed = false;
 	
 	(function (log){                                                               // tests.jsx:574
+		/* Class "A" declaration */
+		function A (){                                                             // tests.jsx:575
+			var __that = this;
+			
+			this.__A_a = 'ok-a';                                                   // tests.jsx:576
+			this.__A_b = 'ok-b';                                                   // tests.jsx:576
+			Function.prototype.call.call ((function (arg){                         // tests.jsx:578
+				log ([ '[A]', __that.__A_a, this ['b'] ]);                         // tests.jsx:579
+			}).bind ({ b: 'ok-ok-ok-b' }),                                         // tests.jsx:580
+			10);
+			log ([ '[B]', this.__A_a, this.__A_b ]);                               // tests.jsx:581
+		}
+		
+		new A ();                                                                  // tests.jsx:585
+	})(function (args){                                                            // tests.jsx:586
+		var expected = JSON.stringify (result.shift ()),                           // tests.jsx:587
+			got = JSON.stringify (args);                                           // tests.jsx:588
+		
+		if (expected === undefined){                                               // tests.jsx:589
+			if (!missed){                                                          // tests.jsx:590
+				console.log ('Missing entry:');                                    // tests.jsx:591
+				missed = true;                                                     // tests.jsx:592
+			}
+			
+			var temp = [];
+			
+			console.log ('\t' + got.replace (/"((?:\\"|[^"])+)"/g,                 // tests.jsx:596
+				function (m, s){                                                   // tests.jsx:597
+					return '\'' + temp.push (s) + '\'';                            // tests.jsx:597
+				}).replace (/(,|\[|\{|\:)|(\]|\})/g, '$1 $2').replace (/'(\d+)'/g, 
+				function (m, s){                                                   // tests.jsx:599
+					return '\'' + temp [+ s - 1].replace (/\\"/g, '"').replace (/'/g, '\\\'') + '\'';
+				}));
+		} else if (expected !== got)                                               // tests.jsx:600
+			throw new Error ('Expected and got:\n\t' + expected + '\n\t' + got);   // tests.jsx:601
+	});
+	console.log ('[Testing] Test "Access through __that" has been passed');        // tests.jsx:603
+})([
+	[ '[A]', 'ok-a', 'ok-ok-ok-b' ], 
+	[ '[B]', 'ok-a', 'ok-b' ]
+]);
+(function (result){                                                                // tests.jsx:606
+	var missed = false;
+	
+	(function (log){                                                               // tests.jsx:608
 		[ 0, 
 			1, 
 			2, 
@@ -1166,9 +1211,9 @@ function __prototypeExtend (c,
 			6, 
 			5 ];
 		
-		var a = function (){                                                       // tests.jsx:578
-				log ([                                                             // tests.jsx:579
-					'5',                                                           // tests.jsx:579
+		var a = function (){                                                       // tests.jsx:612
+				log ([                                                             // tests.jsx:613
+					'5',                                                           // tests.jsx:613
 					'58', 
 					'test58', 
 					'begin insert middle test end', 
@@ -1176,122 +1221,56 @@ function __prototypeExtend (c,
 					'5-5-8'
 				]);
 			}, 
-			b = function (variable5, variable8){                                   // tests.jsx:588
-				if (variable5 === undefined)                                       // tests.jsx:588
-					variable5 = 1;                                                 // tests.jsx:588
+			b = function (variable5, variable8){                                   // tests.jsx:622
+				if (variable5 === undefined)                                       // tests.jsx:622
+					variable5 = 1;                                                 // tests.jsx:622
 			
-				if (variable8 === undefined)                                       // tests.jsx:588
-					variable8 = 'K';                                               // tests.jsx:588
+				if (variable8 === undefined)                                       // tests.jsx:622
+					variable8 = 'K';                                               // tests.jsx:622
 			
 				function q (){}
 				
-				log ([                                                             // tests.jsx:591
-					'' + variable5,                                                // tests.jsx:591
-					'' + variable5 + variable8,                                    // tests.jsx:593
+				log ([                                                             // tests.jsx:625
+					'' + variable5,                                                // tests.jsx:625
+					'' + variable5 + variable8,                                    // tests.jsx:627
 					'test' + variable5 + variable8
 				]);
 				
-				function a (){                                                     // tests.jsx:597
-					console.warn ('Not implemented at 597 line of tests.jsx');     // tests.jsx:597
+				function a (){                                                     // tests.jsx:631
+					console.warn ('Not implemented at 631 line of tests.jsx');     // tests.jsx:631
 				}
 				
 				function b (){}
 				
-				if (a)                                                             // tests.jsx:601
+				if (a)                                                             // tests.jsx:635
 					function s (){}
 			};
 		
-		log ([ 'hi' ]);                                                            // tests.jsx:605
+		log ([ 'hi' ]);                                                            // tests.jsx:639
 		
 		while (0);
 		
-		log ([                                                                     // tests.jsx:609
-			0x86,                                                                  // tests.jsx:609
-			'test',                                                                // tests.jsx:612
-			'\n\r\t',                                                              // tests.jsx:613
+		log ([                                                                     // tests.jsx:643
+			0x86,                                                                  // tests.jsx:643
+			'test',                                                                // tests.jsx:646
+			'\n\r\t',                                                              // tests.jsx:647
 			'multiline\
-	string',                                                                       // tests.jsx:614
-			'qqq\'qqq',                                                            // tests.jsx:615
-			'\u0061',                                                              // tests.jsx:616
+	string',                                                                       // tests.jsx:648
+			'qqq\'qqq',                                                            // tests.jsx:649
+			'\u0061',                                                              // tests.jsx:650
 			'\%\~'
 		]);
-		log ([                                                                     // tests.jsx:620
-			'begin ' + console + ' end',                                           // tests.jsx:620
-			'' + console,                                                          // tests.jsx:622
-			'be\ngin \'' + console + ' middle ' + JSON + ' end',                   // tests.jsx:624
+		log ([                                                                     // tests.jsx:654
+			'begin ' + console + ' end',                                           // tests.jsx:654
+			'' + console,                                                          // tests.jsx:656
+			'be\ngin \'' + console + ' middle ' + JSON + ' end',                   // tests.jsx:658
 			'', 
 			'attaching test', 
 			'here goes hardcore test', 
 			'really hardcore te\'st', 
 			'really hardcore te"st'
 		]);
-		a ();                                                                      // tests.jsx:634
-	})(function (args){                                                            // tests.jsx:635
-		var expected = JSON.stringify (result.shift ()),                           // tests.jsx:636
-			got = JSON.stringify (args);                                           // tests.jsx:637
-		
-		if (expected === undefined){                                               // tests.jsx:638
-			if (!missed){                                                          // tests.jsx:639
-				console.log ('Missing entry:');                                    // tests.jsx:640
-				missed = true;                                                     // tests.jsx:641
-			}
-			
-			var temp = [];
-			
-			console.log ('\t' + got.replace (/"((?:\\"|[^"])+)"/g,                 // tests.jsx:645
-				function (m, s){                                                   // tests.jsx:646
-					return '\'' + temp.push (s) + '\'';                            // tests.jsx:646
-				}).replace (/(,|\[|\{|\:)|(\]|\})/g, '$1 $2').replace (/'(\d+)'/g, 
-				function (m, s){                                                   // tests.jsx:648
-					return '\'' + temp [+ s - 1].replace (/\\"/g, '"').replace (/'/g, '\\\'') + '\'';
-				}));
-		} else if (expected !== got)                                               // tests.jsx:649
-			throw new Error ('Expected and got:\n\t' + expected + '\n\t' + got);   // tests.jsx:650
-	});
-	console.log ('[Testing] Test "For parser and generator" has been passed');     // tests.jsx:652
-})([
-	[ 'hi' ], 
-	[
-		134, 
-		'test',                                                                    // tests.jsx:653
-		'\n\r\t',                                                                  // tests.jsx:653
-		'multiline\tstring',                                                       // tests.jsx:653
-		'qqq\'qqq',                                                                // tests.jsx:653
-		'a',                                                                       // tests.jsx:653
-		'%~'
-	], 
-	[
-		'begin [object Object] end',                                               // tests.jsx:653
-		'[object Object]',                                                         // tests.jsx:653
-		'be\ngin \'[object Object] middle [object JSON] end',                      // tests.jsx:653
-		'',                                                                        // tests.jsx:653
-		'attaching test',                                                          // tests.jsx:653
-		'here goes hardcore test',                                                 // tests.jsx:653
-		'really hardcore te\'st',                                                  // tests.jsx:653
-		'really hardcore te"st'
-	], 
-	[
-		'5',                                                                       // tests.jsx:653
-		'58',                                                                      // tests.jsx:653
-		'test58',                                                                  // tests.jsx:653
-		'begin insert middle test end',                                            // tests.jsx:653
-		'5-%0-8',                                                                  // tests.jsx:653
-		'5-5-8'
-	]
-]);
-(function (result){                                                                // tests.jsx:655
-	var missed = false;
-	
-	(function (log){                                                               // tests.jsx:657
-		var test = "first line\nsecond line\n\ttabbed line\n\tanother one\nlast line", 
-			withSpaces = "first line\nsecond line\n    tabbed line\n    another one\n\tcheck one\nlast line", 
-			disabled = "first line\n\t\t\tsecond line\n\t\t\t\ttabbed line\n\t\t\t\tanother one\n\t\t\tlast line", 
-			symbols = "'\"`";                                                      // tests.jsx:663
-		
-		log ([ test + '\n' ]);                                                     // tests.jsx:665
-		log ([ withSpaces + '\n' ]);                                               // tests.jsx:666
-		log ([ disabled + '\n' ]);                                                 // tests.jsx:667
-		log ([ symbols ]);                                                         // tests.jsx:668
+		a ();                                                                      // tests.jsx:668
 	})(function (args){                                                            // tests.jsx:669
 		var expected = JSON.stringify (result.shift ()),                           // tests.jsx:670
 			got = JSON.stringify (args);                                           // tests.jsx:671
@@ -1314,7 +1293,73 @@ function __prototypeExtend (c,
 		} else if (expected !== got)                                               // tests.jsx:683
 			throw new Error ('Expected and got:\n\t' + expected + '\n\t' + got);   // tests.jsx:684
 	});
-	console.log ('[Testing] Test "Multiline" has been passed');                    // tests.jsx:686
+	console.log ('[Testing] Test "For parser and generator" has been passed');     // tests.jsx:686
+})([
+	[ 'hi' ], 
+	[
+		134, 
+		'test',                                                                    // tests.jsx:687
+		'\n\r\t',                                                                  // tests.jsx:687
+		'multiline\tstring',                                                       // tests.jsx:687
+		'qqq\'qqq',                                                                // tests.jsx:687
+		'a',                                                                       // tests.jsx:687
+		'%~'
+	], 
+	[
+		'begin [object Object] end',                                               // tests.jsx:687
+		'[object Object]',                                                         // tests.jsx:687
+		'be\ngin \'[object Object] middle [object JSON] end',                      // tests.jsx:687
+		'',                                                                        // tests.jsx:687
+		'attaching test',                                                          // tests.jsx:687
+		'here goes hardcore test',                                                 // tests.jsx:687
+		'really hardcore te\'st',                                                  // tests.jsx:687
+		'really hardcore te"st'
+	], 
+	[
+		'5',                                                                       // tests.jsx:687
+		'58',                                                                      // tests.jsx:687
+		'test58',                                                                  // tests.jsx:687
+		'begin insert middle test end',                                            // tests.jsx:687
+		'5-%0-8',                                                                  // tests.jsx:687
+		'5-5-8'
+	]
+]);
+(function (result){                                                                // tests.jsx:689
+	var missed = false;
+	
+	(function (log){                                                               // tests.jsx:691
+		var test = "first line\nsecond line\n\ttabbed line\n\tanother one\nlast line", 
+			withSpaces = "first line\nsecond line\n    tabbed line\n    another one\n\tcheck one\nlast line", 
+			disabled = "first line\n\t\t\tsecond line\n\t\t\t\ttabbed line\n\t\t\t\tanother one\n\t\t\tlast line", 
+			symbols = "'\"`";                                                      // tests.jsx:697
+		
+		log ([ test + '\n' ]);                                                     // tests.jsx:699
+		log ([ withSpaces + '\n' ]);                                               // tests.jsx:700
+		log ([ disabled + '\n' ]);                                                 // tests.jsx:701
+		log ([ symbols ]);                                                         // tests.jsx:702
+	})(function (args){                                                            // tests.jsx:703
+		var expected = JSON.stringify (result.shift ()),                           // tests.jsx:704
+			got = JSON.stringify (args);                                           // tests.jsx:705
+		
+		if (expected === undefined){                                               // tests.jsx:706
+			if (!missed){                                                          // tests.jsx:707
+				console.log ('Missing entry:');                                    // tests.jsx:708
+				missed = true;                                                     // tests.jsx:709
+			}
+			
+			var temp = [];
+			
+			console.log ('\t' + got.replace (/"((?:\\"|[^"])+)"/g,                 // tests.jsx:713
+				function (m, s){                                                   // tests.jsx:714
+					return '\'' + temp.push (s) + '\'';                            // tests.jsx:714
+				}).replace (/(,|\[|\{|\:)|(\]|\})/g, '$1 $2').replace (/'(\d+)'/g, 
+				function (m, s){                                                   // tests.jsx:716
+					return '\'' + temp [+ s - 1].replace (/\\"/g, '"').replace (/'/g, '\\\'') + '\'';
+				}));
+		} else if (expected !== got)                                               // tests.jsx:717
+			throw new Error ('Expected and got:\n\t' + expected + '\n\t' + got);   // tests.jsx:718
+	});
+	console.log ('[Testing] Test "Multiline" has been passed');                    // tests.jsx:720
 })([
 	[
 		'first line\nsecond line\n\ttabbed line\n\tanother one\nlast line\n'

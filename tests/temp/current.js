@@ -1,15 +1,11 @@
-(function test (){                  // current.jsx:1
-	console.log ('Hello world!');   // current.jsx:2
-}).call ();                         // current.jsx:3
-(function test (){                  // current.jsx:4
-	console.log ('Hello world!');   // current.jsx:5
-}).call.call;                       // current.jsx:6
+function sleep (timeout, callback){          // current.jsx:1
+	return setTimeout (callback, timeout);   // current.jsx:2
+}
 
-if (0)
-	(function a (){});
+function asyncFn (__callback){               // current.jsx:4
+	console.time ('> sleep');                // current.jsx:5
+	sleep (100);                             // current.jsx:6
+	console.timeEnd ('> sleep');             // current.jsx:7
+}
 
-var c = function b (){};
-
-q = function (){};
-q (function (){});                  // current.jsx:14
-a = (function (){}).call;           // current.jsx:15
+asyncFn ();                                  // current.jsx:10

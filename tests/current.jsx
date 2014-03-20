@@ -1,17 +1,12 @@
-(function test (){
-	console.log ('Hello world!')
-}).call ();
-(function test (){
-	console.log ('Hello world!')
-}).call.call;
+function sleep (timeout, callback)
+	setTimeout (callback, timeout);
 
-if (0)
-	(function a (){});
+function asyncFn () asynchronous {
+	console.time ('> sleep');
+	asynchronous sleep (100);
+	console.timeEnd ('> sleep');
+}
 
-var c = function b (){};
-
-q = function (){};
-q (function (){});
-a = function (){}.call;
+asyncFn ();
 
 @buildTo ('./temp/current.js')

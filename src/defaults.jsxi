@@ -5,7 +5,7 @@
 			add: lambda (key, value){ 
 				switch (key){
 					case 'import':
-						var other = that.context.file.find (value);
+						var other = that.context.file.findChild (value);
 						if (other)
 							other.forEach (lambda {
 								that.context.file.imports.push (arg);

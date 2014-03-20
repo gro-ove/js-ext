@@ -1,43 +1,17 @@
-	File.DEBUG_MODE				= true;
+public class File {
+	static STATE_WAITING		= -1,
+		STATE_MACRO_WAITING		= -2,
+		STATE_INITIAL 			= 0,
+		STATE_LOADED 			= 1,
+		STATE_MACROS 			= 2,
+		STATE_FINISHED			= 3;
 
-	function File (root, fullpath){
-		console.assert (!fileStorage.exists (fullpath), 'File already processed');
+	static lookingAt;
 
-		if (fullpath === undefined){
-			this.fullpath 		= path.resolve (root);
-			this.root 			= path.dirname (this.fullpath);
-		} else {
-			this.fullpath 		= fullpath;
-			this.root 			= root;
-		}
+	static find (from, child){
+		if (!lookingAt)
+			lookingAt = [ { root: path.resolve (__dirname, 'library') } ];
 
-		this.dirname 			= path.dirname (this.fullpath);
-		this.filename 			= path.basename (this.fullpath);
-		this.state 				= File.STATE_INITIAL;
-		this.imports 			= [];
-		this.weightCalculating 	= false;
-
-		fileStorage.add (this);
-	}
-
-	File.STATE_WAITING			= -1;
-	File.STATE_MACRO_WAITING	= -2;
-	File.STATE_INITIAL 			= 0;
-	File.STATE_LOADED 			= 1;
-	File.STATE_MACROS 			= 2;
-	File.STATE_FINISHED			= 3;
-
-	addLog (File, 1, lambda this.filename);
-
-	var lookingAt 	= [
-		{ root: path.resolve (__dirname, 'library') }
-	];
-
-	File.find = function (child){
-		return File.prototype.find (child);
-	}
-
-	File.prototype.find = function (child){
 		function getByMask (temp){
 			// TODO: Get by mask like folder/sub_folder_*/file (?)
 
@@ -67,7 +41,12 @@
 			}
 		}
 
-		for (var entry in-array this instanceof File ? [ { root: this.root, dirname: this.dirname } ].concat (lookingAt) : lookingAt){
+		if (typeof from === 'string'){
+			child = from;
+			from = null;
+		}
+
+		for (var entry in-array from ? [ { root: from.root, dirname: from.dirname } ].concat (lookingAt) : lookingAt){
 			var temp = findInFolder (entry.root, entry.dirname, child);
 
 			if (temp)
@@ -75,80 +54,106 @@
 		}
 	}
 
-	File.prototype.weight = function (){
-		if (this.weightCalculating)
+	var fullpath, 
+		root, 
+		dirname, 
+		filename, 
+		state = STATE_INITIAL, 
+		imports = [], 
+		weightCalculating = false,
+		content,
+		parsed,
+		helpers;
+
+	(root, fullpath){
+		console.assert (!fileStorage.exists (fullpath), 'File already processed');
+
+		if (fullpath === undefined){
+			this.fullpath = path.resolve (root);
+			this.root = path.dirname (this.fullpath);
+		} else {
+			this.fullpath = fullpath;
+			this.root = root;
+		}
+
+		dirname = path.dirname (this.fullpath);
+		filename = path.basename (this.fullpath);
+
+		fileStorage.add (this);
+	}
+
+	public findChild (child)
+		File.find (this, child);
+
+	public weight (){
+		if (weightCalculating)
 			return 0;
 
-		this.weightCalculating = true;
-		var result = this.imports.reduce (lambda (a, b) a + b.weight (), 1);
-		this.weightCalculating = false;
+		weightCalculating = true;
+		var result = imports.reduce (lambda (a, b) a + b.weight (), 1);
+		weightCalculating = false;
 
 		return result;
 	}
 
-	File.prototype.load = function (callback){
-		console.assert (this.state == File.STATE_INITIAL, 'Wrong state (' + this.state + ')');
-		this.state = File.STATE_MACRO_WAITING;
+	public load (callback){
+		console.assert (state == STATE_INITIAL, 'Wrong state (' + state + ')');
+		state = STATE_MACRO_WAITING;
 
-		fs.readFile (this.fullpath, lambda (error, data){
+		fs.readFile (fullpath, lambda (error, data){
 			if (error)
 				console.fatal (error);
 
-			this.state 		= File.STATE_LOADED;
-			this.content 	= String (data);
+			state 		= STATE_LOADED;
+			content 	= String (data);
 
-			this.log ('loaded', this.content.length ? '(' + this.content.length + ' bytes)' : '(empty)');
-
-			callback ();
-		}.bind (this));
-	}
-
-	File.prototype.macros = function (callback){
-		console.assert (this.state == File.STATE_LOADED, 'Wrong state (' + this.state + ')');
-		this.state = File.STATE_WAITING;
-
-		macrosProcess (this.content, new Context (this), lambda {
-			this.log ('macro calls processed');
-
-			this.state 		= File.STATE_MACROS;
-			this.content 	= String (arg);
+			// log ('loaded', content.length ? '(' + content.length + ' bytes)' : '(empty)');
 
 			callback ();
-		}.bind (this));
+		});
 	}
 
-	File.prototype.parsing = function (callback){
-		console.assert (this.state == File.STATE_MACROS, 'Wrong state (' + this.state + ')');
-		this.state = File.STATE_WAITING;
+	public macros (callback){
+		console.assert (state == STATE_LOADED, 'Wrong state (' + state + ')');
+		state = STATE_WAITING;
 
-		// TODO: try {
-			jsxParse (this.content, {
-				filename: 				this.filename,
-				initializationAllowed: 	true
-			}, lambda (parsed, helpers){
-				this.log ('parsing processed');
+		macrosProcess (content, new Context (this), lambda {
+			// log ('macro calls processed');
 
-				this.state 		= File.STATE_FINISHED;
-				this.parsed 	= parsed;
-				this.helpers	= helpers;
+			state 		= STATE_MACROS;
+			content 	= String (arg);
 
-				callback ();
-			}.bind (this));
-		// } catch 
-		// 	console.fatal ('Parsing failed (' + this.filename + ')' 
-		// 		+ (File.DEBUG_MODE ? ('\n' + this.content.trim ()).replace (/\n/g, '\n> ') + '\n' : '')
-		// 		+ '\n' + e.stack);
+			callback ();
+		});
 	}
 
-	File.prototype.process = function (callback){
+	public parsing (callback){
+		console.assert (state == STATE_MACROS, 'Wrong state (' + state + ')');
+		state = STATE_WAITING;
+
+		jsxParse (content, { filename: filename, initializationAllowed: true }, lambda (parsed, helpers){
+			// log ('parsing processed');
+
+			state 				= STATE_FINISHED;
+			this.parsed 		= parsed;
+			this.helpers		= helpers;
+
+			callback ();
+		});
+	}
+
+	public process (callback){
 		new Queue (this, Queue.MODE_SEQUENT)
 			.description ('file process')
-			.add (this.load)
-			.add (this.macros)
-			.add (this.parsing)
+			.add (load)
+			.add (macros)
+			.add (parsing)
 			.run (lambda {
-				console.assert (this.state == File.STATE_FINISHED, 'Wrong state (' + this.state + ')');
+				console.assert (state == STATE_FINISHED, 'Wrong state (' + state + ')');
 				if (callback !== undefined)
 					callback (this);
 			});
 	}
+}
+
+addLog (File, 1, lambda filename);
