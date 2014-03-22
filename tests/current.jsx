@@ -1,23 +1,7 @@
-function sleep (timeout, callback)
-	setTimeout (callback, timeout);
+a = function (){
+	console.log ('a');
+};
 
-function ten () asynchronous {
-	asynchronous sleep (100);
-	return 10;
-}
-
-function double (arg) asynchronous {
-	asynchronous sleep (100);
-	return arg * 2;
-}
-
-function asyncFn () asynchronous {
-	console.time ('> asynchronous');
-	var temp = asynchronous double (asynchronous ten ());
-	console.timeEnd ('> asynchronous');
-	console.log (temp);
-}
-
-asyncFn ();
+(a)();
 
 @buildTo ('./temp/current.js')

@@ -150,10 +150,10 @@ File.find = function (from, child){                                             
 	}
 	
 	{
-		var __15 = from ? [ { root: from.root, dirname: from.dirname } ].concat (File.lookingAt) : File.lookingAt;
+		var __16 = from ? [ { root: from.root, dirname: from.dirname } ].concat (File.lookingAt) : File.lookingAt;
 		
-		for (var __14 = 0; __14 < __15.length; __14 ++){
-			var entry = __15 [__14];
+		for (var __15 = 0; __15 < __16.length; __15 ++){
+			var entry = __16 [__15];
 			
 			var temp = findInFolder (entry.root, entry.dirname, child);
 			
@@ -163,46 +163,332 @@ File.find = function (from, child){                                             
 				});
 		}
 		
-		__15 = undefined;
+		__16 = undefined;
 	}
 };
 
-var fs = require ('fs'), path = require ('path');
+var ch0 = '0'.charCodeAt (0),                                                      // utils.jsxi:1
+	ch1 = '1'.charCodeAt (0),                                                      // utils.jsxi:2
+	ch7 = '7'.charCodeAt (0),                                                      // utils.jsxi:3
+	ch9 = '9'.charCodeAt (0),                                                      // utils.jsxi:4
+	cha = 'a'.charCodeAt (0),                                                      // utils.jsxi:5
+	chf = 'f'.charCodeAt (0),                                                      // utils.jsxi:6
+	chz = 'z'.charCodeAt (0),                                                      // utils.jsxi:7
+	chA = 'A'.charCodeAt (0),                                                      // utils.jsxi:8
+	chF = 'F'.charCodeAt (0),                                                      // utils.jsxi:9
+	chZ = 'Z'.charCodeAt (0);                                                      // utils.jsxi:10
 
-function benchmark (input, output, count){                                         // app.jsxi:4
-	if (count === undefined)                                                       // app.jsxi:4
-		count = 1;                                                                 // app.jsxi:4
-
-	var data, result, from, total = 0;
-	
-	console.time ('ast loaded');                                                   // app.jsxi:10
-	data = JSON.parse (fs.readFileSync (input));                                   // app.jsxi:11
-	console.timeEnd ('ast loaded');                                                // app.jsxi:12
-	
-	for (var i = 0; i < count; i ++){                                              // app.jsxi:14
-		from = + new Date ();                                                      // app.jsxi:15
-		console.time ('generate');                                                 // app.jsxi:16
-		result = generate (data);                                                  // app.jsxi:17
-		console.timeEnd ('generate');                                              // app.jsxi:18
-		total += + new Date () - from;                                             // app.jsxi:19
-	}
-	
-	if (i > 1)                                                                     // app.jsxi:22
-		console.log ('average time: ' + total / count + 'ms');                     // app.jsxi:23
-	
-	if (result)                                                                    // app.jsxi:25
-		fs.writeFileSync (output, result);                                         // app.jsxi:26
+function decimalDigit (c){                                                         // utils.jsxi:12
+	c = c.charCodeAt (0);                                                          // utils.jsxi:13
+	return ch0 <= c && c <= ch9;                                                   // utils.jsxi:14
 }
 
-process.nextTick (function (arg){                                                  // app.jsxi:29
-	args = parseArgs (process.argv.slice (2),                                      // app.jsxi:30
-		[
-			{ s: 'i', l: 'include', p: 2 }, 
-			{ s: 'o', l: 'output', p: 1 }, 
-			{ s: 'h', l: 'usage' }
-		]);
-	new Worker (args.data [0].replace (/^"|"$/g, '')).process ();                  // app.jsxi:45
-});
+function hexDigit (c){                                                             // utils.jsxi:17
+	c = c.charCodeAt (0);                                                          // utils.jsxi:18
+	return ch0 <= c && c <= ch9 || cha <= c && c <= chf || chA <= c && c <= chF;   // utils.jsxi:19
+}
+
+function identifierStart (c){                                                      // utils.jsxi:22
+	var v = c.charCodeAt (0);
+	return cha <= v && v <= chz || chA <= v && v <= chZ || c === '$' || c === '_';
+}
+
+function identifierPart (c){                                                       // utils.jsxi:27
+	var v = c.charCodeAt (0);
+	return cha <= v && v <= chz || chA <= v && v <= chZ || ch0 <= v && v <= ch9 || c === '$' || c === '_';
+}
+
+var lastIdentifier = 0;
+
+function newIdentifier (){                                                         // utils.jsxi:34
+	return '__' + (lastIdentifier ++).toString (32);                               // utils.jsxi:35
+}
+
+function saveAll (){                                                               // utils.jsxi:39
+	return { index: index, lineNumber: lineNumber, buffer: buffer };
+}
+
+;
+
+function restoreAll (obj){                                                         // utils.jsxi:42
+	index = obj.index;                                                             // utils.jsxi:43
+	lineNumber = obj.lineNumber;                                                   // utils.jsxi:44
+	buffer = obj.buffer;                                                           // utils.jsxi:45
+}
+
+function attemptTo (firstFn, secondFn, forceSecond){                               // utils.jsxi:48
+	if (forceSecond){                                                              // utils.jsxi:49
+		return typeof secondFn === 'function' ? secondFn () : secondFn;            // utils.jsxi:50
+	} else {
+		saved = saveAll ();                                                        // utils.jsxi:52
+		
+		try {
+			return typeof firstFn === 'function' ? firstFn () : firstFn;           // utils.jsxi:55
+		} catch (e){
+			if (e instanceof Error && /^Unexpected .+? \[.+?\:\d+\]$/.test (e.message)){
+				restoreAll (saved);                                                // utils.jsxi:58
+				return typeof secondFn === 'function' ? secondFn () : secondFn;    // utils.jsxi:59
+			} else
+				throw e;                                                           // utils.jsxi:61
+		} 
+	}
+}
+
+function advance (){                                                               // utils.jsxi:64
+	skipComments ();                                                               // utils.jsxi:65
+	
+	if (index >= length)                                                           // utils.jsxi:67
+		return {
+			type: Token.EOF,                                                       // utils.jsxi:68
+			lineNumber: lineNumber,                                                // utils.jsxi:68
+			range: [ index, index ]
+		};
+	
+	var token = readPunctuator ();
+	
+	if (token !== undefined)                                                       // utils.jsxi:71
+		return token;                                                              // utils.jsxi:72
+	
+	var character = source [index];
+	
+	if (character === '\'' || character === '"')                                   // utils.jsxi:75
+		return readStringLiteral ();                                               // utils.jsxi:76
+	
+	if (character === '`')                                                         // utils.jsxi:78
+		return readMultilineString ();                                             // utils.jsxi:79
+	
+	if (character === '.' || decimalDigit (character))                             // utils.jsxi:81
+		return readNumericLiteral ();                                              // utils.jsxi:82
+	
+	token = readIdentifier ();                                                     // utils.jsxi:84
+	
+	if (token !== undefined)                                                       // utils.jsxi:85
+		return token;                                                              // utils.jsxi:86
+	
+	unexpected ();                                                                 // utils.jsxi:88
+}
+
+function lex (){                                                                   // utils.jsxi:91
+	if (buffer){                                                                   // utils.jsxi:92
+		index = buffer.range [1];                                                  // utils.jsxi:93
+		lineNumber = buffer.lineNumber;                                            // utils.jsxi:94
+		
+		var token = buffer;
+		
+		buffer = null;                                                             // utils.jsxi:97
+		return token;                                                              // utils.jsxi:98
+	} else {
+		buffer = null;                                                             // utils.jsxi:100
+		return advance ();                                                         // utils.jsxi:101
+	}
+}
+
+function lookahead (){                                                             // utils.jsxi:104
+	if (buffer === null){                                                          // utils.jsxi:105
+		var currentIndex = index, currentLineNumber = lineNumber;
+		
+		buffer = advance ();                                                       // utils.jsxi:109
+		index = currentIndex;                                                      // utils.jsxi:111
+		lineNumber = currentLineNumber;                                            // utils.jsxi:112
+	}
+	return buffer;                                                                 // utils.jsxi:115
+}
+
+function peekLineTerminator (){                                                    // utils.jsxi:118
+	var pos = index, line = lineNumber, found;
+	
+	skipComments ();                                                               // utils.jsxi:123
+	found = lineNumber !== line;                                                   // utils.jsxi:125
+	index = pos;                                                                   // utils.jsxi:126
+	lineNumber = line;                                                             // utils.jsxi:127
+	return found;                                                                  // utils.jsxi:129
+}
+
+function expect (value){                                                           // utils.jsxi:132
+	var token = lex ();
+	
+	if (token.type !== Token.Punctuator || token.value !== value)                  // utils.jsxi:134
+		unexpected (token);                                                        // utils.jsxi:135
+}
+
+function expectKeyword (keyword){                                                  // utils.jsxi:138
+	var token = lex ();
+	
+	if (token.type !== Token.Keyword || token.value !== keyword)                   // utils.jsxi:140
+		unexpected (token);                                                        // utils.jsxi:141
+}
+
+function match (value){                                                            // utils.jsxi:144
+	var token = lookahead ();
+	return token.type === Token.Punctuator && token.value === value;               // utils.jsxi:146
+}
+
+function matchKeyword (keyword){                                                   // utils.jsxi:149
+	var token = lookahead ();
+	return token.type === Token.Keyword && token.value === keyword;                // utils.jsxi:151
+}
+
+function matchLex (value){                                                         // utils.jsxi:154
+	var token = lookahead ();
+	
+	if (token.type === Token.Punctuator && token.value === value)                  // utils.jsxi:156
+		return lex ();                                                             // utils.jsxi:157
+	else
+		return false;
+}
+
+function matchKeywordLex (keyword){                                                // utils.jsxi:162
+	var token = lookahead ();
+	
+	if (token.type === Token.Keyword && token.value === keyword)                   // utils.jsxi:164
+		return lex ();                                                             // utils.jsxi:165
+	else
+		return false;
+}
+
+function consumeSemicolon (){                                                      // utils.jsxi:170
+	if (source [index] === ';'){                                                   // utils.jsxi:171
+		lex ();                                                                    // utils.jsxi:172
+		return;
+	}
+	
+	var line = lineNumber;
+	
+	skipComments ();                                                               // utils.jsxi:177
+	
+	if (lineNumber !== line)                                                       // utils.jsxi:179
+		return;
+	
+	if (matchLex (';'))                                                            // utils.jsxi:182
+		return;
+	
+	if (!state.preventSequence && !match ('}') && lookahead ().type !== Token.EOF)
+		unexpected (buffer);                                                       // utils.jsxi:186
+}
+
+function leftSideOnly (expression){                                                // utils.jsxi:189
+	if (!expression || expression.type !== Syntax.Identifier && expression.type !== Syntax.MemberExpression)
+		throw new SyntaxError ('Invalid left-hand side', expression);              // utils.jsxi:191
+	else
+		return expression;                                                         // utils.jsxi:193
+}
+
+function makeAsynchronous (body){                                                  // asynchronous_functions.jsxi:4
+	function each (node, callback, result){                                        // asynchronous_functions.jsxi:5
+		if (result === undefined)                                                  // asynchronous_functions.jsxi:5
+			result = [];                                                           // asynchronous_functions.jsxi:5
+	
+		if (typeof node.type === 'string'){                                        // asynchronous_functions.jsxi:6
+			var temp = callback (node);
+			
+			if (temp !== undefined)                                                // asynchronous_functions.jsxi:9
+				result.push (temp);                                                // asynchronous_functions.jsxi:10
+		}
+		
+		for (var key in node){                                                     // asynchronous_functions.jsxi:13
+			var child = node [key];
+			
+			if (child && (typeof child.type === 'string' || child instanceof Array))
+				each (child, callback, result);                                    // asynchronous_functions.jsxi:15
+		}
+		return result;                                                             // asynchronous_functions.jsxi:17
+	}
+	
+	function asynchronousConvert (statement, asynchronous){                        // asynchronous_functions.jsxi:20
+		var next = identifier ('__block_' + blocks.length);
+		
+		if (statement.type === Syntax.ExpressionStatement){                        // asynchronous_functions.jsxi:23
+			var expression = statement.expression;
+			
+			if (expression.type === Syntax.CallExpression){                        // asynchronous_functions.jsxi:26
+				if (expression === asynchronous [0] && asynchronous.length === 1){
+					expression.arguments.push (next);                              // asynchronous_functions.jsxi:28
+					return expression;                                             // asynchronous_functions.jsxi:29
+				}
+			} else if (expression.type === Syntax.AssignmentExpression){           // asynchronous_functions.jsxi:31
+				if (expression.right === asynchronous [0] && asynchronous.length === 1){
+					expression.right.arguments.push (functionExpression (null,     // asynchronous_functions.jsxi:33
+						[ identifier ('__result') ], 
+						blockStatement ([                                          // asynchronous_functions.jsxi:35
+							assignmentStatement (expression.left, identifier ('__result')), 
+							callExpression (next)
+						])));
+					return expression.right;                                       // asynchronous_functions.jsxi:39
+				}
+			}
+		}
+		
+		throw new JsExtError ('NotImplementedError',                               // asynchronous_functions.jsxi:44
+			'Not supported asynchronous type' + '\n' + JSON.stringify (statement, false, 
+				4));                                                               // asynchronous_functions.jsxi:44
+	}
+	
+	function synchronousConvert (statement){                                       // asynchronous_functions.jsxi:47
+		each (statement,                                                           // asynchronous_functions.jsxi:48
+			function (arg){                                                        // asynchronous_functions.jsxi:48
+				if (arg.type === Syntax.ReturnStatement)                           // asynchronous_functions.jsxi:49
+					arg.argument = callExpression (identifier ('__callback'), [ arg.argument ]);
+			});
+		return statement;                                                          // asynchronous_functions.jsxi:53
+	}
+	
+	var variables = [];
+	
+	each (body,                                                                    // asynchronous_functions.jsxi:58
+		function (arg){                                                            // asynchronous_functions.jsxi:58
+			if (arg.type === Syntax.VariableDeclaration){                          // asynchronous_functions.jsxi:58
+				arg.declarations.forEach (function (arg){                          // asynchronous_functions.jsxi:59
+					return variables.push (variableDeclarator (arg.id));           // asynchronous_functions.jsxi:59
+				});
+				
+				var inits = arg.declarations.filter (function (arg){               // asynchronous_functions.jsxi:61
+						return arg.init !== null;                                  // asynchronous_functions.jsxi:61
+					}), 
+					expression = sequenceExpression (inits.map (function (arg){    // asynchronous_functions.jsxi:62
+						return assignmentExpression (arg.id, arg.init);            // asynchronous_functions.jsxi:62
+					})), 
+					temp;                                                          // asynchronous_functions.jsxi:63
+				
+				if (expression.length === 0)                                       // asynchronous_functions.jsxi:65
+					temp = { type: Syntax.EmptyStatement };                        // asynchronous_functions.jsxi:66
+				else if (expression.expressions.length === 1)                      // asynchronous_functions.jsxi:67
+					temp = expressionStatement (expression.expressions [0]);       // asynchronous_functions.jsxi:68
+				else
+					temp = expressionStatement (expression);                       // asynchronous_functions.jsxi:70
+				
+				set (arg, temp);                                                   // asynchronous_functions.jsxi:72
+			}
+		});
+	
+	var current = [], blocks = [ current ];
+	
+	for (var __0 = 0; __0 < body.length; __0 ++){                                  // asynchronous_functions.jsxi:78
+		var statement = body [__0];
+		
+		var asynchronous = each (statement,                                        // asynchronous_functions.jsxi:79
+			function (arg){                                                        // asynchronous_functions.jsxi:79
+				if (arg.asynchronous)                                              // asynchronous_functions.jsxi:79
+					return arg;                                                    // asynchronous_functions.jsxi:79
+			});
+		
+		if (asynchronous.length > 0){                                              // asynchronous_functions.jsxi:81
+			current.push (asynchronousConvert (statement, asynchronous));          // asynchronous_functions.jsxi:82
+			blocks.push (current = []);                                            // asynchronous_functions.jsxi:83
+		} else {
+			current.push (synchronousConvert (statement));                         // asynchronous_functions.jsxi:85
+		}
+	}
+	
+	body = blocks.map (function (arg, index){                                      // asynchronous_functions.jsxi:89
+		return functionDeclaration (identifier ('__block_' + index),               // asynchronous_functions.jsxi:90
+			[], 
+			blockStatement (arg));                                                 // asynchronous_functions.jsxi:90
+	}).concat (expressionStatement (callExpression ('__block_0', [])));            // asynchronous_functions.jsxi:91
+	
+	if (variables.length)                                                          // asynchronous_functions.jsxi:93
+		body.unshift (variableDeclaration (variables));                            // asynchronous_functions.jsxi:94
+	return body;                                                                   // asynchronous_functions.jsxi:96
+}
 
 function doClasses (statements, callback){                                         // do_classes.jsxi:1
 	var classes = [],                                                              // do_classes.jsxi:2
@@ -220,16 +506,16 @@ function doClasses (statements, callback){                                      
 		var result = [];
 		
 		{
-			var __0 = classEntry.members;
+			var __1 = classEntry.members;
 			
-			for (var key in __0){
-				var value = __0 [key];
+			for (var key in __1){
+				var value = __1 [key];
 				
 				if (filter (value, key))                                           // do_classes.jsxi:16
 					result.push (value);                                           // do_classes.jsxi:17
 			}
 			
-			__0 = undefined;
+			__1 = undefined;
 		}
 		return result;                                                             // do_classes.jsxi:18
 	}
@@ -240,8 +526,8 @@ function doClasses (statements, callback){                                      
 		
 		var length, min = - 1, result;
 		
-		for (var __1 = 0; __1 < classes.length; __1 ++){                           // do_classes.jsxi:26
-			var classEntry = classes [__1];
+		for (var __2 = 0; __2 < classes.length; __2 ++){                           // do_classes.jsxi:26
+			var classEntry = classes [__2];
 			
 			length = classEntry.path.length;                                       // do_classes.jsxi:27
 			
@@ -322,10 +608,10 @@ function doClasses (statements, callback){                                      
 				throw new TypeError ('Params "implements" of classes are different', id);
 			
 			{
-				var __3 = current.dependsOn.uses;
+				var __4 = current.dependsOn.uses;
 				
-				for (var __2 = 0; __2 < __3.length; __2 ++){
-					var entry = __3 [__2];
+				for (var __3 = 0; __3 < __4.length; __3 ++){
+					var entry = __4 [__3];
 					
 					if (previous.dependsOn.uses.filter (function (arg){            // do_classes.jsxi:98
 						return arg.name === entry.name;                            // do_classes.jsxi:98
@@ -333,7 +619,7 @@ function doClasses (statements, callback){                                      
 						previous.dependsOn.uses.push (entry);                      // do_classes.jsxi:99
 				}
 				
-				__3 = undefined;
+				__4 = undefined;
 			}
 			
 			$.extend (previous.members, current.members);                          // do_classes.jsxi:101
@@ -356,15 +642,15 @@ function doClasses (statements, callback){                                      
 			classEntry.classObject = true;                                         // do_classes.jsxi:123
 			
 			{
-				var __4 = classEntry.members;
+				var __5 = classEntry.members;
 				
-				for (var name in __4){
-					var value = __4 [name];
+				for (var name in __5){
+					var value = __5 [name];
 					
 					value.className = classEntry.id;                               // do_classes.jsxi:127
 				}
 				
-				__4 = undefined;
+				__5 = undefined;
 			}
 			
 			var constructor = classEntry.members ['@constructor'];
@@ -385,15 +671,15 @@ function doClasses (statements, callback){                                      
 			}
 			
 			{
-				var __5 = classEntry.members;
+				var __6 = classEntry.members;
 				
-				for (var name in __5){
-					var member = __5 [name];
+				for (var name in __6){
+					var member = __6 [name];
 					
 					updateMember (member);                                         // do_classes.jsxi:146
 				}
 				
-				__5 = undefined;
+				__6 = undefined;
 			}
 			
 			var fields = filter (classEntry,                                       // do_classes.jsxi:149
@@ -411,8 +697,8 @@ function doClasses (statements, callback){                                      
 			classEntry.probablyUseOther = 0;                                       // do_classes.jsxi:160
 		}
 		
-		for (var __6 = 0; __6 < classes.length; __6 ++){                           // do_classes.jsxi:163
-			var classEntry = classes [__6];
+		for (var __7 = 0; __7 < classes.length; __7 ++){                           // do_classes.jsxi:163
+			var classEntry = classes [__7];
 			
 			preprocessClass (classEntry);                                          // do_classes.jsxi:164
 		}
@@ -426,16 +712,16 @@ function doClasses (statements, callback){                                      
 				return true;
 			} else if (obj && obj.body && obj.body.body){                          // do_classes.jsxi:173
 				{
-					var __8 = obj.body.body;
+					var __9 = obj.body.body;
 					
-					for (var __7 = 0; __7 < __8.length; __7 ++){
-						var child = __8 [__7];
+					for (var __8 = 0; __8 < __9.length; __8 ++){
+						var child = __9 [__8];
 						
 						if (searchSuperExpression (child))                         // do_classes.jsxi:175
 							return true;
 					}
 					
-					__8 = undefined;
+					__9 = undefined;
 				}
 			} else {
 				for (var key in obj){                                              // do_classes.jsxi:179
@@ -472,10 +758,10 @@ function doClasses (statements, callback){                                      
 				current.weight += parent.weight;                                   // do_classes.jsxi:207
 				
 				{
-					var __9 = parent.members;
+					var __a = parent.members;
 					
-					for (var id in __9){
-						var member = __9 [id];
+					for (var id in __a){
+						var member = __a [id];
 						
 						if (!current.members.hasOwnProperty (id))                  // do_classes.jsxi:210
 							current.members [id] = $.extend (true,                 // do_classes.jsxi:211
@@ -486,7 +772,7 @@ function doClasses (statements, callback){                                      
 								});
 					}
 					
-					__9 = undefined;
+					__a = undefined;
 				}
 				
 				var parentConstructor = parent.members ['@constructor'],           // do_classes.jsxi:213
@@ -495,16 +781,16 @@ function doClasses (statements, callback){                                      
 				if (parentConstructor.body.body.length > 0 && !searchSuperExpression (constructor)){
 					if (constructor.autocreated || parentConstructor.params.length === 0){
 						{
-							var __a = constructor.body.body;
+							var __b = constructor.body.body;
 							
-							for (var autocreated = 0; autocreated < __a.length; autocreated ++){
-								var statement = __a [autocreated];
+							for (var autocreated = 0; autocreated < __b.length; autocreated ++){
+								var statement = __b [autocreated];
 								
 								if (!statement.autocreated)                        // do_classes.jsxi:219
 									break;
 							}
 							
-							__a = undefined;
+							__b = undefined;
 						}
 						
 						constructor.body.body.splice (autocreated,                 // do_classes.jsxi:223
@@ -516,10 +802,10 @@ function doClasses (statements, callback){                                      
 			}
 			
 			{
-				var __b = current.dependsOn.uses;
+				var __c = current.dependsOn.uses;
 				
-				for (var index = 0; index < __b.length; index ++){                 // do_classes.jsxi:229
-					var usedName = __b [index];
+				for (var index = 0; index < __c.length; index ++){                 // do_classes.jsxi:229
+					var usedName = __c [index];
 					
 					var used = byName (usedName.name, current.path);
 					
@@ -531,14 +817,14 @@ function doClasses (statements, callback){                                      
 					current.weight += used.weight;                                 // do_classes.jsxi:238
 				}
 				
-				__b = undefined;
+				__c = undefined;
 			}
 			
 			delete active [current.id.name];                                       // do_classes.jsxi:241
 		}
 		
-		for (var __c = 0; __c < classes.length; __c ++){                           // do_classes.jsxi:244
-			var current = classes [__c];
+		for (var __d = 0; __d < classes.length; __d ++){                           // do_classes.jsxi:244
+			var current = classes [__d];
 			
 			connectClass (current);                                                // do_classes.jsxi:245
 		}
@@ -589,10 +875,10 @@ function doClasses (statements, callback){                                      
 			
 			function testChilds (current){                                         // do_classes.jsxi:300
 				{
-					var __e = current.childs;
+					var __f = current.childs;
 					
-					for (var __d = 0; __d < __e.length; __d ++){
-						var child = __e [__d];
+					for (var __e = 0; __e < __f.length; __e ++){
+						var child = __f [__e];
 						
 						if (child.members.hasOwnProperty (name)){                  // do_classes.jsxi:302
 							var childMember = child.members [name];
@@ -611,7 +897,7 @@ function doClasses (statements, callback){                                      
 						testChilds (child);                                        // do_classes.jsxi:315
 					}
 					
-					__e = undefined;
+					__f = undefined;
 				}
 			}
 			
@@ -620,8 +906,8 @@ function doClasses (statements, callback){                                      
 			
 			updated = rename (name, member, publicMode);                           // do_classes.jsxi:321
 			
-			for (var __f = 0; __f < members.length; __f ++){                       // do_classes.jsxi:323
-				var targetMember = members [__f];
+			for (var __g = 0; __g < members.length; __g ++){                       // do_classes.jsxi:323
+				var targetMember = members [__g];
 				
 				targetMember.id.name = updated;                                    // do_classes.jsxi:324
 				targetMember.processed = true;                                     // do_classes.jsxi:325
@@ -633,21 +919,21 @@ function doClasses (statements, callback){                                      
 				processClassMembers (current.dependsOn.parent);                    // do_classes.jsxi:331
 			
 			{
-				var __g = current.members;
+				var __h = current.members;
 				
-				for (var name in __g){
-					var member = __g [name];
+				for (var name in __h){
+					var member = __h [name];
 					
 					if (name [0] !== '@' && !member.processed)                     // do_classes.jsxi:335
 						processClassMember (current, name, member);                // do_classes.jsxi:336
 				}
 				
-				__g = undefined;
+				__h = undefined;
 			}
 		}
 		
-		for (var __h = 0; __h < classes.length; __h ++){                           // do_classes.jsxi:339
-			var current = classes [__h];
+		for (var __i = 0; __i < classes.length; __i ++){                           // do_classes.jsxi:339
+			var current = classes [__i];
 			
 			processClassMembers (current);                                         // do_classes.jsxi:340
 		}
@@ -674,8 +960,8 @@ function doClasses (statements, callback){                                      
 			function lookForExclusions (obj, target){                              // do_classes.jsxi:371
 				if (typeof obj === 'object' && obj !== null){                      // do_classes.jsxi:372
 					if (obj instanceof Array){                                     // do_classes.jsxi:373
-						for (var __i = 0; __i < obj.length; __i ++){               // do_classes.jsxi:375
-							var child = obj [__i];
+						for (var __j = 0; __j < obj.length; __j ++){               // do_classes.jsxi:375
+							var child = obj [__j];
 							
 							lookForExclusions (child, target);                     // do_classes.jsxi:376
 						}
@@ -899,8 +1185,8 @@ function doClasses (statements, callback){                                      
 			function process (obj, parent, preparent){                             // do_classes.jsxi:643
 				if (typeof obj === 'object' && obj !== null){                      // do_classes.jsxi:644
 					if (obj instanceof Array){                                     // do_classes.jsxi:647
-						for (var __j = 0; __j < obj.length; __j ++){               // do_classes.jsxi:649
-							var child = obj [__j];
+						for (var __k = 0; __k < obj.length; __k ++){               // do_classes.jsxi:649
+							var child = obj [__k];
 							
 							process (child, obj, parent);                          // do_classes.jsxi:650
 						}
@@ -949,21 +1235,21 @@ function doClasses (statements, callback){                                      
 			var replace, childMember;
 			
 			{
-				var __k = classEntry.members;
+				var __l = classEntry.members;
 				
-				for (var name in __k){
-					var member = __k [name];
+				for (var name in __l){
+					var member = __l [name];
 					
 					if (member.method && !member.abstract && member.className === classEntry.id)
 						processClassMethod (classEntry, member);                   // do_classes.jsxi:702
 				}
 				
-				__k = undefined;
+				__l = undefined;
 			}
 		}
 		
-		for (var __l = 0; __l < classes.length; __l ++){                           // do_classes.jsxi:706
-			var classEntry = classes [__l];
+		for (var __m = 0; __m < classes.length; __m ++){                           // do_classes.jsxi:706
+			var classEntry = classes [__m];
 			
 			processClassMethods (classEntry);                                      // do_classes.jsxi:707
 		}
@@ -1057,14 +1343,14 @@ function doClasses (statements, callback){                                      
 					result.push (expressionStatement (callExpression ('__prototypeExtend', 
 						[ classEntry.id.name, classEntry.dependsOn.parent.id.name ])));
 				
-				for (var __m = 0; __m < objectFields.length; __m ++){              // do_classes.jsxi:795
-					var field = objectFields [__m];
+				for (var __n = 0; __n < objectFields.length; __n ++){              // do_classes.jsxi:795
+					var field = objectFields [__n];
 					
 					{};
 				}
 				
-				for (var __n = 0; __n < objectMethods.length; __n ++){             // do_classes.jsxi:798
-					var method = objectMethods [__n];
+				for (var __o = 0; __o < objectMethods.length; __o ++){             // do_classes.jsxi:798
+					var method = objectMethods [__o];
 					
 					if (!method.abstract)                                          // do_classes.jsxi:799
 						result.push (assignmentStatement (memberExpression (memberExpression (classEntry.id.name, 'prototype'), 
@@ -1072,8 +1358,8 @@ function doClasses (statements, callback){                                      
 						functionExpression (null, method.params, method.body)));   // do_classes.jsxi:802
 				}
 				
-				for (var __o = 0; __o < staticFields.length; __o ++){              // do_classes.jsxi:806
-					var field = staticFields [__o];
+				for (var __p = 0; __p < staticFields.length; __p ++){              // do_classes.jsxi:806
+					var field = staticFields [__p];
 					
 					if (field.publicMode === 'private')                            // do_classes.jsxi:807
 						result [0].declarations.push (field);                      // do_classes.jsxi:808
@@ -1082,8 +1368,8 @@ function doClasses (statements, callback){                                      
 							field.init || 'undefined'));                           // do_classes.jsxi:810
 				}
 				
-				for (var __p = 0; __p < staticMethods.length; __p ++){             // do_classes.jsxi:814
-					var method = staticMethods [__p];
+				for (var __q = 0; __q < staticMethods.length; __q ++){             // do_classes.jsxi:814
+					var method = staticMethods [__q];
 					
 					if (method.publicMode === 'private')                           // do_classes.jsxi:815
 						result.push (method);                                      // do_classes.jsxi:816
@@ -1098,8 +1384,8 @@ function doClasses (statements, callback){                                      
 					oneVariableDeclaration (classEntry.id, objectExpression (properties))
 				];
 				
-				for (var __q = 0; __q < staticFields.length; __q ++){              // do_classes.jsxi:827
-					var field = staticFields [__q];
+				for (var __r = 0; __r < staticFields.length; __r ++){              // do_classes.jsxi:827
+					var field = staticFields [__r];
 					
 					if (field.publicMode === 'private')                            // do_classes.jsxi:828
 						result [0].declarations.push (field);                      // do_classes.jsxi:829
@@ -1107,8 +1393,8 @@ function doClasses (statements, callback){                                      
 						properties.push (property (field.id, field.init || 'undefined'));
 				}
 				
-				for (var __r = 0; __r < staticMethods.length; __r ++){             // do_classes.jsxi:835
-					var method = staticMethods [__r];
+				for (var __s = 0; __s < staticMethods.length; __s ++){             // do_classes.jsxi:835
+					var method = staticMethods [__s];
 					
 					if (method.publicMode === 'private')                           // do_classes.jsxi:836
 						result.push (method);                                      // do_classes.jsxi:837
@@ -1130,8 +1416,8 @@ function doClasses (statements, callback){                                      
 			return result;                                                         // do_classes.jsxi:853
 		}
 		
-		for (var __s = 0; __s < classes.length; __s ++){                           // do_classes.jsxi:856
-			var classEntry = classes [__s];
+		for (var __t = 0; __t < classes.length; __t ++){                           // do_classes.jsxi:856
+			var classEntry = classes [__t];
 			
 			classEntry.statements = processClass (classEntry);                     // do_classes.jsxi:857
 		}
@@ -1142,8 +1428,8 @@ function doClasses (statements, callback){                                      
 			return b.weight - a.weight;                                            // do_classes.jsxi:861
 		});
 		
-		for (var __t = 0; __t < sorted.length; __t ++){                            // do_classes.jsxi:862
-			var current = sorted [__t];
+		for (var __u = 0; __u < sorted.length; __u ++){                            // do_classes.jsxi:862
+			var current = sorted [__u];
 			
 			current.root.unshift ({                                                // do_classes.jsxi:863
 				type: Syntax.ClassDeclaration,                                     // do_classes.jsxi:863
@@ -1154,15 +1440,15 @@ function doClasses (statements, callback){                                      
 	}
 	
 	{
-		var __v = collectRawClasses (statements);
+		var __10 = collectRawClasses (statements);
 		
-		for (var __u = 0; __u < __v.length; __u ++){
-			var found = __v [__u];
+		for (var __v = 0; __v < __10.length; __v ++){
+			var found = __10 [__v];
 			
 			addClass (found);                                                      // do_classes.jsxi:871
 		}
 		
-		__v = undefined;
+		__10 = undefined;
 	}
 	
 	if (classes.length > 0){                                                       // do_classes.jsxi:873
@@ -1310,7 +1596,8 @@ function jsxParse (code, args, callback){                                       
 		allowIn: true,                                                             // jsx_parse.jsxi:35
 		inClass: false,                                                            // jsx_parse.jsxi:35
 		parsingComplete: false,                                                    // jsx_parse.jsxi:35
-		preventSequence: false
+		preventSequence: false,                                                    // jsx_parse.jsxi:35
+		asynchronous: false
 	};
 	options = args || {                                                            // jsx_parse.jsxi:36
 		filename: '[ not a file ]',                                                // jsx_parse.jsxi:36
@@ -1842,15 +2129,15 @@ function parseClassMembers (params, dependsOn){                                 
 			throw new TypeError ('Abstract member cannot be private');             // parse_class.jsxi:113
 		
 		{
-			var __11 = parseVariableDeclarators ();
+			var __12 = parseVariableDeclarators ();
 			
-			for (var __10 = 0; __10 < __11.length; __10 ++){
-				var entry = __11 [__10];
+			for (var __11 = 0; __11 < __12.length; __11 ++){
+				var entry = __12 [__11];
 				
 				set (entry);                                                       // parse_class.jsxi:116
 			}
 			
-			__11 = undefined;
+			__12 = undefined;
 		}
 		
 		refresh ();                                                                // parse_class.jsxi:118
@@ -2042,6 +2329,8 @@ function parsePropertyFunction (param, first){                                  
 		body: parseFunctionElements ()
 	};
 }
+
+;
 
 function parseObjectPropertyKey (){                                                // parse_expressions.jsxi:73
 	var token = lex ();
@@ -2498,53 +2787,63 @@ function parsePrimaryExpression (){                                             
 	switch (token.type){                                                           // parse_expressions.jsxi:578
 		case Token.Identifier:                                                     // parse_expressions.jsxi:579
 			lex ();                                                                // parse_expressions.jsxi:580
-			return mark ({ type: Syntax.Identifier, name: token.value }, token);   // parse_expressions.jsxi:581
-		case Token.Keyword:                                                        // parse_expressions.jsxi:583
-			if (token.value === 'this'){                                           // parse_expressions.jsxi:584
-				lex ();                                                            // parse_expressions.jsxi:585
-				return mark ({ type: Syntax.ThisExpression }, token);              // parse_expressions.jsxi:586
+			
+			if (state.asynchronous && token.value === 'asynchronous'){             // parse_expressions.jsxi:581
+				var next = parseExpression ();
+				
+				if (next.type === Syntax.CallExpression){                          // parse_expressions.jsxi:584
+					next.asynchronous = true;                                      // parse_expressions.jsxi:585
+					return next;                                                   // parse_expressions.jsxi:586
+				} else
+					unexpected (token);                                            // parse_expressions.jsxi:588
+			} else
+				return mark ({ type: Syntax.Identifier, name: token.value }, token);
+		case Token.Keyword:                                                        // parse_expressions.jsxi:592
+			if (token.value === 'this'){                                           // parse_expressions.jsxi:593
+				lex ();                                                            // parse_expressions.jsxi:594
+				return mark ({ type: Syntax.ThisExpression }, token);              // parse_expressions.jsxi:595
 			}
 			
-			if (token.value === 'function')                                        // parse_expressions.jsxi:589
-				return parseFunctionExpression ();                                 // parse_expressions.jsxi:590
+			if (token.value === 'function')                                        // parse_expressions.jsxi:598
+				return parseFunctionExpression ();                                 // parse_expressions.jsxi:599
 			
-			if (token.value === 'lambda')                                          // parse_expressions.jsxi:592
-				return parseLambdaExpression ();                                   // parse_expressions.jsxi:593
+			if (token.value === 'lambda')                                          // parse_expressions.jsxi:601
+				return parseLambdaExpression ();                                   // parse_expressions.jsxi:602
 			
 			break;
-		case Token.StringLiteral:                                                  // parse_expressions.jsxi:597
-			lex ();                                                                // parse_expressions.jsxi:598
+		case Token.StringLiteral:                                                  // parse_expressions.jsxi:606
+			lex ();                                                                // parse_expressions.jsxi:607
 			
-			if (lookahead ().value === '(')                                        // parse_expressions.jsxi:599
-				return parseComplexString (token);                                 // parse_expressions.jsxi:600
+			if (lookahead ().value === '(')                                        // parse_expressions.jsxi:608
+				return parseComplexString (token);                                 // parse_expressions.jsxi:609
 			else
 				return mark ({ type: Syntax.StringLiteral, value: token.value }, token);
-		case Token.NumericLiteral:                                                 // parse_expressions.jsxi:604
-			lex ();                                                                // parse_expressions.jsxi:605
-			return numericLiteral (token.value);                                   // parse_expressions.jsxi:606
-		case Token.BooleanLiteral:                                                 // parse_expressions.jsxi:608
-			lex ();                                                                // parse_expressions.jsxi:609
-			return booleanLiteral (token.value);                                   // parse_expressions.jsxi:610
-		case Token.NullLiteral:                                                    // parse_expressions.jsxi:612
-			lex ();                                                                // parse_expressions.jsxi:613
-			return nullLiteral ();                                                 // parse_expressions.jsxi:614
-		case Token.UndefinedLiteral:                                               // parse_expressions.jsxi:616
-			lex ();                                                                // parse_expressions.jsxi:617
-			return undefinedLiteral ();                                            // parse_expressions.jsxi:618
-		case Token.Punctuator:                                                     // parse_expressions.jsxi:620
-			switch (token.value){                                                  // parse_expressions.jsxi:621
-				case '[':                                                          // parse_expressions.jsxi:622
-					return parseArrayInitialiser ();                               // parse_expressions.jsxi:623
-				case '{':                                                          // parse_expressions.jsxi:625
-					return parseObjectInitialiser ();                              // parse_expressions.jsxi:626
-				case '(':                                                          // parse_expressions.jsxi:628
-					return parseGroupExpression ();                                // parse_expressions.jsxi:629
-				case '/':                                                          // parse_expressions.jsxi:631
-					lex ();                                                        // parse_expressions.jsxi:632
-					return readRegexp ();                                          // parse_expressions.jsxi:633
+		case Token.NumericLiteral:                                                 // parse_expressions.jsxi:613
+			lex ();                                                                // parse_expressions.jsxi:614
+			return numericLiteral (token.value);                                   // parse_expressions.jsxi:615
+		case Token.BooleanLiteral:                                                 // parse_expressions.jsxi:617
+			lex ();                                                                // parse_expressions.jsxi:618
+			return booleanLiteral (token.value);                                   // parse_expressions.jsxi:619
+		case Token.NullLiteral:                                                    // parse_expressions.jsxi:621
+			lex ();                                                                // parse_expressions.jsxi:622
+			return nullLiteral ();                                                 // parse_expressions.jsxi:623
+		case Token.UndefinedLiteral:                                               // parse_expressions.jsxi:625
+			lex ();                                                                // parse_expressions.jsxi:626
+			return undefinedLiteral ();                                            // parse_expressions.jsxi:627
+		case Token.Punctuator:                                                     // parse_expressions.jsxi:629
+			switch (token.value){                                                  // parse_expressions.jsxi:630
+				case '[':                                                          // parse_expressions.jsxi:631
+					return parseArrayInitialiser ();                               // parse_expressions.jsxi:632
+				case '{':                                                          // parse_expressions.jsxi:634
+					return parseObjectInitialiser ();                              // parse_expressions.jsxi:635
+				case '(':                                                          // parse_expressions.jsxi:637
+					return parseGroupExpression ();                                // parse_expressions.jsxi:638
+				case '/':                                                          // parse_expressions.jsxi:640
+					lex ();                                                        // parse_expressions.jsxi:641
+					return readRegexp ();                                          // parse_expressions.jsxi:642
 			}
 		default:
-			unexpected (token);                                                    // parse_expressions.jsxi:637
+			unexpected (token);                                                    // parse_expressions.jsxi:646
 	}
 }
 
@@ -2552,7 +2851,7 @@ function parseFunction (options){                                               
 	if (options === undefined)                                                     // parse_function.jsxi:10
 		options = {};                                                              // parse_function.jsxi:10
 
-	var id, params, body, token = lookahead ();
+	var id, params, body, asynchronous = false, token = lookahead ();
 	
 	if (options.keyword !== null)                                                  // parse_function.jsxi:13
 		expectKeyword (options.keyword || 'function');                             // parse_function.jsxi:14
@@ -2562,134 +2861,150 @@ function parseFunction (options){                                               
 	else
 		id = null;                                                                 // parse_function.jsxi:19
 	
-	if (options.optionalParams)                                                    // parse_function.jsxi:21
+	if (options.optionalParams){                                                   // parse_function.jsxi:21
 		params = parseOptionalFunctionArguments () || (options.optionalParams === true ? [] : options.optionalParams);
-	else
-		params = parseFunctionArguments ();                                        // parse_function.jsxi:24
-	
-	if (!options.empty){                                                           // parse_function.jsxi:26
-		body = parseFunctionElements (options.noSemicolon);                        // parse_function.jsxi:27
 	} else {
-		body = null;                                                               // parse_function.jsxi:29
-		consumeSemicolon ();                                                       // parse_function.jsxi:30
+		params = parseFunctionArguments ();                                        // parse_function.jsxi:24
+		
+		if (lookahead ().value === 'asynchronous'){                                // parse_function.jsxi:26
+			lex ();                                                                // parse_function.jsxi:27
+			asynchronous = true;                                                   // parse_function.jsxi:28
+		}
+	}
+	
+	if (!options.empty){                                                           // parse_function.jsxi:32
+		var oldAsynchronous = state.asynchronous;
+		
+		state.asynchronous = asynchronous;                                         // parse_function.jsxi:34
+		body = parseFunctionElements (options.noSemicolon);                        // parse_function.jsxi:36
+		
+		if (asynchronous){                                                         // parse_function.jsxi:38
+			params.push (identifier ('__callback'));                               // parse_function.jsxi:39
+			body = blockStatement (makeAsynchronous (body.body));                  // parse_function.jsxi:40
+		}
+		
+		state.asynchronous = oldAsynchronous;                                      // parse_function.jsxi:43
+	} else {
+		body = null;                                                               // parse_function.jsxi:45
+		consumeSemicolon ();                                                       // parse_function.jsxi:46
 	}
 	return mark ((options.declaration ? functionDeclaration : functionExpression)(id, params, body), 
-		token);                                                                    // parse_function.jsxi:33
+		token);                                                                    // parse_function.jsxi:49
 }
 
-function parseFunctionExpression (){                                               // parse_function.jsxi:36
-	var oldNoReturn = state.noReturn, result;
-	
-	state.noReturn = false;                                                        // parse_function.jsxi:38
-	result = parseFunction ();                                                     // parse_function.jsxi:39
-	state.noReturn = oldNoReturn;                                                  // parse_function.jsxi:40
-	return result;                                                                 // parse_function.jsxi:41
-}
-
-function parseFunctionDeclaration (){                                              // parse_function.jsxi:44
-	var oldNoReturn = state.noReturn, result;
-	
-	state.noReturn = false;                                                        // parse_function.jsxi:46
-	result = parseFunction ({ id: true, declaration: true });                      // parse_function.jsxi:47
-	state.noReturn = oldNoReturn;                                                  // parse_function.jsxi:48
-	return result;                                                                 // parse_function.jsxi:49
-}
-
-function parseLambdaExpression (){                                                 // parse_function.jsxi:52
+function parseFunctionExpression (){                                               // parse_function.jsxi:52
 	var oldNoReturn = state.noReturn, result;
 	
 	state.noReturn = false;                                                        // parse_function.jsxi:54
-	result = parseFunction ({                                                      // parse_function.jsxi:55
-		id: false,                                                                 // parse_function.jsxi:55
-		keyword: 'lambda',                                                         // parse_function.jsxi:55
-		optionalParams: [ identifier ('arg') ],                                    // parse_function.jsxi:55
-		noSemicolon: true
-	});
+	result = parseFunction ({ noSemicolon: true });                                // parse_function.jsxi:55
 	state.noReturn = oldNoReturn;                                                  // parse_function.jsxi:56
 	return result;                                                                 // parse_function.jsxi:57
 }
 
-function parseFunctionArguments (){                                                // parse_function.jsxi:60
+function parseFunctionDeclaration (){                                              // parse_function.jsxi:60
+	var oldNoReturn = state.noReturn, result;
+	
+	state.noReturn = false;                                                        // parse_function.jsxi:62
+	result = parseFunction ({ id: true, declaration: true, noSemicolon: true });   // parse_function.jsxi:63
+	state.noReturn = oldNoReturn;                                                  // parse_function.jsxi:64
+	return result;                                                                 // parse_function.jsxi:65
+}
+
+function parseLambdaExpression (){                                                 // parse_function.jsxi:68
+	var oldNoReturn = state.noReturn, result;
+	
+	state.noReturn = false;                                                        // parse_function.jsxi:70
+	result = parseFunction ({                                                      // parse_function.jsxi:71
+		id: false,                                                                 // parse_function.jsxi:71
+		keyword: 'lambda',                                                         // parse_function.jsxi:71
+		optionalParams: [ identifier ('arg') ],                                    // parse_function.jsxi:71
+		noSemicolon: true
+	});
+	state.noReturn = oldNoReturn;                                                  // parse_function.jsxi:72
+	return result;                                                                 // parse_function.jsxi:73
+}
+
+function parseFunctionArguments (){                                                // parse_function.jsxi:76
 	var name, params = [], comma = {};
 	
-	expect ('(');                                                                  // parse_function.jsxi:63
+	expect ('(');                                                                  // parse_function.jsxi:79
 	
-	while (!match (')')){                                                          // parse_function.jsxi:65
-		if (params.length)                                                         // parse_function.jsxi:66
-			parseOptionalComma (comma);                                            // parse_function.jsxi:67
+	while (!match (')')){                                                          // parse_function.jsxi:81
+		if (params.length)                                                         // parse_function.jsxi:82
+			parseOptionalComma (comma);                                            // parse_function.jsxi:83
 		
-		name = parseIdentifier ();                                                 // parse_function.jsxi:69
+		name = parseIdentifier ();                                                 // parse_function.jsxi:85
 		
-		if (matchLex ('='))                                                        // parse_function.jsxi:70
-			name.defaultValue = parseAssignmentExpression ();                      // parse_function.jsxi:71
+		if (matchLex ('='))                                                        // parse_function.jsxi:86
+			name.defaultValue = parseAssignmentExpression ();                      // parse_function.jsxi:87
 		
-		params.push (name);                                                        // parse_function.jsxi:73
+		params.push (name);                                                        // parse_function.jsxi:89
 	}
 	
-	expect (')');                                                                  // parse_function.jsxi:76
-	return params;                                                                 // parse_function.jsxi:77
+	expect (')');                                                                  // parse_function.jsxi:92
+	return params;                                                                 // parse_function.jsxi:93
 }
 
-function parseOptionalFunctionArguments (){                                        // parse_function.jsxi:80
+function parseOptionalFunctionArguments (){                                        // parse_function.jsxi:96
 	return attemptTo (parseFunctionArguments, null, 
-		!match ('('));                                                             // parse_function.jsxi:81
+		!match ('('));                                                             // parse_function.jsxi:97
 }
 
-function parseFunctionElements (noSemicolon){                                      // parse_function.jsxi:83
+function parseFunctionElements (noSemicolon){                                      // parse_function.jsxi:99
 	var oldPreventSequence = state.preventSequence, result;
 	
-	if (match ('{')){                                                              // parse_function.jsxi:86
-		expect ('{');                                                              // parse_function.jsxi:87
-		attemptTo (function (arg){                                                 // parse_function.jsxi:89
+	if (match ('{')){                                                              // parse_function.jsxi:102
+		expect ('{');                                                              // parse_function.jsxi:103
+		attemptTo (function (arg){                                                 // parse_function.jsxi:105
 			result = [ returnStatement (objectExpression (parseObjectContent ())) ];
-			consumeSemicolon ();                                                   // parse_function.jsxi:92
+			consumeSemicolon ();                                                   // parse_function.jsxi:108
 		}, 
-		function (arg){                                                            // parse_function.jsxi:94
-			state.preventSequence = false;                                         // parse_function.jsxi:95
-			result = [];                                                           // parse_function.jsxi:96
+		function (arg){                                                            // parse_function.jsxi:110
+			state.preventSequence = false;                                         // parse_function.jsxi:111
+			result = [];                                                           // parse_function.jsxi:112
 			
-			while (!match ('}'))                                                   // parse_function.jsxi:98
-				result.push (parseStatement ());                                   // parse_function.jsxi:99
+			while (!match ('}'))                                                   // parse_function.jsxi:114
+				result.push (parseStatement ());                                   // parse_function.jsxi:115
 		}, 
 		lookahead ().type !== Token.Literal && lookahead ().type !== Token.Identifier);
-		expect ('}');                                                              // parse_function.jsxi:103
-	} else if (matchLex (';')){                                                    // parse_function.jsxi:104
-		result = [];                                                               // parse_function.jsxi:105
-	} else if (!match (']') && !match (')') && !match ('}') && !match (',')){      // parse_function.jsxi:106
-		state.preventSequence = true;                                              // parse_function.jsxi:107
-		result = [ setReturnStatement (parseStatement ()) ];                       // parse_function.jsxi:108
+		expect ('}');                                                              // parse_function.jsxi:119
+	} else if (matchLex (';')){                                                    // parse_function.jsxi:120
+		result = [];                                                               // parse_function.jsxi:121
+	} else if (!match (']') && !match (')') && !match ('}') && !match (',')){      // parse_function.jsxi:122
+		state.preventSequence = true;                                              // parse_function.jsxi:123
+		result = [ setReturnStatement (parseStatement ()) ];                       // parse_function.jsxi:124
 	}
 	
-	if (!noSemicolon)                                                              // parse_function.jsxi:111
-		matchLex (';');                                                            // parse_function.jsxi:112
+	if (!noSemicolon)                                                              // parse_function.jsxi:127
+		matchLex (';');                                                            // parse_function.jsxi:128
 	
-	state.preventSequence = oldPreventSequence;                                    // parse_function.jsxi:114
-	return blockStatement (result);                                                // parse_function.jsxi:115
+	state.preventSequence = oldPreventSequence;                                    // parse_function.jsxi:130
+	return blockStatement (result);                                                // parse_function.jsxi:131
 }
 
-function setReturnStatement (data){                                                // parse_function.jsxi:118
-	if (data)                                                                      // parse_function.jsxi:119
-		if (data.type === Syntax.ExpressionStatement){                             // parse_function.jsxi:120
-			data.type = Syntax.ReturnStatement;                                    // parse_function.jsxi:121
-			data.argument = data.expression;                                       // parse_function.jsxi:122
-			delete data.expression;                                                // parse_function.jsxi:123
-		} else if (data.type === Syntax.IfStatement){                              // parse_function.jsxi:124
-			setReturnStatement (data.consequent);                                  // parse_function.jsxi:125
-			setReturnStatement (data.alternate);                                   // parse_function.jsxi:126
-		} else if (data.type === Syntax.LabelledStatement){                        // parse_function.jsxi:127
-			setReturnStatement (data.body);                                        // parse_function.jsxi:128
-		} else if (data.type === Syntax.BlockStatement && data.single){            // parse_function.jsxi:129
-			setReturnStatement (data.body [0]);                                    // parse_function.jsxi:130
-		} else if (data.type === Syntax.TryStatement){                             // parse_function.jsxi:131
-			setReturnStatement (data.block);                                       // parse_function.jsxi:132
+function setReturnStatement (data){                                                // parse_function.jsxi:134
+	if (data)                                                                      // parse_function.jsxi:135
+		if (data.type === Syntax.ExpressionStatement){                             // parse_function.jsxi:136
+			data.type = Syntax.ReturnStatement;                                    // parse_function.jsxi:137
+			data.argument = data.expression;                                       // parse_function.jsxi:138
+			delete data.expression;                                                // parse_function.jsxi:139
+		} else if (data.type === Syntax.IfStatement){                              // parse_function.jsxi:140
+			setReturnStatement (data.consequent);                                  // parse_function.jsxi:141
+			setReturnStatement (data.alternate);                                   // parse_function.jsxi:142
+		} else if (data.type === Syntax.LabelledStatement){                        // parse_function.jsxi:143
+			setReturnStatement (data.body);                                        // parse_function.jsxi:144
+		} else if (data.type === Syntax.BlockStatement && data.single){            // parse_function.jsxi:145
+			setReturnStatement (data.body [0]);                                    // parse_function.jsxi:146
+		} else if (data.type === Syntax.TryStatement){                             // parse_function.jsxi:147
+			setReturnStatement (data.block);                                       // parse_function.jsxi:148
 			
-			if (data.handlers && data.handlers [0])                                // parse_function.jsxi:133
-				setReturnStatement (data.handlers [0].body);                       // parse_function.jsxi:134
+			if (data.handlers && data.handlers [0])                                // parse_function.jsxi:149
+				setReturnStatement (data.handlers [0].body);                       // parse_function.jsxi:150
 			
-			if (data.finalizer)                                                    // parse_function.jsxi:135
-				setReturnStatement (data.finalizer);                               // parse_function.jsxi:136
+			if (data.finalizer)                                                    // parse_function.jsxi:151
+				setReturnStatement (data.finalizer);                               // parse_function.jsxi:152
 		}
-	return data;                                                                   // parse_function.jsxi:139
+	return data;                                                                   // parse_function.jsxi:155
 }
 
 function mark (obj, token){                                                        // parse_other.jsxi:1
@@ -3580,6 +3895,8 @@ function JsExtError (name, message, location){                                  
 	return result;                                                                 // throws.jsxi:7
 }
 
+;
+
 var SyntaxError = JsExtError.bind (null, 'SyntaxError'),                           // throws.jsxi:10
 	TypeError = JsExtError.bind (null, 'TypeError'),                               // throws.jsxi:11
 	ReferenceError = JsExtError.bind (null, 'ReferenceError');                     // throws.jsxi:12
@@ -3597,210 +3914,6 @@ function unexpected (what){                                                     
 		message = 'Unexpected token';                                              // throws.jsxi:24
 	
 	throw new SyntaxError (message, what);                                         // throws.jsxi:26
-}
-
-var ch0 = '0'.charCodeAt (0),                                                      // utils.jsxi:1
-	ch1 = '1'.charCodeAt (0),                                                      // utils.jsxi:2
-	ch7 = '7'.charCodeAt (0),                                                      // utils.jsxi:3
-	ch9 = '9'.charCodeAt (0),                                                      // utils.jsxi:4
-	cha = 'a'.charCodeAt (0),                                                      // utils.jsxi:5
-	chf = 'f'.charCodeAt (0),                                                      // utils.jsxi:6
-	chz = 'z'.charCodeAt (0),                                                      // utils.jsxi:7
-	chA = 'A'.charCodeAt (0),                                                      // utils.jsxi:8
-	chF = 'F'.charCodeAt (0),                                                      // utils.jsxi:9
-	chZ = 'Z'.charCodeAt (0);                                                      // utils.jsxi:10
-
-function decimalDigit (c){                                                         // utils.jsxi:12
-	c = c.charCodeAt (0);                                                          // utils.jsxi:13
-	return ch0 <= c && c <= ch9;                                                   // utils.jsxi:14
-}
-
-function hexDigit (c){                                                             // utils.jsxi:17
-	c = c.charCodeAt (0);                                                          // utils.jsxi:18
-	return ch0 <= c && c <= ch9 || cha <= c && c <= chf || chA <= c && c <= chF;   // utils.jsxi:19
-}
-
-function identifierStart (c){                                                      // utils.jsxi:22
-	var v = c.charCodeAt (0);
-	return cha <= v && v <= chz || chA <= v && v <= chZ || c === '$' || c === '_';
-}
-
-function identifierPart (c){                                                       // utils.jsxi:27
-	var v = c.charCodeAt (0);
-	return cha <= v && v <= chz || chA <= v && v <= chZ || ch0 <= v && v <= ch9 || c === '$' || c === '_';
-}
-
-var lastIdentifier = 0;
-
-function newIdentifier (){                                                         // utils.jsxi:34
-	return '__' + (lastIdentifier ++).toString (32);                               // utils.jsxi:35
-}
-
-function saveAll (){                                                               // utils.jsxi:39
-	return { index: index, lineNumber: lineNumber, buffer: buffer };
-}
-
-function restoreAll (obj){                                                         // utils.jsxi:42
-	index = obj.index;                                                             // utils.jsxi:43
-	lineNumber = obj.lineNumber;                                                   // utils.jsxi:44
-	buffer = obj.buffer;                                                           // utils.jsxi:45
-}
-
-function attemptTo (firstFn, secondFn, forceSecond){                               // utils.jsxi:48
-	if (forceSecond){                                                              // utils.jsxi:49
-		return typeof secondFn === 'function' ? secondFn () : secondFn;            // utils.jsxi:50
-	} else {
-		saved = saveAll ();                                                        // utils.jsxi:52
-		
-		try {
-			return typeof firstFn === 'function' ? firstFn () : firstFn;           // utils.jsxi:55
-		} catch (e){
-			if (e instanceof Error && /^Unexpected .+? \[.+?\:\d+\]$/.test (e.message)){
-				restoreAll (saved);                                                // utils.jsxi:58
-				return typeof secondFn === 'function' ? secondFn () : secondFn;    // utils.jsxi:59
-			} else
-				throw e;                                                           // utils.jsxi:61
-		} 
-	}
-}
-
-function advance (){                                                               // utils.jsxi:64
-	skipComments ();                                                               // utils.jsxi:65
-	
-	if (index >= length)                                                           // utils.jsxi:67
-		return {
-			type: Token.EOF,                                                       // utils.jsxi:68
-			lineNumber: lineNumber,                                                // utils.jsxi:68
-			range: [ index, index ]
-		};
-	
-	var token = readPunctuator ();
-	
-	if (token !== undefined)                                                       // utils.jsxi:71
-		return token;                                                              // utils.jsxi:72
-	
-	var character = source [index];
-	
-	if (character === '\'' || character === '"')                                   // utils.jsxi:75
-		return readStringLiteral ();                                               // utils.jsxi:76
-	
-	if (character === '`')                                                         // utils.jsxi:78
-		return readMultilineString ();                                             // utils.jsxi:79
-	
-	if (character === '.' || decimalDigit (character))                             // utils.jsxi:81
-		return readNumericLiteral ();                                              // utils.jsxi:82
-	
-	token = readIdentifier ();                                                     // utils.jsxi:84
-	
-	if (token !== undefined)                                                       // utils.jsxi:85
-		return token;                                                              // utils.jsxi:86
-	
-	unexpected ();                                                                 // utils.jsxi:88
-}
-
-function lex (){                                                                   // utils.jsxi:91
-	if (buffer){                                                                   // utils.jsxi:92
-		index = buffer.range [1];                                                  // utils.jsxi:93
-		lineNumber = buffer.lineNumber;                                            // utils.jsxi:94
-		
-		var token = buffer;
-		
-		buffer = null;                                                             // utils.jsxi:97
-		return token;                                                              // utils.jsxi:98
-	} else {
-		buffer = null;                                                             // utils.jsxi:100
-		return advance ();                                                         // utils.jsxi:101
-	}
-}
-
-function lookahead (){                                                             // utils.jsxi:104
-	if (buffer === null){                                                          // utils.jsxi:105
-		var currentIndex = index, currentLineNumber = lineNumber;
-		
-		buffer = advance ();                                                       // utils.jsxi:109
-		index = currentIndex;                                                      // utils.jsxi:111
-		lineNumber = currentLineNumber;                                            // utils.jsxi:112
-	}
-	return buffer;                                                                 // utils.jsxi:115
-}
-
-function peekLineTerminator (){                                                    // utils.jsxi:118
-	var pos = index, line = lineNumber, found;
-	
-	skipComments ();                                                               // utils.jsxi:123
-	found = lineNumber !== line;                                                   // utils.jsxi:125
-	index = pos;                                                                   // utils.jsxi:126
-	lineNumber = line;                                                             // utils.jsxi:127
-	return found;                                                                  // utils.jsxi:129
-}
-
-function expect (value){                                                           // utils.jsxi:132
-	var token = lex ();
-	
-	if (token.type !== Token.Punctuator || token.value !== value)                  // utils.jsxi:134
-		unexpected (token);                                                        // utils.jsxi:135
-}
-
-function expectKeyword (keyword){                                                  // utils.jsxi:138
-	var token = lex ();
-	
-	if (token.type !== Token.Keyword || token.value !== keyword)                   // utils.jsxi:140
-		unexpected (token);                                                        // utils.jsxi:141
-}
-
-function match (value){                                                            // utils.jsxi:144
-	var token = lookahead ();
-	return token.type === Token.Punctuator && token.value === value;               // utils.jsxi:146
-}
-
-function matchKeyword (keyword){                                                   // utils.jsxi:149
-	var token = lookahead ();
-	return token.type === Token.Keyword && token.value === keyword;                // utils.jsxi:151
-}
-
-function matchLex (value){                                                         // utils.jsxi:154
-	var token = lookahead ();
-	
-	if (token.type === Token.Punctuator && token.value === value)                  // utils.jsxi:156
-		return lex ();                                                             // utils.jsxi:157
-	else
-		return false;
-}
-
-function matchKeywordLex (keyword){                                                // utils.jsxi:162
-	var token = lookahead ();
-	
-	if (token.type === Token.Keyword && token.value === keyword)                   // utils.jsxi:164
-		return lex ();                                                             // utils.jsxi:165
-	else
-		return false;
-}
-
-function consumeSemicolon (){                                                      // utils.jsxi:170
-	if (source [index] === ';'){                                                   // utils.jsxi:171
-		lex ();                                                                    // utils.jsxi:172
-		return;
-	}
-	
-	var line = lineNumber;
-	
-	skipComments ();                                                               // utils.jsxi:177
-	
-	if (lineNumber !== line)                                                       // utils.jsxi:179
-		return;
-	
-	if (matchLex (';'))                                                            // utils.jsxi:182
-		return;
-	
-	if (!state.preventSequence && !match ('}') && lookahead ().type !== Token.EOF)
-		unexpected (buffer);                                                       // utils.jsxi:186
-}
-
-function leftSideOnly (expression){                                                // utils.jsxi:189
-	if (!expression || expression.type !== Syntax.Identifier && expression.type !== Syntax.MemberExpression)
-		throw new SyntaxError ('Invalid left-hand side', expression);              // utils.jsxi:191
-	else
-		return expression;                                                         // utils.jsxi:193
 }
 
 process.on ('uncaughtException',                                                   // utils.jsxi:1
@@ -3943,6 +4056,43 @@ var $ = {                                                                       
 	})()
 };
 
+var fs = require ('fs'), path = require ('path');
+
+function benchmark (input, output, count){                                         // app.jsxi:4
+	if (count === undefined)                                                       // app.jsxi:4
+		count = 1;                                                                 // app.jsxi:4
+
+	var data, result, from, total = 0;
+	
+	console.time ('ast loaded');                                                   // app.jsxi:10
+	data = JSON.parse (fs.readFileSync (input));                                   // app.jsxi:11
+	console.timeEnd ('ast loaded');                                                // app.jsxi:12
+	
+	for (var i = 0; i < count; i ++){                                              // app.jsxi:14
+		from = + new Date ();                                                      // app.jsxi:15
+		console.time ('generate');                                                 // app.jsxi:16
+		result = generate (data);                                                  // app.jsxi:17
+		console.timeEnd ('generate');                                              // app.jsxi:18
+		total += + new Date () - from;                                             // app.jsxi:19
+	}
+	
+	if (i > 1)                                                                     // app.jsxi:22
+		console.log ('average time: ' + total / count + 'ms');                     // app.jsxi:23
+	
+	if (result)                                                                    // app.jsxi:25
+		fs.writeFileSync (output, result);                                         // app.jsxi:26
+}
+
+process.nextTick (function (arg){                                                  // app.jsxi:29
+	args = parseArgs (process.argv.slice (2),                                      // app.jsxi:30
+		[
+			{ s: 'i', l: 'include', p: 2 }, 
+			{ s: 'o', l: 'output', p: 1 }, 
+			{ s: 'h', l: 'usage' }
+		]);
+	new Worker (args.data [0].replace (/^"|"$/g, '')).process ();                  // app.jsxi:45
+});
+
 function parseArgs (data, args){                                                   // application_args.jsxi:1
 	var result = {                                                                 // application_args.jsxi:2
 		data: [],                                                                  // application_args.jsxi:2
@@ -3976,17 +4126,17 @@ function parseArgs (data, args){                                                
 					return arg.l == s.slice (2);                                   // application_args.jsxi:25
 				});
 			else {
-				var __13 = s.slice (1);
+				var __14 = s.slice (1);
 				
-				for (var __12 = 0; __12 < __13.length; __12 ++){
-					var k = __13 [__12];
+				for (var __13 = 0; __13 < __14.length; __13 ++){
+					var k = __14 [__13];
 					
 					put (function (arg){                                           // application_args.jsxi:28
 						return arg.s == k;                                         // application_args.jsxi:28
 					});
 				}
 				
-				__13 = undefined;
+				__14 = undefined;
 			}
 		} else
 			result.data.push (s);                                                  // application_args.jsxi:30
@@ -4076,16 +4226,16 @@ FileStorage.prototype.add = function (file){                                    
 };
 FileStorage.prototype.has = function (fn){                                         // file_storage.jsxi:25
 	{
-		var __1g = this.files;
+		var __18 = this.files;
 		
-		for (var __1f = 0; __1f < __1g.length; __1f ++){
-			var file = __1g [__1f];
+		for (var __17 = 0; __17 < __18.length; __17 ++){
+			var file = __18 [__17];
 			
 			if (fn (file.state))                                                   // file_storage.jsxi:27
 				return true;
 		}
 		
-		__1g = undefined;
+		__18 = undefined;
 	}
 	return false;
 };
@@ -4148,6 +4298,8 @@ var niceMode = true,                                                            
 				} else
 					return '\n' + tabs;                                            // generator.jsxi:59
 			}
+			
+			;
 			
 			function brackets (arg){                                               // generator.jsxi:61
 				if (parent instanceof Array){                                      // generator.jsxi:65
@@ -4233,7 +4385,8 @@ var niceMode = true,                                                            
 			if (!node || !node.type){                                              // generator.jsxi:148
 				console.json (parent);                                             // generator.jsxi:149
 				
-				throw new Error ('Node = ' + node);                                // generator.jsxi:150
+				throw new Error ('Node = ' + JSON.stringify (node, false, 
+					4));                                                           // generator.jsxi:150
 			}
 			
 			if (niceMode && comment === null && node.filename)                     // generator.jsxi:153
@@ -4325,15 +4478,15 @@ var niceMode = true,                                                            
 					result = '/* Class "' + node.name + '" declaration */';        // generator.jsxi:248
 					
 					{
-						var __17 = node.statements;
+						var __1a = node.statements;
 						
-						for (var __16 = 0; __16 < __17.length; __16 ++){
-							var statement = __17 [__16];
+						for (var __19 = 0; __19 < __1a.length; __19 ++){
+							var statement = __1a [__19];
 							
 							result += end () + generate (statement, tabs, parent);
 						}
 						
-						__17 = undefined;
+						__1a = undefined;
 					}
 					return result;                                                 // generator.jsxi:251
 				case Syntax.FunctionDeclaration:                                   // generator.jsxi:253
@@ -4355,10 +4508,10 @@ var niceMode = true,                                                            
 					result = '{' + end () + '\t';                                  // generator.jsxi:273
 					
 					if (parent.type === Syntax.FunctionDeclaration || parent.type === Syntax.FunctionExpression){
-						var __19 = parent.params;
+						var __1c = parent.params;
 						
-						for (var __18 = 0; __18 < __19.length; __18 ++){
-							var param = __19 [__18];
+						for (var __1b = 0; __1b < __1c.length; __1b ++){
+							var param = __1c [__1b];
 							
 							if (param.defaultValue){                               // generator.jsxi:277
 								result += 'if (' + child (param) + ' === undefined)' + end () + '\t\t' + child (param) + ' = ' + child (param.defaultValue) + ';' + end () + '\n\t' + tabs;
@@ -4366,7 +4519,7 @@ var niceMode = true,                                                            
 							}
 						}
 						
-						__19 = undefined;
+						__1c = undefined;
 					}
 					
 					result += mapArray (node.body, '', true);                      // generator.jsxi:282
@@ -4426,15 +4579,15 @@ var niceMode = true,                                                            
 					result = 'switch (' + child (node.discriminant) + '){';        // generator.jsxi:346
 					
 					{
-						var __1b = node.cases;
+						var __1e = node.cases;
 						
-						for (var __1a = 0; __1a < __1b.length; __1a ++){
-							var obj = __1b [__1a];
+						for (var __1d = 0; __1d < __1e.length; __1d ++){
+							var obj = __1e [__1d];
 							
 							result += indent (obj);                                // generator.jsxi:348
 						}
 						
-						__1b = undefined;
+						__1e = undefined;
 					}
 					return result + end () + '}';                                  // generator.jsxi:349
 				case Syntax.SwitchCase:                                            // generator.jsxi:351
@@ -4472,15 +4625,15 @@ var niceMode = true,                                                            
 					result = 'try ' + sub (node.block) + ' ';                      // generator.jsxi:390
 					
 					{
-						var __1d = node.handlers;
+						var __1g = node.handlers;
 						
-						for (var __1c = 0; __1c < __1d.length; __1c ++){
-							var handler = __1d [__1c];
+						for (var __1f = 0; __1f < __1g.length; __1f ++){
+							var handler = __1g [__1f];
 							
 							result += child (handler) + ' ';                       // generator.jsxi:392
 						}
 						
-						__1d = undefined;
+						__1g = undefined;
 					}
 					
 					if (node.finalizer)                                            // generator.jsxi:393
@@ -4500,10 +4653,10 @@ var niceMode = true,                                                            
 					temp = node.body [0].type;                                     // generator.jsxi:412
 					
 					{
-						var __1e = node.body;
+						var __1h = node.body;
 						
-						for (var index = 0; index < __1e.length; index ++){        // generator.jsxi:414
-							var childNode = __1e [index];
+						for (var index = 0; index < __1h.length; index ++){        // generator.jsxi:414
+							var childNode = __1h [index];
 							
 							if (index > 0){                                        // generator.jsxi:415
 								if (temp !== childNode.type || childNode.type !== Syntax.ExpressionStatement || childNode.headerComment){
@@ -4516,7 +4669,7 @@ var niceMode = true,                                                            
 							result += child (childNode);                           // generator.jsxi:423
 						}
 						
-						__1e = undefined;
+						__1h = undefined;
 					}
 					return result + end ();                                        // generator.jsxi:426
 				default:
@@ -4634,8 +4787,8 @@ LiteParser.prototype.on = function (){                                          
 	
 	handler = args.pop ();                                                         // lite_parser.jsxi:70
 	
-	for (var __1h = 0; __1h < args.length; __1h ++){                               // lite_parser.jsxi:72
-		var entry = args [__1h];
+	for (var __1i = 0; __1i < args.length; __1i ++){                               // lite_parser.jsxi:72
+		var entry = args [__1i];
 		
 		this.binded.push ({ match: entry, handler: handler, comment: comment });   // lite_parser.jsxi:73
 	}
@@ -4706,10 +4859,10 @@ LiteParser.prototype.innerFindNext = function (args, fixedMode){                
 		temp;                                                                      // lite_parser.jsxi:152
 	
 	{
-		var __1i = this.binded;
+		var __1j = this.binded;
 		
-		for (var i = 0; i < __1i.length; i ++){                                    // lite_parser.jsxi:154
-			var arg = __1i [i];
+		for (var i = 0; i < __1j.length; i ++){                                    // lite_parser.jsxi:154
+			var arg = __1j [i];
 			
 			temp = indexOfExt (this.data, arg.match, this.index, i);               // lite_parser.jsxi:155
 			
@@ -4719,7 +4872,7 @@ LiteParser.prototype.innerFindNext = function (args, fixedMode){                
 			}
 		}
 		
-		__1i = undefined;
+		__1j = undefined;
 	}
 	
 	for (var i = 0; i < args.length; i ++){                                        // lite_parser.jsxi:163
@@ -4814,6 +4967,8 @@ function Macro (name, level, context, macroArgs, macroBody){                    
 	} else
 		this.asyncMode = false;                                                    // macro.jsxi:26
 }
+
+;
 
 addLog (Macro,                                                                     // macro.jsxi:29
 	3, 
@@ -5030,6 +5185,8 @@ function MacroError (name, args, parent, message){                              
 	return result;                                                                 // macro.jsxi:222
 }
 
+;
+
 function MacroCall (name, arguments, level, context, replacement){                 // macro_call.jsxi:1
 	this.name = name;                                                              // macro_call.jsxi:2
 	this.arguments = arguments;                                                    // macro_call.jsxi:3
@@ -5107,15 +5264,15 @@ MacroCall.prototype.prepareArguments = function (callback){                     
 	var queue = new Queue (this, Queue.MODE_PARALLEL).description ('macro call arguments prepare');
 	
 	{
-		var __1j = this.arguments;
+		var __1o = this.arguments;
 		
-		for (var i = 0; i < __1j.length; i ++){                                    // macro_call.jsxi:73
-			var arg = __1j [i];
+		for (var i = 0; i < __1o.length; i ++){                                    // macro_call.jsxi:73
+			var arg = __1o [i];
 			
 			queue.add (cast, this.macro.arguments [i], arg);                       // macro_call.jsxi:74
 		}
 		
-		__1j = undefined;
+		__1o = undefined;
 	}
 	
 	queue.run (function (arg){                                                     // macro_call.jsxi:76
@@ -5248,6 +5405,8 @@ function MacroNotFoundError (name, args, parent){                               
 	this.macroName = name;                                                         // macro_call.jsxi:202
 	this.message = 'Macro @' + name + ' not found';                                // macro_call.jsxi:203
 }
+
+;
 
 MacroNotFoundError.prototype = Error.prototype;                                    // macro_call.jsxi:206
 
@@ -5505,20 +5664,20 @@ function macrosProcess (data, level, context, callback){                        
 		queue = new Queue (Queue.MODE_PARALLEL).description ('macros process');    // macro_process.jsxi:230
 	
 	{
-		var __1p = temp.calls;
+		var __1q = temp.calls;
 		
-		for (var __1o = 0; __1o < __1p.length; __1o ++){
-			var call = __1p [__1o];
+		for (var __1p = 0; __1p < __1q.length; __1p ++){
+			var call = __1q [__1p];
 			
 			queue.add (call, call.process.bind (call));                            // macro_process.jsxi:233
 		}
 		
-		__1p = undefined;
+		__1q = undefined;
 	}
 	
 	queue.run (function (arg){                                                     // macro_process.jsxi:235
-		for (var __1q = 0; __1q < arg.length; __1q ++){                            // macro_process.jsxi:236
-			var entry = arg [__1q];
+		for (var __1r = 0; __1r < arg.length; __1r ++){                            // macro_process.jsxi:236
+			var entry = arg [__1r];
 			
 			temp.data = temp.data.split (entry.data.replacement).join (entry.result [0]);
 		}
@@ -5545,16 +5704,16 @@ MacroStorage.prototype.add = function (macro){                                  
 		this.macros [macro.name].push (macro);                                     // macro_storage.jsxi:16
 	
 	{
-		var __1r = this.requests;
+		var __1s = this.requests;
 		
-		for (var pos = 0; pos < __1r.length; pos ++){                              // macro_storage.jsxi:18
-			var request = __1r [pos];
+		for (var pos = 0; pos < __1s.length; pos ++){                              // macro_storage.jsxi:18
+			var request = __1s [pos];
 			
 			if (request [0] === macro.name && this.get (request))                  // macro_storage.jsxi:19
 				this.requests.splice (pos --, 1);                                  // macro_storage.jsxi:20
 		}
 		
-		__1r = undefined;
+		__1s = undefined;
 	}
 };
 MacroStorage.prototype.get = function (name, level, callback){                     // macro_storage.jsxi:23
@@ -5571,10 +5730,10 @@ MacroStorage.prototype.get = function (name, level, callback){                  
 		this.log ('requested @' + name + (level ? ' (at ' + level + ')' : '') + '');
 	
 	if (this.macros [name]){                                                       // macro_storage.jsxi:36
-		var __1t = this.macros [name];
+		var __1u = this.macros [name];
 		
-		for (var __1s = 0; __1s < __1t.length; __1s ++){
-			var macro = __1t [__1s];
+		for (var __1t = 0; __1t < __1u.length; __1t ++){
+			var macro = __1u [__1t];
 			
 			if (macro.level.length >= max && macro.level.length <= level.length && level.substring (0, macro.level.length) === macro.level){
 				result = macro;                                                    // macro_storage.jsxi:42
@@ -5582,7 +5741,7 @@ MacroStorage.prototype.get = function (name, level, callback){                  
 			}
 		}
 		
-		__1t = undefined;
+		__1u = undefined;
 	}
 	
 	if (result !== undefined){                                                     // macro_storage.jsxi:46
@@ -5747,15 +5906,15 @@ Worker.prototype.start = function (callback){                                   
 	this.log ('started');                                                          // worker.jsxi:40
 	
 	{
-		var __1v = File.find ('default/*') || [];
+		var __20 = File.find ('default/*') || [];
 		
-		for (var __1u = 0; __1u < __1v.length; __1u ++){
-			var file = __1v [__1u];
+		for (var __1v = 0; __1v < __20.length; __1v ++){
+			var file = __20 [__1v];
 			
 			file.process ();                                                       // worker.jsxi:43
 		}
 		
-		__1v = undefined;
+		__20 = undefined;
 	}
 	
 	this.mainFile = new File (this.path);                                          // worker.jsxi:45
@@ -5773,16 +5932,16 @@ Worker.prototype.collect = function (callback){                                 
 	this.state = Worker.STATE_WAITING;                                             // worker.jsxi:59
 	
 	{
-		var __21 = fileStorage.files;
+		var __22 = fileStorage.files;
 		
-		for (var __20 = 0; __20 < __21.length; __20 ++){
-			var file = __21 [__20];
+		for (var __21 = 0; __21 < __22.length; __21 ++){
+			var file = __22 [__21];
 			
 			$.extend (this.data.helpers, file.helpers);                            // worker.jsxi:62
 			Array.prototype.push.apply (this.data.statements, file.parsed.body);   // worker.jsxi:63
 		}
 		
-		__21 = undefined;
+		__22 = undefined;
 	}
 	
 	this.log ('parsed stuff collected');                                           // worker.jsxi:66

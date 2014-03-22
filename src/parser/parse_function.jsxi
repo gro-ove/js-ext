@@ -52,7 +52,7 @@ function parseFunction (options = {}){
 function parseFunctionExpression (){
 	var oldNoReturn = state.noReturn, result;
 	state.noReturn = false;
-	result = parseFunction ();
+	result = parseFunction ({ noSemicolon: true });
 	state.noReturn = oldNoReturn;
 	return result;
 }
@@ -60,7 +60,7 @@ function parseFunctionExpression (){
 function parseFunctionDeclaration (){
 	var oldNoReturn = state.noReturn, result;
 	state.noReturn = false;
-	result = parseFunction ({ id: true, declaration: true });
+	result = parseFunction ({ id: true, declaration: true, noSemicolon: true });
 	state.noReturn = oldNoReturn;
 	return result;
 }
