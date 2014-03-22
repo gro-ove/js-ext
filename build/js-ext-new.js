@@ -150,10 +150,10 @@ File.find = function (from, child){                                             
 	}
 	
 	{
-		var __15 = from ? [ { root: from.root, dirname: from.dirname } ].concat (File.lookingAt) : File.lookingAt;
+		var __16 = from ? [ { root: from.root, dirname: from.dirname } ].concat (File.lookingAt) : File.lookingAt;
 		
-		for (var __14 = 0; __14 < __15.length; __14 ++){
-			var entry = __15 [__14];
+		for (var __15 = 0; __15 < __16.length; __15 ++){
+			var entry = __16 [__15];
 			
 			var temp = findInFolder (entry.root, entry.dirname, child);
 			
@@ -163,7 +163,7 @@ File.find = function (from, child){                                             
 				});
 		}
 		
-		__15 = undefined;
+		__16 = undefined;
 	}
 };
 
@@ -371,7 +371,122 @@ function leftSideOnly (expression){                                             
 		return expression;                                                         // utils.jsxi:193
 }
 
-function makeAsyncronious (body){}
+function makeAsynchronous (body){                                                  // asynchronous_functions.jsxi:4
+	function each (node, callback, result){                                        // asynchronous_functions.jsxi:5
+		if (result === undefined)                                                  // asynchronous_functions.jsxi:5
+			result = [];                                                           // asynchronous_functions.jsxi:5
+	
+		if (typeof node.type === 'string'){                                        // asynchronous_functions.jsxi:6
+			var temp = callback (node);
+			
+			if (temp !== undefined)                                                // asynchronous_functions.jsxi:9
+				result.push (temp);                                                // asynchronous_functions.jsxi:10
+		}
+		
+		for (var key in node){                                                     // asynchronous_functions.jsxi:13
+			var child = node [key];
+			
+			if (child && (typeof child.type === 'string' || child instanceof Array))
+				each (child, callback, result);                                    // asynchronous_functions.jsxi:15
+		}
+		return result;                                                             // asynchronous_functions.jsxi:17
+	}
+	
+	function asynchronousConvert (statement, asynchronous){                        // asynchronous_functions.jsxi:20
+		var next = identifier ('__block_' + blocks.length);
+		
+		if (statement.type === Syntax.ExpressionStatement){                        // asynchronous_functions.jsxi:23
+			var expression = statement.expression;
+			
+			if (expression.type === Syntax.CallExpression){                        // asynchronous_functions.jsxi:26
+				if (expression === asynchronous [0] && asynchronous.length === 1){
+					expression.arguments.push (next);                              // asynchronous_functions.jsxi:28
+					return expression;                                             // asynchronous_functions.jsxi:29
+				}
+			} else if (expression.type === Syntax.AssignmentExpression){           // asynchronous_functions.jsxi:31
+				if (expression.right === asynchronous [0] && asynchronous.length === 1){
+					expression.right.arguments.push (functionExpression (null,     // asynchronous_functions.jsxi:33
+						[ identifier ('__result') ], 
+						blockStatement ([                                          // asynchronous_functions.jsxi:35
+							assignmentStatement (expression.left, identifier ('__result')), 
+							callExpression (next)
+						])));
+					return expression.right;                                       // asynchronous_functions.jsxi:39
+				}
+			}
+		}
+		
+		throw new JsExtError ('NotImplementedError',                               // asynchronous_functions.jsxi:44
+			'Not supported asynchronous type' + '\n' + JSON.stringify (statement, false, 
+				4));                                                               // asynchronous_functions.jsxi:44
+	}
+	
+	function synchronousConvert (statement){                                       // asynchronous_functions.jsxi:47
+		each (statement,                                                           // asynchronous_functions.jsxi:48
+			function (arg){                                                        // asynchronous_functions.jsxi:48
+				if (arg.type === Syntax.ReturnStatement)                           // asynchronous_functions.jsxi:49
+					arg.argument = callExpression (identifier ('__callback'), [ arg.argument ]);
+			});
+		return statement;                                                          // asynchronous_functions.jsxi:53
+	}
+	
+	var variables = [];
+	
+	each (body,                                                                    // asynchronous_functions.jsxi:58
+		function (arg){                                                            // asynchronous_functions.jsxi:58
+			if (arg.type === Syntax.VariableDeclaration){                          // asynchronous_functions.jsxi:58
+				arg.declarations.forEach (function (arg){                          // asynchronous_functions.jsxi:59
+					return variables.push (variableDeclarator (arg.id));           // asynchronous_functions.jsxi:59
+				});
+				
+				var inits = arg.declarations.filter (function (arg){               // asynchronous_functions.jsxi:61
+						return arg.init !== null;                                  // asynchronous_functions.jsxi:61
+					}), 
+					expression = sequenceExpression (inits.map (function (arg){    // asynchronous_functions.jsxi:62
+						return assignmentExpression (arg.id, arg.init);            // asynchronous_functions.jsxi:62
+					})), 
+					temp;                                                          // asynchronous_functions.jsxi:63
+				
+				if (expression.length === 0)                                       // asynchronous_functions.jsxi:65
+					temp = { type: Syntax.EmptyStatement };                        // asynchronous_functions.jsxi:66
+				else if (expression.expressions.length === 1)                      // asynchronous_functions.jsxi:67
+					temp = expressionStatement (expression.expressions [0]);       // asynchronous_functions.jsxi:68
+				else
+					temp = expressionStatement (expression);                       // asynchronous_functions.jsxi:70
+				
+				set (arg, temp);                                                   // asynchronous_functions.jsxi:72
+			}
+		});
+	
+	var current = [], blocks = [ current ];
+	
+	for (var __0 = 0; __0 < body.length; __0 ++){                                  // asynchronous_functions.jsxi:78
+		var statement = body [__0];
+		
+		var asynchronous = each (statement,                                        // asynchronous_functions.jsxi:79
+			function (arg){                                                        // asynchronous_functions.jsxi:79
+				if (arg.asynchronous)                                              // asynchronous_functions.jsxi:79
+					return arg;                                                    // asynchronous_functions.jsxi:79
+			});
+		
+		if (asynchronous.length > 0){                                              // asynchronous_functions.jsxi:81
+			current.push (asynchronousConvert (statement, asynchronous));          // asynchronous_functions.jsxi:82
+			blocks.push (current = []);                                            // asynchronous_functions.jsxi:83
+		} else {
+			current.push (synchronousConvert (statement));                         // asynchronous_functions.jsxi:85
+		}
+	}
+	
+	body = blocks.map (function (arg, index){                                      // asynchronous_functions.jsxi:89
+		return functionDeclaration (identifier ('__block_' + index),               // asynchronous_functions.jsxi:90
+			[], 
+			blockStatement (arg));                                                 // asynchronous_functions.jsxi:90
+	}).concat (expressionStatement (callExpression ('__block_0', [])));            // asynchronous_functions.jsxi:91
+	
+	if (variables.length)                                                          // asynchronous_functions.jsxi:93
+		body.unshift (variableDeclaration (variables));                            // asynchronous_functions.jsxi:94
+	return body;                                                                   // asynchronous_functions.jsxi:96
+}
 
 function doClasses (statements, callback){                                         // do_classes.jsxi:1
 	var classes = [],                                                              // do_classes.jsxi:2
@@ -389,16 +504,16 @@ function doClasses (statements, callback){                                      
 		var result = [];
 		
 		{
-			var __0 = classEntry.members;
+			var __1 = classEntry.members;
 			
-			for (var key in __0){
-				var value = __0 [key];
+			for (var key in __1){
+				var value = __1 [key];
 				
 				if (filter (value, key))                                           // do_classes.jsxi:16
 					result.push (value);                                           // do_classes.jsxi:17
 			}
 			
-			__0 = undefined;
+			__1 = undefined;
 		}
 		return result;                                                             // do_classes.jsxi:18
 	}
@@ -409,8 +524,8 @@ function doClasses (statements, callback){                                      
 		
 		var length, min = - 1, result;
 		
-		for (var __1 = 0; __1 < classes.length; __1 ++){                           // do_classes.jsxi:26
-			var classEntry = classes [__1];
+		for (var __2 = 0; __2 < classes.length; __2 ++){                           // do_classes.jsxi:26
+			var classEntry = classes [__2];
 			
 			length = classEntry.path.length;                                       // do_classes.jsxi:27
 			
@@ -491,10 +606,10 @@ function doClasses (statements, callback){                                      
 				throw new TypeError ('Params "implements" of classes are different', id);
 			
 			{
-				var __3 = current.dependsOn.uses;
+				var __4 = current.dependsOn.uses;
 				
-				for (var __2 = 0; __2 < __3.length; __2 ++){
-					var entry = __3 [__2];
+				for (var __3 = 0; __3 < __4.length; __3 ++){
+					var entry = __4 [__3];
 					
 					if (previous.dependsOn.uses.filter (function (arg){            // do_classes.jsxi:98
 						return arg.name === entry.name;                            // do_classes.jsxi:98
@@ -502,7 +617,7 @@ function doClasses (statements, callback){                                      
 						previous.dependsOn.uses.push (entry);                      // do_classes.jsxi:99
 				}
 				
-				__3 = undefined;
+				__4 = undefined;
 			}
 			
 			$.extend (previous.members, current.members);                          // do_classes.jsxi:101
@@ -525,15 +640,15 @@ function doClasses (statements, callback){                                      
 			classEntry.classObject = true;                                         // do_classes.jsxi:123
 			
 			{
-				var __4 = classEntry.members;
+				var __5 = classEntry.members;
 				
-				for (var name in __4){
-					var value = __4 [name];
+				for (var name in __5){
+					var value = __5 [name];
 					
 					value.className = classEntry.id;                               // do_classes.jsxi:127
 				}
 				
-				__4 = undefined;
+				__5 = undefined;
 			}
 			
 			var constructor = classEntry.members ['@constructor'];
@@ -554,15 +669,15 @@ function doClasses (statements, callback){                                      
 			}
 			
 			{
-				var __5 = classEntry.members;
+				var __6 = classEntry.members;
 				
-				for (var name in __5){
-					var member = __5 [name];
+				for (var name in __6){
+					var member = __6 [name];
 					
 					updateMember (member);                                         // do_classes.jsxi:146
 				}
 				
-				__5 = undefined;
+				__6 = undefined;
 			}
 			
 			var fields = filter (classEntry,                                       // do_classes.jsxi:149
@@ -580,8 +695,8 @@ function doClasses (statements, callback){                                      
 			classEntry.probablyUseOther = 0;                                       // do_classes.jsxi:160
 		}
 		
-		for (var __6 = 0; __6 < classes.length; __6 ++){                           // do_classes.jsxi:163
-			var classEntry = classes [__6];
+		for (var __7 = 0; __7 < classes.length; __7 ++){                           // do_classes.jsxi:163
+			var classEntry = classes [__7];
 			
 			preprocessClass (classEntry);                                          // do_classes.jsxi:164
 		}
@@ -595,16 +710,16 @@ function doClasses (statements, callback){                                      
 				return true;
 			} else if (obj && obj.body && obj.body.body){                          // do_classes.jsxi:173
 				{
-					var __8 = obj.body.body;
+					var __9 = obj.body.body;
 					
-					for (var __7 = 0; __7 < __8.length; __7 ++){
-						var child = __8 [__7];
+					for (var __8 = 0; __8 < __9.length; __8 ++){
+						var child = __9 [__8];
 						
 						if (searchSuperExpression (child))                         // do_classes.jsxi:175
 							return true;
 					}
 					
-					__8 = undefined;
+					__9 = undefined;
 				}
 			} else {
 				for (var key in obj){                                              // do_classes.jsxi:179
@@ -641,10 +756,10 @@ function doClasses (statements, callback){                                      
 				current.weight += parent.weight;                                   // do_classes.jsxi:207
 				
 				{
-					var __9 = parent.members;
+					var __a = parent.members;
 					
-					for (var id in __9){
-						var member = __9 [id];
+					for (var id in __a){
+						var member = __a [id];
 						
 						if (!current.members.hasOwnProperty (id))                  // do_classes.jsxi:210
 							current.members [id] = $.extend (true,                 // do_classes.jsxi:211
@@ -655,7 +770,7 @@ function doClasses (statements, callback){                                      
 								});
 					}
 					
-					__9 = undefined;
+					__a = undefined;
 				}
 				
 				var parentConstructor = parent.members ['@constructor'],           // do_classes.jsxi:213
@@ -664,16 +779,16 @@ function doClasses (statements, callback){                                      
 				if (parentConstructor.body.body.length > 0 && !searchSuperExpression (constructor)){
 					if (constructor.autocreated || parentConstructor.params.length === 0){
 						{
-							var __a = constructor.body.body;
+							var __b = constructor.body.body;
 							
-							for (var autocreated = 0; autocreated < __a.length; autocreated ++){
-								var statement = __a [autocreated];
+							for (var autocreated = 0; autocreated < __b.length; autocreated ++){
+								var statement = __b [autocreated];
 								
 								if (!statement.autocreated)                        // do_classes.jsxi:219
 									break;
 							}
 							
-							__a = undefined;
+							__b = undefined;
 						}
 						
 						constructor.body.body.splice (autocreated,                 // do_classes.jsxi:223
@@ -685,10 +800,10 @@ function doClasses (statements, callback){                                      
 			}
 			
 			{
-				var __b = current.dependsOn.uses;
+				var __c = current.dependsOn.uses;
 				
-				for (var index = 0; index < __b.length; index ++){                 // do_classes.jsxi:229
-					var usedName = __b [index];
+				for (var index = 0; index < __c.length; index ++){                 // do_classes.jsxi:229
+					var usedName = __c [index];
 					
 					var used = byName (usedName.name, current.path);
 					
@@ -700,14 +815,14 @@ function doClasses (statements, callback){                                      
 					current.weight += used.weight;                                 // do_classes.jsxi:238
 				}
 				
-				__b = undefined;
+				__c = undefined;
 			}
 			
 			delete active [current.id.name];                                       // do_classes.jsxi:241
 		}
 		
-		for (var __c = 0; __c < classes.length; __c ++){                           // do_classes.jsxi:244
-			var current = classes [__c];
+		for (var __d = 0; __d < classes.length; __d ++){                           // do_classes.jsxi:244
+			var current = classes [__d];
 			
 			connectClass (current);                                                // do_classes.jsxi:245
 		}
@@ -758,10 +873,10 @@ function doClasses (statements, callback){                                      
 			
 			function testChilds (current){                                         // do_classes.jsxi:300
 				{
-					var __e = current.childs;
+					var __f = current.childs;
 					
-					for (var __d = 0; __d < __e.length; __d ++){
-						var child = __e [__d];
+					for (var __e = 0; __e < __f.length; __e ++){
+						var child = __f [__e];
 						
 						if (child.members.hasOwnProperty (name)){                  // do_classes.jsxi:302
 							var childMember = child.members [name];
@@ -780,7 +895,7 @@ function doClasses (statements, callback){                                      
 						testChilds (child);                                        // do_classes.jsxi:315
 					}
 					
-					__e = undefined;
+					__f = undefined;
 				}
 			}
 			
@@ -789,8 +904,8 @@ function doClasses (statements, callback){                                      
 			
 			updated = rename (name, member, publicMode);                           // do_classes.jsxi:321
 			
-			for (var __f = 0; __f < members.length; __f ++){                       // do_classes.jsxi:323
-				var targetMember = members [__f];
+			for (var __g = 0; __g < members.length; __g ++){                       // do_classes.jsxi:323
+				var targetMember = members [__g];
 				
 				targetMember.id.name = updated;                                    // do_classes.jsxi:324
 				targetMember.processed = true;                                     // do_classes.jsxi:325
@@ -802,21 +917,21 @@ function doClasses (statements, callback){                                      
 				processClassMembers (current.dependsOn.parent);                    // do_classes.jsxi:331
 			
 			{
-				var __g = current.members;
+				var __h = current.members;
 				
-				for (var name in __g){
-					var member = __g [name];
+				for (var name in __h){
+					var member = __h [name];
 					
 					if (name [0] !== '@' && !member.processed)                     // do_classes.jsxi:335
 						processClassMember (current, name, member);                // do_classes.jsxi:336
 				}
 				
-				__g = undefined;
+				__h = undefined;
 			}
 		}
 		
-		for (var __h = 0; __h < classes.length; __h ++){                           // do_classes.jsxi:339
-			var current = classes [__h];
+		for (var __i = 0; __i < classes.length; __i ++){                           // do_classes.jsxi:339
+			var current = classes [__i];
 			
 			processClassMembers (current);                                         // do_classes.jsxi:340
 		}
@@ -843,8 +958,8 @@ function doClasses (statements, callback){                                      
 			function lookForExclusions (obj, target){                              // do_classes.jsxi:371
 				if (typeof obj === 'object' && obj !== null){                      // do_classes.jsxi:372
 					if (obj instanceof Array){                                     // do_classes.jsxi:373
-						for (var __i = 0; __i < obj.length; __i ++){               // do_classes.jsxi:375
-							var child = obj [__i];
+						for (var __j = 0; __j < obj.length; __j ++){               // do_classes.jsxi:375
+							var child = obj [__j];
 							
 							lookForExclusions (child, target);                     // do_classes.jsxi:376
 						}
@@ -1068,8 +1183,8 @@ function doClasses (statements, callback){                                      
 			function process (obj, parent, preparent){                             // do_classes.jsxi:643
 				if (typeof obj === 'object' && obj !== null){                      // do_classes.jsxi:644
 					if (obj instanceof Array){                                     // do_classes.jsxi:647
-						for (var __j = 0; __j < obj.length; __j ++){               // do_classes.jsxi:649
-							var child = obj [__j];
+						for (var __k = 0; __k < obj.length; __k ++){               // do_classes.jsxi:649
+							var child = obj [__k];
 							
 							process (child, obj, parent);                          // do_classes.jsxi:650
 						}
@@ -1118,21 +1233,21 @@ function doClasses (statements, callback){                                      
 			var replace, childMember;
 			
 			{
-				var __k = classEntry.members;
+				var __l = classEntry.members;
 				
-				for (var name in __k){
-					var member = __k [name];
+				for (var name in __l){
+					var member = __l [name];
 					
 					if (member.method && !member.abstract && member.className === classEntry.id)
 						processClassMethod (classEntry, member);                   // do_classes.jsxi:702
 				}
 				
-				__k = undefined;
+				__l = undefined;
 			}
 		}
 		
-		for (var __l = 0; __l < classes.length; __l ++){                           // do_classes.jsxi:706
-			var classEntry = classes [__l];
+		for (var __m = 0; __m < classes.length; __m ++){                           // do_classes.jsxi:706
+			var classEntry = classes [__m];
 			
 			processClassMethods (classEntry);                                      // do_classes.jsxi:707
 		}
@@ -1226,14 +1341,14 @@ function doClasses (statements, callback){                                      
 					result.push (expressionStatement (callExpression ('__prototypeExtend', 
 						[ classEntry.id.name, classEntry.dependsOn.parent.id.name ])));
 				
-				for (var __m = 0; __m < objectFields.length; __m ++){              // do_classes.jsxi:795
-					var field = objectFields [__m];
+				for (var __n = 0; __n < objectFields.length; __n ++){              // do_classes.jsxi:795
+					var field = objectFields [__n];
 					
 					{};
 				}
 				
-				for (var __n = 0; __n < objectMethods.length; __n ++){             // do_classes.jsxi:798
-					var method = objectMethods [__n];
+				for (var __o = 0; __o < objectMethods.length; __o ++){             // do_classes.jsxi:798
+					var method = objectMethods [__o];
 					
 					if (!method.abstract)                                          // do_classes.jsxi:799
 						result.push (assignmentStatement (memberExpression (memberExpression (classEntry.id.name, 'prototype'), 
@@ -1241,8 +1356,8 @@ function doClasses (statements, callback){                                      
 						functionExpression (null, method.params, method.body)));   // do_classes.jsxi:802
 				}
 				
-				for (var __o = 0; __o < staticFields.length; __o ++){              // do_classes.jsxi:806
-					var field = staticFields [__o];
+				for (var __p = 0; __p < staticFields.length; __p ++){              // do_classes.jsxi:806
+					var field = staticFields [__p];
 					
 					if (field.publicMode === 'private')                            // do_classes.jsxi:807
 						result [0].declarations.push (field);                      // do_classes.jsxi:808
@@ -1251,8 +1366,8 @@ function doClasses (statements, callback){                                      
 							field.init || 'undefined'));                           // do_classes.jsxi:810
 				}
 				
-				for (var __p = 0; __p < staticMethods.length; __p ++){             // do_classes.jsxi:814
-					var method = staticMethods [__p];
+				for (var __q = 0; __q < staticMethods.length; __q ++){             // do_classes.jsxi:814
+					var method = staticMethods [__q];
 					
 					if (method.publicMode === 'private')                           // do_classes.jsxi:815
 						result.push (method);                                      // do_classes.jsxi:816
@@ -1267,8 +1382,8 @@ function doClasses (statements, callback){                                      
 					oneVariableDeclaration (classEntry.id, objectExpression (properties))
 				];
 				
-				for (var __q = 0; __q < staticFields.length; __q ++){              // do_classes.jsxi:827
-					var field = staticFields [__q];
+				for (var __r = 0; __r < staticFields.length; __r ++){              // do_classes.jsxi:827
+					var field = staticFields [__r];
 					
 					if (field.publicMode === 'private')                            // do_classes.jsxi:828
 						result [0].declarations.push (field);                      // do_classes.jsxi:829
@@ -1276,8 +1391,8 @@ function doClasses (statements, callback){                                      
 						properties.push (property (field.id, field.init || 'undefined'));
 				}
 				
-				for (var __r = 0; __r < staticMethods.length; __r ++){             // do_classes.jsxi:835
-					var method = staticMethods [__r];
+				for (var __s = 0; __s < staticMethods.length; __s ++){             // do_classes.jsxi:835
+					var method = staticMethods [__s];
 					
 					if (method.publicMode === 'private')                           // do_classes.jsxi:836
 						result.push (method);                                      // do_classes.jsxi:837
@@ -1299,8 +1414,8 @@ function doClasses (statements, callback){                                      
 			return result;                                                         // do_classes.jsxi:853
 		}
 		
-		for (var __s = 0; __s < classes.length; __s ++){                           // do_classes.jsxi:856
-			var classEntry = classes [__s];
+		for (var __t = 0; __t < classes.length; __t ++){                           // do_classes.jsxi:856
+			var classEntry = classes [__t];
 			
 			classEntry.statements = processClass (classEntry);                     // do_classes.jsxi:857
 		}
@@ -1311,8 +1426,8 @@ function doClasses (statements, callback){                                      
 			return b.weight - a.weight;                                            // do_classes.jsxi:861
 		});
 		
-		for (var __t = 0; __t < sorted.length; __t ++){                            // do_classes.jsxi:862
-			var current = sorted [__t];
+		for (var __u = 0; __u < sorted.length; __u ++){                            // do_classes.jsxi:862
+			var current = sorted [__u];
 			
 			current.root.unshift ({                                                // do_classes.jsxi:863
 				type: Syntax.ClassDeclaration,                                     // do_classes.jsxi:863
@@ -1323,15 +1438,15 @@ function doClasses (statements, callback){                                      
 	}
 	
 	{
-		var __v = collectRawClasses (statements);
+		var __10 = collectRawClasses (statements);
 		
-		for (var __u = 0; __u < __v.length; __u ++){
-			var found = __v [__u];
+		for (var __v = 0; __v < __10.length; __v ++){
+			var found = __10 [__v];
 			
 			addClass (found);                                                      // do_classes.jsxi:871
 		}
 		
-		__v = undefined;
+		__10 = undefined;
 	}
 	
 	if (classes.length > 0){                                                       // do_classes.jsxi:873
@@ -2012,15 +2127,15 @@ function parseClassMembers (params, dependsOn){                                 
 			throw new TypeError ('Abstract member cannot be private');             // parse_class.jsxi:113
 		
 		{
-			var __11 = parseVariableDeclarators ();
+			var __12 = parseVariableDeclarators ();
 			
-			for (var __10 = 0; __10 < __11.length; __10 ++){
-				var entry = __11 [__10];
+			for (var __11 = 0; __11 < __12.length; __11 ++){
+				var entry = __12 [__11];
 				
 				set (entry);                                                       // parse_class.jsxi:116
 			}
 			
-			__11 = undefined;
+			__12 = undefined;
 		}
 		
 		refresh ();                                                                // parse_class.jsxi:118
@@ -2761,7 +2876,7 @@ function parseFunction (options){                                               
 		
 		if (asynchronous){                                                         // parse_function.jsxi:38
 			params.push (identifier ('__callback'));                               // parse_function.jsxi:39
-			makeAsyncronious (body);                                               // parse_function.jsxi:40
+			body = blockStatement (makeAsynchronous (body.body));                  // parse_function.jsxi:40
 		}
 		
 		state.asynchronous = oldAsynchronous;                                      // parse_function.jsxi:43
@@ -4005,17 +4120,17 @@ function parseArgs (data, args){                                                
 					return arg.l == s.slice (2);                                   // application_args.jsxi:25
 				});
 			else {
-				var __13 = s.slice (1);
+				var __14 = s.slice (1);
 				
-				for (var __12 = 0; __12 < __13.length; __12 ++){
-					var k = __13 [__12];
+				for (var __13 = 0; __13 < __14.length; __13 ++){
+					var k = __14 [__13];
 					
 					put (function (arg){                                           // application_args.jsxi:28
 						return arg.s == k;                                         // application_args.jsxi:28
 					});
 				}
 				
-				__13 = undefined;
+				__14 = undefined;
 			}
 		} else
 			result.data.push (s);                                                  // application_args.jsxi:30
@@ -4105,16 +4220,16 @@ FileStorage.prototype.add = function (file){                                    
 };
 FileStorage.prototype.has = function (fn){                                         // file_storage.jsxi:25
 	{
-		var __17 = this.files;
+		var __18 = this.files;
 		
-		for (var __16 = 0; __16 < __17.length; __16 ++){
-			var file = __17 [__16];
+		for (var __17 = 0; __17 < __18.length; __17 ++){
+			var file = __18 [__17];
 			
 			if (fn (file.state))                                                   // file_storage.jsxi:27
 				return true;
 		}
 		
-		__17 = undefined;
+		__18 = undefined;
 	}
 	return false;
 };
@@ -4262,7 +4377,8 @@ var niceMode = true,                                                            
 			if (!node || !node.type){                                              // generator.jsxi:148
 				console.json (parent);                                             // generator.jsxi:149
 				
-				throw new Error ('Node = ' + node);                                // generator.jsxi:150
+				throw new Error ('Node = ' + JSON.stringify (node, false, 
+					4));                                                           // generator.jsxi:150
 			}
 			
 			if (niceMode && comment === null && node.filename)                     // generator.jsxi:153
@@ -4354,15 +4470,15 @@ var niceMode = true,                                                            
 					result = '/* Class "' + node.name + '" declaration */';        // generator.jsxi:248
 					
 					{
-						var __19 = node.statements;
+						var __1a = node.statements;
 						
-						for (var __18 = 0; __18 < __19.length; __18 ++){
-							var statement = __19 [__18];
+						for (var __19 = 0; __19 < __1a.length; __19 ++){
+							var statement = __1a [__19];
 							
 							result += end () + generate (statement, tabs, parent);
 						}
 						
-						__19 = undefined;
+						__1a = undefined;
 					}
 					return result;                                                 // generator.jsxi:251
 				case Syntax.FunctionDeclaration:                                   // generator.jsxi:253
@@ -4384,10 +4500,10 @@ var niceMode = true,                                                            
 					result = '{' + end () + '\t';                                  // generator.jsxi:273
 					
 					if (parent.type === Syntax.FunctionDeclaration || parent.type === Syntax.FunctionExpression){
-						var __1b = parent.params;
+						var __1c = parent.params;
 						
-						for (var __1a = 0; __1a < __1b.length; __1a ++){
-							var param = __1b [__1a];
+						for (var __1b = 0; __1b < __1c.length; __1b ++){
+							var param = __1c [__1b];
 							
 							if (param.defaultValue){                               // generator.jsxi:277
 								result += 'if (' + child (param) + ' === undefined)' + end () + '\t\t' + child (param) + ' = ' + child (param.defaultValue) + ';' + end () + '\n\t' + tabs;
@@ -4395,7 +4511,7 @@ var niceMode = true,                                                            
 							}
 						}
 						
-						__1b = undefined;
+						__1c = undefined;
 					}
 					
 					result += mapArray (node.body, '', true);                      // generator.jsxi:282
@@ -4455,15 +4571,15 @@ var niceMode = true,                                                            
 					result = 'switch (' + child (node.discriminant) + '){';        // generator.jsxi:346
 					
 					{
-						var __1d = node.cases;
+						var __1e = node.cases;
 						
-						for (var __1c = 0; __1c < __1d.length; __1c ++){
-							var obj = __1d [__1c];
+						for (var __1d = 0; __1d < __1e.length; __1d ++){
+							var obj = __1e [__1d];
 							
 							result += indent (obj);                                // generator.jsxi:348
 						}
 						
-						__1d = undefined;
+						__1e = undefined;
 					}
 					return result + end () + '}';                                  // generator.jsxi:349
 				case Syntax.SwitchCase:                                            // generator.jsxi:351
@@ -4501,15 +4617,15 @@ var niceMode = true,                                                            
 					result = 'try ' + sub (node.block) + ' ';                      // generator.jsxi:390
 					
 					{
-						var __1f = node.handlers;
+						var __1g = node.handlers;
 						
-						for (var __1e = 0; __1e < __1f.length; __1e ++){
-							var handler = __1f [__1e];
+						for (var __1f = 0; __1f < __1g.length; __1f ++){
+							var handler = __1g [__1f];
 							
 							result += child (handler) + ' ';                       // generator.jsxi:392
 						}
 						
-						__1f = undefined;
+						__1g = undefined;
 					}
 					
 					if (node.finalizer)                                            // generator.jsxi:393
@@ -4529,10 +4645,10 @@ var niceMode = true,                                                            
 					temp = node.body [0].type;                                     // generator.jsxi:412
 					
 					{
-						var __1g = node.body;
+						var __1h = node.body;
 						
-						for (var index = 0; index < __1g.length; index ++){        // generator.jsxi:414
-							var childNode = __1g [index];
+						for (var index = 0; index < __1h.length; index ++){        // generator.jsxi:414
+							var childNode = __1h [index];
 							
 							if (index > 0){                                        // generator.jsxi:415
 								if (temp !== childNode.type || childNode.type !== Syntax.ExpressionStatement || childNode.headerComment){
@@ -4545,7 +4661,7 @@ var niceMode = true,                                                            
 							result += child (childNode);                           // generator.jsxi:423
 						}
 						
-						__1g = undefined;
+						__1h = undefined;
 					}
 					return result + end ();                                        // generator.jsxi:426
 				default:
@@ -4663,8 +4779,8 @@ LiteParser.prototype.on = function (){                                          
 	
 	handler = args.pop ();                                                         // lite_parser.jsxi:70
 	
-	for (var __1h = 0; __1h < args.length; __1h ++){                               // lite_parser.jsxi:72
-		var entry = args [__1h];
+	for (var __1i = 0; __1i < args.length; __1i ++){                               // lite_parser.jsxi:72
+		var entry = args [__1i];
 		
 		this.binded.push ({ match: entry, handler: handler, comment: comment });   // lite_parser.jsxi:73
 	}
@@ -4735,10 +4851,10 @@ LiteParser.prototype.innerFindNext = function (args, fixedMode){                
 		temp;                                                                      // lite_parser.jsxi:152
 	
 	{
-		var __1i = this.binded;
+		var __1j = this.binded;
 		
-		for (var i = 0; i < __1i.length; i ++){                                    // lite_parser.jsxi:154
-			var arg = __1i [i];
+		for (var i = 0; i < __1j.length; i ++){                                    // lite_parser.jsxi:154
+			var arg = __1j [i];
 			
 			temp = indexOfExt (this.data, arg.match, this.index, i);               // lite_parser.jsxi:155
 			
@@ -4748,7 +4864,7 @@ LiteParser.prototype.innerFindNext = function (args, fixedMode){                
 			}
 		}
 		
-		__1i = undefined;
+		__1j = undefined;
 	}
 	
 	for (var i = 0; i < args.length; i ++){                                        // lite_parser.jsxi:163
@@ -4874,10 +4990,10 @@ Macro.prototype.defaults = function (context){                                  
 		};
 	
 	{
-		var __1j = Macro.Defaults;
+		var __1l = Macro.Defaults;
 		
-		for (var key in __1j){
-			var value = __1j [key];
+		for (var key in __1l){
+			var value = __1l [key];
 			
 			if (typeof value === 'function')                                       // macro.jsxi:59
 				result [key] = value.call (obj);                                   // macro.jsxi:60
@@ -4885,7 +5001,7 @@ Macro.prototype.defaults = function (context){                                  
 				result [key] = value;                                              // macro.jsxi:62
 		}
 		
-		__1j = undefined;
+		__1l = undefined;
 	}
 	return result;                                                                 // macro.jsxi:65
 };
@@ -4948,16 +5064,16 @@ Macro.prototype.initialize = function (callback){                               
 		variables.push (key + ' = this.defaults.' + key);                          // macro.jsxi:125
 	
 	{
-		var __1l = phase.used;
+		var __1n = phase.used;
 		
-		for (var __1k = 0; __1k < __1l.length; __1k ++){
-			var entry = __1l [__1k];
+		for (var __1m = 0; __1m < __1n.length; __1m ++){
+			var entry = __1n [__1m];
 			
 			queue.add (macroStorage.get, entry.macro, this.level);                 // macro.jsxi:128
 			variables.push (entry.name + ' = function (){ return this.macros.' + entry.macro + '.call (this.context, [].slice.call (arguments)) }.bind (this)');
 		}
 		
-		__1l = undefined;
+		__1n = undefined;
 	}
 	
 	this.macros = {};                                                              // macro.jsxi:132
@@ -5009,16 +5125,16 @@ Macro.prototype.call = function (context, args){                                
 	
 	try {
 		{
-			var __1m = this.arguments;
+			var __1o = this.arguments;
 			
-			for (var id = 0; id < __1m.length; id ++){                             // macro.jsxi:180
-				var arg = __1m [id];
+			for (var id = 0; id < __1o.length; id ++){                             // macro.jsxi:180
+				var arg = __1o [id];
 				
 				if (arg.type === 'callback' && typeof args [id] !== 'function')    // macro.jsxi:181
 					throw new MacroError (this.name, args, 'Callback requested');
 			}
 			
-			__1m = undefined;
+			__1o = undefined;
 		}
 		return this.callee.apply (object,                                          // macro.jsxi:184
 			args.map ((function (value, pos){                                      // macro.jsxi:186
@@ -5136,15 +5252,15 @@ MacroCall.prototype.prepareArguments = function (callback){                     
 	var queue = new Queue (this, Queue.MODE_PARALLEL).description ('macro call arguments prepare');
 	
 	{
-		var __1n = this.arguments;
+		var __1k = this.arguments;
 		
-		for (var i = 0; i < __1n.length; i ++){                                    // macro_call.jsxi:73
-			var arg = __1n [i];
+		for (var i = 0; i < __1k.length; i ++){                                    // macro_call.jsxi:73
+			var arg = __1k [i];
 			
 			queue.add (cast, this.macro.arguments [i], arg);                       // macro_call.jsxi:74
 		}
 		
-		__1n = undefined;
+		__1k = undefined;
 	}
 	
 	queue.run (function (arg){                                                     // macro_call.jsxi:76
@@ -5534,20 +5650,20 @@ function macrosProcess (data, level, context, callback){                        
 		queue = new Queue (Queue.MODE_PARALLEL).description ('macros process');    // macro_process.jsxi:230
 	
 	{
-		var __1p = temp.calls;
+		var __1q = temp.calls;
 		
-		for (var __1o = 0; __1o < __1p.length; __1o ++){
-			var call = __1p [__1o];
+		for (var __1p = 0; __1p < __1q.length; __1p ++){
+			var call = __1q [__1p];
 			
 			queue.add (call, call.process.bind (call));                            // macro_process.jsxi:233
 		}
 		
-		__1p = undefined;
+		__1q = undefined;
 	}
 	
 	queue.run (function (arg){                                                     // macro_process.jsxi:235
-		for (var __1q = 0; __1q < arg.length; __1q ++){                            // macro_process.jsxi:236
-			var entry = arg [__1q];
+		for (var __1r = 0; __1r < arg.length; __1r ++){                            // macro_process.jsxi:236
+			var entry = arg [__1r];
 			
 			temp.data = temp.data.split (entry.data.replacement).join (entry.result [0]);
 		}
@@ -5574,16 +5690,16 @@ MacroStorage.prototype.add = function (macro){                                  
 		this.macros [macro.name].push (macro);                                     // macro_storage.jsxi:16
 	
 	{
-		var __1r = this.requests;
+		var __1s = this.requests;
 		
-		for (var pos = 0; pos < __1r.length; pos ++){                              // macro_storage.jsxi:18
-			var request = __1r [pos];
+		for (var pos = 0; pos < __1s.length; pos ++){                              // macro_storage.jsxi:18
+			var request = __1s [pos];
 			
 			if (request [0] === macro.name && this.get (request))                  // macro_storage.jsxi:19
 				this.requests.splice (pos --, 1);                                  // macro_storage.jsxi:20
 		}
 		
-		__1r = undefined;
+		__1s = undefined;
 	}
 };
 MacroStorage.prototype.get = function (name, level, callback){                     // macro_storage.jsxi:23
@@ -5600,10 +5716,10 @@ MacroStorage.prototype.get = function (name, level, callback){                  
 		this.log ('requested @' + name + (level ? ' (at ' + level + ')' : '') + '');
 	
 	if (this.macros [name]){                                                       // macro_storage.jsxi:36
-		var __1t = this.macros [name];
+		var __1u = this.macros [name];
 		
-		for (var __1s = 0; __1s < __1t.length; __1s ++){
-			var macro = __1t [__1s];
+		for (var __1t = 0; __1t < __1u.length; __1t ++){
+			var macro = __1u [__1t];
 			
 			if (macro.level.length >= max && macro.level.length <= level.length && level.substring (0, macro.level.length) === macro.level){
 				result = macro;                                                    // macro_storage.jsxi:42
@@ -5611,7 +5727,7 @@ MacroStorage.prototype.get = function (name, level, callback){                  
 			}
 		}
 		
-		__1t = undefined;
+		__1u = undefined;
 	}
 	
 	if (result !== undefined){                                                     // macro_storage.jsxi:46
@@ -5776,15 +5892,15 @@ Worker.prototype.start = function (callback){                                   
 	this.log ('started');                                                          // worker.jsxi:40
 	
 	{
-		var __1v = File.find ('default/*') || [];
+		var __20 = File.find ('default/*') || [];
 		
-		for (var __1u = 0; __1u < __1v.length; __1u ++){
-			var file = __1v [__1u];
+		for (var __1v = 0; __1v < __20.length; __1v ++){
+			var file = __20 [__1v];
 			
 			file.process ();                                                       // worker.jsxi:43
 		}
 		
-		__1v = undefined;
+		__20 = undefined;
 	}
 	
 	this.mainFile = new File (this.path);                                          // worker.jsxi:45
@@ -5802,16 +5918,16 @@ Worker.prototype.collect = function (callback){                                 
 	this.state = Worker.STATE_WAITING;                                             // worker.jsxi:59
 	
 	{
-		var __21 = fileStorage.files;
+		var __22 = fileStorage.files;
 		
-		for (var __20 = 0; __20 < __21.length; __20 ++){
-			var file = __21 [__20];
+		for (var __21 = 0; __21 < __22.length; __21 ++){
+			var file = __22 [__21];
 			
 			$.extend (this.data.helpers, file.helpers);                            // worker.jsxi:62
 			Array.prototype.push.apply (this.data.statements, file.parsed.body);   // worker.jsxi:63
 		}
 		
-		__21 = undefined;
+		__22 = undefined;
 	}
 	
 	this.log ('parsed stuff collected');                                           // worker.jsxi:66

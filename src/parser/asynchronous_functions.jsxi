@@ -1,6 +1,97 @@
 /*
 	Здесь будет много магии.
 */
-function makeAsyncronious (body){
-	
+function makeAsynchronous (body){
+	function each (node, callback, result = []){
+		if (typeof node.type === 'string'){
+			var temp = callback (node);
+
+			if (temp !== undefined)
+				result.push (temp);
+		}
+
+		for (var key, child in node)
+			if (child && (typeof child.type === 'string' || child instanceof Array))
+				each (child, callback, result);
+
+		return result;
+	}
+
+	function asynchronousConvert (statement, asynchronous){
+		var next = identifier ('__block_' + blocks.length);
+
+		if (statement.type === Syntax.ExpressionStatement){
+			var expression = statement.expression;
+
+			if (expression.type === Syntax.CallExpression){
+				if (expression === asynchronous [0] && asynchronous.length === 1){
+					expression.arguments.push (next)
+					return expression;
+				}
+			} else if (expression.type === Syntax.AssignmentExpression){
+				if (expression.right === asynchronous [0] && asynchronous.length === 1){
+					expression.right.arguments.push (functionExpression (null, [ 
+						identifier ('__result') 
+					], blockStatement ([
+						assignmentStatement (expression.left, identifier ('__result')),
+						callExpression (next)
+					])));
+					return expression.right;
+				}
+			}
+		}
+
+		throw new JsExtError ('NotImplementedError', 'Not supported asynchronous type' + '\n' + JSON.stringify (statement, false, 4));
+	}
+
+	function synchronousConvert (statement){
+		each (statement, lambda {
+			if (arg.type === Syntax.ReturnStatement)
+				arg.argument = callExpression (identifier ('__callback'), [ arg.argument ]);
+		});
+
+		return statement;
+	}
+
+	var variables = [];
+
+	each (body, lambda if (arg.type === Syntax.VariableDeclaration){
+		arg.declarations.forEach (lambda variables.push (variableDeclarator (arg.id)));
+
+		var inits = arg.declarations.filter (lambda arg.init !== null),
+			expression = sequenceExpression (inits.map (lambda assignmentExpression (arg.id, arg.init))),
+			temp;
+
+		if (expression.length === 0)
+			temp = { type: Syntax.EmptyStatement };
+		else if (expression.expressions.length === 1)
+			temp = expressionStatement (expression.expressions [0]);
+		else 
+			temp = expressionStatement (expression);
+
+		set (arg, temp);
+	});
+
+	var current = [],
+		blocks = [ current ];
+
+	for (var statement in-array body){
+		var asynchronous = each (statement, lambda if (arg.asynchronous) arg);
+
+		if (asynchronous.length > 0){
+			current.push (asynchronousConvert (statement, asynchronous));
+			blocks.push (current = []);
+		} else {
+			current.push (synchronousConvert (statement));
+		}
+	}
+
+	body = blocks
+		.map (lambda (arg, index) functionDeclaration (identifier ('__block_' + index), [], blockStatement (arg)))
+		.concat (expressionStatement (callExpression ('__block_0', [])));
+
+	if (variables.length)
+		body.unshift (variableDeclaration (variables));
+
+	return body;
 }

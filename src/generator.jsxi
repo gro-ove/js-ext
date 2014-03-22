@@ -147,7 +147,7 @@ var niceMode = true,
 
 			if (!node || !node.type){
 				console.json (parent);
-				throw new Error ('Node = ' + node);
+				throw new Error ('Node = ' + JSON.stringify (node, false, 4));
 			}
 
 			if (niceMode && comment === null && node.filename)

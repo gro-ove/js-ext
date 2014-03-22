@@ -37,7 +37,7 @@ function parseFunction (options = {}){
 
 		if (asynchronous){
 			params.push (identifier ('__callback'));
-			makeAsyncronious (body);
+			body = blockStatement (makeAsynchronous (body.body));
 		}
 
 		state.asynchronous = oldAsynchronous;
