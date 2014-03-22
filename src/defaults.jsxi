@@ -1,26 +1,26 @@
-	function paramsManager (){
-		var that = this;
+function paramsManager (){
+	var that = this;
 
-		return { 
-			add: lambda (key, value){ 
-				switch (key){
-					case 'import':
-						var other = that.context.file.findChild (value);
-						if (other)
-							other.forEach (lambda {
-								that.context.file.imports.push (arg);
-								if (arg.state === File.STATE_INITIAL)
-									arg.process ();
-							});
-						else
-							throw new MacroError (that.name, 'Importing file "' + value + '" not found');
-						break;
-					case 'build-to':
-						Worker.params.buildTo = path.resolve (that.context.file.dirname, value);
-						break;
-					default:
-						throw new MacroError (that.name, 'Wrong param key ("' + key + '")');
-				}
-			} 
-		}
+	return { 
+		add: lambda (key, value){ 
+			switch (key){
+				case 'import':
+					var other = that.context.file.findChild (value);
+					if (other)
+						other.forEach (lambda {
+							that.context.file.imports.push (arg);
+							if (arg.state === File.STATE_INITIAL)
+								arg.process ();
+						});
+					else
+						throw new MacroError (that.name, 'Importing file "' + value + '" not found');
+					break;
+				case 'build-to':
+					Worker.params.buildTo = path.resolve (that.context.file.dirname, value);
+					break;
+				default:
+					throw new MacroError (that.name, 'Wrong param key ("' + key + '")');
+			}
+		} 
 	}
+}

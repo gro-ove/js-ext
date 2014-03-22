@@ -1,4 +1,6 @@
-a = function (){         // current.jsx:1
-	console.log ('a');   // current.jsx:2
+a = function (){         // undefined
+	var temp;
+	
+	console.log ('a');   // current.jsx:3
 };
-a ();                    // current.jsx:5
+a ();                    // current.jsx:6

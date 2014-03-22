@@ -2,21 +2,6 @@
 	Здесь будет много магии.
 */
 function makeAsynchronous (body){
-	function each (node, callback, result = []){
-		if (typeof node.type === 'string'){
-			var temp = callback (node);
-
-			if (temp !== undefined)
-				result.push (temp);
-		}
-
-		for (var key, child in node)
-			if (child && (typeof child.type === 'string' || child instanceof Array))
-				each (child, callback, result);
-
-		return result;
-	}
-
 	function asynchronousConvert (statement, asynchronous){
 		var next = identifier ('__block_' + blocks.length);
 
@@ -45,7 +30,7 @@ function makeAsynchronous (body){
 	}
 
 	function synchronousConvert (statement){
-		each (statement, lambda {
+		astEach (statement, lambda {
 			if (arg.type === Syntax.ReturnStatement)
 				arg.argument = callExpression (identifier ('__callback'), [ arg.argument ]);
 		});
@@ -55,7 +40,7 @@ function makeAsynchronous (body){
 
 	var variables = [];
 
-	each (body, lambda if (arg.type === Syntax.VariableDeclaration){
+	astEach (body, lambda if (arg.type === Syntax.VariableDeclaration){
 		arg.declarations.forEach (lambda variables.push (variableDeclarator (arg.id)));
 
 		var inits = arg.declarations.filter (lambda arg.init !== null),
@@ -76,7 +61,7 @@ function makeAsynchronous (body){
 		blocks = [ current ];
 
 	for (var statement in-array body){
-		var asynchronous = each (statement, lambda if (arg.asynchronous) arg);
+		var asynchronous = astEach (statement, lambda if (arg.asynchronous) arg);
 
 		if (asynchronous.length > 0){
 			current.push (asynchronousConvert (statement, asynchronous));

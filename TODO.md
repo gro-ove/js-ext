@@ -44,11 +44,21 @@
 		V local classes
 		F change error "member 'field' has private access" to warning (what if 'field' is global variable?)
 		F not allow to use same classes in 'uses' and 'extends' or only 'uses'
+		F text for error "member ... is static"
 		C if default fields initializations
 		- access like "this.field" in anonymous functions
 		- improve private members
 		- when possible, use "className.prototype = { methog: ... }"
 		- classes from other ".jsx" for 'extends' or 'implement' (instead of 'implemented' take data from others ".jsxo"; see "caching")
+		- fix for this:
+			/*
+				class A {
+					static CONST = 10;
+					var a = CONST;
+
+					(CONST){}
+				}
+			*/
 		L interfaces
 		L inner classes
 		L anonymous classes

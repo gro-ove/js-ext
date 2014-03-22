@@ -1,5 +1,5 @@
 @echo off
-:: goto current
+goto current
 
 
 :: Build new version of Js-Ext, build new version of Js-Ext with new version of Js-Ext, build and run tests, after apply new version

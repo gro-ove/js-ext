@@ -1,129 +1,126 @@
-	function Worker (path){
-		this.path 				= path;
-		this.mainFile			= undefined;
-		this.state 				= Worker.STATE_INITIAL;
-		this.data 				= { statements: [], classes: [], initializations: [], helpers: {} };
+public class Worker {
+	static STATE_WAITING 	= -1,
+		STATE_INITIAL 		= 0,
+		STATE_STARTED 		= 1,
+		STATE_COLLECTED 	= 2,
+		STATE_CLASSES 		= 3,
+		STATE_GENERATED 	= 4,
+		STATE_FINISHED 		= 5;
+
+	static params = {},
+		storage = { macros: {} };
+
+	var mainFile 	= undefined,
+		state 		= STATE_INITIAL,
+		data 		= { statements: [], classes: [], initializations: [], helpers: {} },
+		result;
+
+	(path){
+		mainFile = new File (path);
 	}
 
-	Worker.STATE_WAITING		= -1;
-	Worker.STATE_INITIAL 		= 0;
-	Worker.STATE_STARTED 		= 1;
-	Worker.STATE_COLLECTED 		= 2;
-	Worker.STATE_CLASSES 		= 3;
-	Worker.STATE_GENERATED 		= 4;
-	Worker.STATE_FINISHED 		= 5;
-
-	addLog (Worker, 0, 'app');
-
-	Worker.params = {};
-	Worker.storage = { macros: {} };
-
-	Worker.prototype.waitForFinish = function (callback){
+	function waitForFinish (callback){
 		var interval = setInterval (lambda {
 			if (fileStorage.everythingFinished ()){
 				clearInterval (interval);
 				callback ();
-
 			} else if (fileStorage.has (lambda arg.state !== File.STATE_FINISHED && arg.state !== File.STATE_MACRO_WAITING) 
-				&& MacroCall.waitingForCallback === 0 
-				&& MacroCall.waitingForMacro > 0){
-
+				&& MacroCall.waitingForCallback === 0 && MacroCall.waitingForMacro > 0){
 				console.fatal ('Macro initialization failed: ' + macroStorage.requests.map (lambda '@' + arg [0]).join (', '));
 			}
-		}, 100);
+		}, 300);
 	}
 
-	Worker.prototype.start = function (callback){
-		console.assert (this.state == Worker.STATE_INITIAL, 'Wrong state (' + this.state + ')');
-		this.state = Worker.STATE_WAITING;
+	function start (callback){
+		console.assert (state == STATE_INITIAL, 'Wrong state (' + state + ')');
+		state = STATE_WAITING;
 
-		this.log ('started');
+		// log ('started');
 
 		for (var file in-array File.find ('default/*') || [])
 			file.process ();
 
-		this.mainFile = new File (this.path);
-		this.mainFile.process ();
+		mainFile.process ();
 
-		this.waitForFinish (lambda {
+		waitForFinish (lambda {
 			fileStorage.sort ();
 
-			this.log ('files processed and sorted');
-			this.state = Worker.STATE_STARTED;
+			// log ('files processed and sorted');
+			state = STATE_STARTED;
 			callback ();
-		}.bind (this));
+		});
 	}
 
-	Worker.prototype.collect = function (callback){
-		console.assert (this.state == Worker.STATE_STARTED, 'Wrong state (' + this.state + ')');
-		this.state = Worker.STATE_WAITING;
+	function collect (callback){
+		console.assert (state == STATE_STARTED, 'Wrong state (' + state + ')');
+		state = STATE_WAITING;
 
 		for (var file in-array fileStorage.files){
-			$.extend (this.data.helpers, file.helpers);
-			[].push.apply (this.data.statements, file.parsed.body);
+			$.extend (data.helpers, file.helpers);
+			[].push.apply (data.statements, file.parsed.body);
 		}
 
-		this.log ('parsed stuff collected');
-		this.state = Worker.STATE_COLLECTED;
+		// log ('parsed stuff collected');
+		state = STATE_COLLECTED;
 
 		callback ();
 	}
 
-	Worker.prototype.classes = function (callback){
-		console.assert (this.state == Worker.STATE_COLLECTED, 'Wrong state (' + this.state + ')');
-		this.state = Worker.STATE_WAITING;
+	function classes (callback){
+		console.assert (state == STATE_COLLECTED, 'Wrong state (' + state + ')');
+		state = STATE_WAITING;
 
-		doClasses (this.data.statements, lambda (helpers){
-			this.log ('classes processed');
-			this.state 	= Worker.STATE_CLASSES;
-			$.extend (this.data.helpers, helpers);
+		doClasses (data.statements, lambda (helpers){
+			// log ('classes processed');
+			state = STATE_CLASSES;
+			$.extend (data.helpers, helpers);
 
 			callback ();
-		}.bind (this));
+		});
 	}
 
-	Worker.prototype.generate = function (callback){
-		console.assert (this.state == Worker.STATE_CLASSES, 'Wrong state (' + this.state + ')');
-		this.state = Worker.STATE_WAITING;
+	function generate (callback){
+		console.assert (state == STATE_CLASSES, 'Wrong state (' + state + ')');
+		state = STATE_WAITING;
 
-		var elements 	= doHelpers (this.data.helpers).concat (this.data.statements),
-			ast 		= { type: Syntax.Program, body: elements },
-			temp 		= path.resolve (__dirname, '../tests/ast-debug.json');
-		if (!fs.existsSync (temp))
-			fs.writeFileSync (temp, JSON.stringify (ast, false, 4));
+		var elements 	= doHelpers (data.helpers).concat (data.statements),
+			ast 		= { type: Syntax.Program, body: elements };
 
-		var result 		= convert (ast, { filename: 'result' });
+		Analyzer.finalAst (ast);
 
-		this.log ('js generated');
-		this.state 		= Worker.STATE_GENERATED;
-		this.result 	= result;
+		// log ('js generated');
+		state 			= Worker.STATE_GENERATED;
+		result 			= new Generator (true).generate (ast);
 
 		callback ();
 	}
 
-	Worker.prototype.save = function (callback){
-		console.assert (this.state == Worker.STATE_GENERATED, 'Wrong state (' + this.state + ')');
-		this.state = Worker.STATE_WAITING;
+	function save (callback){
+		console.assert (state == STATE_GENERATED, 'Wrong state (' + state + ')');
+		state = STATE_WAITING;
 
-		var saveTo = Worker.params.buildTo || this.mainFile.fullpath.replace (/(\.[^\/\\\.]+)?$/, lambda arg === '.js' ? arg : '') + '.js';
-		fs.writeFile (saveTo, this.result, lambda {
-			this.log ('saved');
-			this.state = Worker.STATE_FINISHED;
+		var saveTo = params.buildTo || mainFile.fullpath.replace (/(\.[^\/\\\.]+)?$/, lambda arg === '.js' ? arg : '') + '.js';
+		fs.writeFile (saveTo, result, lambda {
+			// log ('saved');
+			state = STATE_FINISHED;
 			callback ();
-		}.bind (this));
+		});
 	}
 
-	Worker.prototype.process = function (callback){
+	function process (callback){
 		new Queue (this, Queue.MODE_SEQUENT)
 			.description ('worker')
-			.add (this.start)
-			.add (this.collect)
-			.add (this.classes)
-			.add (this.generate)
-			.add (this.save)
+			.add (start)
+			.add (collect)
+			.add (classes)
+			.add (generate)
+			.add (save)
 			.run (lambda {
-				console.assert (this.state == Worker.STATE_FINISHED, 'Wrong state (' + this.state + ')');
+				console.assert (state == STATE_FINISHED, 'Wrong state (' + state + ')');
 				if (callback !== undefined)
 					callback (this);
 			});
 	}
+}
+
+// addLog (Worker, 0, 'app');

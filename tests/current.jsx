@@ -1,4 +1,5 @@
 a = function (){
+	var temp;
 	console.log ('a');
 };
 

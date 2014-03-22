@@ -41,7 +41,7 @@ function convert (jsxCode, options){
 	try {
 		if (options.filename === 'result')
 			badMode = 1;
-		return generate (parsed);
+		return new Generator ().generate (parsed);
 	} catch 
 		console.fatal ('Generating failed (' + options.filename + ')\n' 
 			+ e.stack);

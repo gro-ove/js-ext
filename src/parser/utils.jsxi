@@ -7,7 +7,9 @@ var ch0 = '0'.charCodeAt (0),
 	chz = 'z'.charCodeAt (0),
 	chA = 'A'.charCodeAt (0),
 	chF = 'F'.charCodeAt (0),
-	chZ = 'Z'.charCodeAt (0);
+	chZ = 'Z'.charCodeAt (0),
+	ch$ = '$'.charCodeAt (0),
+	ch_ = '_'.charCodeAt (0);
 
 function decimalDigit (c){
 	c = c.charCodeAt (0);
@@ -20,13 +22,13 @@ function hexDigit (c){
 }
 
 function identifierStart (c){
-	var v = c.charCodeAt (0);
-	return cha <= v && v <= chz || chA <= v && v <= chZ || c === '$' || c === '_';
+	c = c.charCodeAt (0);
+	return cha <= c && c <= chz || chA <= c && c <= chZ || c === ch$ || c === ch_;
 }
 
 function identifierPart (c){
-	var v = c.charCodeAt (0);
-	return cha <= v && v <= chz || chA <= v && v <= chZ || ch0 <= v && v <= ch9 || c === '$' || c === '_';
+	c = c.charCodeAt (0);
+	return cha <= c && c <= chz || chA <= c && c <= chZ || ch0 <= c && c <= ch9 || c === ch$ || c === ch_;
 }
 
 var lastIdentifier = 0;
@@ -191,3 +193,18 @@ function leftSideOnly (expression)
 		throw new SyntaxError ('Invalid left-hand side', expression);
 	else
 		return expression;
+
+function astEach (node, callback, result = []){
+	if (typeof node.type === 'string'){
+		var temp = callback (node);
+
+		if (temp !== undefined)
+			result.push (temp);
+	}
+
+	for (var key, child in node)
+		if (child && (typeof child.type === 'string' || child instanceof Array))
+			each (child, callback, result);
+
+	return result;
+}
