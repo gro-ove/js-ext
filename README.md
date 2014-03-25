@@ -1,6 +1,5 @@
-**Js-Ext** is another preprocessor, which adds syntactic sugar to the regular
-JavaScript. It has some cool features like macros or classes, some of them are
-described below.
+**Js-Ext** (BSD license) is another preprocessor, which adds syntactic sugar to the regular JavaScript. It has some cool
+features like macros or classes, some of them are described below.
 
 **Js-Ext** written in Js-Ext and runs on [Node.js](http://nodejs.org/).
 
@@ -21,7 +20,7 @@ Coming soon.
 
 	console.log (@const);
 
-	@macro logFromFile:raw (file, callback){
+	@macro loadFromFile:raw (file, callback){
 		fs.readFile (file, function (error, data){
 			if (!error)
 				callback ('console.log (' + JSON.stringify (data) + ');');
@@ -30,16 +29,23 @@ Coming soon.
 		});
 	}
 
-	@logFromFile ('../release-notes.txt');
+	@loadFromFile ('../release-notes.txt');
 
 ##### 2. Classes
 ###### NEW
 
 	/*
-		Almost like Java classes; will be converted to JavaScript templates.
+		Almost like Java classes; will be converted to JavaScript prototypes.
 	*/
 
-	class Parent uses Previous {
+	static class Previous {
+		public var value = 'valueFromPrevious';
+
+		public staticMethod ()
+			return 'Hello from Previous';
+	}
+
+	class Parent {
 		static public parentStaticField = Previous.value;
 
 		protected parentField = 'protected field';
@@ -70,53 +76,44 @@ Coming soon.
 		}
 	}
 
-	static class Previous {
-		public var value = 'valueFromPrevious';
-
-		public staticMethod ()
-			return 'Hello from Previous';
-	}
-
-	{
-		console.log (new Child () instanceof Parent);
-	}
+	console.log (new Child () instanceof Parent);
 		
 #### 3. Build-in string formatting 
 ###### NEW
 
 	/*
-		Transforming to concatenation.
+		Will be transformed to concatenation.
 	*/
 	
 	console.log ('Something: %0, "%1", (%2), \'%3\'.' (a, b, c, d));
 	
 #### 4. Shorter ways to write
 	
-	[ 1 .. 10 ] 				 	// array with elements from 1 to 10
-		.map (lambda arg * 2) 	  	// shorter way to create anonymous function
-		.concat (lambda (a, b){     // lambdas can have arguments and body
-			... 					// operator from perl
+	[ 1 .. 10 ] 				 	// Array with elements from 1 to 10.
+		.map (lambda arg * 2) 	  	// Shorter way to create anonymous function.
+		.concat (lambda (a, b){     // Lambdas can have arguments and body.
+			... 					// Operator from Perl.
 		}); 
 		
-	function sqr (v)				// functions can contain only one statement
+	function sqr (v)				// Functions can contain only one statement.
 		v * v;
 
-	function test (a = 100, b){		// and can have default values of arguments
+	function test (a = 100, b){		// And can have default values of arguments.
 
-		try 						// in my view, it is convenient
-			throw new Error (); 	// but use it carefully
+		try 						// In my opinion, it is convenient,
+			throw new Error (); 	// but use it carefully.
 			
-		try 						// that one is better
+		try 						// This one is better.
 			throw new Error ();
 		catch
 			console.log (e);
 
 	}
 
-	for (var k, v in { 				// and new loops
-			a: 	1, 
-			b: 	2, 
-			c: 	3, 
+	for (var k, v in { 				// And new loops.
+			a: 	1 					// Objects and arrays could be initialized without commas.
+			b: 	2
+			c: 	3
 			d: 	4 
 		})
 		console.log (key + ' → ' + value); 
@@ -129,5 +126,4 @@ Coming soon.
 
 ##### 5. Almost full backward compatibility with regular JavaScript Code
 
-	Of course, if you are not going to use such keywords as "uses", "class",
-	"lambda" or something like those.
+	Of course, if you are not going to use such keywords as "uses", "class", "lambda" or something like this.
