@@ -51,6 +51,7 @@ old/*
 
 doc/*
 
-# Temporary file for testing
+# Temporary files for testing
 
 tests/ast-debug.json
+tests/temp/*

@@ -1,6 +1,5 @@
-function __createArray (from, 
-	to, 
-	result){
+function __createArray (from, to, 
+	result){                                                                       // undefined
 	if (typeof from === 'string')
 		from = from.charCodeAt (0);
 	

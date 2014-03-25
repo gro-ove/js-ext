@@ -1,6 +1,3 @@
-/*
-	Здесь будет много магии.
-*/
 function makeAsynchronous (body){
 	function asynchronousConvert (statement, asynchronous){
 		var next = identifier ('__block_' + blocks.length);
