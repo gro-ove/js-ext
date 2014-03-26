@@ -367,31 +367,12 @@ function parseExpression (){
 	if (!state.preventSequence && match (',')){
 		expression = sequenceExpression ([ expression ]);
 
-		while (index < length){
-			if (!match (',')) 
-				break;
-			lex ();
+		while (matchLex (','))
 			expression.expressions.push (parseAssignmentExpression ());
-		}
 	}
 
 	return expression;
 }
-
-// function parsePostfixExpression (){
-// 	var expression = parseLeftHandSideExpressionAllowCall (), token;
-
-// 	token = lookahead ();
-// 	if (token.type !== Token.Punctuator)
-// 		return expression;
-
-// 	if ((match ('++') || match ('--')) && !peekLineTerminator ()){
-// 		leftSideOnly (expression);
-// 		expression = unaryExpression (expression, lex ().value, false);
-// 	}
-
-// 	return expression;
-// }
 
 function parseUnaryExpression (){
 	var token = lookahead ();

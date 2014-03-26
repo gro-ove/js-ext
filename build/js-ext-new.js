@@ -267,15 +267,15 @@ Generator.prototype.__Generator_generateFromNode = function (node, tabs, parent)
 			result = '/* Class "' + node.name + '" declaration */';                // generator.jsxi:247
 			
 			{
-				var __1a = node.statements;
+				var __1c = node.statements;
 				
-				for (var __19 = 0; __19 < __1a.length; __19 ++){
-					var statement = __1a [__19];
+				for (var __1b = 0; __1b < __1c.length; __1b ++){
+					var statement = __1c [__1b];
 					
 					result += end () + this.__Generator_generateFromNode (statement, tabs, parent);
 				}
 				
-				__1a = undefined;
+				__1c = undefined;
 			}
 			return result;                                                         // generator.jsxi:250
 		case Syntax.FunctionDeclaration:                                           // generator.jsxi:252
@@ -297,10 +297,10 @@ Generator.prototype.__Generator_generateFromNode = function (node, tabs, parent)
 			result = '{' + end () + '\t';                                          // generator.jsxi:272
 			
 			if (parent.type === Syntax.FunctionDeclaration || parent.type === Syntax.FunctionExpression){
-				var __1c = parent.params;
+				var __1e = parent.params;
 				
-				for (var __1b = 0; __1b < __1c.length; __1b ++){
-					var param = __1c [__1b];
+				for (var __1d = 0; __1d < __1e.length; __1d ++){
+					var param = __1e [__1d];
 					
 					if (param.defaultValue){                                       // generator.jsxi:276
 						result += 'if (' + child (param) + ' === undefined)' + end () + '\t\t' + child (param) + ' = ' + child (param.defaultValue) + ';' + end () + '\n\t' + tabs;
@@ -308,7 +308,7 @@ Generator.prototype.__Generator_generateFromNode = function (node, tabs, parent)
 					}
 				}
 				
-				__1c = undefined;
+				__1e = undefined;
 			}
 			
 			result += mapArray (node.body, '', true);                              // generator.jsxi:281
@@ -368,15 +368,15 @@ Generator.prototype.__Generator_generateFromNode = function (node, tabs, parent)
 			result = 'switch (' + child (node.discriminant) + '){';                // generator.jsxi:345
 			
 			{
-				var __1e = node.cases;
+				var __1g = node.cases;
 				
-				for (var __1d = 0; __1d < __1e.length; __1d ++){
-					var obj = __1e [__1d];
+				for (var __1f = 0; __1f < __1g.length; __1f ++){
+					var obj = __1g [__1f];
 					
 					result += indent (obj);                                        // generator.jsxi:347
 				}
 				
-				__1e = undefined;
+				__1g = undefined;
 			}
 			return result + end () + '}';                                          // generator.jsxi:348
 		case Syntax.SwitchCase:                                                    // generator.jsxi:350
@@ -414,15 +414,15 @@ Generator.prototype.__Generator_generateFromNode = function (node, tabs, parent)
 			result = 'try ' + sub (node.block) + ' ';                              // generator.jsxi:389
 			
 			{
-				var __1g = node.handlers;
+				var __1i = node.handlers;
 				
-				for (var __1f = 0; __1f < __1g.length; __1f ++){
-					var handler = __1g [__1f];
+				for (var __1h = 0; __1h < __1i.length; __1h ++){
+					var handler = __1i [__1h];
 					
 					result += child (handler) + ' ';                               // generator.jsxi:391
 				}
 				
-				__1g = undefined;
+				__1i = undefined;
 			}
 			
 			if (node.finalizer)                                                    // generator.jsxi:392
@@ -442,10 +442,10 @@ Generator.prototype.__Generator_generateFromNode = function (node, tabs, parent)
 			temp = node.body [0].type;                                             // generator.jsxi:411
 			
 			{
-				var __1h = node.body;
+				var __1j = node.body;
 				
-				for (var index = 0; index < __1h.length; index ++){                // generator.jsxi:413
-					var childNode = __1h [index];
+				for (var index = 0; index < __1j.length; index ++){                // generator.jsxi:413
+					var childNode = __1j [index];
 					
 					if (index > 0){                                                // generator.jsxi:414
 						if (temp !== childNode.type || childNode.type !== Syntax.ExpressionStatement || childNode.headerComment){
@@ -458,7 +458,7 @@ Generator.prototype.__Generator_generateFromNode = function (node, tabs, parent)
 					result += child (childNode);                                   // generator.jsxi:422
 				}
 				
-				__1h = undefined;
+				__1j = undefined;
 			}
 			return result + end ();                                                // generator.jsxi:425
 		default:
@@ -3068,221 +3068,221 @@ function parseExpression (){                                                    
 	return expression;                                                             // parse_expressions.jsxi:374
 }
 
-function parseUnaryExpression (){                                                  // parse_expressions.jsxi:392
+function parseUnaryExpression (){                                                  // parse_expressions.jsxi:377
 	var token = lookahead ();
 	
-	if (token.type === Token.Punctuator){                                          // parse_expressions.jsxi:395
-		if (token.value === '++' || token.value === '--'){                         // parse_expressions.jsxi:396
-			lex ();                                                                // parse_expressions.jsxi:397
+	if (token.type === Token.Punctuator){                                          // parse_expressions.jsxi:380
+		if (token.value === '++' || token.value === '--'){                         // parse_expressions.jsxi:381
+			lex ();                                                                // parse_expressions.jsxi:382
 			return unaryExpression (leftSideOnly (parseUnaryExpression ()), token.value, true);
 		}
 		
 		if (token.value === '+' || token.value === '-' || token.value === '~' || token.value === '!'){
-			lex ();                                                                // parse_expressions.jsxi:402
-			return unaryExpression (parseUnaryExpression (), token.value, true);   // parse_expressions.jsxi:403
+			lex ();                                                                // parse_expressions.jsxi:387
+			return unaryExpression (parseUnaryExpression (), token.value, true);   // parse_expressions.jsxi:388
 		}
 	} else if (token.type === Token.Keyword && (token.value === 'typeof' || token.value === 'delete' || token.value === 'void')){
-		lex ();                                                                    // parse_expressions.jsxi:407
-		return unaryExpression (parseUnaryExpression (), token.value, true);       // parse_expressions.jsxi:408
+		lex ();                                                                    // parse_expressions.jsxi:392
+		return unaryExpression (parseUnaryExpression (), token.value, true);       // parse_expressions.jsxi:393
 	}
-	return parsePostfixExpression ();                                              // parse_expressions.jsxi:411
+	return parsePostfixExpression ();                                              // parse_expressions.jsxi:396
 }
 
-function parsePostfixExpression (){                                                // parse_expressions.jsxi:414
+function parsePostfixExpression (){                                                // parse_expressions.jsxi:399
 	var expression = parseLeftHandSideExpressionAllowCall (), token;
 	
-	token = lookahead ();                                                          // parse_expressions.jsxi:417
+	token = lookahead ();                                                          // parse_expressions.jsxi:402
 	
-	if (token.type !== Token.Punctuator)                                           // parse_expressions.jsxi:419
-		return expression;                                                         // parse_expressions.jsxi:420
+	if (token.type !== Token.Punctuator)                                           // parse_expressions.jsxi:404
+		return expression;                                                         // parse_expressions.jsxi:405
 	
 	if ((token.value === '++' || token.value === '--') && token.lineNumber === lineNumber){
-		leftSideOnly (expression);                                                 // parse_expressions.jsxi:423
-		expression = unaryExpression (expression, lex ().value, false);            // parse_expressions.jsxi:424
+		leftSideOnly (expression);                                                 // parse_expressions.jsxi:408
+		expression = unaryExpression (expression, lex ().value, false);            // parse_expressions.jsxi:409
 	}
-	return expression;                                                             // parse_expressions.jsxi:427
+	return expression;                                                             // parse_expressions.jsxi:412
 }
 
-function parseGroupExpression (){                                                  // parse_expressions.jsxi:430
-	expect ('(');                                                                  // parse_expressions.jsxi:431
+function parseGroupExpression (){                                                  // parse_expressions.jsxi:415
+	expect ('(');                                                                  // parse_expressions.jsxi:416
 	
 	var result = parseExpression ();
 	
-	expect (')');                                                                  // parse_expressions.jsxi:433
-	return result;                                                                 // parse_expressions.jsxi:434
+	expect (')');                                                                  // parse_expressions.jsxi:418
+	return result;                                                                 // parse_expressions.jsxi:419
 }
 
-function parseComplexString (token){                                               // parse_expressions.jsxi:441
-	function split (string, max){                                                  // parse_expressions.jsxi:450
-		var length = string.length,                                                // parse_expressions.jsxi:452
-			index = 0,                                                             // parse_expressions.jsxi:453
-			previous = 0,                                                          // parse_expressions.jsxi:454
-			character,                                                             // parse_expressions.jsxi:455
-			temp,                                                                  // parse_expressions.jsxi:456
-			result = [];                                                           // parse_expressions.jsxi:457
+function parseComplexString (token){                                               // parse_expressions.jsxi:426
+	function split (string, max){                                                  // parse_expressions.jsxi:435
+		var length = string.length,                                                // parse_expressions.jsxi:437
+			index = 0,                                                             // parse_expressions.jsxi:438
+			previous = 0,                                                          // parse_expressions.jsxi:439
+			character,                                                             // parse_expressions.jsxi:440
+			temp,                                                                  // parse_expressions.jsxi:441
+			result = [];                                                           // parse_expressions.jsxi:442
 		
-		while (index < length)                                                     // parse_expressions.jsxi:459
-			switch (string [index]){                                               // parse_expressions.jsxi:460
-				case '\\':                                                         // parse_expressions.jsxi:461
-					if (string [index + 1] === '%'){                               // parse_expressions.jsxi:462
-						if (previous < index)                                      // parse_expressions.jsxi:463
-							result.push (string.substring (previous, index));      // parse_expressions.jsxi:464
+		while (index < length)                                                     // parse_expressions.jsxi:444
+			switch (string [index]){                                               // parse_expressions.jsxi:445
+				case '\\':                                                         // parse_expressions.jsxi:446
+					if (string [index + 1] === '%'){                               // parse_expressions.jsxi:447
+						if (previous < index)                                      // parse_expressions.jsxi:448
+							result.push (string.substring (previous, index));      // parse_expressions.jsxi:449
 						
-						previous = index + 1;                                      // parse_expressions.jsxi:465
+						previous = index + 1;                                      // parse_expressions.jsxi:450
 					}
 					
-					index += 2;                                                    // parse_expressions.jsxi:468
+					index += 2;                                                    // parse_expressions.jsxi:453
 					
 					break;
-				case '%':                                                          // parse_expressions.jsxi:471
-					if (index + 1 === length){                                     // parse_expressions.jsxi:473
-						index ++;                                                  // parse_expressions.jsxi:474
+				case '%':                                                          // parse_expressions.jsxi:456
+					if (index + 1 === length){                                     // parse_expressions.jsxi:458
+						index ++;                                                  // parse_expressions.jsxi:459
 						
 						break;
 					}
 					
 					if (string [index + 1] === '0' && index + 2 < length && decimalDigit (string [index + 2])){
-						index += 2;                                                // parse_expressions.jsxi:480
+						index += 2;                                                // parse_expressions.jsxi:465
 						
 						break;
 					}
 					
-					if (previous < index){                                         // parse_expressions.jsxi:485
-						result.push (string.substring (previous, index));          // parse_expressions.jsxi:486
-						previous = index;                                          // parse_expressions.jsxi:487
+					if (previous < index){                                         // parse_expressions.jsxi:470
+						result.push (string.substring (previous, index));          // parse_expressions.jsxi:471
+						previous = index;                                          // parse_expressions.jsxi:472
 					}
 					
-					index += 2;                                                    // parse_expressions.jsxi:490
+					index += 2;                                                    // parse_expressions.jsxi:475
 					
-					while (index < length && decimalDigit (string [index]))        // parse_expressions.jsxi:492
-						index ++;                                                  // parse_expressions.jsxi:493
+					while (index < length && decimalDigit (string [index]))        // parse_expressions.jsxi:477
+						index ++;                                                  // parse_expressions.jsxi:478
 					
-					temp = + string.substring (previous + 1, index);               // parse_expressions.jsxi:495
+					temp = + string.substring (previous + 1, index);               // parse_expressions.jsxi:480
 					
-					if (temp < max)                                                // parse_expressions.jsxi:497
-						result.push (temp);                                        // parse_expressions.jsxi:498
+					if (temp < max)                                                // parse_expressions.jsxi:482
+						result.push (temp);                                        // parse_expressions.jsxi:483
 					
-					previous = index;                                              // parse_expressions.jsxi:500
+					previous = index;                                              // parse_expressions.jsxi:485
 					
 					break;
 				default:
-					index ++;                                                      // parse_expressions.jsxi:504
+					index ++;                                                      // parse_expressions.jsxi:489
 			}
 		
-		if (previous < length)                                                     // parse_expressions.jsxi:507
-			result.push (string.substring (previous, length));                     // parse_expressions.jsxi:508
-		return result;                                                             // parse_expressions.jsxi:510
+		if (previous < length)                                                     // parse_expressions.jsxi:492
+			result.push (string.substring (previous, length));                     // parse_expressions.jsxi:493
+		return result;                                                             // parse_expressions.jsxi:495
 	}
 	
-	var string = stringLiteralValue (token),                                       // parse_expressions.jsxi:513
-		args = parseArguments (),                                                  // parse_expressions.jsxi:514
-		splitted,                                                                  // parse_expressions.jsxi:515
-		result;                                                                    // parse_expressions.jsxi:516
+	var string = stringLiteralValue (token),                                       // parse_expressions.jsxi:498
+		args = parseArguments (),                                                  // parse_expressions.jsxi:499
+		splitted,                                                                  // parse_expressions.jsxi:500
+		result;                                                                    // parse_expressions.jsxi:501
 	
-	if (string.length <= 1)                                                        // parse_expressions.jsxi:519
-		return stringLiteral (token.value);                                        // parse_expressions.jsxi:520
+	if (string.length <= 1)                                                        // parse_expressions.jsxi:504
+		return stringLiteral (token.value);                                        // parse_expressions.jsxi:505
 	
-	splitted = split (string, args.length).map (function (arg){                    // parse_expressions.jsxi:522
-		if (typeof arg === 'number'){                                              // parse_expressions.jsxi:525
+	splitted = split (string, args.length).map (function (arg){                    // parse_expressions.jsxi:507
+		if (typeof arg === 'number'){                                              // parse_expressions.jsxi:510
 			var temp = args [arg];
 			
-			if (temp.type === Syntax.StringLiteral)                                // parse_expressions.jsxi:528
-				return stringLiteral (temp.value);                                 // parse_expressions.jsxi:529
+			if (temp.type === Syntax.StringLiteral)                                // parse_expressions.jsxi:513
+				return stringLiteral (temp.value);                                 // parse_expressions.jsxi:514
 			
 			if (temp.type === Syntax.BooleanLiteral || temp.type === Syntax.NullLiteral || temp.type === Syntax.NumericLiteral || temp.type === Syntax.RegexpLiteral || temp.type === Syntax.UndefinedLiteral)
-				return stringLiteralWithQuotes (temp.value);                       // parse_expressions.jsxi:534
-			return temp;                                                           // parse_expressions.jsxi:536
+				return stringLiteralWithQuotes (temp.value);                       // parse_expressions.jsxi:519
+			return temp;                                                           // parse_expressions.jsxi:521
 		} else
-			return stringLiteralWithQuotes (arg);                                  // parse_expressions.jsxi:538
-	}).filter (function (arg, index, array){                                       // parse_expressions.jsxi:540
-		if (arg.type !== Syntax.StringLiteral)                                     // parse_expressions.jsxi:542
+			return stringLiteralWithQuotes (arg);                                  // parse_expressions.jsxi:523
+	}).filter (function (arg, index, array){                                       // parse_expressions.jsxi:525
+		if (arg.type !== Syntax.StringLiteral)                                     // parse_expressions.jsxi:527
 			return true;
 		
 		for (var i = index - 1, previous; i >= 0 && array [i].type === Syntax.StringLiteral; i --)
-			previous = array [i];                                                  // parse_expressions.jsxi:547
+			previous = array [i];                                                  // parse_expressions.jsxi:532
 		
-		if (previous){                                                             // parse_expressions.jsxi:549
+		if (previous){                                                             // parse_expressions.jsxi:534
 			previous.value = stringLiteralWithQuotes (stringLiteralValue (previous) + stringLiteralValue (arg)).value;
 			return false;
 		} else
 			return true;
-	}).filter (function (arg, index, array){                                       // parse_expressions.jsxi:556
+	}).filter (function (arg, index, array){                                       // parse_expressions.jsxi:541
 		return arg.type !== Syntax.StringLiteral || index === 0 || !stringLiteralEmpty (arg);
 	});
 	
 	if (splitted [0].type !== Syntax.StringLiteral && (splitted.length === 1 || splitted [1].type !== Syntax.StringLiteral))
-		splitted.unshift (stringLiteral ('\'\''));                                 // parse_expressions.jsxi:561
+		splitted.unshift (stringLiteral ('\'\''));                                 // parse_expressions.jsxi:546
 	
-	result = splitted [0];                                                         // parse_expressions.jsxi:563
+	result = splitted [0];                                                         // parse_expressions.jsxi:548
 	
-	for (var i = 1; i < splitted.length; i ++)                                     // parse_expressions.jsxi:565
-		result = binaryExpression (result, '+', splitted [i]);                     // parse_expressions.jsxi:566
-	return result;                                                                 // parse_expressions.jsxi:568
+	for (var i = 1; i < splitted.length; i ++)                                     // parse_expressions.jsxi:550
+		result = binaryExpression (result, '+', splitted [i]);                     // parse_expressions.jsxi:551
+	return result;                                                                 // parse_expressions.jsxi:553
 }
 
-function parsePrimaryExpression (){                                                // parse_expressions.jsxi:571
+function parsePrimaryExpression (){                                                // parse_expressions.jsxi:556
 	var token = lookahead ();
 	
-	switch (token.type){                                                           // parse_expressions.jsxi:574
-		case Token.Identifier:                                                     // parse_expressions.jsxi:575
-			lex ();                                                                // parse_expressions.jsxi:576
+	switch (token.type){                                                           // parse_expressions.jsxi:559
+		case Token.Identifier:                                                     // parse_expressions.jsxi:560
+			lex ();                                                                // parse_expressions.jsxi:561
 			
-			if (state.asynchronous && token.value === 'asynchronous'){             // parse_expressions.jsxi:577
+			if (state.asynchronous && token.value === 'asynchronous'){             // parse_expressions.jsxi:562
 				var next = parseExpression ();
 				
-				if (next.type === Syntax.CallExpression){                          // parse_expressions.jsxi:580
-					next.asynchronous = true;                                      // parse_expressions.jsxi:581
-					return next;                                                   // parse_expressions.jsxi:582
+				if (next.type === Syntax.CallExpression){                          // parse_expressions.jsxi:565
+					next.asynchronous = true;                                      // parse_expressions.jsxi:566
+					return next;                                                   // parse_expressions.jsxi:567
 				} else
-					unexpected (token);                                            // parse_expressions.jsxi:584
+					unexpected (token);                                            // parse_expressions.jsxi:569
 			} else
 				return mark ({ type: Syntax.Identifier, name: token.value }, token);
-		case Token.Keyword:                                                        // parse_expressions.jsxi:588
-			if (token.value === 'this'){                                           // parse_expressions.jsxi:589
-				lex ();                                                            // parse_expressions.jsxi:590
-				return mark ({ type: Syntax.ThisExpression }, token);              // parse_expressions.jsxi:591
+		case Token.Keyword:                                                        // parse_expressions.jsxi:573
+			if (token.value === 'this'){                                           // parse_expressions.jsxi:574
+				lex ();                                                            // parse_expressions.jsxi:575
+				return mark ({ type: Syntax.ThisExpression }, token);              // parse_expressions.jsxi:576
 			}
 			
-			if (token.value === 'function')                                        // parse_expressions.jsxi:594
-				return parseFunctionExpression ();                                 // parse_expressions.jsxi:595
+			if (token.value === 'function')                                        // parse_expressions.jsxi:579
+				return parseFunctionExpression ();                                 // parse_expressions.jsxi:580
 			
-			if (token.value === 'lambda')                                          // parse_expressions.jsxi:597
-				return parseLambdaExpression ();                                   // parse_expressions.jsxi:598
+			if (token.value === 'lambda')                                          // parse_expressions.jsxi:582
+				return parseLambdaExpression ();                                   // parse_expressions.jsxi:583
 			
 			break;
-		case Token.StringLiteral:                                                  // parse_expressions.jsxi:602
-			lex ();                                                                // parse_expressions.jsxi:603
+		case Token.StringLiteral:                                                  // parse_expressions.jsxi:587
+			lex ();                                                                // parse_expressions.jsxi:588
 			
-			if (lookahead ().value === '(')                                        // parse_expressions.jsxi:604
-				return parseComplexString (token);                                 // parse_expressions.jsxi:605
+			if (lookahead ().value === '(')                                        // parse_expressions.jsxi:589
+				return parseComplexString (token);                                 // parse_expressions.jsxi:590
 			else
 				return mark ({ type: Syntax.StringLiteral, value: token.value }, token);
-		case Token.NumericLiteral:                                                 // parse_expressions.jsxi:609
-			lex ();                                                                // parse_expressions.jsxi:610
-			return numericLiteral (token.value);                                   // parse_expressions.jsxi:611
-		case Token.BooleanLiteral:                                                 // parse_expressions.jsxi:613
-			lex ();                                                                // parse_expressions.jsxi:614
-			return booleanLiteral (token.value);                                   // parse_expressions.jsxi:615
-		case Token.NullLiteral:                                                    // parse_expressions.jsxi:617
-			lex ();                                                                // parse_expressions.jsxi:618
-			return nullLiteral ();                                                 // parse_expressions.jsxi:619
-		case Token.UndefinedLiteral:                                               // parse_expressions.jsxi:621
-			lex ();                                                                // parse_expressions.jsxi:622
-			return undefinedLiteral ();                                            // parse_expressions.jsxi:623
-		case Token.Punctuator:                                                     // parse_expressions.jsxi:625
-			switch (token.value){                                                  // parse_expressions.jsxi:626
-				case '[':                                                          // parse_expressions.jsxi:627
-					return parseArrayInitialiser ();                               // parse_expressions.jsxi:628
-				case '{':                                                          // parse_expressions.jsxi:630
-					return parseObjectInitialiser ();                              // parse_expressions.jsxi:631
-				case '(':                                                          // parse_expressions.jsxi:633
-					return parseGroupExpression ();                                // parse_expressions.jsxi:634
-				case '/':                                                          // parse_expressions.jsxi:636
-					lex ();                                                        // parse_expressions.jsxi:637
-					return readRegexp ();                                          // parse_expressions.jsxi:638
+		case Token.NumericLiteral:                                                 // parse_expressions.jsxi:594
+			lex ();                                                                // parse_expressions.jsxi:595
+			return numericLiteral (token.value);                                   // parse_expressions.jsxi:596
+		case Token.BooleanLiteral:                                                 // parse_expressions.jsxi:598
+			lex ();                                                                // parse_expressions.jsxi:599
+			return booleanLiteral (token.value);                                   // parse_expressions.jsxi:600
+		case Token.NullLiteral:                                                    // parse_expressions.jsxi:602
+			lex ();                                                                // parse_expressions.jsxi:603
+			return nullLiteral ();                                                 // parse_expressions.jsxi:604
+		case Token.UndefinedLiteral:                                               // parse_expressions.jsxi:606
+			lex ();                                                                // parse_expressions.jsxi:607
+			return undefinedLiteral ();                                            // parse_expressions.jsxi:608
+		case Token.Punctuator:                                                     // parse_expressions.jsxi:610
+			switch (token.value){                                                  // parse_expressions.jsxi:611
+				case '[':                                                          // parse_expressions.jsxi:612
+					return parseArrayInitialiser ();                               // parse_expressions.jsxi:613
+				case '{':                                                          // parse_expressions.jsxi:615
+					return parseObjectInitialiser ();                              // parse_expressions.jsxi:616
+				case '(':                                                          // parse_expressions.jsxi:618
+					return parseGroupExpression ();                                // parse_expressions.jsxi:619
+				case '/':                                                          // parse_expressions.jsxi:621
+					lex ();                                                        // parse_expressions.jsxi:622
+					return readRegexp ();                                          // parse_expressions.jsxi:623
 			}
 		default:
-			unexpected (token);                                                    // parse_expressions.jsxi:642
+			unexpected (token);                                                    // parse_expressions.jsxi:627
 	}
 }
 
@@ -4810,8 +4810,8 @@ LiteParser.prototype.on = function (){                                          
 	
 	handler = args.pop ();                                                         // lite_parser.jsxi:70
 	
-	for (var __1i = 0; __1i < args.length; __1i ++){                               // lite_parser.jsxi:72
-		var entry = args [__1i];
+	for (var __19 = 0; __19 < args.length; __19 ++){                               // lite_parser.jsxi:72
+		var entry = args [__19];
 		
 		this.binded.push ({ match: entry, handler: handler, comment: comment });   // lite_parser.jsxi:73
 	}
@@ -4882,10 +4882,10 @@ LiteParser.prototype.innerFindNext = function (args, fixedMode){                
 		temp;                                                                      // lite_parser.jsxi:152
 	
 	{
-		var __1j = this.binded;
+		var __1a = this.binded;
 		
-		for (var i = 0; i < __1j.length; i ++){                                    // lite_parser.jsxi:154
-			var arg = __1j [i];
+		for (var i = 0; i < __1a.length; i ++){                                    // lite_parser.jsxi:154
+			var arg = __1a [i];
 			
 			temp = indexOfExt (this.data, arg.match, this.index, i);               // lite_parser.jsxi:155
 			
@@ -4895,7 +4895,7 @@ LiteParser.prototype.innerFindNext = function (args, fixedMode){                
 			}
 		}
 		
-		__1j = undefined;
+		__1a = undefined;
 	}
 	
 	for (var i = 0; i < args.length; i ++){                                        // lite_parser.jsxi:163
@@ -5287,15 +5287,15 @@ MacroCall.prototype.prepareArguments = function (callback){                     
 	var queue = new Queue (this, Queue.MODE_PARALLEL).description ('macro call arguments prepare');
 	
 	{
-		var __1r = this.arguments;
+		var __1o = this.arguments;
 		
-		for (var i = 0; i < __1r.length; i ++){                                    // macro_call.jsxi:73
-			var arg = __1r [i];
+		for (var i = 0; i < __1o.length; i ++){                                    // macro_call.jsxi:73
+			var arg = __1o [i];
 			
 			queue.add (cast, this.macro.arguments [i], arg);                       // macro_call.jsxi:74
 		}
 		
-		__1r = undefined;
+		__1o = undefined;
 	}
 	
 	queue.run (function (arg){                                                     // macro_call.jsxi:76
@@ -5687,20 +5687,20 @@ function macrosProcess (data, level, context, callback){                        
 		queue = new Queue (Queue.MODE_PARALLEL).description ('macros process');    // macro_process.jsxi:230
 	
 	{
-		var __1p = temp.calls;
+		var __1q = temp.calls;
 		
-		for (var __1o = 0; __1o < __1p.length; __1o ++){
-			var call = __1p [__1o];
+		for (var __1p = 0; __1p < __1q.length; __1p ++){
+			var call = __1q [__1p];
 			
 			queue.add (call, call.process.bind (call));                            // macro_process.jsxi:233
 		}
 		
-		__1p = undefined;
+		__1q = undefined;
 	}
 	
 	queue.run (function (arg){                                                     // macro_process.jsxi:235
-		for (var __1q = 0; __1q < arg.length; __1q ++){                            // macro_process.jsxi:236
-			var entry = arg [__1q];
+		for (var __1r = 0; __1r < arg.length; __1r ++){                            // macro_process.jsxi:236
+			var entry = arg [__1r];
 			
 			temp.data = temp.data.split (entry.data.replacement).join (entry.result [0]);
 		}
