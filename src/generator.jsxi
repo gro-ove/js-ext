@@ -61,7 +61,7 @@ class Generator {
 			// Парсинг обычно начинается с «Program»,  так что родитель дол-
 			// жен быть.
 
-			if (parent instanceof Array){
+			if (parent instanceof Array || parent.type === Syntax.VariableDeclarator){
 				if (node.type === Syntax.SequenceExpression)
 					return '(' + arg + ')';
 			} else if (parent.type !== Syntax.MemberExpression || node === parent.object){

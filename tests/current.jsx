@@ -5,4 +5,6 @@ a = function (){
 
 (a)();
 
+var v = (1, 2);
+
 @buildTo ('./temp/current.js')
