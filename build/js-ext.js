@@ -91,7 +91,7 @@ Generator.prototype.__Generator_generateFromNode = function (node, tabs, parent)
 	;
 	
 	function brackets (arg){                                                       // generator.jsxi:60
-		if (parent instanceof Array){                                              // generator.jsxi:64
+		if (parent instanceof Array || parent.type === Syntax.VariableDeclarator){
 			if (node.type === Syntax.SequenceExpression)                           // generator.jsxi:65
 				return '(' + arg + ')';                                            // generator.jsxi:66
 		} else if (parent.type !== Syntax.MemberExpression || node === parent.object){
