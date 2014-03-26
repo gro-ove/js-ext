@@ -82,6 +82,11 @@ public class File {
 		fileStorage.add (this);
 	}
 
+	public replacedExtension (arg){
+		console.assert (typeof arg === 'string' && arg.length > 0, 'Wrong arg');
+		return fullpath.replace (/(\.[^\/\\\.]+)?$/, lambda arg && arg === '.' + arg ? arg : '') + '.' + arg;
+	}
+
 	public findChild (child)
 		File.find (this, child);
 
@@ -131,8 +136,26 @@ public class File {
 		console.assert (state == STATE_MACROS, 'Wrong state (' + state + ')');
 		state = STATE_WAITING;
 
-		jsxParse (content, { filename: filename, initializationAllowed: true }, lambda (parsed, helpers){
+		jsxParse (content, { filename: filename, initializationAllowed: true }, lambda (error, parsed, helpers){
 			// log ('parsing processed');
+
+			if (error){
+				// TODO
+				var reportPath = Worker.instance.mainFile.replacedExtension ('jsxr'),
+					reportContent = 
+					   `===================================[   ERROR REPORT   ]===================================
+							Error while parsing %0 (%1).
+
+						===================================[   STACK  TRACE   ]===================================
+							%2
+
+						===================================[   SOURCE  CODE   ]===================================
+						%3` (filename, fullpath, error.stack.replace (/\n/g, '\n\t'), content.split ('\n').map (lambda (string, number, array)
+							repeatString (' ', 5 - String (number + 1).length) + (number + 1) + '   ' + string).join ('\n'));
+
+				fs.writeFileSync (reportPath, reportContent);
+				throw error;
+			}
 
 			state 				= STATE_FINISHED;
 			this.parsed 		= parsed;

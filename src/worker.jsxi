@@ -7,8 +7,10 @@ public class Worker {
 		STATE_GENERATED 	= 4,
 		STATE_FINISHED 		= 5;
 
+	// TODO
 	static params = {},
-		storage = { macros: {} };
+		storage = { macros: {} },
+		instance;
 
 	var mainFile 	= undefined,
 		state 		= STATE_INITIAL,
@@ -17,6 +19,7 @@ public class Worker {
 
 	(path){
 		mainFile = new File (path);
+		instance = this;
 	}
 
 	function waitForFinish (callback){
@@ -99,7 +102,8 @@ public class Worker {
 		console.assert (state == STATE_GENERATED, 'Wrong state (' + state + ')');
 		state = STATE_WAITING;
 
-		var saveTo = params.buildTo || mainFile.fullpath.replace (/(\.[^\/\\\.]+)?$/, lambda arg === '.js' ? arg : '') + '.js';
+		// TODO: Check if new file is overriding something important
+		var saveTo = params.buildTo || mainFile.replacedExtension ('js');
 		fs.writeFile (saveTo, result, lambda {
 			// log ('saved');
 			state = STATE_FINISHED;

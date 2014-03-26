@@ -264,12 +264,24 @@ function readStringLiteral (){
 	var quote = source [index],
 		start = index ++;
 
-	// TODO: Increase lineNumber and etc.
-	while (index < length && source [index] !== quote)
-		index += source [index] === '\\' ? 2 : 1;
+	loop: while (index < length && source [index] !== quote)
+		switch (source [index]){
+			case quote:
+				break loop;
+
+			case '\n':
+				throw new SyntaxError ('Unterminated string literal');
+
+			case '\\':
+				if (source [++ index] === '\n')
+					lineNumber ++;
+
+			default:
+				index ++;
+		}
 
 	if (source [index ++] !== quote) 
-		unexpected ();
+		throw new SyntaxError ('Unterminated string literal');
 
 	return {
 		type:           Token.StringLiteral,
@@ -280,29 +292,76 @@ function readStringLiteral (){
 }
 
 function readMultilineString (){
-	var start = index ++;
+	function lengthWithTabs (string, from = 0, to = string.length){
+		for (var index = from, result = 0; index < to; index ++)
+			if (string [index] === '\t')
+				result += result % tabSize ? tabSize - result % tabSize : tabSize;
+			else
+				result ++;
+		return result;
+	}
 
-	// TODO: Increase lineNumber and etc.
-	while (index < length && source [index] !== '`')
-		index += source [index] === '\\' ? 2 : 1;
+	function indent (length)
+		length > 0 ? repeatString ('\t', Math.floor (length / tabSize)) + repeatString (' ', length % tabSize) : '';
+
+	var tabSize 	= 4,
+		tabSpaces 	= repeatString (' ', tabSize),
+		tabRegExp 	= new RegExp ('^(?:' + tabSpaces + ')+'),
+		start 		= index ++,
+		minSpaces 	= Number.POSITIVE_INFINITY,
+		spaces 		= Number.POSITIVE_INFINITY,
+		startSpaces	= lengthWithTabs (source, source.lastIndexOf ('\n', start) + 1, index),
+		spacesMode  = false;
+
+	loop: while (index < length)
+		switch (source [index]){
+			case '`':
+				if (!spacesMode && spaces < minSpaces)
+					minSpaces = spaces;
+				break loop;
+
+			case '\t':
+				if (spacesMode)
+					spaces += tabSize;
+				index ++;
+				break;
+
+			case ' ':
+				if (spacesMode)
+					spaces ++;
+				index ++;
+				break;
+
+			case '\n':
+				lineNumber ++;
+				index ++;
+
+				if (!spacesMode){
+					spacesMode = true;
+					if (spaces < minSpaces)
+						minSpaces = spaces;
+				}
+
+				spaces = 0;
+				break;
+
+			case '\\':
+				index ++;
+
+			default:
+				spacesMode = false;
+				index ++;
+		}
 
 	if (source [index ++] !== '`') 
-		unexpected ();
+		throw new SyntaxError ('Unterminated string literal');
 
-	var result = source.substring (start + 1, index - 1),
-		spaces = result.match (/\n([\t ]*)/g);
+	var result = source.substring (start + 1, index - 1);
 
-	if (spaces){
-		var tabSize = 4,
-			tabSpaces = new Array (tabSize + 1).join (' ');
-
-		spaces = spaces
-			.concat (source.substring (source.lastIndexOf ('\n', start), start + 1).replace (/[^\n\t ]/g, ' '))
-			.map (lambda [].reduce.call (arg.replace (/^\n/, ''), lambda (a, b) a += b === '\t' ? tabSize : 1, 0))
-			.reduce (lambda (a, b) a < b ? a : b);
-
-		var regExp = new RegExp ('\\n(?:\\t|' + tabSpaces + '){' + Math.floor (spaces / tabSize) + '}' + tabSpaces.substr (0, spaces % tabSize), 'g');
-		result = result.replace (regExp, '\n');
+	if (minSpaces !== Number.POSITIVE_INFINITY){
+		if (startSpaces < minSpaces)
+			minSpaces = startSpaces;
+		result = indent (startSpaces - minSpaces) + result.replace (/\n[ \t]+/g, lambda '\n' + indent (lengthWithTabs (arg, 1) - minSpaces));
 	}
 
 	return {
@@ -312,6 +371,8 @@ function readMultilineString (){
 		range:          [ start, index ]
 	};
 }
+
+nnnu = 0;
 
 function skipComments (){
 	var blockComment = false,

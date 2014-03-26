@@ -7,7 +7,7 @@
 @macro test:raw-nm (name:string, args:raw, code:raw){
 	return `(function (result){
 		var missed = false;
-		(function (log)` + code + `)(function (args){
+		(function %2 (log) %0)(function (args){
 			var expected = JSON.stringify (result.shift ()),
 				got = JSON.stringify (args);
 			if (expected === undefined){
@@ -22,10 +22,10 @@
 					.replace (/(,|\[|\{|\:)|(\]|\})/g, '$1 $2')
 					.replace (/'(\d+)'/g, lambda (m, s) '\'' + temp [+s - 1].replace (/\\"/g, '"').replace (/'/g, '\\\'') + '\''));
 			} else if (expected !== got)
-				throw new Error ('Expected and got:\n\t%0\n\t%1' (expected, got));
+				throw new Error ('Expected and got:\n\t' + expected + '\n\t' + got);
 		});
-		console.log ('[Testing] Test "` + name + `" has been passed');
-	})([` + args.slice (1, -1).trim ().replace (/\n/g, ',') + `])`;
+		console.log ('[Testing] Test "%1" has been passed');
+	})([%3])` (code, name, 'test_' + name.replace (/[^a-zA-Z_$]+/g, '_').toLowerCase (), args.slice (1, -1).trim ().replace (/\n/g, ','));
 }
 
 @test ('Priorities', {
@@ -580,34 +580,49 @@
 });
 
 @test ('Multiline', {
-	[ 'first line\nsecond line\n\ttabbed line\n\tanother one\nlast line\n' ]
-	[ 'first line\nsecond line\n    tabbed line\n    another one\n\tcheck one\nlast line\n' ]
-	[ 'first line\n\t\t\tsecond line\n\t\t\t\ttabbed line\n\t\t\t\tanother one\n\t\t\tlast line\n' ]
+	[ ' first line\nsecond line\n\ttabbed line\n\tanother one\nlast line' ]
+	[ 'first line\nsecond line\n\ttabbed line\n\tanother one\nlast line' ]
+	[ 'first line\nsecond line\n\ttabbed line\n\tanother one\n\tcheck one\nlast line' ]
+	[ 'first line\n\t   second line\n\t\t   tabbed line\n\t\t   another one\n\t   last line' ]
+	[ '\t\t first line\n\t\tsecond line\n\t\t\ttabbed line\n\t\t\tanother one\nlast line' ]
 	[ '\'"`' ]
 }, {
-	var test = `first line
+	var first = `first line
 				second line
 					tabbed line
 					another one
 				last line`,
-		withSpaces = 
-		   `first line
-			second line
+		second = `first line
+				  second line
+					  tabbed line
+					  another one
+				  last line`,
+		third = 
+ 		   `first line
+	  		second line
 	            tabbed line
 		        another one
-				check one
+ 	  			check one
 	    	last line`,
-		disabled = 
+		fourth = 
 	`first line
 			second line
 				tabbed line
 				another one
 			last line`,
+		fifth = 
+			`first line
+			second line
+				tabbed line
+				another one
+	last line`,
 		symbols = `'"\``;
 
-	@output { test + '\n' };
-	@output { withSpaces + '\n' };
-	@output { disabled + '\n' };
+	@output { first };
+	@output { second };
+	@output { third };
+	@output { fourth };
+	@output { fifth };
 	@output { symbols };
 });
 

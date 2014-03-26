@@ -1,3 +1,25 @@
+var repeatStrings = {},
+	repeatStringPre = {};
+
+function repeatString (char, count){
+	if (count <= 0){
+		return '';
+	} else if (count < 10){
+		if (!repeatStringPre [char])
+			repeatStringPre [char] = [ 1 .. 10 ].map (lambda new Array (arg + 1).join (char));
+
+		return repeatStringPre [char][count - 1];
+	} else {
+		if (!repeatStrings [char])
+			repeatStrings [char] = {};
+
+		var temp = Math.ceil (count / 10);
+		if (temp !in-object repeatStrings [char])
+			repeatStrings [char][temp] = new Array (temp * 10 + 1).join (' ');
+		return repeatStrings [char][temp].substring (0, count);
+	}
+}
+
 process.on ('uncaughtException', lambda console.fatal ('    [    UNCAUGHT    ]\n\n' + (arg && arg.stack ? arg.stack : String (arg))));
 
 console.fatal = function (){

@@ -1,24 +1,24 @@
-a = lambda;
+a = lam bda;
 b = function (obj){
-	var temp;
+ var temp;
 
-	console.log ('function - begin');
+ console.log ('function - begin');
 
-	try {
-		console.log ('try');
-		obj.test;
-		console.log ('try - end');
-	} catch (e){
-		console.log ('catch');
-		return 'from catch';
-		console.log ('catch - end');
-	} finally {
-		console.log ('finally');
-		return;
-		console.log ('finally - end');
-	}
+ try {
+     console.log ('try');
+     obj.test;
+     console.log ('try - end');
+ } catch (e){
+     console.log ('catch');
+     return 'from catch';
+     console.log ('catch - end');
+ } finally {
+     console.log ('finally');
+     return;
+     console.log ('finally - end');
+ }
 	
-	console.log ('function - end');
+ console.log ('function - end');
 };
 (a)();
 console.log ('== with error ==');

@@ -29,8 +29,7 @@ class Generator {
 			Syntax.ConditionalExpression,
 			Syntax.AssignmentExpression,
 			Syntax.SequenceExpression
-		],
-		spaces = new Array (300).join (' ');
+		];
 
 	private findPriority (type, operator){
 		for (var priority, group in-array priorities){
@@ -430,6 +429,7 @@ class Generator {
 	}
 
 	public generate (ast){
+		comment = null;
 		comments = [];
 
 		var result = generateFromNode (ast, '', null);
@@ -460,7 +460,7 @@ class Generator {
 					}
 				})
 				.replace (/\/\/(\d+)\n/g, lambda (match, comment)
-					spaces.substr (0, max - begins [index ++]) + '   // ' + comments [+comment] + '\n');
+					repeatString (' ', max - begins [index ++]) + '   // ' + comments [+comment] + '\n');
 		}
 
 		return result;

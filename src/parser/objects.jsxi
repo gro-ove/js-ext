@@ -53,7 +53,7 @@ function stringLiteral (value){
 
 function stringLiteralWithQuotes (value){
 	// TODO
-	return stringLiteral ('\'' + value.replace (/(^|[^\\])'/g, '$1\\\'') + '\'');
+	return stringLiteral ('\'' + value.replace (/'/g, '\\\'').replace (/(^|[^\\])(\\\\)+(?=')/g, lambda (all, begin, found) begin + found.slice (0, -1)) + '\'');
 }
 
 function stringLiteralValue (literal){
