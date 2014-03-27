@@ -590,8 +590,6 @@ File.prototype.parsing = function (callback){                                   
 						return repeatString (' ', 5 - String (number + 1).length) + (number + 1) + '   ' + string;
 					}).join ('\n');                                                // file.jsxi:154
 				
-				fs.writeFileSync (reportPath, reportContent);                      // file.jsxi:156
-				
 				throw error;                                                       // file.jsxi:157
 			}
 			
@@ -4904,8 +4902,8 @@ LiteParser.prototype.on = function (){                                          
 	
 	handler = args.pop ();                                                         // lite_parser.jsxi:70
 	
-	for (var __1m = 0; __1m < args.length; __1m ++){                               // lite_parser.jsxi:72
-		var entry = args [__1m];
+	for (var __1i = 0; __1i < args.length; __1i ++){                               // lite_parser.jsxi:72
+		var entry = args [__1i];
 		
 		this.binded.push ({ match: entry, handler: handler, comment: comment });   // lite_parser.jsxi:73
 	}
@@ -4976,10 +4974,10 @@ LiteParser.prototype.innerFindNext = function (args, fixedMode){                
 		temp;                                                                      // lite_parser.jsxi:152
 	
 	{
-		var __1n = this.binded;
+		var __1j = this.binded;
 		
-		for (var i = 0; i < __1n.length; i ++){                                    // lite_parser.jsxi:154
-			var arg = __1n [i];
+		for (var i = 0; i < __1j.length; i ++){                                    // lite_parser.jsxi:154
+			var arg = __1j [i];
 			
 			temp = indexOfExt (this.data, arg.match, this.index, i);               // lite_parser.jsxi:155
 			
@@ -4989,7 +4987,7 @@ LiteParser.prototype.innerFindNext = function (args, fixedMode){                
 			}
 		}
 		
-		__1n = undefined;
+		__1j = undefined;
 	}
 	
 	for (var i = 0; i < args.length; i ++){                                        // lite_parser.jsxi:163
@@ -5117,10 +5115,10 @@ Macro.prototype.defaults = function (context){                                  
 		};
 	
 	{
-		var __1i = Macro.Defaults;
+		var __1k = Macro.Defaults;
 		
-		for (var key in __1i){
-			var value = __1i [key];
+		for (var key in __1k){
+			var value = __1k [key];
 			
 			if (typeof value === 'function')                                       // macro.jsxi:59
 				result [key] = value.call (obj);                                   // macro.jsxi:60
@@ -5128,7 +5126,7 @@ Macro.prototype.defaults = function (context){                                  
 				result [key] = value;                                              // macro.jsxi:62
 		}
 		
-		__1i = undefined;
+		__1k = undefined;
 	}
 	return result;                                                                 // macro.jsxi:65
 };
@@ -5191,16 +5189,16 @@ Macro.prototype.initialize = function (callback){                               
 		variables.push (key + ' = this.defaults.' + key);                          // macro.jsxi:125
 	
 	{
-		var __1k = phase.used;
+		var __1m = phase.used;
 		
-		for (var __1j = 0; __1j < __1k.length; __1j ++){
-			var entry = __1k [__1j];
+		for (var __1l = 0; __1l < __1m.length; __1l ++){
+			var entry = __1m [__1l];
 			
 			queue.add (macroStorage.get, entry.macro, this.level);                 // macro.jsxi:128
 			variables.push (entry.name + ' = function (){ return this.macros.' + entry.macro + '.call (this.context, [].slice.call (arguments)) }.bind (this)');
 		}
 		
-		__1k = undefined;
+		__1m = undefined;
 	}
 	
 	this.macros = {};                                                              // macro.jsxi:132
@@ -5252,16 +5250,16 @@ Macro.prototype.call = function (context, args){                                
 	
 	try {
 		{
-			var __1l = this.arguments;
+			var __1n = this.arguments;
 			
-			for (var id = 0; id < __1l.length; id ++){                             // macro.jsxi:180
-				var arg = __1l [id];
+			for (var id = 0; id < __1n.length; id ++){                             // macro.jsxi:180
+				var arg = __1n [id];
 				
 				if (arg.type === 'callback' && typeof args [id] !== 'function')    // macro.jsxi:181
 					throw new MacroError (this.name, args, 'Callback requested');
 			}
 			
-			__1l = undefined;
+			__1n = undefined;
 		}
 		return this.callee.apply (object,                                          // macro.jsxi:184
 			args.map ((function (value, pos){                                      // macro.jsxi:186

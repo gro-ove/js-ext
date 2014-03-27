@@ -153,7 +153,7 @@ public class File {
 						%3` (filename, fullpath, error.stack.replace (/\n/g, '\n\t'), content.split ('\n').map (lambda (string, number, array)
 							repeatString (' ', 5 - String (number + 1).length) + (number + 1) + '   ' + string).join ('\n'));
 
-				fs.writeFileSync (reportPath, reportContent);
+				// fs.writeFileSync (reportPath, reportContent);
 				throw error;
 			}
 
