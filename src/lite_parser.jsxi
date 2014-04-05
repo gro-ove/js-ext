@@ -8,16 +8,7 @@ function LiteParser (data, index = 0){
 LiteParser.EOF = 1;
 
 Object.defineProperty (LiteParser.prototype, 'lineNumber', {
-	get: function (){
-		var result = 1;
-
-		for (var i = 0, d = this.data, n = Math.min (d.length, this.index); 
-			i < n; i ++)
-			if (d [i] === '\n')
-				result ++;
-
-		return result;
-	}
+	get: lambda this.lineNumberAt (this.index)
 });
 
 Object.defineProperty (LiteParser.prototype, 'current', { get: lambda this.data [this.index] });
@@ -35,6 +26,14 @@ LiteParser.prototype.replace = function (from, to, replacement = ''){
 	this.update (this.data = this.data.substr (0, from) + replacement + this.data.substr (to));
 
 	return delta;
+}
+
+LiteParser.prototype.lineNumberAt = function (index){
+	var result = 1;
+	for (var i = 0, d = this.data, n = Math.min (d.length, index); i < n; i ++)
+		if (d [i] === '\n')
+			result ++;
+	return result;
 }
 
 LiteParser.prototype.substring = function (from, to){

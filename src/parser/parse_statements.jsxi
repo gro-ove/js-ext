@@ -69,12 +69,16 @@ function parseStatement (){
 
 function parseVariableDeclarators (semicolon){
 	var result = [];
+	
 	do {
 		result.push (variableDeclarator (parseIdentifier (), matchLex ('=') ? parseAssignmentExpression () : null));
 	} while (index < length && matchLex (','));
 
-	if (semicolon !== false)
+	if (semicolon !== false){
+		if (!match (';'))
+			warning ('Variables declaration without semicolon');
 		consumeSemicolon ();
+	}
 
 	return result;
 }

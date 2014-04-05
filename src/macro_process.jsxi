@@ -112,7 +112,7 @@
 				throwError ('Unexpected reserved word');
 
 			temp = liteParser.whatNext (/[^\s]/);
-			if (temp && (temp.value === '{' || temp.value === '(')){
+			if (temp && (temp.value === '{' || temp.value === '(') && liteParser.lineNumberAt (temp.index) === liteParser.lineNumber){
 				liteParser.moveTo (temp);
 
 				if (temp.value === '{'){

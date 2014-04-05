@@ -56,7 +56,7 @@ function helperById (id, mark)
 			]));
 
 		case 'bindOnce':
-			var bindedTable = memberExpression ('obj', '__bt'),
+			var bindedTable = memberExpression ('obj', '__bindTable'),
 				objectFunction = memberExpression ('obj', 'name', true),
 				placeInTable = memberExpression (bindedTable, 'name', true);
 

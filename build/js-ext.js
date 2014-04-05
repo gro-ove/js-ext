@@ -1,11 +1,11 @@
 function __bindOnce (obj, 
 	name){
 	if (!obj.hasOwnProperty ('__bindTable'))
-		obj.__bt = {};
+		obj.__bindTable = {};
 	
-	if (!obj.__bt.hasOwnProperty (name))
-		obj.__bt [name] = obj [name].bind (obj);
-	return obj.__bt [name];
+	if (!obj.__bindTable.hasOwnProperty (name))
+		obj.__bindTable [name] = obj [name].bind (obj);
+	return obj.__bindTable [name];
 }
 
 /* Class "Analyzer" declaration */
@@ -1993,7 +1993,7 @@ function helperById (id, mark){                                                 
 					returnStatement ('result')
 				]));
 		case 'bindOnce':                                                           // helpers.jsxi:58
-			var bindedTable = memberExpression ('obj', '__bt'),                    // helpers.jsxi:59
+			var bindedTable = memberExpression ('obj', '__bindTable'),             // helpers.jsxi:59
 				objectFunction = memberExpression ('obj', 'name', true),           // helpers.jsxi:60
 				placeInTable = memberExpression (bindedTable, 'name', true);       // helpers.jsxi:61
 			return functionDeclaration ('__bindOnce',                              // helpers.jsxi:63
@@ -2047,27 +2047,28 @@ var options;
 var helpers;
 
 function jsxParse (code, args, callback){                                          // jsx_parse.jsxi:29
+	var error, result;
+	
 	try {
-		source = String (code).replace (/(\r\n|\r)/g, '\n') + '\n';                // jsx_parse.jsxi:31
-		length = source.length;                                                    // jsx_parse.jsxi:32
-		index = 0;                                                                 // jsx_parse.jsxi:33
-		lineNumber = source.length ? 1 : 0;                                        // jsx_parse.jsxi:34
-		buffer = null;                                                             // jsx_parse.jsxi:35
-		state = {                                                                  // jsx_parse.jsxi:36
-			allowIn: true,                                                         // jsx_parse.jsxi:36
-			inClass: false,                                                        // jsx_parse.jsxi:36
-			parsingComplete: false,                                                // jsx_parse.jsxi:36
-			preventSequence: false,                                                // jsx_parse.jsxi:36
+		source = String (code).replace (/(\r\n|\r)/g, '\n') + '\n';                // jsx_parse.jsxi:33
+		length = source.length;                                                    // jsx_parse.jsxi:34
+		index = 0;                                                                 // jsx_parse.jsxi:35
+		lineNumber = source.length ? 1 : 0;                                        // jsx_parse.jsxi:36
+		buffer = null;                                                             // jsx_parse.jsxi:37
+		state = {                                                                  // jsx_parse.jsxi:38
+			allowIn: true,                                                         // jsx_parse.jsxi:38
+			inClass: false,                                                        // jsx_parse.jsxi:38
+			parsingComplete: false,                                                // jsx_parse.jsxi:38
+			preventSequence: false,                                                // jsx_parse.jsxi:38
 			asynchronous: false
 		};
-		options = args || {                                                        // jsx_parse.jsxi:37
-			filename: '[ not a file ]',                                            // jsx_parse.jsxi:37
-			insertReturn: false,                                                   // jsx_parse.jsxi:37
+		options = args || {                                                        // jsx_parse.jsxi:39
+			filename: '[ not a file ]',                                            // jsx_parse.jsxi:39
+			insertReturn: false,                                                   // jsx_parse.jsxi:39
 			initializationAllowed: false
 		};
-		helpers = new HelpersManager ();                                           // jsx_parse.jsxi:38
-		
-		var error = null, result = parseProgram ();
+		helpers = new HelpersManager ();                                           // jsx_parse.jsxi:40
+		result = parseProgram ();                                                  // jsx_parse.jsxi:41
 	} catch (e){
 		error = e;                                                                 // jsx_parse.jsxi:43
 	} finally {
@@ -2075,11 +2076,19 @@ function jsxParse (code, args, callback){                                       
 		
 		if (typeof callback === 'function')                                        // jsx_parse.jsxi:53
 			callback (error, result, helpers.helpers);                             // jsx_parse.jsxi:54
-		else if (error !== null)                                                   // jsx_parse.jsxi:55
+		else if (error)                                                            // jsx_parse.jsxi:55
 			throw error;                                                           // jsx_parse.jsxi:56
 		else
 			return result;                                                         // jsx_parse.jsxi:58
 	}
+}
+
+function warning (what, location){                                                 // jsx_parse.jsxi:62
+	return Warnings.warn (what,                                                    // jsx_parse.jsxi:63
+		{
+			filename: location && location.filename || options && options.filename, 
+			lineNumber: location && location.lineNumber || lineNumber
+		});
 }
 
 var Token = {                                                                      // library.jsxi:6
@@ -3646,365 +3655,369 @@ function parseVariableDeclarators (semicolon){                                  
 	var result = [];
 	
 	do {
-		result.push (variableDeclarator (parseIdentifier (),                       // parse_statements.jsxi:73
-			matchLex ('=') ? parseAssignmentExpression () : null));                // parse_statements.jsxi:73
-	} while (index < length && matchLex (','));                                    // parse_statements.jsxi:74
+		result.push (variableDeclarator (parseIdentifier (),                       // parse_statements.jsxi:74
+			matchLex ('=') ? parseAssignmentExpression () : null));                // parse_statements.jsxi:74
+	} while (index < length && matchLex (','));                                    // parse_statements.jsxi:75
 	
-	if (semicolon !== false)                                                       // parse_statements.jsxi:76
-		consumeSemicolon ();                                                       // parse_statements.jsxi:77
-	return result;                                                                 // parse_statements.jsxi:79
+	if (semicolon !== false){                                                      // parse_statements.jsxi:77
+		if (!match (';'))                                                          // parse_statements.jsxi:78
+			warning ('Variables declaration without semicolon');                   // parse_statements.jsxi:79
+		
+		consumeSemicolon ();                                                       // parse_statements.jsxi:80
+	}
+	return result;                                                                 // parse_statements.jsxi:83
 }
 
-function parseVariableDeclaration (){                                              // parse_statements.jsxi:82
-	expectKeyword ('var');                                                         // parse_statements.jsxi:83
-	return variableDeclaration (parseVariableDeclarators ());                      // parse_statements.jsxi:84
+function parseVariableDeclaration (){                                              // parse_statements.jsxi:86
+	expectKeyword ('var');                                                         // parse_statements.jsxi:87
+	return variableDeclaration (parseVariableDeclarators ());                      // parse_statements.jsxi:88
 }
 
-function parseContinueStatement (){                                                // parse_statements.jsxi:87
+function parseContinueStatement (){                                                // parse_statements.jsxi:91
 	var label = null;
 	
-	expectKeyword ('continue');                                                    // parse_statements.jsxi:90
+	expectKeyword ('continue');                                                    // parse_statements.jsxi:94
 	
-	if (source [index] === ';'){                                                   // parse_statements.jsxi:92
-		lex ();                                                                    // parse_statements.jsxi:93
-		return continueStatement ();                                               // parse_statements.jsxi:94
-	}
-	
-	if (peekLineTerminator ())                                                     // parse_statements.jsxi:97
+	if (source [index] === ';'){                                                   // parse_statements.jsxi:96
+		lex ();                                                                    // parse_statements.jsxi:97
 		return continueStatement ();                                               // parse_statements.jsxi:98
-	
-	if (lookahead ().type === Token.Identifier)                                    // parse_statements.jsxi:100
-		label = parseIdentifier ();                                                // parse_statements.jsxi:101
-	
-	consumeSemicolon ();                                                           // parse_statements.jsxi:103
-	return continueStatement (label);                                              // parse_statements.jsxi:104
-}
-
-function parseBreakStatement (){                                                   // parse_statements.jsxi:107
-	var label = null;
-	
-	expectKeyword ('break');                                                       // parse_statements.jsxi:110
-	
-	if (source [index] === ';'){                                                   // parse_statements.jsxi:112
-		lex ();                                                                    // parse_statements.jsxi:113
-		return breakStatement ();                                                  // parse_statements.jsxi:114
 	}
 	
-	if (peekLineTerminator ())                                                     // parse_statements.jsxi:117
-		return breakStatement ();                                                  // parse_statements.jsxi:118
+	if (peekLineTerminator ())                                                     // parse_statements.jsxi:101
+		return continueStatement ();                                               // parse_statements.jsxi:102
 	
-	if (lookahead ().type === Token.Identifier)                                    // parse_statements.jsxi:120
-		label = parseIdentifier ();                                                // parse_statements.jsxi:121
+	if (lookahead ().type === Token.Identifier)                                    // parse_statements.jsxi:104
+		label = parseIdentifier ();                                                // parse_statements.jsxi:105
 	
-	consumeSemicolon ();                                                           // parse_statements.jsxi:123
-	return breakStatement (label);                                                 // parse_statements.jsxi:124
+	consumeSemicolon ();                                                           // parse_statements.jsxi:107
+	return continueStatement (label);                                              // parse_statements.jsxi:108
 }
 
-function parseReturnStatement (){                                                  // parse_statements.jsxi:127
+function parseBreakStatement (){                                                   // parse_statements.jsxi:111
+	var label = null;
+	
+	expectKeyword ('break');                                                       // parse_statements.jsxi:114
+	
+	if (source [index] === ';'){                                                   // parse_statements.jsxi:116
+		lex ();                                                                    // parse_statements.jsxi:117
+		return breakStatement ();                                                  // parse_statements.jsxi:118
+	}
+	
+	if (peekLineTerminator ())                                                     // parse_statements.jsxi:121
+		return breakStatement ();                                                  // parse_statements.jsxi:122
+	
+	if (lookahead ().type === Token.Identifier)                                    // parse_statements.jsxi:124
+		label = parseIdentifier ();                                                // parse_statements.jsxi:125
+	
+	consumeSemicolon ();                                                           // parse_statements.jsxi:127
+	return breakStatement (label);                                                 // parse_statements.jsxi:128
+}
+
+function parseReturnStatement (){                                                  // parse_statements.jsxi:131
 	var argument = null;
 	
-	if (state.noReturn)                                                            // parse_statements.jsxi:130
-		unexpected (lookahead ());                                                 // parse_statements.jsxi:131
+	if (state.noReturn)                                                            // parse_statements.jsxi:134
+		unexpected (lookahead ());                                                 // parse_statements.jsxi:135
 	
-	expectKeyword ('return');                                                      // parse_statements.jsxi:133
+	expectKeyword ('return');                                                      // parse_statements.jsxi:137
 	
-	if (source [index] === ' ' && identifierStart (source [index + 1])){           // parse_statements.jsxi:135
-		argument = parseExpression ();                                             // parse_statements.jsxi:136
-		consumeSemicolon ();                                                       // parse_statements.jsxi:137
-		return returnStatement (argument);                                         // parse_statements.jsxi:138
+	if (source [index] === ' ' && identifierStart (source [index + 1])){           // parse_statements.jsxi:139
+		argument = parseExpression ();                                             // parse_statements.jsxi:140
+		consumeSemicolon ();                                                       // parse_statements.jsxi:141
+		return returnStatement (argument);                                         // parse_statements.jsxi:142
 	}
 	
-	if (peekLineTerminator ())                                                     // parse_statements.jsxi:141
-		return returnStatement ();                                                 // parse_statements.jsxi:142
+	if (peekLineTerminator ())                                                     // parse_statements.jsxi:145
+		return returnStatement ();                                                 // parse_statements.jsxi:146
 	
-	if (!match (';') && !match ('}') && lookahead ().type !== Token.EOF)           // parse_statements.jsxi:144
-		argument = parseExpression ();                                             // parse_statements.jsxi:145
+	if (!match (';') && !match ('}') && lookahead ().type !== Token.EOF)           // parse_statements.jsxi:148
+		argument = parseExpression ();                                             // parse_statements.jsxi:149
 	
-	if (!state.preventSequence)                                                    // parse_statements.jsxi:147
-		consumeSemicolon ();                                                       // parse_statements.jsxi:148
-	return returnStatement (argument);                                             // parse_statements.jsxi:150
+	if (!state.preventSequence)                                                    // parse_statements.jsxi:151
+		consumeSemicolon ();                                                       // parse_statements.jsxi:152
+	return returnStatement (argument);                                             // parse_statements.jsxi:154
 }
 
-function parseThrowStatement (){                                                   // parse_statements.jsxi:153
-	expectKeyword ('throw');                                                       // parse_statements.jsxi:154
+function parseThrowStatement (){                                                   // parse_statements.jsxi:157
+	expectKeyword ('throw');                                                       // parse_statements.jsxi:158
 	
-	if (peekLineTerminator ())                                                     // parse_statements.jsxi:156
-		throwError ({}, Messages.NewlineAfterThrow);                               // parse_statements.jsxi:157
+	if (peekLineTerminator ())                                                     // parse_statements.jsxi:160
+		throwError ({}, Messages.NewlineAfterThrow);                               // parse_statements.jsxi:161
 	
 	var argument = parseExpression ();
 	
-	consumeSemicolon ();                                                           // parse_statements.jsxi:160
-	return throwStatement (argument);                                              // parse_statements.jsxi:162
+	consumeSemicolon ();                                                           // parse_statements.jsxi:164
+	return throwStatement (argument);                                              // parse_statements.jsxi:166
 }
 
-function parseDebuggerStatement (){                                                // parse_statements.jsxi:165
-	expectKeyword ('debugger');                                                    // parse_statements.jsxi:166
-	consumeSemicolon ();                                                           // parse_statements.jsxi:167
-	return debuggerStatement ();                                                   // parse_statements.jsxi:168
+function parseDebuggerStatement (){                                                // parse_statements.jsxi:169
+	expectKeyword ('debugger');                                                    // parse_statements.jsxi:170
+	consumeSemicolon ();                                                           // parse_statements.jsxi:171
+	return debuggerStatement ();                                                   // parse_statements.jsxi:172
 }
 
-function parseIfStatement (){                                                      // parse_statements.jsxi:171
-	expectKeyword ('if');                                                          // parse_statements.jsxi:172
-	expect ('(');                                                                  // parse_statements.jsxi:173
+function parseIfStatement (){                                                      // parse_statements.jsxi:175
+	expectKeyword ('if');                                                          // parse_statements.jsxi:176
+	expect ('(');                                                                  // parse_statements.jsxi:177
 	
 	var test = parseExpression (), consequent, alternate;
 	
-	expect (')');                                                                  // parse_statements.jsxi:179
-	consequent = parseStatement ();                                                // parse_statements.jsxi:181
+	expect (')');                                                                  // parse_statements.jsxi:183
+	consequent = parseStatement ();                                                // parse_statements.jsxi:185
 	
-	if (matchKeyword ('else')){                                                    // parse_statements.jsxi:183
-		lex ();                                                                    // parse_statements.jsxi:184
-		alternate = parseStatement ();                                             // parse_statements.jsxi:185
+	if (matchKeyword ('else')){                                                    // parse_statements.jsxi:187
+		lex ();                                                                    // parse_statements.jsxi:188
+		alternate = parseStatement ();                                             // parse_statements.jsxi:189
 	} else
-		alternate = null;                                                          // parse_statements.jsxi:187
-	return ifStatement (test, consequent, alternate);                              // parse_statements.jsxi:189
+		alternate = null;                                                          // parse_statements.jsxi:191
+	return ifStatement (test, consequent, alternate);                              // parse_statements.jsxi:193
 }
 
-function parseDoWhileStatement (){                                                 // parse_statements.jsxi:192
-	expectKeyword ('do');                                                          // parse_statements.jsxi:193
+function parseDoWhileStatement (){                                                 // parse_statements.jsxi:196
+	expectKeyword ('do');                                                          // parse_statements.jsxi:197
 	
 	var body = parseStatement ();
 	
-	expectKeyword ('while');                                                       // parse_statements.jsxi:197
-	expect ('(');                                                                  // parse_statements.jsxi:198
+	expectKeyword ('while');                                                       // parse_statements.jsxi:201
+	expect ('(');                                                                  // parse_statements.jsxi:202
 	
 	var test = parseExpression ();
 	
-	expect (')');                                                                  // parse_statements.jsxi:202
-	matchLex (';');                                                                // parse_statements.jsxi:203
-	return doWhileStatement (body, test);                                          // parse_statements.jsxi:205
+	expect (')');                                                                  // parse_statements.jsxi:206
+	matchLex (';');                                                                // parse_statements.jsxi:207
+	return doWhileStatement (body, test);                                          // parse_statements.jsxi:209
 }
 
-function parseWhileStatement (){                                                   // parse_statements.jsxi:208
-	expectKeyword ('while');                                                       // parse_statements.jsxi:209
-	expect ('(');                                                                  // parse_statements.jsxi:210
+function parseWhileStatement (){                                                   // parse_statements.jsxi:212
+	expectKeyword ('while');                                                       // parse_statements.jsxi:213
+	expect ('(');                                                                  // parse_statements.jsxi:214
 	
 	var test = parseExpression ();
 	
-	expect (')');                                                                  // parse_statements.jsxi:214
-	return whileStatement (test, parseStatement ());                               // parse_statements.jsxi:216
+	expect (')');                                                                  // parse_statements.jsxi:218
+	return whileStatement (test, parseStatement ());                               // parse_statements.jsxi:220
 }
 
-function parseForStatement (){                                                     // parse_statements.jsxi:219
-	var init = null,                                                               // parse_statements.jsxi:220
-		test = null,                                                               // parse_statements.jsxi:220
-		update = null,                                                             // parse_statements.jsxi:220
-		left,                                                                      // parse_statements.jsxi:221
-		right,                                                                     // parse_statements.jsxi:221
-		body,                                                                      // parse_statements.jsxi:221
-		temp,                                                                      // parse_statements.jsxi:221
-		result,                                                                    // parse_statements.jsxi:221
-		arrayMode,                                                                 // parse_statements.jsxi:221
-		identifierMode,                                                            // parse_statements.jsxi:222
-		propertyName;                                                              // parse_statements.jsxi:222
+function parseForStatement (){                                                     // parse_statements.jsxi:223
+	var init = null,                                                               // parse_statements.jsxi:224
+		test = null,                                                               // parse_statements.jsxi:224
+		update = null,                                                             // parse_statements.jsxi:224
+		left,                                                                      // parse_statements.jsxi:225
+		right,                                                                     // parse_statements.jsxi:225
+		body,                                                                      // parse_statements.jsxi:225
+		temp,                                                                      // parse_statements.jsxi:225
+		result,                                                                    // parse_statements.jsxi:225
+		arrayMode,                                                                 // parse_statements.jsxi:225
+		identifierMode,                                                            // parse_statements.jsxi:226
+		propertyName;                                                              // parse_statements.jsxi:226
 	
-	expectKeyword ('for');                                                         // parse_statements.jsxi:224
-	expect ('(');                                                                  // parse_statements.jsxi:225
+	expectKeyword ('for');                                                         // parse_statements.jsxi:228
+	expect ('(');                                                                  // parse_statements.jsxi:229
 	
-	if (!matchLex (';')){                                                          // parse_statements.jsxi:227
-		if (matchKeywordLex ('var')){                                              // parse_statements.jsxi:228
-			state.allowIn = false;                                                 // parse_statements.jsxi:229
-			init = variableDeclaration (parseVariableDeclarators (false));         // parse_statements.jsxi:230
-			state.allowIn = true;                                                  // parse_statements.jsxi:231
+	if (!matchLex (';')){                                                          // parse_statements.jsxi:231
+		if (matchKeywordLex ('var')){                                              // parse_statements.jsxi:232
+			state.allowIn = false;                                                 // parse_statements.jsxi:233
+			init = variableDeclaration (parseVariableDeclarators (false));         // parse_statements.jsxi:234
+			state.allowIn = true;                                                  // parse_statements.jsxi:235
 			
 			if (init.declarations.length <= 2 && (matchKeyword ('in-array') || matchKeyword ('in-object') || matchKeyword ('in'))){
-				arrayMode = lex ().value;                                          // parse_statements.jsxi:234
-				left = init;                                                       // parse_statements.jsxi:235
-				right = parseExpression ();                                        // parse_statements.jsxi:236
-				init = null;                                                       // parse_statements.jsxi:237
+				arrayMode = lex ().value;                                          // parse_statements.jsxi:238
+				left = init;                                                       // parse_statements.jsxi:239
+				right = parseExpression ();                                        // parse_statements.jsxi:240
+				init = null;                                                       // parse_statements.jsxi:241
 			}
 		} else {
-			state.allowIn = false;                                                 // parse_statements.jsxi:240
-			init = parseExpression ();                                             // parse_statements.jsxi:241
-			state.allowIn = true;                                                  // parse_statements.jsxi:242
+			state.allowIn = false;                                                 // parse_statements.jsxi:244
+			init = parseExpression ();                                             // parse_statements.jsxi:245
+			state.allowIn = true;                                                  // parse_statements.jsxi:246
 			
 			if (matchKeyword ('in-array') || matchKeyword ('in-object') || matchKeyword ('in')){
-				if (init.type !== Syntax.SequenceExpression)                       // parse_statements.jsxi:245
-					leftSideOnly (init);                                           // parse_statements.jsxi:246
-				else if (init.expressions.length !== 2)                            // parse_statements.jsxi:247
-					leftSideOnly ();                                               // parse_statements.jsxi:248
+				if (init.type !== Syntax.SequenceExpression)                       // parse_statements.jsxi:249
+					leftSideOnly (init);                                           // parse_statements.jsxi:250
+				else if (init.expressions.length !== 2)                            // parse_statements.jsxi:251
+					leftSideOnly ();                                               // parse_statements.jsxi:252
 				
-				arrayMode = lex ().value;                                          // parse_statements.jsxi:250
-				left = init;                                                       // parse_statements.jsxi:251
-				right = parseExpression ();                                        // parse_statements.jsxi:252
-				init = null;                                                       // parse_statements.jsxi:253
+				arrayMode = lex ().value;                                          // parse_statements.jsxi:254
+				left = init;                                                       // parse_statements.jsxi:255
+				right = parseExpression ();                                        // parse_statements.jsxi:256
+				init = null;                                                       // parse_statements.jsxi:257
 			}
 		}
 		
-		if (left === undefined)                                                    // parse_statements.jsxi:257
-			expect (';');                                                          // parse_statements.jsxi:258
+		if (left === undefined)                                                    // parse_statements.jsxi:261
+			expect (';');                                                          // parse_statements.jsxi:262
 	}
 	
-	if (left === undefined){                                                       // parse_statements.jsxi:261
-		if (!match (';'))                                                          // parse_statements.jsxi:262
-			test = parseExpression ();                                             // parse_statements.jsxi:263
+	if (left === undefined){                                                       // parse_statements.jsxi:265
+		if (!match (';'))                                                          // parse_statements.jsxi:266
+			test = parseExpression ();                                             // parse_statements.jsxi:267
 		
-		expect (';');                                                              // parse_statements.jsxi:265
+		expect (';');                                                              // parse_statements.jsxi:269
 		
-		if (!match (')'))                                                          // parse_statements.jsxi:267
-			update = parseExpression ();                                           // parse_statements.jsxi:268
+		if (!match (')'))                                                          // parse_statements.jsxi:271
+			update = parseExpression ();                                           // parse_statements.jsxi:272
 	}
 	
-	expect (')');                                                                  // parse_statements.jsxi:271
-	body = parseStatement ();                                                      // parse_statements.jsxi:272
+	expect (')');                                                                  // parse_statements.jsxi:275
+	body = parseStatement ();                                                      // parse_statements.jsxi:276
 	
-	if (arrayMode === 'in-array')                                                  // parse_statements.jsxi:274
+	if (arrayMode === 'in-array')                                                  // parse_statements.jsxi:278
 		if (left.type === Syntax.VariableDeclaration && left.declarations.length === 1){
 			left.declarations = [ variableDeclarator (newIdentifier ()), left.declarations [0] ];
-		} else if (left.type === Syntax.Identifier){                               // parse_statements.jsxi:277
-			left = variableDeclaration ([                                          // parse_statements.jsxi:278
-				variableDeclarator (newIdentifier ()),                             // parse_statements.jsxi:278
+		} else if (left.type === Syntax.Identifier){                               // parse_statements.jsxi:281
+			left = variableDeclaration ([                                          // parse_statements.jsxi:282
+				variableDeclarator (newIdentifier ()),                             // parse_statements.jsxi:282
 				variableDeclarator (left)
 			]);
-			identifierMode = true;                                                 // parse_statements.jsxi:279
+			identifierMode = true;                                                 // parse_statements.jsxi:283
 		}
 	
-	if (left === undefined){                                                       // parse_statements.jsxi:282
-		return forStatement (init, test, update, body);                            // parse_statements.jsxi:283
+	if (left === undefined){                                                       // parse_statements.jsxi:286
+		return forStatement (init, test, update, body);                            // parse_statements.jsxi:287
 	} else if (left.type === Syntax.SequenceExpression && left.expressions.length === 2 || identifierMode){
-		temp = body;                                                               // parse_statements.jsxi:285
-		body = blockStatement ([                                                   // parse_statements.jsxi:287
+		temp = body;                                                               // parse_statements.jsxi:289
+		body = blockStatement ([                                                   // parse_statements.jsxi:291
 			expressionStatement (assignmentExpression (identifierMode ? left.declarations [1].id : left.expressions [1], 
-				memberExpression (right,                                           // parse_statements.jsxi:290
+				memberExpression (right,                                           // parse_statements.jsxi:294
 					identifierMode ? left.declarations [0].id : left.expressions [0], 
 					true)))
 		]);
 		
-		if (temp.type === Syntax.BlockStatement)                                   // parse_statements.jsxi:292
-			Array.prototype.push.apply (body.body, temp.body);                     // parse_statements.jsxi:293
+		if (temp.type === Syntax.BlockStatement)                                   // parse_statements.jsxi:296
+			Array.prototype.push.apply (body.body, temp.body);                     // parse_statements.jsxi:297
 		else
-			body.body.push (temp);                                                 // parse_statements.jsxi:295
+			body.body.push (temp);                                                 // parse_statements.jsxi:299
 		
-		if (identifierMode)                                                        // parse_statements.jsxi:297
-			left.declarations.length = 1;                                          // parse_statements.jsxi:298
+		if (identifierMode)                                                        // parse_statements.jsxi:301
+			left.declarations.length = 1;                                          // parse_statements.jsxi:302
 		else
-			left = left.expressions [0];                                           // parse_statements.jsxi:300
+			left = left.expressions [0];                                           // parse_statements.jsxi:304
 	} else if (left.type === Syntax.VariableDeclaration && left.declarations.length === 2){
-		temp = body;                                                               // parse_statements.jsxi:302
+		temp = body;                                                               // parse_statements.jsxi:306
 		body = blockStatement ([ variableDeclaration ([ left.declarations [1] ]) ]);
 		body.body [0].declarations [0].init = memberExpression (right, left.declarations [0].id, true);
 		
-		if (temp.type === Syntax.BlockStatement)                                   // parse_statements.jsxi:306
-			Array.prototype.push.apply (body.body, temp.body);                     // parse_statements.jsxi:307
+		if (temp.type === Syntax.BlockStatement)                                   // parse_statements.jsxi:310
+			Array.prototype.push.apply (body.body, temp.body);                     // parse_statements.jsxi:311
 		else
-			body.body.push (temp);                                                 // parse_statements.jsxi:309
+			body.body.push (temp);                                                 // parse_statements.jsxi:313
 		
-		left.declarations.length = 1;                                              // parse_statements.jsxi:311
+		left.declarations.length = 1;                                              // parse_statements.jsxi:315
 	}
 	
-	if (arrayMode === 'in-array'){                                                 // parse_statements.jsxi:314
+	if (arrayMode === 'in-array'){                                                 // parse_statements.jsxi:318
 		if (left.type === Syntax.VariableDeclaration && !left.declarations [0].init)
-			left.declarations [0].init = numericLiteral (0);                       // parse_statements.jsxi:316
+			left.declarations [0].init = numericLiteral (0);                       // parse_statements.jsxi:320
 		
 		temp = left.type === Syntax.VariableDeclaration ? left.declarations [0].id : left.type === Syntax.SequenceExpression ? left.expressions [0] : left;
 		
-		if (left.type === Syntax.Identifier)                                       // parse_statements.jsxi:324
-			left = assignmentExpression (left, numericLiteral (0));                // parse_statements.jsxi:325
+		if (left.type === Syntax.Identifier)                                       // parse_statements.jsxi:328
+			left = assignmentExpression (left, numericLiteral (0));                // parse_statements.jsxi:329
 		
-		result = forStatement (left,                                               // parse_statements.jsxi:327
-			binaryExpression (temp, '<', memberExpression (right, 'length')),      // parse_statements.jsxi:329
-			unaryExpression (temp, '++', false),                                   // parse_statements.jsxi:330
-			body);                                                                 // parse_statements.jsxi:331
+		result = forStatement (left,                                               // parse_statements.jsxi:331
+			binaryExpression (temp, '<', memberExpression (right, 'length')),      // parse_statements.jsxi:333
+			unaryExpression (temp, '++', false),                                   // parse_statements.jsxi:334
+			body);                                                                 // parse_statements.jsxi:335
 	} else {
-		if (arrayMode === 'in-object'){                                            // parse_statements.jsxi:333
+		if (arrayMode === 'in-object'){                                            // parse_statements.jsxi:337
 			propertyName = left.type === Syntax.VariableDeclaration ? left.declarations [0].id.name : left.name;
 			body = ifStatement (callExpression (memberExpression (right, 'hasOwnProperty'), [ propertyName ]), 
-				body);                                                             // parse_statements.jsxi:335
+				body);                                                             // parse_statements.jsxi:339
 		}
 		
-		result = forInStatement (left, right, body);                               // parse_statements.jsxi:338
+		result = forInStatement (left, right, body);                               // parse_statements.jsxi:342
 	}
 	
 	if ((temp !== undefined || arrayMode === 'in-object') && right.type !== Syntax.Identifier){
 		var identifier = newIdentifier ();
 		
 		temp = $.extend (true, {}, 
-			right);                                                                // parse_statements.jsxi:344
+			right);                                                                // parse_statements.jsxi:348
 		
-		for (var n in right)                                                       // parse_statements.jsxi:346
-			delete right [n];                                                      // parse_statements.jsxi:347
+		for (var n in right)                                                       // parse_statements.jsxi:350
+			delete right [n];                                                      // parse_statements.jsxi:351
 		
-		right.type = Syntax.Identifier;                                            // parse_statements.jsxi:349
-		right.name = identifier;                                                   // parse_statements.jsxi:350
-		return blockStatement ([                                                   // parse_statements.jsxi:352
-			variableDeclaration ([ variableDeclarator (right, temp) ]),            // parse_statements.jsxi:352
-			result,                                                                // parse_statements.jsxi:354
+		right.type = Syntax.Identifier;                                            // parse_statements.jsxi:353
+		right.name = identifier;                                                   // parse_statements.jsxi:354
+		return blockStatement ([                                                   // parse_statements.jsxi:356
+			variableDeclaration ([ variableDeclarator (right, temp) ]),            // parse_statements.jsxi:356
+			result,                                                                // parse_statements.jsxi:358
 			expressionStatement (assignmentExpression (right, 'undefined'))
 		]);
 	}
-	return result;                                                                 // parse_statements.jsxi:359
+	return result;                                                                 // parse_statements.jsxi:363
 }
 
-function parseSwitchCase (){                                                       // parse_statements.jsxi:363
+function parseSwitchCase (){                                                       // parse_statements.jsxi:367
 	var test, consequent = [], statement;
 	
-	if (matchKeywordLex ('default')){                                              // parse_statements.jsxi:368
-		test = null;                                                               // parse_statements.jsxi:369
+	if (matchKeywordLex ('default')){                                              // parse_statements.jsxi:372
+		test = null;                                                               // parse_statements.jsxi:373
 	} else {
-		expectKeyword ('case');                                                    // parse_statements.jsxi:371
-		test = parseExpression ();                                                 // parse_statements.jsxi:372
+		expectKeyword ('case');                                                    // parse_statements.jsxi:375
+		test = parseExpression ();                                                 // parse_statements.jsxi:376
 	}
 	
-	expect (':');                                                                  // parse_statements.jsxi:375
+	expect (':');                                                                  // parse_statements.jsxi:379
 	
-	while (!match ('}') && !matchKeyword ('default') && !matchKeyword ('case'))    // parse_statements.jsxi:377
-		consequent.push (parseStatement ());                                       // parse_statements.jsxi:378
+	while (!match ('}') && !matchKeyword ('default') && !matchKeyword ('case'))    // parse_statements.jsxi:381
+		consequent.push (parseStatement ());                                       // parse_statements.jsxi:382
 	return { type: Syntax.SwitchCase, test: test, consequent: consequent };
 }
 
-function parseSwitchStatement (){                                                  // parse_statements.jsxi:387
-	expectKeyword ('switch');                                                      // parse_statements.jsxi:388
-	expect ('(');                                                                  // parse_statements.jsxi:389
+function parseSwitchStatement (){                                                  // parse_statements.jsxi:391
+	expectKeyword ('switch');                                                      // parse_statements.jsxi:392
+	expect ('(');                                                                  // parse_statements.jsxi:393
 	
 	var discriminant = parseExpression (), cases = [];
 	
-	expect (')');                                                                  // parse_statements.jsxi:393
-	expect ('{');                                                                  // parse_statements.jsxi:394
+	expect (')');                                                                  // parse_statements.jsxi:397
+	expect ('{');                                                                  // parse_statements.jsxi:398
 	
-	while (!matchLex ('}'))                                                        // parse_statements.jsxi:396
-		cases.push (parseSwitchCase ());                                           // parse_statements.jsxi:397
+	while (!matchLex ('}'))                                                        // parse_statements.jsxi:400
+		cases.push (parseSwitchCase ());                                           // parse_statements.jsxi:401
 	return {
-		type: Syntax.SwitchStatement,                                              // parse_statements.jsxi:400
-		discriminant: discriminant,                                                // parse_statements.jsxi:401
+		type: Syntax.SwitchStatement,                                              // parse_statements.jsxi:404
+		discriminant: discriminant,                                                // parse_statements.jsxi:405
 		cases: cases
 	};
 }
 
-function parseCatchClause (){                                                      // parse_statements.jsxi:406
-	expectKeyword ('catch');                                                       // parse_statements.jsxi:407
+function parseCatchClause (){                                                      // parse_statements.jsxi:410
+	expectKeyword ('catch');                                                       // parse_statements.jsxi:411
 	
 	var param;
 	
-	if (matchLex ('(')){                                                           // parse_statements.jsxi:411
-		param = parseIdentifier ();                                                // parse_statements.jsxi:412
-		expect (')');                                                              // parse_statements.jsxi:413
+	if (matchLex ('(')){                                                           // parse_statements.jsxi:415
+		param = parseIdentifier ();                                                // parse_statements.jsxi:416
+		expect (')');                                                              // parse_statements.jsxi:417
 	} else
-		param = identifier ('e');                                                  // parse_statements.jsxi:415
-	return catchClause (param, parseBlockOrNotBlock ());                           // parse_statements.jsxi:417
+		param = identifier ('e');                                                  // parse_statements.jsxi:419
+	return catchClause (param, parseBlockOrNotBlock ());                           // parse_statements.jsxi:421
 }
 
-function parseTryStatement (){                                                     // parse_statements.jsxi:420
-	expectKeyword ('try');                                                         // parse_statements.jsxi:421
+function parseTryStatement (){                                                     // parse_statements.jsxi:424
+	expectKeyword ('try');                                                         // parse_statements.jsxi:425
 	
-	var block = parseBlockOrNotBlock (),                                           // parse_statements.jsxi:423
-		handlers = matchKeyword ('catch') ? [ parseCatchClause () ] : [],          // parse_statements.jsxi:424
+	var block = parseBlockOrNotBlock (),                                           // parse_statements.jsxi:427
+		handlers = matchKeyword ('catch') ? [ parseCatchClause () ] : [],          // parse_statements.jsxi:428
 		finalizer = matchKeywordLex ('finally') ? parseBlockOrNotBlock () : null;
 	
-	if (finalizer === null && handlers.length === 0)                               // parse_statements.jsxi:427
-		handlers.push (catchClause ('e', blockStatement ([])));                    // parse_statements.jsxi:428
-	return tryStatement (block, handlers, finalizer);                              // parse_statements.jsxi:430
+	if (finalizer === null && handlers.length === 0)                               // parse_statements.jsxi:431
+		handlers.push (catchClause ('e', blockStatement ([])));                    // parse_statements.jsxi:432
+	return tryStatement (block, handlers, finalizer);                              // parse_statements.jsxi:434
 }
 
-function parseWithStatement (){                                                    // parse_statements.jsxi:433
-	expectKeyword ('with');                                                        // parse_statements.jsxi:434
-	expect ('(');                                                                  // parse_statements.jsxi:435
+function parseWithStatement (){                                                    // parse_statements.jsxi:437
+	expectKeyword ('with');                                                        // parse_statements.jsxi:438
+	expect ('(');                                                                  // parse_statements.jsxi:439
 	
 	var object = parseExpression ();
 	
-	expect (')');                                                                  // parse_statements.jsxi:439
+	expect (')');                                                                  // parse_statements.jsxi:443
 	return {
-		type: Syntax.WithStatement,                                                // parse_statements.jsxi:442
-		object: object,                                                            // parse_statements.jsxi:443
+		type: Syntax.WithStatement,                                                // parse_statements.jsxi:446
+		object: object,                                                            // parse_statements.jsxi:447
 		body: parseStatement ()
 	};
 }
@@ -4844,214 +4857,217 @@ LiteParser.EOF = 1;                                                             
 Object.defineProperty (LiteParser.prototype,                                       // lite_parser.jsxi:10
 	'lineNumber',                                                                  // lite_parser.jsxi:10
 	{
-		get: (function (){                                                         // lite_parser.jsxi:11
-			var result = 1;
-			
-			for (var i = 0, d = this.data, n = Math.min (d.length, this.index); i < n; i ++)
-				if (d [i] === '\n')                                                // lite_parser.jsxi:16
-					result ++;                                                     // lite_parser.jsxi:17
-			return result;                                                         // lite_parser.jsxi:19
+		get: (function (arg){                                                      // lite_parser.jsxi:11
+			return this.lineNumberAt (this.index);                                 // lite_parser.jsxi:11
 		})
 	});
-Object.defineProperty (LiteParser.prototype,                                       // lite_parser.jsxi:23
-	'current',                                                                     // lite_parser.jsxi:23
+Object.defineProperty (LiteParser.prototype,                                       // lite_parser.jsxi:14
+	'current',                                                                     // lite_parser.jsxi:14
 	{
-		get: (function (arg){                                                      // lite_parser.jsxi:23
-			return this.data [this.index];                                         // lite_parser.jsxi:23
+		get: (function (arg){                                                      // lite_parser.jsxi:14
+			return this.data [this.index];                                         // lite_parser.jsxi:14
 		})
 	});
-LiteParser.prototype.replace = function (from, to, replacement){                   // lite_parser.jsxi:25
-	if (replacement === undefined)                                                 // lite_parser.jsxi:25
-		replacement = '';                                                          // lite_parser.jsxi:25
+LiteParser.prototype.replace = function (from, to, replacement){                   // lite_parser.jsxi:16
+	if (replacement === undefined)                                                 // lite_parser.jsxi:16
+		replacement = '';                                                          // lite_parser.jsxi:16
 
-	console.assert (from <= to, 'Invalid args');                                   // lite_parser.jsxi:26
+	console.assert (from <= to, 'Invalid args');                                   // lite_parser.jsxi:17
 	
 	var delta = String (replacement).length - to + from;
 	
-	if (this.index >= to)                                                          // lite_parser.jsxi:30
-		this.index += delta;                                                       // lite_parser.jsxi:31
-	else if (this.index > from)                                                    // lite_parser.jsxi:32
-		this.update (from);                                                        // lite_parser.jsxi:33
+	if (this.index >= to)                                                          // lite_parser.jsxi:21
+		this.index += delta;                                                       // lite_parser.jsxi:22
+	else if (this.index > from)                                                    // lite_parser.jsxi:23
+		this.update (from);                                                        // lite_parser.jsxi:24
 	
 	this.update (this.data = this.data.substr (0, from) + replacement + this.data.substr (to));
-	return delta;                                                                  // lite_parser.jsxi:37
+	return delta;                                                                  // lite_parser.jsxi:28
 };
-LiteParser.prototype.substring = function (from, to){                              // lite_parser.jsxi:40
-	return this.data.substring (from, to);                                         // lite_parser.jsxi:41
+LiteParser.prototype.lineNumberAt = function (index){                              // lite_parser.jsxi:31
+	var result = 1;
+	
+	for (var i = 0, d = this.data, n = Math.min (d.length, index); i < n; i ++)    // lite_parser.jsxi:33
+		if (d [i] === '\n')                                                        // lite_parser.jsxi:34
+			result ++;                                                             // lite_parser.jsxi:35
+	return result;                                                                 // lite_parser.jsxi:36
 };
-LiteParser.prototype.getPosition = function (data, delta){                         // lite_parser.jsxi:44
+LiteParser.prototype.substring = function (from, to){                              // lite_parser.jsxi:39
+	return this.data.substring (from, to);                                         // lite_parser.jsxi:40
+};
+LiteParser.prototype.getPosition = function (data, delta){                         // lite_parser.jsxi:43
 	return { index: this.index, lineNumber: this.lineNumber };
 };
-LiteParser.prototype.update = function (data, index){                              // lite_parser.jsxi:50
-	if (typeof data === 'string')                                                  // lite_parser.jsxi:51
-		this.data = data;                                                          // lite_parser.jsxi:52
+LiteParser.prototype.update = function (data, index){                              // lite_parser.jsxi:49
+	if (typeof data === 'string')                                                  // lite_parser.jsxi:50
+		this.data = data;                                                          // lite_parser.jsxi:51
 	
-	if (typeof index === 'number')                                                 // lite_parser.jsxi:54
-		this.index = index;                                                        // lite_parser.jsxi:55
-	else if (typeof data === 'number')                                             // lite_parser.jsxi:56
-		this.index = data;                                                         // lite_parser.jsxi:57
-	return this;                                                                   // lite_parser.jsxi:59
+	if (typeof index === 'number')                                                 // lite_parser.jsxi:53
+		this.index = index;                                                        // lite_parser.jsxi:54
+	else if (typeof data === 'number')                                             // lite_parser.jsxi:55
+		this.index = data;                                                         // lite_parser.jsxi:56
+	return this;                                                                   // lite_parser.jsxi:58
 };
-LiteParser.prototype.on = function (){                                             // lite_parser.jsxi:62
-	var args = Array.prototype.slice.call (arguments),                             // lite_parser.jsxi:63
-		comment,                                                                   // lite_parser.jsxi:64
-		handler;                                                                   // lite_parser.jsxi:65
+LiteParser.prototype.on = function (){                                             // lite_parser.jsxi:61
+	var args = Array.prototype.slice.call (arguments),                             // lite_parser.jsxi:62
+		comment,                                                                   // lite_parser.jsxi:63
+		handler;                                                                   // lite_parser.jsxi:64
 	
-	if (typeof args [args.length - 2] === 'function')                              // lite_parser.jsxi:67
-		comment = args.pop ();                                                     // lite_parser.jsxi:68
+	if (typeof args [args.length - 2] === 'function')                              // lite_parser.jsxi:66
+		comment = args.pop ();                                                     // lite_parser.jsxi:67
 	
-	handler = args.pop ();                                                         // lite_parser.jsxi:70
+	handler = args.pop ();                                                         // lite_parser.jsxi:69
 	
-	for (var __1i = 0; __1i < args.length; __1i ++){                               // lite_parser.jsxi:72
+	for (var __1i = 0; __1i < args.length; __1i ++){                               // lite_parser.jsxi:71
 		var entry = args [__1i];
 		
-		this.binded.push ({ match: entry, handler: handler, comment: comment });   // lite_parser.jsxi:73
+		this.binded.push ({ match: entry, handler: handler, comment: comment });   // lite_parser.jsxi:72
 	}
-	return this;                                                                   // lite_parser.jsxi:75
+	return this;                                                                   // lite_parser.jsxi:74
 };
-LiteParser.prototype.debug = function (from, to){                                  // lite_parser.jsxi:78
-	this.debugMode = true;                                                         // lite_parser.jsxi:79
-	return this;                                                                   // lite_parser.jsxi:80
+LiteParser.prototype.debug = function (from, to){                                  // lite_parser.jsxi:77
+	this.debugMode = true;                                                         // lite_parser.jsxi:78
+	return this;                                                                   // lite_parser.jsxi:79
 };
-LiteParser.prototype.findSimple = function (){                                     // lite_parser.jsxi:83
+LiteParser.prototype.findSimple = function (){                                     // lite_parser.jsxi:82
 	var value = { index: Number.POSITIVE_INFINITY };
 	
-	for (var id = 0; id < arguments.length; id ++){                                // lite_parser.jsxi:86
+	for (var id = 0; id < arguments.length; id ++){                                // lite_parser.jsxi:85
 		var arg = arguments [id];
 		
-		if (arg === LiteParser.EOF){                                               // lite_parser.jsxi:87
-			if (value.index === Number.POSITIVE_INFINITY)                          // lite_parser.jsxi:88
-				value = { id: id, index: this.data.length, value: '' };            // lite_parser.jsxi:89
+		if (arg === LiteParser.EOF){                                               // lite_parser.jsxi:86
+			if (value.index === Number.POSITIVE_INFINITY)                          // lite_parser.jsxi:87
+				value = { id: id, index: this.data.length, value: '' };            // lite_parser.jsxi:88
 		} else {
 			var index = this.data.indexOf (arg, this.index);
 			
-			if (index !== - 1 && index < value.index)                              // lite_parser.jsxi:97
-				value = { id: id, index: index, value: arg };                      // lite_parser.jsxi:98
+			if (index !== - 1 && index < value.index)                              // lite_parser.jsxi:96
+				value = { id: id, index: index, value: arg };                      // lite_parser.jsxi:97
 		}
 	}
 	
-	if (value.index === Number.POSITIVE_INFINITY){                                 // lite_parser.jsxi:105
+	if (value.index === Number.POSITIVE_INFINITY){                                 // lite_parser.jsxi:104
 		return null;
 	} else {
-		this.index = value.index + value.value.length;                             // lite_parser.jsxi:108
-		return value;                                                              // lite_parser.jsxi:109
+		this.index = value.index + value.value.length;                             // lite_parser.jsxi:107
+		return value;                                                              // lite_parser.jsxi:108
 	}
 };
-LiteParser.prototype.findNext = function (){                                       // lite_parser.jsxi:113
-	return this.innerFindNext (arguments);                                         // lite_parser.jsxi:114
+LiteParser.prototype.findNext = function (){                                       // lite_parser.jsxi:112
+	return this.innerFindNext (arguments);                                         // lite_parser.jsxi:113
 };
-LiteParser.prototype.whatNext = function (){                                       // lite_parser.jsxi:117
-	return this.innerFindNext (arguments, true);                                   // lite_parser.jsxi:118
+LiteParser.prototype.whatNext = function (){                                       // lite_parser.jsxi:116
+	return this.innerFindNext (arguments, true);                                   // lite_parser.jsxi:117
 };
-LiteParser.prototype.innerFindNext = function (args, fixedMode){                   // lite_parser.jsxi:121
-	if (fixedMode === undefined)                                                   // lite_parser.jsxi:121
-		fixedMode = false;                                                         // lite_parser.jsxi:121
+LiteParser.prototype.innerFindNext = function (args, fixedMode){                   // lite_parser.jsxi:120
+	if (fixedMode === undefined)                                                   // lite_parser.jsxi:120
+		fixedMode = false;                                                         // lite_parser.jsxi:120
 
-	console.assert (args && typeof args.length === 'number',                       // lite_parser.jsxi:122
-		'Invalid argument type');                                                  // lite_parser.jsxi:122
+	console.assert (args && typeof args.length === 'number',                       // lite_parser.jsxi:121
+		'Invalid argument type');                                                  // lite_parser.jsxi:121
 	
-	function indexOfExt (str, what, pos, id){                                      // lite_parser.jsxi:124
-		if (what === LiteParser.EOF){                                              // lite_parser.jsxi:125
+	function indexOfExt (str, what, pos, id){                                      // lite_parser.jsxi:123
+		if (what === LiteParser.EOF){                                              // lite_parser.jsxi:124
 			return { id: id, index: str.length, value: what };
-		} else if (what instanceof RegExp){                                        // lite_parser.jsxi:131
+		} else if (what instanceof RegExp){                                        // lite_parser.jsxi:130
 			var temp = str.substring (pos).match (what);
 			return {
-				id: id,                                                            // lite_parser.jsxi:134
-				index: temp ? temp.index + pos : - 1,                              // lite_parser.jsxi:135
-				value: temp ? temp [0] : null,                                     // lite_parser.jsxi:136
+				id: id,                                                            // lite_parser.jsxi:133
+				index: temp ? temp.index + pos : - 1,                              // lite_parser.jsxi:134
+				value: temp ? temp [0] : null,                                     // lite_parser.jsxi:135
 				raw: temp
 			};
-		} else if (typeof what === 'string'){                                      // lite_parser.jsxi:139
+		} else if (typeof what === 'string'){                                      // lite_parser.jsxi:138
 			return { id: id, index: str.indexOf (what, pos), value: what };
 		} else
-			return console.assert (true, 'Invalid argument type');                 // lite_parser.jsxi:146
+			return console.assert (true, 'Invalid argument type');                 // lite_parser.jsxi:145
 	}
 	
-	var value = { index: Number.POSITIVE_INFINITY },                               // lite_parser.jsxi:148
-		oldIndex = this.index,                                                     // lite_parser.jsxi:149
-		bindedObj,                                                                 // lite_parser.jsxi:150
-		result,                                                                    // lite_parser.jsxi:151
-		temp;                                                                      // lite_parser.jsxi:152
+	var value = { index: Number.POSITIVE_INFINITY },                               // lite_parser.jsxi:147
+		oldIndex = this.index,                                                     // lite_parser.jsxi:148
+		bindedObj,                                                                 // lite_parser.jsxi:149
+		result,                                                                    // lite_parser.jsxi:150
+		temp;                                                                      // lite_parser.jsxi:151
 	
 	{
 		var __1j = this.binded;
 		
-		for (var i = 0; i < __1j.length; i ++){                                    // lite_parser.jsxi:154
+		for (var i = 0; i < __1j.length; i ++){                                    // lite_parser.jsxi:153
 			var arg = __1j [i];
 			
-			temp = indexOfExt (this.data, arg.match, this.index, i);               // lite_parser.jsxi:155
+			temp = indexOfExt (this.data, arg.match, this.index, i);               // lite_parser.jsxi:154
 			
-			if (temp.index !== - 1 && temp.index < value.index){                   // lite_parser.jsxi:157
-				value = temp;                                                      // lite_parser.jsxi:158
-				bindedObj = arg;                                                   // lite_parser.jsxi:159
+			if (temp.index !== - 1 && temp.index < value.index){                   // lite_parser.jsxi:156
+				value = temp;                                                      // lite_parser.jsxi:157
+				bindedObj = arg;                                                   // lite_parser.jsxi:158
 			}
 		}
 		
 		__1j = undefined;
 	}
 	
-	for (var i = 0; i < args.length; i ++){                                        // lite_parser.jsxi:163
+	for (var i = 0; i < args.length; i ++){                                        // lite_parser.jsxi:162
 		var arg = args [i];
 		
-		temp = indexOfExt (this.data, arg, this.index, i);                         // lite_parser.jsxi:164
+		temp = indexOfExt (this.data, arg, this.index, i);                         // lite_parser.jsxi:163
 		
-		if (temp.index !== - 1 && temp.index < value.index){                       // lite_parser.jsxi:166
-			value = temp;                                                          // lite_parser.jsxi:167
-			bindedObj = null;                                                      // lite_parser.jsxi:168
+		if (temp.index !== - 1 && temp.index < value.index){                       // lite_parser.jsxi:165
+			value = temp;                                                          // lite_parser.jsxi:166
+			bindedObj = null;                                                      // lite_parser.jsxi:167
 		}
 	}
 	
-	if (value.index === Number.POSITIVE_INFINITY)                                  // lite_parser.jsxi:172
+	if (value.index === Number.POSITIVE_INFINITY)                                  // lite_parser.jsxi:171
 		return null;
 	
-	this.moveTo (value);                                                           // lite_parser.jsxi:175
+	this.moveTo (value);                                                           // lite_parser.jsxi:174
 	
-	if (!bindedObj){                                                               // lite_parser.jsxi:177
-		result = value;                                                            // lite_parser.jsxi:178
-	} else if (this.debugMode){                                                    // lite_parser.jsxi:179
-		var from = this.lineNumber,                                                // lite_parser.jsxi:180
-			fromIndex = this.index,                                                // lite_parser.jsxi:181
-			temp = bindedObj.handler.call (this, value),                           // lite_parser.jsxi:182
-			to = this.lineNumber,                                                  // lite_parser.jsxi:183
-			toIndex = this.index,                                                  // lite_parser.jsxi:184
-			log;                                                                   // lite_parser.jsxi:185
+	if (!bindedObj){                                                               // lite_parser.jsxi:176
+		result = value;                                                            // lite_parser.jsxi:177
+	} else if (this.debugMode){                                                    // lite_parser.jsxi:178
+		var from = this.lineNumber,                                                // lite_parser.jsxi:179
+			fromIndex = this.index,                                                // lite_parser.jsxi:180
+			temp = bindedObj.handler.call (this, value),                           // lite_parser.jsxi:181
+			to = this.lineNumber,                                                  // lite_parser.jsxi:182
+			toIndex = this.index,                                                  // lite_parser.jsxi:183
+			log;                                                                   // lite_parser.jsxi:184
 		
-		if (bindedObj.comment){                                                    // lite_parser.jsxi:187
+		if (bindedObj.comment){                                                    // lite_parser.jsxi:186
 			log = '[LiteParser] ' + (typeof bindedObj.comment === 'string' ? bindedObj.comment : bindedObj.comment.name) + ' at ' + from + ' (' + fromIndex + ':' + toIndex + '): ' + (typeof bindedObj.comment === 'string' ? this.data.substring (fromIndex, toIndex) : bindedObj.comment.call (this, fromIndex, toIndex, value)).replace (/[\n\r]+/g, '\\n');
 			
-			if (log.length > 100)                                                  // lite_parser.jsxi:201
-				log = log.substr (0, 48) + '...' + log.slice (- 49);               // lite_parser.jsxi:202
+			if (log.length > 100)                                                  // lite_parser.jsxi:200
+				log = log.substr (0, 48) + '...' + log.slice (- 49);               // lite_parser.jsxi:201
 			
-			console.log (log);                                                     // lite_parser.jsxi:204
+			console.log (log);                                                     // lite_parser.jsxi:203
 		}
 		
-		result = temp ? this.innerFindNext (args, fixedMode) : null;               // lite_parser.jsxi:207
+		result = temp ? this.innerFindNext (args, fixedMode) : null;               // lite_parser.jsxi:206
 	} else
 		result = bindedObj.handler.call (this, value) ? this.innerFindNext (args, fixedMode) : null;
 	
-	if (fixedMode)                                                                 // lite_parser.jsxi:212
-		this.index = oldIndex;                                                     // lite_parser.jsxi:213
-	return result;                                                                 // lite_parser.jsxi:215
+	if (fixedMode)                                                                 // lite_parser.jsxi:211
+		this.index = oldIndex;                                                     // lite_parser.jsxi:212
+	return result;                                                                 // lite_parser.jsxi:214
 };
-LiteParser.prototype.moveTo = function (arg){                                      // lite_parser.jsxi:218
-	this.index = arg.index + arg.value.length;                                     // lite_parser.jsxi:219
+LiteParser.prototype.moveTo = function (arg){                                      // lite_parser.jsxi:217
+	this.index = arg.index + arg.value.length;                                     // lite_parser.jsxi:218
 };
-LiteParser.prototype.findHere = function (arg){                                    // lite_parser.jsxi:222
+LiteParser.prototype.findHere = function (arg){                                    // lite_parser.jsxi:221
 	var args = Array.prototype.slice.call (arguments, arg instanceof Array ? 1 : 0), 
-		operators = arg instanceof Array ? arg : [ '(', '{', '[' ],                // lite_parser.jsxi:224
-		others = { '(': ')', '{': '}', '[': ']' },                                 // lite_parser.jsxi:225
-		found,                                                                     // lite_parser.jsxi:226
-		temp;                                                                      // lite_parser.jsxi:227
+		operators = arg instanceof Array ? arg : [ '(', '{', '[' ],                // lite_parser.jsxi:223
+		others = { '(': ')', '{': '}', '[': ']' },                                 // lite_parser.jsxi:224
+		found,                                                                     // lite_parser.jsxi:225
+		temp;                                                                      // lite_parser.jsxi:226
 	
-	while (found = this.innerFindNext (args.concat (operators))){                  // lite_parser.jsxi:229
-		temp = operators.indexOf (found.value);                                    // lite_parser.jsxi:230
+	while (found = this.innerFindNext (args.concat (operators))){                  // lite_parser.jsxi:228
+		temp = operators.indexOf (found.value);                                    // lite_parser.jsxi:229
 		
-		if (operators.indexOf (found.value) !== - 1){                              // lite_parser.jsxi:231
-			console.assert (others [found.value],                                  // lite_parser.jsxi:232
-				'Pair for ' + found.value + ' not found');                         // lite_parser.jsxi:232
-			this.findHere (others [found.value]);                                  // lite_parser.jsxi:233
-		} else if (args.indexOf (found.value) !== - 1)                             // lite_parser.jsxi:234
-			return found;                                                          // lite_parser.jsxi:235
+		if (operators.indexOf (found.value) !== - 1){                              // lite_parser.jsxi:230
+			console.assert (others [found.value],                                  // lite_parser.jsxi:231
+				'Pair for ' + found.value + ' not found');                         // lite_parser.jsxi:231
+			this.findHere (others [found.value]);                                  // lite_parser.jsxi:232
+		} else if (args.indexOf (found.value) !== - 1)                             // lite_parser.jsxi:233
+			return found;                                                          // lite_parser.jsxi:234
 	}
 	return null;
 };
@@ -5648,7 +5664,7 @@ function macrosParse (source, level, context){                                  
 		
 		temp = liteParser.whatNext (/[^\s]/);                                      // macro_process.jsxi:114
 		
-		if (temp && (temp.value === '{' || temp.value === '(')){                   // macro_process.jsxi:115
+		if (temp && (temp.value === '{' || temp.value === '(') && liteParser.lineNumberAt (temp.index) === liteParser.lineNumber){
 			liteParser.moveTo (temp);                                              // macro_process.jsxi:116
 			
 			if (temp.value === '{'){                                               // macro_process.jsxi:118

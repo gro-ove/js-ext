@@ -27,34 +27,40 @@ var helpers;
 // TODO: Переделать всё нормально
 
 function jsxParse (code, args, callback){
+	var error, result;
+	
 	try {
-		source          = String (code).replace (/(\r\n|\r)/g, '\n') + '\n';
-		length          = source.length;
-		index           = 0;
-		lineNumber      = source.length ? 1 : 0;
-		buffer          = null;
-		state 			= { allowIn: true, inClass: false, parsingComplete: false, preventSequence: false, asynchronous: false };
-		options		    = args || { filename: '[ not a file ]', insertReturn: false, initializationAllowed: false };
-		helpers 		= new HelpersManager ();
-
-		var error 		= null,
-			result 		= parseProgram ();
+		source      = String (code).replace (/(\r\n|\r)/g, '\n') + '\n';
+		length      = source.length;
+		index       = 0;
+		lineNumber  = source.length ? 1 : 0;
+		buffer      = null;
+		state 		= { allowIn: true, inClass: false, parsingComplete: false, preventSequence: false, asynchronous: false };
+		options		= args || { filename: '[ not a file ]', insertReturn: false, initializationAllowed: false };
+		helpers 	= new HelpersManager ();
+		result 		= parseProgram ();
 	} catch {
-		error 			= e;
+		error 		= e;
 	} finally {
-		source 			= length 
-						= index 
-						= lineNumber 
-						= buffer 
-						= state 
-						= options 
-						= null;
+		source 		= length 
+					= index 
+					= lineNumber 
+					= buffer 
+					= state 
+					= options 
+					= null;
 
 		if (typeof callback === 'function')
 			callback (error, result, helpers.helpers);
-		else if (error !== null)
+		else if (error)
 			throw error;
 		else
 			return result;
 	}
 }
+
+function warning (what, location)
+	Warnings.warn (what, { 
+		filename: 		location && location.filename || options && options.filename, 
+		lineNumber: 	location && location.lineNumber || lineNumber 
+	});
