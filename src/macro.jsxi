@@ -179,46 +179,40 @@
 		try {
 			for (var id, arg in-array this.arguments)
 				if (arg.type === 'callback' && typeof args [id] !== 'function')
-					throw new MacroError (this.name, args, 'Callback requested');
+					throw new Error ('Wrong arg');
 
-			return this.callee.apply (
-				object,
-				args.map (
-					lambda (value, pos){
-						switch (this.arguments [pos] && this.arguments [pos].type){
-							case 'boolean':
-								return !!value;
-							case 'string':
-								return String (value);
-							case 'number':
-								return +value;
-							case 'object':
-								return typeof value === 'object' ? value : null;
-							default:
-								return value;
-						}
-					}.bind (this)
-				)
-			)
+			return this.callee.apply (object,
+				args.map (lambda (value, pos){
+					switch (this.arguments [pos] && this.arguments [pos].type){
+						case 'boolean': 	return !!value;
+						case 'string': 		return String (value);
+						case 'number': 		return +value;
+						case 'object': 		return typeof value === 'object' ? value : null;
+						default: 			return value;
+					}
+				}.bind (this)));
 		} catch {
 			if (e.name === 'MacroError')
 				throw e;
 			else
-				throw new MacroError (this.name, args, e);
+				throw new MacroError (this.name, args, context, e);
 		}
 	}
 
-	function MacroError (name, args, parent, message){
+	function MacroError (name, args, context, parent, message){
 		if (typeof args === 'string'){
 			message 	= args;
 			args 		= undefined;
 			parent 		= undefined;
 		}
 
-		var result = new Error ('@' + name 
-			+ (args ? ' (' + Array.prototype.map.call (args, lambda JSON.stringify (arg)).join (', ') + ')' : '') 
-			+ (parent ? ':\n' + parent.stack : message ? ': ' + message : ''));
-		result.name 		= 'MacroError';
+		var result = new Error ('@%0%1 [%2]:\n\t%3' (
+			name, 
+			args ? ' (' + [].map.call (args, JSON.stringify).join (', ') + ')' : '',
+			context ? context.file.filename : '<unknown context>',
+			parent ? parent.stack.replace (/\n/g, '\n\t') : message || '<unknown message>'));
+		result.name 	= 'MacroError';
+		
 		return result;
 	};
 	

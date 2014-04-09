@@ -92,6 +92,7 @@
 		var resultHandler = function (answer){
 			if (this.result !== undefined)
 				throw new Error ('Callback already called');
+			
 			this.log ('call complete');
 
 			if (answer === undefined)
