@@ -1816,18 +1816,18 @@ function doClasses (statements, callback){                                      
 				for (var __p = 0; __p < staticFields.length; __p ++){              // do_classes.jsxi:809
 					var field = staticFields [__p];
 					
-					if (field.publicMode === 'private')                            // do_classes.jsxi:816
-						result [0].declarations.push (field);                      // do_classes.jsxi:817
+					if (field.publicMode === 'private')                            // do_classes.jsxi:810
+						result [0].declarations.push (field);                      // do_classes.jsxi:811
 					else
 						result.push (assignmentStatement (memberExpression (classEntry.id.name, field.id), 
-							field.init || 'undefined'));                           // do_classes.jsxi:819
+							field.init || 'undefined'));                           // do_classes.jsxi:813
 				}
 				
-				for (var __q = 0; __q < staticMethods.length; __q ++){             // do_classes.jsxi:823
+				for (var __q = 0; __q < staticMethods.length; __q ++){             // do_classes.jsxi:819
 					var method = staticMethods [__q];
 					
-					if (method.publicMode === 'private')                           // do_classes.jsxi:824
-						result.push (method);                                      // do_classes.jsxi:825
+					if (method.publicMode === 'private')                           // do_classes.jsxi:820
+						result.push (method);                                      // do_classes.jsxi:821
 					else
 						result.push (expressionStatement (assignmentExpression (memberExpression (classEntry.id.name, method.id), 
 							functionExpression (null, method.params, method.body))));
@@ -1835,60 +1835,60 @@ function doClasses (statements, callback){                                      
 			} else {
 				var properties = [];
 				
-				result = [                                                         // do_classes.jsxi:833
+				result = [                                                         // do_classes.jsxi:829
 					oneVariableDeclaration (classEntry.id, objectExpression (properties))
 				];
 				
-				for (var __r = 0; __r < staticFields.length; __r ++){              // do_classes.jsxi:836
+				for (var __r = 0; __r < staticFields.length; __r ++){              // do_classes.jsxi:832
 					var field = staticFields [__r];
 					
-					if (field.publicMode === 'private')                            // do_classes.jsxi:843
-						result [0].declarations.push (field);                      // do_classes.jsxi:844
+					if (field.publicMode === 'private')                            // do_classes.jsxi:839
+						result [0].declarations.push (field);                      // do_classes.jsxi:840
 					else
 						properties.push (property (field.id, field.init || 'undefined'));
 				}
 				
-				for (var __s = 0; __s < staticMethods.length; __s ++){             // do_classes.jsxi:850
+				for (var __s = 0; __s < staticMethods.length; __s ++){             // do_classes.jsxi:846
 					var method = staticMethods [__s];
 					
-					if (method.publicMode === 'private')                           // do_classes.jsxi:851
-						result.push (method);                                      // do_classes.jsxi:852
+					if (method.publicMode === 'private')                           // do_classes.jsxi:847
+						result.push (method);                                      // do_classes.jsxi:848
 					else
-						properties.push (property (method.id,                      // do_classes.jsxi:854
+						properties.push (property (method.id,                      // do_classes.jsxi:850
 							functionExpression (null, method.params, method.body)));
 				}
 			}
 			
-			if (initializer.body.body.length > 0)                                  // do_classes.jsxi:859
+			if (initializer.body.body.length > 0)                                  // do_classes.jsxi:855
 				result.push (expressionStatement (callExpression (initializer)));
 			
-			if (anonymousFunction){                                                // do_classes.jsxi:863
-				result.push (returnStatement (classEntry.id.name));                // do_classes.jsxi:864
+			if (anonymousFunction){                                                // do_classes.jsxi:859
+				result.push (returnStatement (classEntry.id.name));                // do_classes.jsxi:860
 				return [
 					oneVariableDeclaration (classEntry.id, callFunctionExpression (result))
 				];
 			}
-			return result;                                                         // do_classes.jsxi:868
+			return result;                                                         // do_classes.jsxi:864
 		}
 		
-		for (var __t = 0; __t < classes.length; __t ++){                           // do_classes.jsxi:871
+		for (var __t = 0; __t < classes.length; __t ++){                           // do_classes.jsxi:867
 			var classEntry = classes [__t];
 			
-			classEntry.statements = processClass (classEntry);                     // do_classes.jsxi:872
+			classEntry.statements = processClass (classEntry);                     // do_classes.jsxi:868
 		}
 	}
 	
-	function sortAndInsertClasses (){                                              // do_classes.jsxi:875
-		var sorted = classes.sort (function (a, b){                                // do_classes.jsxi:876
-			return b.weight - a.weight;                                            // do_classes.jsxi:876
+	function sortAndInsertClasses (){                                              // do_classes.jsxi:871
+		var sorted = classes.sort (function (a, b){                                // do_classes.jsxi:872
+			return b.weight - a.weight;                                            // do_classes.jsxi:872
 		});
 		
-		for (var __u = 0; __u < sorted.length; __u ++){                            // do_classes.jsxi:877
+		for (var __u = 0; __u < sorted.length; __u ++){                            // do_classes.jsxi:873
 			var current = sorted [__u];
 			
-			current.root.unshift ({                                                // do_classes.jsxi:878
-				type: Syntax.ClassDeclaration,                                     // do_classes.jsxi:878
-				name: current.id.name,                                             // do_classes.jsxi:880
+			current.root.unshift ({                                                // do_classes.jsxi:874
+				type: Syntax.ClassDeclaration,                                     // do_classes.jsxi:874
+				name: current.id.name,                                             // do_classes.jsxi:876
 				statements: current.statements
 			});
 		}
@@ -1900,22 +1900,22 @@ function doClasses (statements, callback){                                      
 		for (var __v = 0; __v < __10.length; __v ++){
 			var found = __10 [__v];
 			
-			addClass (found);                                                      // do_classes.jsxi:886
+			addClass (found);                                                      // do_classes.jsxi:882
 		}
 		
 		__10 = undefined;
 	}
 	
-	if (classes.length > 0){                                                       // do_classes.jsxi:888
-		preprocessClasses ();                                                      // do_classes.jsxi:889
-		connectClasses ();                                                         // do_classes.jsxi:890
-		processClassesMembers ();                                                  // do_classes.jsxi:891
-		processClassesMethods ();                                                  // do_classes.jsxi:892
-		processClasses ();                                                         // do_classes.jsxi:893
-		sortAndInsertClasses ();                                                   // do_classes.jsxi:894
-		callback (helpers.helpers);                                                // do_classes.jsxi:896
+	if (classes.length > 0){                                                       // do_classes.jsxi:884
+		preprocessClasses ();                                                      // do_classes.jsxi:885
+		connectClasses ();                                                         // do_classes.jsxi:886
+		processClassesMembers ();                                                  // do_classes.jsxi:887
+		processClassesMethods ();                                                  // do_classes.jsxi:888
+		processClasses ();                                                         // do_classes.jsxi:889
+		sortAndInsertClasses ();                                                   // do_classes.jsxi:890
+		callback (helpers.helpers);                                                // do_classes.jsxi:892
 	} else
-		callback ();                                                               // do_classes.jsxi:898
+		callback ();                                                               // do_classes.jsxi:894
 }
 
 function HelpersManager (){                                                        // helpers.jsxi:1
@@ -5299,17 +5299,15 @@ Macro.prototype.call = function (context, args){                                
 	} 
 };
 
-function MacroError (name, args, context, parent, message){                        // macro.jsxi:202
-	if (typeof args === 'string'){                                                 // macro.jsxi:203
-		message = args;                                                            // macro.jsxi:204
-		args = undefined;                                                          // macro.jsxi:205
-		parent = undefined;                                                        // macro.jsxi:206
-	}
+function MacroError (macroName, callArgs, context, originalError, message){        // macro.jsxi:202
+	var result = new Error ('@' + macroName + (callArgs ? '(' + Array.prototype.map.call (callArgs, 
+		function (arg){                                                            // macro.jsxi:204
+			var j = JSON.stringify (arg) || '' + arg;
+			return j.length > 10 ? j.slice (0, 7) + '...' : j;                     // macro.jsxi:206
+		}).join (', ') + ')' : '(?)') + ' [' + (context ? context.file.filename : '<unknown context>') + ']:\n\t' + (originalError && originalError.stack ? originalError.stack.replace (/\n/g, '\n\t') : originalError || '<unknown error>'));
 	
-	var result = new Error ('@' + name + (args ? ' (' + Array.prototype.map.call (args, JSON.stringify).join (', ') + ')' : '') + ' [' + (context ? context.file.filename : '<unknown context>') + ']:\n\t' + (parent ? parent.stack.replace (/\n/g, '\n\t') : message || '<unknown message>'));
-	
-	result.name = 'MacroError';                                                    // macro.jsxi:214
-	return result;                                                                 // macro.jsxi:216
+	result.name = 'MacroError';                                                    // macro.jsxi:210
+	return result;                                                                 // macro.jsxi:211
 }
 
 ;
@@ -6024,140 +6022,139 @@ function repeatString (char, count){                                            
 
 process.on ('uncaughtException',                                                   // utils.jsxi:23
 	function (arg){                                                                // utils.jsxi:23
-		return console.fatal ('    [    UNCAUGHT    ]\n\n' + (arg && arg.stack ? arg.stack : String (arg)));
+		return console.fatal ('Uncaught exception!\n' + (arg && arg.stack ? arg.stack : String (arg)));
 	});
 console.fatal = function (){                                                       // utils.jsxi:25
-	console.log ('\n    [  FATAL  ERROR  ]\n');                                    // utils.jsxi:26
+	console.log ('Fatal error!');                                                  // utils.jsxi:26
 	console.log.apply (console, arguments);                                        // utils.jsxi:27
-	console.log ('');                                                              // utils.jsxi:28
 	console.log = function (arg){};
-	setTimeout (function (arg){                                                    // utils.jsxi:30
-		return process.exit (1);                                                   // utils.jsxi:30
+	setTimeout (function (arg){                                                    // utils.jsxi:29
+		return process.exit (1);                                                   // utils.jsxi:29
 	}, 
 	500);
 };
-console.json = function (obj){                                                     // utils.jsxi:33
+console.json = function (obj){                                                     // utils.jsxi:32
 	console.log (JSON.stringify (obj, false, 
-		4));                                                                       // utils.jsxi:34
+		4));                                                                       // utils.jsxi:33
 };
 
-function set (to, from){                                                           // utils.jsxi:37
-	if (to instanceof Array && from instanceof Array){                             // utils.jsxi:38
-		to.length = from.length;                                                   // utils.jsxi:39
+function set (to, from){                                                           // utils.jsxi:36
+	if (to instanceof Array && from instanceof Array){                             // utils.jsxi:37
+		to.length = from.length;                                                   // utils.jsxi:38
 		
-		for (var index = 0; index < from.length; index ++){                        // utils.jsxi:40
+		for (var index = 0; index < from.length; index ++){                        // utils.jsxi:39
 			var element = from [index];
 			
-			to [index] = element;                                                  // utils.jsxi:41
+			to [index] = element;                                                  // utils.jsxi:40
 		}
 	} else {
-		for (var n in to)                                                          // utils.jsxi:43
-			delete to [n];                                                         // utils.jsxi:44
+		for (var n in to)                                                          // utils.jsxi:42
+			delete to [n];                                                         // utils.jsxi:43
 		
-		for (var n in from)                                                        // utils.jsxi:45
-			to [n] = from [n];                                                     // utils.jsxi:46
+		for (var n in from)                                                        // utils.jsxi:44
+			to [n] = from [n];                                                     // utils.jsxi:45
 	}
 }
 
-function convert (jsxCode, options){                                               // utils.jsxi:50
+function convert (jsxCode, options){                                               // utils.jsxi:49
 	var parsed;
 	
-	if (typeof jsxCode === 'string'){                                              // utils.jsxi:53
+	if (typeof jsxCode === 'string'){                                              // utils.jsxi:52
 		try {
-			parsed = jsxParse (jsxCode, options);                                  // utils.jsxi:55
+			parsed = jsxParse (jsxCode, options);                                  // utils.jsxi:54
 		} catch (e){
 			console.fatal ('Parsing failed (' + options.filename + ')' + ('\n' + jsxCode.trim ()).replace (/\n/g, '\n> ') + '\n\n' + e.stack);
 		} 
 	} else
-		parsed = jsxCode;                                                          // utils.jsxi:61
+		parsed = jsxCode;                                                          // utils.jsxi:60
 	
 	try {
-		if (options.filename === 'result')                                         // utils.jsxi:64
-			badMode = 1;                                                           // utils.jsxi:65
-		return new Generator ().generate (parsed);                                 // utils.jsxi:66
+		if (options.filename === 'result')                                         // utils.jsxi:63
+			badMode = 1;                                                           // utils.jsxi:64
+		return new Generator ().generate (parsed);                                 // utils.jsxi:65
 	} catch (e){
 		console.fatal ('Generating failed (' + options.filename + ')\n' + e.stack);
 	} 
 }
 
-var previousT = (function (arg){                                                   // utils.jsxi:72
-	return arg [0] * 1e9 + arg [1];                                                // utils.jsxi:72
+var previousT = (function (arg){                                                   // utils.jsxi:71
+	return arg [0] * 1e9 + arg [1];                                                // utils.jsxi:71
 })(process.hrtime ());
 
-function addLog (p, key, fn){                                                      // utils.jsxi:74
-	if (!p || !p.prototype){                                                       // utils.jsxi:75
-		fn = key;                                                                  // utils.jsxi:76
-		key = p;                                                                   // utils.jsxi:77
-		p = null;                                                                  // utils.jsxi:78
+function addLog (p, key, fn){                                                      // utils.jsxi:73
+	if (!p || !p.prototype){                                                       // utils.jsxi:74
+		fn = key;                                                                  // utils.jsxi:75
+		key = p;                                                                   // utils.jsxi:76
+		p = null;                                                                  // utils.jsxi:77
 	}
 	
-	if (typeof key === 'number')                                                   // utils.jsxi:81
-		key = new Array (key + 1).join ('  ');                                     // utils.jsxi:82
+	if (typeof key === 'number')                                                   // utils.jsxi:80
+		key = new Array (key + 1).join ('  ');                                     // utils.jsxi:81
 	else
-		key = key + 1;                                                             // utils.jsxi:84
+		key = key + 1;                                                             // utils.jsxi:83
 	
-	function tstr (n){                                                             // utils.jsxi:86
+	function tstr (n){                                                             // utils.jsxi:85
 		var s = String (n / 1e9 | 0), ms = String (n % 1e9 / 1e6 | 0);
 		
-		while (s.length < 2)                                                       // utils.jsxi:90
-			s = '0' + s;                                                           // utils.jsxi:91
+		while (s.length < 2)                                                       // utils.jsxi:89
+			s = '0' + s;                                                           // utils.jsxi:90
 		
-		while (ms.length < 3)                                                      // utils.jsxi:93
-			ms = '0' + ms;                                                         // utils.jsxi:94
-		return '[' + s + '.' + ms + ']';                                           // utils.jsxi:96
+		while (ms.length < 3)                                                      // utils.jsxi:92
+			ms = '0' + ms;                                                         // utils.jsxi:93
+		return '[' + s + '.' + ms + ']';                                           // utils.jsxi:95
 	}
 	
-	var size = 32,                                                                 // utils.jsxi:99
-		r = function (arg){                                                        // utils.jsxi:100
+	var size = 32,                                                                 // utils.jsxi:98
+		r = function (arg){                                                        // utils.jsxi:99
 			var f = [ key + (typeof fn === 'function' ? fn.call (this) : fn) + ':' ], 
-				h = process.hrtime (),                                             // utils.jsxi:102
-				t = h [0] * 1e9 + h [1];                                           // utils.jsxi:103
+				h = process.hrtime (),                                             // utils.jsxi:101
+				t = h [0] * 1e9 + h [1];                                           // utils.jsxi:102
 			
-			if (f [0].length > size)                                               // utils.jsxi:105
-				f [0] = f [0].substr (0, size - 4) + '...:';                       // utils.jsxi:106
+			if (f [0].length > size)                                               // utils.jsxi:104
+				f [0] = f [0].substr (0, size - 4) + '...:';                       // utils.jsxi:105
 			
-			f [0] += new Array (1 + size - f [0].length).join (' ');               // utils.jsxi:107
-			f.push.apply (f, arguments);                                           // utils.jsxi:108
-			f.unshift (tstr (t - previousT));                                      // utils.jsxi:109
+			f [0] += new Array (1 + size - f [0].length).join (' ');               // utils.jsxi:106
+			f.push.apply (f, arguments);                                           // utils.jsxi:107
+			f.unshift (tstr (t - previousT));                                      // utils.jsxi:108
 		};
-	return p ? (p.prototype.log = r) : r;                                          // utils.jsxi:114
+	return p ? (p.prototype.log = r) : r;                                          // utils.jsxi:113
 }
 
-function isEmpty (obj){                                                            // utils.jsxi:117
-	for (var n in obj)                                                             // utils.jsxi:118
+function isEmpty (obj){                                                            // utils.jsxi:116
+	for (var n in obj)                                                             // utils.jsxi:117
 		return false;
 	return true;
 }
 
-var $ = {                                                                          // utils.jsxi:123
-	extend: (function (){                                                          // utils.jsxi:123
-		function extend (target, source, deep){                                    // utils.jsxi:127
-			for (var key in source){                                               // utils.jsxi:128
+var $ = {                                                                          // utils.jsxi:122
+	extend: (function (){                                                          // utils.jsxi:122
+		function extend (target, source, deep){                                    // utils.jsxi:126
+			for (var key in source){                                               // utils.jsxi:127
 				var value = source [key];
 				
 				if (deep && (typeof value === 'object' || value instanceof Array)){
 					if (value instanceof Array && !(target [key] instanceof Array))
-						target [key] = [];                                         // utils.jsxi:131
+						target [key] = [];                                         // utils.jsxi:130
 					else if (typeof value === 'object' && typeof target [key] !== 'object')
-						target [key] = {};                                         // utils.jsxi:133
+						target [key] = {};                                         // utils.jsxi:132
 					
-					extend (target [key], value, deep);                            // utils.jsxi:135
-				} else if (value !== undefined)                                    // utils.jsxi:136
-					target [key] = value;                                          // utils.jsxi:137
+					extend (target [key], value, deep);                            // utils.jsxi:134
+				} else if (value !== undefined)                                    // utils.jsxi:135
+					target [key] = value;                                          // utils.jsxi:136
 			}
 		}
-		return (function (target){                                                 // utils.jsxi:139
+		return (function (target){                                                 // utils.jsxi:138
 			var deep, args = Array.prototype.slice.call (arguments, 1);
 			
-			if (typeof target == 'boolean'){                                       // utils.jsxi:143
-				deep = target;                                                     // utils.jsxi:144
-				target = args.shift ();                                            // utils.jsxi:145
+			if (typeof target == 'boolean'){                                       // utils.jsxi:142
+				deep = target;                                                     // utils.jsxi:143
+				target = args.shift ();                                            // utils.jsxi:144
 			}
 			
-			args.forEach (function (arg){                                          // utils.jsxi:148
-				return extend (target, arg, deep);                                 // utils.jsxi:148
+			args.forEach (function (arg){                                          // utils.jsxi:147
+				return extend (target, arg, deep);                                 // utils.jsxi:147
 			});
-			return target;                                                         // utils.jsxi:149
+			return target;                                                         // utils.jsxi:148
 		});
 	})()
 };

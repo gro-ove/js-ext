@@ -199,20 +199,15 @@
 		}
 	}
 
-	function MacroError (name, args, context, parent, message){
-		if (typeof args === 'string'){
-			message 	= args;
-			args 		= undefined;
-			parent 		= undefined;
-		}
-
+	function MacroError (macroName, callArgs, context, originalError, message){
 		var result = new Error ('@%0%1 [%2]:\n\t%3' (
-			name, 
-			args ? ' (' + [].map.call (args, JSON.stringify).join (', ') + ')' : '',
+			macroName, callArgs ? '(' + [].map.call (callArgs, lambda {
+				var j = JSON.stringify (arg) || '' + arg;
+				return j.length > 10 ? j.slice (0, 7) + '...' : j;
+			}).join (', ') + ')' : '(?)',
 			context ? context.file.filename : '<unknown context>',
-			parent ? parent.stack.replace (/\n/g, '\n\t') : message || '<unknown message>'));
+			originalError && originalError.stack ? originalError.stack.replace (/\n/g, '\n\t') : originalError || '<unknown error>'));
 		result.name 	= 'MacroError';
-		
 		return result;
 	};
 	

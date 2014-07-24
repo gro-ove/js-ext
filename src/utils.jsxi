@@ -20,12 +20,11 @@ function repeatString (char, count){
 	}
 }
 
-process.on ('uncaughtException', lambda console.fatal ('    [    UNCAUGHT    ]\n\n' + (arg && arg.stack ? arg.stack : String (arg))));
+process.on ('uncaughtException', lambda console.fatal ('Uncaught exception!\n' + (arg && arg.stack ? arg.stack : String (arg))));
 
 console.fatal = function (){
-	console.log ('\n    [  FATAL  ERROR  ]\n');
+	console.log ('Fatal error!');
 	console.log.apply (console, arguments);
-	console.log ('');
 	console.log = lambda;
 	setTimeout (lambda process.exit (1), 500);
 };

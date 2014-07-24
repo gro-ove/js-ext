@@ -4,6 +4,10 @@
 		"selected_items":
 		[
 			[
+				"mem",
+				"member"
+			],
+			[
 				"file",
 				"filename"
 			],
@@ -146,10 +150,6 @@
 			[
 				"op",
 				"options"
-			],
-			[
-				"mem",
-				"members"
 			],
 			[
 				"depe",
@@ -528,60 +528,32 @@
 			}
 		},
 		{
-			"file": "build.sh",
+			"file": "/C/Users/User/AppData/Roaming/Sublime Text 3/Packages/User/Preferences.sublime-settings",
 			"settings":
 			{
-				"buffer_size": 901,
+				"buffer_size": 2802,
 				"line_ending": "Unix"
 			}
 		},
 		{
-			"file": "src/parser/do_classes.jsxi",
+			"file": "src/utils.jsxi",
 			"settings":
 			{
-				"buffer_size": 28353,
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "src/parser/parse_expressions.jsxi",
-			"settings":
-			{
-				"buffer_size": 15977,
+				"buffer_size": 3549,
 				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "src/parser/parse_other.jsxi",
-			"settings":
-			{
-				"buffer_size": 1569,
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "src/parser/parse_statements.jsxi",
-			"settings":
-			{
-				"buffer_size": 10658,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "src/file.jsxi",
-			"settings":
-			{
-				"buffer_size": 4871,
-				"line_ending": "Windows"
 			}
 		}
 	],
 	"build_system": "Packages/Misc - Build Scripts/Shell Script.sublime-build",
 	"command_palette":
 	{
-		"height": 142.0,
+		"height": 162.0,
 		"selected_items":
 		[
+			[
+				"insta",
+				"Package Control: Install Package"
+			],
 			[
 				"todo",
 				"Set Syntax: Todo"
@@ -593,10 +565,6 @@
 			[
 				"sort",
 				"Sort Lines"
-			],
-			[
-				"insta",
-				"Package Control: Install Package"
 			],
 			[
 				"shuff",
@@ -643,7 +611,7 @@
 				"Show TODOs: Project and open files"
 			]
 		],
-		"width": 368.0
+		"width": 450.0
 	},
 	"console":
 	{
@@ -667,37 +635,50 @@
 	},
 	"file_history":
 	[
+		"/C/Users/User/AppData/Roaming/Sublime Text 3/Packages/Misc - Menus/Main.sublime-menu",
+		"/C/Users/User/AppData/Roaming/Sublime Text 3/Packages/Theme - Flatro/Flatro.tmTheme",
+		"/C/Users/User/AppData/Roaming/Sublime Text 3/Packages/Misc - Color Schemes/Github.tmTheme",
+		"/D/Development/GitHub/js-ext/build.sh",
+		"/D/Development/GitHub/js-ext/src/parser/do_classes.jsxi",
+		"/D/Development/GitHub/js-ext/tests/current.jsx",
+		"/D/Development/GitHub/js-ext/tests/tests.jsx",
+		"/D/Development/GitHub/js-ext/src/macro_call.jsxi",
+		"/D/Development/GitHub/js-ext/src/macro_process.jsxi",
+		"/D/Development/GitHub/js-ext/src/macro.jsxi",
+		"/D/Development/GitHub/js-ext/src/lite_parser.jsxi",
+		"/D/Development/GitHub/js-ext/src/js-ext.jsx",
+		"/D/Development/GitHub/js-ext/src/generator.jsxi",
+		"/D/Development/GitHub/js-ext/src/file_storage.jsxi",
+		"/D/Development/GitHub/js-ext/old/includes/__js_ext_utils.less",
+		"/D/Development/GitHub/js-ext/build/js-ext.js",
+		"/D/Development/GitHub/js-ext/tests/temp/tests.js",
+		"/D/Development/GitHub/js-ext/src/parser/parse_other.jsxi",
+		"/D/Development/GitHub/js-ext/src/parser/parse_statements.jsxi",
 		"/D/Development/GitHub/js-ext/src/file.jsxi",
-		"/C/Users/User/AppData/Roaming/Sublime Text 3/Packages/User/Preferences.sublime-settings",
+		"/D/Development/GitHub/js-ext/src/defaults.jsxi",
+		"/D/Development/GitHub/js-ext/src/context.jsxi",
+		"/D/Development/GitHub/js-ext/src/application_args.jsxi",
 		"/D/Development/GitHub/js-ext/src/app.jsxi",
+		"/C/Users/User/AppData/Roaming/Sublime Text 3/Packages/User/Preferences.sublime-settings",
+		"/D/Development/GitHub/js-ext/src/parser/throws.jsxi",
+		"/D/Development/GitHub/js-ext/src/queue.jsxi",
+		"/D/Development/GitHub/js-ext/src/utils.jsxi",
+		"/D/Development/GitHub/js-ext/src/warnings.jsxi",
+		"/D/Development/GitHub/js-ext/src/worker.jsxi",
+		"/D/Development/GitHub/js-ext/old/js-ext.js",
+		"/D/Development/GitHub/js-ext/src/parser/objects.jsxi",
+		"/C/Users/User/AppData/Roaming/Sublime Text 3/Packages/Plugin - Pre/pre.py",
+		"/D/Development/GitHub/js-ext/src/parser/parse_expressions.jsxi",
+		"/C/Users/User/AppData/Roaming/Sublime Text 3/Packages/Misc - Build Scripts/Shell Script.sublime-build",
+		"/D/Development/GitHub/js-ext/js-ext.sublime-project",
 		"/D/Development/GitHub/js-ext/src/parser/asynchronous_functions.jsxi",
 		"/D/Development/GitHub/js-ext/src/parser/helpers.jsxi",
-		"/D/Development/GitHub/js-ext/src/parser/parse_expressions.jsxi",
-		"/D/Development/GitHub/js-ext/src/parser/parse_statements.jsxi",
 		"/D/Development/GitHub/js-ext/src/parser/library_nodes.jsxi.off",
-		"/D/Development/GitHub/js-ext/src/parser/parse_other.jsxi",
-		"/D/Development/GitHub/js-ext/src/js-ext.jsx",
-		"/D/Development/GitHub/js-ext/src/macro_process.jsxi",
-		"/D/Development/GitHub/js-ext/src/utils.jsxi",
-		"/D/Development/GitHub/js-ext/src/worker.jsxi",
-		"/D/Development/GitHub/js-ext/src/queue.jsxi",
-		"/D/Development/GitHub/js-ext/src/generator.jsxi",
-		"/D/Development/GitHub/js-ext/src/parser/objects.jsxi",
 		"/D/Development/GitHub/js-ext/src/parser/jsx_parse.jsxi",
 		"/C/Users/User/AppData/Roaming/Sublime Text 3/Packages/Default/Preferences.sublime-settings",
 		"/C/Users/User/AppData/Roaming/Sublime Text 3/Packages/User/Side Bar.sublime-settings",
-		"/D/Development/GitHub/js-ext/tests/tests.jsx",
-		"/D/Development/GitHub/js-ext/tests/current.jsx",
-		"/D/Development/GitHub/js-ext/tests/temp/tests.js",
-		"/D/Development/GitHub/js-ext/src/warnings.jsxi",
-		"/D/Development/GitHub/js-ext/src/macro.jsxi",
-		"/D/Development/GitHub/js-ext/src/defaults.jsxi",
-		"/D/Development/GitHub/js-ext/src/macro_call.jsxi",
 		"/D/Development/GitHub/js-ext/src/parser/reads.jsxi",
 		"/D/Development/GitHub/js-ext/tests/temp/current.js",
-		"/D/Development/GitHub/js-ext/src/lite_parser.jsxi",
-		"/D/Development/GitHub/js-ext/build/js-ext.js",
-		"/D/Development/GitHub/js-ext/src/parser/throws.jsxi",
 		"/D/Development/GitHub/js-ext/tests/current.jsxr",
 		"/D/Development/GitHub/js-ext/build/js-ext-new.js",
 		"/D/Development/GitHub/js-ext/tests/tests.jsxr",
@@ -706,9 +687,6 @@
 		"/D/Development/GitHub/js-ext/README.md",
 		"/D/Development/GitHub/js-ext/.gitignore",
 		"/L/Apps/gpg4usb/conf/gpg4usb.ini",
-		"/C/Users/User/AppData/Roaming/Sublime Text 3/Packages/Theme - Flatro/Flatro.tmTheme",
-		"/D/Development/GitHub/js-ext/src/application_args.jsxi",
-		"/D/Development/GitHub/js-ext/src/parser/do_classes.jsxi",
 		"/D/Development/GitHub/js-ext/src/parser/parse_class.jsxi",
 		"/D/Development/GitHub/js-ext/tests/current.js",
 		"/D/Development/GitHub/js-ext/tests/cases/classes.jsx",
@@ -722,7 +700,6 @@
 		"/D/Development/GitHub/js-ext/src/get_params.jsxi",
 		"/D/Development/GitHub/js-ext/src/js-ext.js",
 		"/D/Development/GitHub/js-ext/old/js-ext.parser",
-		"/D/Development/GitHub/js-ext/old/js-ext.js",
 		"/D/Development/GitHub/js-ext/src/parser/objects_helpers.jsxi",
 		"/D/Development/GitHub/js-ext/src/parser/objects_marks.jsxi",
 		"/D/Development/GitHub/js-ext/src/parser/parse_with.jsxi",
@@ -785,20 +762,11 @@
 		"/D/Development/GitHub/js-ext/build.bat",
 		"/D/Development/GitHub/js-ext/stuff/imports/current.js",
 		"/D/Development/GitHub/js-ext/stuff/imports/current.jsx",
-		"/D/Development/GitHub/js-ext/upgrade/ABOUT_FOLDERS.md",
-		"/D/Development/GitHub/js-ext/project.sublime-workspace",
-		"/D/Development/GitHub/js-ext/build.js",
-		"/D/Development/GitHub/js-ext/upgrade/old/build-old.bat",
-		"/D/Development/GitHub/js-ext/tests/special/partial-2.jsx",
-		"/D/Development/GitHub/js-ext/tests/special/parser.js",
-		"/D/Development/GitHub/js-ext/tests/all.jsx",
-		"/D/Development/GitHub/js-ext/build/js-ext.temp.js",
-		"/D/Development/GitHub/js-ext/tests/cycles.jsx",
-		"/D/Development/GitHub/js-ext/tests/includes.jsx"
+		"/D/Development/GitHub/js-ext/upgrade/ABOUT_FOLDERS.md"
 	],
 	"find":
 	{
-		"height": 37.0
+		"height": 36.0
 	},
 	"find_in_files":
 	{
@@ -821,6 +789,38 @@
 		"case_sensitive": true,
 		"find_history":
 		[
+			"B0B0B0",
+			"FATAL",
+			"less",
+			"message",
+			"parentError",
+			"message",
+			"parent",
+			"context",
+			"macroCallArgs",
+			"macroName",
+			"args",
+			"MacroError",
+			"arg",
+			"MacroError",
+			"replace",
+			"processClassMethod",
+			"process",
+			"processClassMethod",
+			"processProperty",
+			"processClassMethod",
+			"processClassesMethods",
+			"constructor",
+			"initialization",
+			"updateMember",
+			"TODO",
+			"declarations",
+			"memberExpression (classE",
+			"memberExpression",
+			"initialization",
+			"initializer",
+			"staticFields",
+			"$0/../",
 			"parseBlock",
 			"replaceObject",
 			"\\",
@@ -916,39 +916,7 @@
 			"concat",
 			"console",
 			"null",
-			"classEntry",
-			"classesByNames",
-			"emptyStatement",
-			"parseStatement",
-			"return ",
-			"return",
-			"parseFunction",
-			");\n",
-			"entry",
-			"currentConstructor",
-			"state",
-			"parsingComplete",
-			"state",
-			"parseVariableDeclarators",
-			"stringLiteralFromToken",
-			"result =",
-			"throwStatement",
-			"lambda",
-			"		{",
-			"objectExpression",
-			"arguments",
-			"Wrong",
-			"break;",
-			",\n		name:",
-			"return {\n		type:",
-			":	",
-			";\n",
-			";		",
-			":		",
-			": 	",
-			"break;",
-			"result =",
-			"return "
+			"classEntry"
 		],
 		"highlight": true,
 		"in_selection": false,
@@ -991,8 +959,8 @@
 						"selection":
 						[
 							[
-								6547,
-								6547
+								1977,
+								1977
 							]
 						],
 						"settings":
@@ -1000,50 +968,50 @@
 							"BracketHighlighterBusy": false,
 							"bh_regions":
 							[
-								"bh_default",
-								"bh_default_center",
-								"bh_default_open",
-								"bh_default_close",
-								"bh_regex",
-								"bh_regex_center",
-								"bh_regex_open",
-								"bh_regex_close",
-								"bh_angle",
-								"bh_angle_center",
-								"bh_angle_open",
-								"bh_angle_close",
-								"bh_single_quote",
-								"bh_single_quote_center",
-								"bh_single_quote_open",
-								"bh_single_quote_close",
-								"bh_double_quote",
-								"bh_double_quote_center",
-								"bh_double_quote_open",
-								"bh_double_quote_close",
 								"bh_round",
 								"bh_round_center",
 								"bh_round_open",
 								"bh_round_close",
-								"bh_curly",
-								"bh_curly_center",
-								"bh_curly_open",
-								"bh_curly_close",
 								"bh_square",
 								"bh_square_center",
 								"bh_square_open",
 								"bh_square_close",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
 								"bh_unmatched",
 								"bh_unmatched_center",
 								"bh_unmatched_open",
 								"bh_unmatched_close",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
 								"bh_c_define",
 								"bh_c_define_center",
 								"bh_c_define_open",
 								"bh_c_define_close",
-								"bh_tag",
-								"bh_tag_center",
-								"bh_tag_open",
-								"bh_tag_close"
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close"
 							],
 							"bs_sintax": "markdown",
 							"buffer_scroll_name": "a8052404",
@@ -1051,7 +1019,7 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.y": 612.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 1,
@@ -1059,19 +1027,19 @@
 				},
 				{
 					"buffer": 1,
-					"file": "build.sh",
+					"file": "/C/Users/User/AppData/Roaming/Sublime Text 3/Packages/User/Preferences.sublime-settings",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 901,
+						"buffer_size": 2802,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								141,
-								141
+								91,
+								91
 							]
 						],
 						"settings":
@@ -1079,54 +1047,54 @@
 							"BracketHighlighterBusy": false,
 							"bh_regions":
 							[
-								"bh_default",
-								"bh_default_center",
-								"bh_default_open",
-								"bh_default_close",
-								"bh_regex",
-								"bh_regex_center",
-								"bh_regex_open",
-								"bh_regex_close",
-								"bh_angle",
-								"bh_angle_center",
-								"bh_angle_open",
-								"bh_angle_close",
-								"bh_single_quote",
-								"bh_single_quote_center",
-								"bh_single_quote_open",
-								"bh_single_quote_close",
-								"bh_double_quote",
-								"bh_double_quote_center",
-								"bh_double_quote_open",
-								"bh_double_quote_close",
 								"bh_round",
 								"bh_round_center",
 								"bh_round_open",
 								"bh_round_close",
-								"bh_curly",
-								"bh_curly_center",
-								"bh_curly_open",
-								"bh_curly_close",
 								"bh_square",
 								"bh_square_center",
 								"bh_square_open",
 								"bh_square_close",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
 								"bh_unmatched",
 								"bh_unmatched_center",
 								"bh_unmatched_open",
 								"bh_unmatched_close",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
 								"bh_c_define",
 								"bh_c_define_center",
 								"bh_c_define_open",
 								"bh_c_define_close",
-								"bh_tag",
-								"bh_tag_center",
-								"bh_tag_open",
-								"bh_tag_close"
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close"
 							],
-							"bs_sintax": "batch file",
-							"buffer_scroll_name": "b80205dc",
-							"syntax": "Packages/Default - Nice things/ShellScript/Shell-Unix-Generic.tmLanguage",
+							"bs_sintax": "json",
+							"buffer_scroll_name": "b6b4caae",
+							"syntax": "Packages/JavaScript/JSON.tmLanguage",
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
@@ -1138,23 +1106,19 @@
 				},
 				{
 					"buffer": 2,
-					"file": "src/parser/do_classes.jsxi",
+					"file": "src/utils.jsxi",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 28353,
+						"buffer_size": 3549,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								13426,
-								13439
-							],
-							[
-								15261,
-								15274
+								763,
+								763
 							]
 						],
 						"settings":
@@ -1162,377 +1126,61 @@
 							"BracketHighlighterBusy": false,
 							"bh_regions":
 							[
-								"bh_default",
-								"bh_default_center",
-								"bh_default_open",
-								"bh_default_close",
-								"bh_regex",
-								"bh_regex_center",
-								"bh_regex_open",
-								"bh_regex_close",
-								"bh_angle",
-								"bh_angle_center",
-								"bh_angle_open",
-								"bh_angle_close",
-								"bh_single_quote",
-								"bh_single_quote_center",
-								"bh_single_quote_open",
-								"bh_single_quote_close",
-								"bh_double_quote",
-								"bh_double_quote_center",
-								"bh_double_quote_open",
-								"bh_double_quote_close",
 								"bh_round",
 								"bh_round_center",
 								"bh_round_open",
 								"bh_round_close",
-								"bh_curly",
-								"bh_curly_center",
-								"bh_curly_open",
-								"bh_curly_close",
 								"bh_square",
 								"bh_square_center",
 								"bh_square_open",
 								"bh_square_close",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
 								"bh_unmatched",
 								"bh_unmatched_center",
 								"bh_unmatched_open",
 								"bh_unmatched_close",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
 								"bh_c_define",
 								"bh_c_define_center",
 								"bh_c_define_open",
 								"bh_c_define_close",
-								"bh_tag",
-								"bh_tag_center",
-								"bh_tag_open",
-								"bh_tag_close"
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close"
 							],
 							"bs_sintax": "js-ext",
-							"buffer_scroll_name": "4046e966",
-							"syntax": "Packages/Custom - Created/Js-Ext/Js-Ext.tmLanguage",
+							"buffer_scroll_name": "f3767466",
+							"syntax": "Packages/Language - Js-Ext/Js-Ext.tmLanguage",
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 613.0,
+						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 2,
-					"type": "text"
-				},
-				{
-					"buffer": 3,
-					"file": "src/parser/parse_expressions.jsxi",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 15977,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								10793,
-								10793
-							]
-						],
-						"settings":
-						{
-							"BracketHighlighterBusy": false,
-							"bh_regions":
-							[
-								"bh_default",
-								"bh_default_center",
-								"bh_default_open",
-								"bh_default_close",
-								"bh_regex",
-								"bh_regex_center",
-								"bh_regex_open",
-								"bh_regex_close",
-								"bh_angle",
-								"bh_angle_center",
-								"bh_angle_open",
-								"bh_angle_close",
-								"bh_single_quote",
-								"bh_single_quote_center",
-								"bh_single_quote_open",
-								"bh_single_quote_close",
-								"bh_double_quote",
-								"bh_double_quote_center",
-								"bh_double_quote_open",
-								"bh_double_quote_close",
-								"bh_round",
-								"bh_round_center",
-								"bh_round_open",
-								"bh_round_close",
-								"bh_curly",
-								"bh_curly_center",
-								"bh_curly_open",
-								"bh_curly_close",
-								"bh_square",
-								"bh_square_center",
-								"bh_square_open",
-								"bh_square_close",
-								"bh_unmatched",
-								"bh_unmatched_center",
-								"bh_unmatched_open",
-								"bh_unmatched_close",
-								"bh_c_define",
-								"bh_c_define_center",
-								"bh_c_define_open",
-								"bh_c_define_close",
-								"bh_tag",
-								"bh_tag_center",
-								"bh_tag_open",
-								"bh_tag_close"
-							],
-							"bs_sintax": "js-ext",
-							"buffer_scroll_name": "2f20ab95",
-							"syntax": "Packages/Custom - Created/Js-Ext/Js-Ext.tmLanguage",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 6616.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 3,
-					"type": "text"
-				},
-				{
-					"buffer": 4,
-					"file": "src/parser/parse_other.jsxi",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 1569,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								1113,
-								1070
-							]
-						],
-						"settings":
-						{
-							"BracketHighlighterBusy": false,
-							"bh_regions":
-							[
-								"bh_default",
-								"bh_default_center",
-								"bh_default_open",
-								"bh_default_close",
-								"bh_curly",
-								"bh_curly_center",
-								"bh_curly_open",
-								"bh_curly_close",
-								"bh_square",
-								"bh_square_center",
-								"bh_square_open",
-								"bh_square_close",
-								"bh_round",
-								"bh_round_center",
-								"bh_round_open",
-								"bh_round_close",
-								"bh_regex",
-								"bh_regex_center",
-								"bh_regex_open",
-								"bh_regex_close",
-								"bh_double_quote",
-								"bh_double_quote_center",
-								"bh_double_quote_open",
-								"bh_double_quote_close",
-								"bh_tag",
-								"bh_tag_center",
-								"bh_tag_open",
-								"bh_tag_close",
-								"bh_angle",
-								"bh_angle_center",
-								"bh_angle_open",
-								"bh_angle_close",
-								"bh_unmatched",
-								"bh_unmatched_center",
-								"bh_unmatched_open",
-								"bh_unmatched_close",
-								"bh_single_quote",
-								"bh_single_quote_center",
-								"bh_single_quote_open",
-								"bh_single_quote_close"
-							],
-							"bs_sintax": "js-ext",
-							"buffer_scroll_name": "9675af43",
-							"syntax": "Packages/Custom - Created/Js-Ext/Js-Ext.tmLanguage",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 571.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 4,
-					"type": "text"
-				},
-				{
-					"buffer": 5,
-					"file": "src/parser/parse_statements.jsxi",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 10658,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								413,
-								423
-							],
-							[
-								9992,
-								10002
-							],
-							[
-								10092,
-								10102
-							],
-							[
-								10233,
-								10243
-							]
-						],
-						"settings":
-						{
-							"BracketHighlighterBusy": false,
-							"bh_regions":
-							[
-								"bh_default",
-								"bh_default_center",
-								"bh_default_open",
-								"bh_default_close",
-								"bh_curly",
-								"bh_curly_center",
-								"bh_curly_open",
-								"bh_curly_close",
-								"bh_square",
-								"bh_square_center",
-								"bh_square_open",
-								"bh_square_close",
-								"bh_round",
-								"bh_round_center",
-								"bh_round_open",
-								"bh_round_close",
-								"bh_regex",
-								"bh_regex_center",
-								"bh_regex_open",
-								"bh_regex_close",
-								"bh_double_quote",
-								"bh_double_quote_center",
-								"bh_double_quote_open",
-								"bh_double_quote_close",
-								"bh_tag",
-								"bh_tag_center",
-								"bh_tag_open",
-								"bh_tag_close",
-								"bh_angle",
-								"bh_angle_center",
-								"bh_angle_open",
-								"bh_angle_close",
-								"bh_unmatched",
-								"bh_unmatched_center",
-								"bh_unmatched_open",
-								"bh_unmatched_close",
-								"bh_single_quote",
-								"bh_single_quote_center",
-								"bh_single_quote_open",
-								"bh_single_quote_close"
-							],
-							"bs_sintax": "js-ext",
-							"buffer_scroll_name": "aca73592",
-							"syntax": "Packages/Custom - Created/Js-Ext/Js-Ext.tmLanguage",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 7453.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 5,
-					"type": "text"
-				},
-				{
-					"buffer": 6,
-					"file": "src/file.jsxi",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 4871,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								2094,
-								2094
-							]
-						],
-						"settings":
-						{
-							"BracketHighlighterBusy": false,
-							"bh_regions":
-							[
-								"bh_square",
-								"bh_square_center",
-								"bh_square_open",
-								"bh_square_close",
-								"bh_default",
-								"bh_default_center",
-								"bh_default_open",
-								"bh_default_close",
-								"bh_angle",
-								"bh_angle_center",
-								"bh_angle_open",
-								"bh_angle_close",
-								"bh_single_quote",
-								"bh_single_quote_center",
-								"bh_single_quote_open",
-								"bh_single_quote_close",
-								"bh_round",
-								"bh_round_center",
-								"bh_round_open",
-								"bh_round_close",
-								"bh_tag",
-								"bh_tag_center",
-								"bh_tag_open",
-								"bh_tag_close",
-								"bh_double_quote",
-								"bh_double_quote_center",
-								"bh_double_quote_open",
-								"bh_double_quote_close",
-								"bh_regex",
-								"bh_regex_center",
-								"bh_regex_open",
-								"bh_regex_close",
-								"bh_curly",
-								"bh_curly_center",
-								"bh_curly_open",
-								"bh_curly_close",
-								"bh_unmatched",
-								"bh_unmatched_center",
-								"bh_unmatched_open",
-								"bh_unmatched_close"
-							],
-							"bs_sintax": "js-ext",
-							"buffer_scroll_name": "fb888493",
-							"syntax": "Packages/Custom - Created/Js-Ext/Js-Ext.tmLanguage",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 275.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 6,
 					"type": "text"
 				}
 			]
