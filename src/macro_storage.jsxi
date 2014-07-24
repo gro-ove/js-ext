@@ -20,14 +20,15 @@
 				this.requests.splice (pos --, 1);
 	}
 
-	MacroStorage.prototype.get = function (name, level, callback){
+	MacroStorage.prototype.get = function (name, level, context, callback){
 		var result 			= undefined,
 			max  			= -1,
 			requestMode 	= typeof name !== 'string',
 			temp;
 
 		if (requestMode){
-			callback 	= name [2];
+			callback 	= name [3]; // For queue from Macro.initialize ()
+			context 	= name [2]; // TODO: Find another way
 			level 		= name [1];
 			name 		= name [0];
 		} else

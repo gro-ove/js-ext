@@ -125,7 +125,7 @@
 			variables.push (key + ' = this.defaults.' + key);
 
 		for (var entry in-array phase.used){
-			queue.add (macroStorage.get, entry.macro, this.level);
+			queue.add (macroStorage.get, entry.macro, this.level, this.context);
 			variables.push (entry.name + ' = function (){ return this.macros.' + entry.macro + '.call (this.context, [].slice.call (arguments)) }.bind (this)');
 		}
 
@@ -158,7 +158,9 @@
 				global: 		Macro.globalStorage,
 				local: 			this.localStorage,
 
-				require: 		lambda require (path.resolve (that.context.file.dirname, 'node_modules', arg)),
+				require: 		lambda (arg, from) 
+									require (path.resolve (that.context.file.dirname, from || '.', 'node_modules', arg)),
+
 				defineMacro: 	lambda (name, arguments, body){
 									if (body === undefined){
 										body = arguments;
@@ -204,8 +206,7 @@
 			macroName, callArgs ? '(' + [].map.call (callArgs, lambda {
 				var j = JSON.stringify (arg) || '' + arg;
 				return j.length > 10 ? j.slice (0, 7) + '...' : j;
-			}).join (', ') + ')' : '(?)',
-			context ? context.file.filename : '<unknown context>',
+			}).join (', ') + ')' : '(?)', context,
 			originalError && originalError.stack ? originalError.stack.replace (/\n/g, '\n\t') : originalError || '<unknown error>'));
 		result.name 	= 'MacroError';
 		return result;

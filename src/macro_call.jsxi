@@ -27,7 +27,7 @@
 
 		MacroCall.waitingForMacro ++;
 
-		macroStorage.get (this.name, this.level, lambda {
+		macroStorage.get (this.name, this.level, this.context, lambda {
 			if (arg == null)
 				throw new MacroNotFoundError (this.name);
 

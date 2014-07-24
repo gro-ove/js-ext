@@ -502,6 +502,25 @@ Generator.prototype.generate = function (ast){                                  
 	return result;                                                                 // generator.jsxi:466
 };
 
+/* Class "Context" declaration */
+var Context = (function (){                                                        // context.jsxi:1
+	var Context = function (file){                                                 // context.jsxi:1
+			console.assert (file instanceof File, 'File required');                // context.jsxi:6
+			this.id = ids.indexOf (file.fullpath);                                 // context.jsxi:8
+			
+			if (this.id < 0)
+				this.id = ids.push (file.fullpath) - 1;                            // context.jsxi:10
+			
+			this.file = file;                                                      // context.jsxi:11
+		}, 
+		ids = [];                                                                  // context.jsxi:2
+	
+	Context.prototype.toString = function (){                                      // context.jsxi:14
+		return this.file.filename;                                                 // context.jsxi:15
+	};
+	return Context;
+})();
+
 /* Class "File" declaration */
 function File (root, fullpath){                                                    // file.jsxi:1
 	this.state = File.STATE_INITIAL;
@@ -691,7 +710,7 @@ Worker.prototype.waitForFinish = function (callback){                           
 			return arg.state !== File.STATE_FINISHED && arg.state !== File.STATE_MACRO_WAITING;
 		}) && MacroCall.waitingForCallback === 0 && MacroCall.waitingForMacro > 0){
 			console.fatal ('Macro initialization failed: ' + macroStorage.requests.map (function (arg){
-				return '@' + arg [0];                                              // worker.jsxi:32
+				return '@' + arg [0] + ' (' + arg [2] + ')';                       // worker.jsxi:32
 			}).join (', '));                                                       // worker.jsxi:32
 		}
 	}, 
@@ -4749,18 +4768,6 @@ function parseArgs (data, args){                                                
 		return result;                                                             // application_args.jsxi:38
 }
 
-function Context (file){                                                           // context.jsxi:1
-	console.assert (file instanceof File, 'File required');                        // context.jsxi:2
-	this.id = Context.ids.indexOf (file.fullpath);                                 // context.jsxi:4
-	
-	if (this.id === - 1)                                                           // context.jsxi:5
-		this.id = Context.ids.push (file.fullpath) - 1;                            // context.jsxi:6
-	
-	this.file = file;                                                              // context.jsxi:8
-}
-
-Context.ids = [];                                                                  // context.jsxi:11
-
 function paramsManager (){                                                         // defaults.jsxi:1
 	var that = this;
 	return {
@@ -5209,7 +5216,7 @@ Macro.prototype.initialize = function (callback){                               
 		for (var __1l = 0; __1l < __1m.length; __1l ++){
 			var entry = __1m [__1l];
 			
-			queue.add (macroStorage.get, entry.macro, this.level);                 // macro.jsxi:128
+			queue.add (macroStorage.get, entry.macro, this.level, this.context);   // macro.jsxi:128
 			variables.push (entry.name + ' = function (){ return this.macros.' + entry.macro + '.call (this.context, [].slice.call (arguments)) }.bind (this)');
 		}
 		
@@ -5246,20 +5253,20 @@ Macro.prototype.call = function (context, args){                                
 			context: context,                                                      // macro.jsxi:157
 			global: Macro.globalStorage,                                           // macro.jsxi:158
 			local: this.localStorage,                                              // macro.jsxi:159
-			require: (function (arg){                                              // macro.jsxi:161
-				return require (path.resolve (that.context.file.dirname, 'node_modules', arg));
+			require: (function (arg, from){                                        // macro.jsxi:161
+				return require (path.resolve (that.context.file.dirname, from || '.', 'node_modules', arg));
 			}), 
-			defineMacro: (function (name, arguments, body){                        // macro.jsxi:162
-				if (body === undefined){                                           // macro.jsxi:163
-					body = arguments;                                              // macro.jsxi:164
-					arguments = [];                                                // macro.jsxi:165
+			defineMacro: (function (name, arguments, body){                        // macro.jsxi:164
+				if (body === undefined){                                           // macro.jsxi:165
+					body = arguments;                                              // macro.jsxi:166
+					arguments = [];                                                // macro.jsxi:167
 				}
 				
-				macroStorage.add (new Macro (name,                                 // macro.jsxi:168
-					that.level,                                                    // macro.jsxi:170
-					that.context,                                                  // macro.jsxi:171
+				macroStorage.add (new Macro (name,                                 // macro.jsxi:170
+					that.level,                                                    // macro.jsxi:172
+					that.context,                                                  // macro.jsxi:173
 					typeof arguments === 'string' ? arguments.split (',').map (Function.prototype.call.bind (String.prototype.trim)) : arguments, 
-					body));                                                        // macro.jsxi:175
+					body));                                                        // macro.jsxi:177
 			})
 		};
 	
@@ -5267,47 +5274,47 @@ Macro.prototype.call = function (context, args){                                
 		{
 			var __1n = this.arguments;
 			
-			for (var id = 0; id < __1n.length; id ++){                             // macro.jsxi:180
+			for (var id = 0; id < __1n.length; id ++){                             // macro.jsxi:182
 				var arg = __1n [id];
 				
-				if (arg.type === 'callback' && typeof args [id] !== 'function')    // macro.jsxi:181
-					throw new Error ('Wrong arg');                                 // macro.jsxi:182
+				if (arg.type === 'callback' && typeof args [id] !== 'function')    // macro.jsxi:183
+					throw new Error ('Wrong arg');                                 // macro.jsxi:184
 			}
 			
 			__1n = undefined;
 		}
-		return this.callee.apply (object,                                          // macro.jsxi:184
-			args.map ((function (value, pos){                                      // macro.jsxi:185
-				switch (this.arguments [pos] && this.arguments [pos].type){        // macro.jsxi:186
-					case 'boolean':                                                // macro.jsxi:187
-						return !!value;                                            // macro.jsxi:187
-					case 'string':                                                 // macro.jsxi:188
-						return String (value);                                     // macro.jsxi:188
-					case 'number':                                                 // macro.jsxi:189
-						return + value;                                            // macro.jsxi:189
-					case 'object':                                                 // macro.jsxi:190
-						return typeof value === 'object' ? value : null;           // macro.jsxi:190
+		return this.callee.apply (object,                                          // macro.jsxi:186
+			args.map ((function (value, pos){                                      // macro.jsxi:187
+				switch (this.arguments [pos] && this.arguments [pos].type){        // macro.jsxi:188
+					case 'boolean':                                                // macro.jsxi:189
+						return !!value;                                            // macro.jsxi:189
+					case 'string':                                                 // macro.jsxi:190
+						return String (value);                                     // macro.jsxi:190
+					case 'number':                                                 // macro.jsxi:191
+						return + value;                                            // macro.jsxi:191
+					case 'object':                                                 // macro.jsxi:192
+						return typeof value === 'object' ? value : null;           // macro.jsxi:192
 					default:
-						return value;                                              // macro.jsxi:191
+						return value;                                              // macro.jsxi:193
 				}
-			}).bind (this)));                                                      // macro.jsxi:193
+			}).bind (this)));                                                      // macro.jsxi:195
 	} catch (e){
-		if (e.name === 'MacroError')                                               // macro.jsxi:195
-			throw e;                                                               // macro.jsxi:196
+		if (e.name === 'MacroError')                                               // macro.jsxi:197
+			throw e;                                                               // macro.jsxi:198
 		else
-			throw new MacroError (this.name, args, context, e);                    // macro.jsxi:198
+			throw new MacroError (this.name, args, context, e);                    // macro.jsxi:200
 	} 
 };
 
-function MacroError (macroName, callArgs, context, originalError, message){        // macro.jsxi:202
+function MacroError (macroName, callArgs, context, originalError, message){        // macro.jsxi:204
 	var result = new Error ('@' + macroName + (callArgs ? '(' + Array.prototype.map.call (callArgs, 
-		function (arg){                                                            // macro.jsxi:204
+		function (arg){                                                            // macro.jsxi:206
 			var j = JSON.stringify (arg) || '' + arg;
-			return j.length > 10 ? j.slice (0, 7) + '...' : j;                     // macro.jsxi:206
-		}).join (', ') + ')' : '(?)') + ' [' + (context ? context.file.filename : '<unknown context>') + ']:\n\t' + (originalError && originalError.stack ? originalError.stack.replace (/\n/g, '\n\t') : originalError || '<unknown error>'));
+			return j.length > 10 ? j.slice (0, 7) + '...' : j;                     // macro.jsxi:208
+		}).join (', ') + ')' : '(?)') + ' [' + context + ']:\n\t' + (originalError && originalError.stack ? originalError.stack.replace (/\n/g, '\n\t') : originalError || '<unknown error>'));
 	
-	result.name = 'MacroError';                                                    // macro.jsxi:210
-	return result;                                                                 // macro.jsxi:211
+	result.name = 'MacroError';                                                    // macro.jsxi:211
+	return result;                                                                 // macro.jsxi:212
 }
 
 ;
@@ -5343,6 +5350,7 @@ MacroCall.prototype.findMacro = function (callback){                            
 	MacroCall.waitingForMacro ++;                                                  // macro_call.jsxi:28
 	macroStorage.get (this.name,                                                   // macro_call.jsxi:30
 		this.level,                                                                // macro_call.jsxi:30
+		this.context,                                                              // macro_call.jsxi:30
 		(function (arg){                                                           // macro_call.jsxi:30
 			if (arg == null)                                                       // macro_call.jsxi:31
 				throw new MacroNotFoundError (this.name);                          // macro_call.jsxi:32
@@ -5841,43 +5849,44 @@ MacroStorage.prototype.add = function (macro){                                  
 		__1s = undefined;
 	}
 };
-MacroStorage.prototype.get = function (name, level, callback){                     // macro_storage.jsxi:23
+MacroStorage.prototype.get = function (name, level, context, callback){            // macro_storage.jsxi:23
 	var result = undefined,                                                        // macro_storage.jsxi:24
 		max = - 1,                                                                 // macro_storage.jsxi:25
 		requestMode = typeof name !== 'string',                                    // macro_storage.jsxi:26
 		temp;                                                                      // macro_storage.jsxi:27
 	
 	if (requestMode){                                                              // macro_storage.jsxi:29
-		callback = name [2];                                                       // macro_storage.jsxi:30
-		level = name [1];                                                          // macro_storage.jsxi:31
-		name = name [0];                                                           // macro_storage.jsxi:32
+		callback = name [3];                                                       // macro_storage.jsxi:30
+		context = name [2];                                                        // macro_storage.jsxi:31
+		level = name [1];                                                          // macro_storage.jsxi:32
+		name = name [0];                                                           // macro_storage.jsxi:33
 	} else
 		this.log ('requested @' + name + (level ? ' (at ' + level + ')' : '') + '');
 	
-	if (this.macros [name]){                                                       // macro_storage.jsxi:36
+	if (this.macros [name]){                                                       // macro_storage.jsxi:37
 		var __1u = this.macros [name];
 		
 		for (var __1t = 0; __1t < __1u.length; __1t ++){
 			var macro = __1u [__1t];
 			
 			if (macro.level.length >= max && macro.level.length <= level.length && level.substring (0, macro.level.length) === macro.level){
-				result = macro;                                                    // macro_storage.jsxi:42
-				max = macro.level.length;                                          // macro_storage.jsxi:43
+				result = macro;                                                    // macro_storage.jsxi:43
+				max = macro.level.length;                                          // macro_storage.jsxi:44
 			}
 		}
 		
 		__1u = undefined;
 	}
 	
-	if (result !== undefined){                                                     // macro_storage.jsxi:46
-		result.initialize (function (arg){                                         // macro_storage.jsxi:47
-			return callback (result);                                              // macro_storage.jsxi:47
+	if (result !== undefined){                                                     // macro_storage.jsxi:47
+		result.initialize (function (arg){                                         // macro_storage.jsxi:48
+			return callback (result);                                              // macro_storage.jsxi:48
 		});
 		
-		if (requestMode)                                                           // macro_storage.jsxi:49
+		if (requestMode)                                                           // macro_storage.jsxi:50
 			return true;
-	} else if (!requestMode)                                                       // macro_storage.jsxi:51
-		this.requests.push (arguments);                                            // macro_storage.jsxi:52
+	} else if (!requestMode)                                                       // macro_storage.jsxi:52
+		this.requests.push (arguments);                                            // macro_storage.jsxi:53
 };
 
 function Queue (object, mode){                                                     // queue.jsxi:1

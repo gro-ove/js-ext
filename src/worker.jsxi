@@ -29,7 +29,7 @@ public class Worker {
 				callback ();
 			} else if (fileStorage.has (lambda arg.state !== File.STATE_FINISHED && arg.state !== File.STATE_MACRO_WAITING) 
 				&& MacroCall.waitingForCallback === 0 && MacroCall.waitingForMacro > 0){
-				console.fatal ('Macro initialization failed: ' + macroStorage.requests.map (lambda '@' + arg [0]).join (', '));
+				console.fatal ('Macro initialization failed: ' + macroStorage.requests.map (lambda '@' + arg [0] + ' (' + arg [2] + ')').join (', '));
 			}
 		}, 300);
 	}
