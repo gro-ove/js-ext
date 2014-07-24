@@ -105,17 +105,21 @@ public class File {
 		console.assert (state == STATE_INITIAL, 'Wrong state (' + state + ')');
 		state = STATE_MACRO_WAITING;
 
-		fs.readFile (fullpath, lambda (error, data){
-			if (error)
-				console.fatal (error);
+		content = String (fs.readFileSync (fullpath));
+		state = STATE_LOADED;
+		callback ();
 
-			state 		= STATE_LOADED;
-			content 	= String (data);
+		// fs.readFile (fullpath, lambda (error, data){
+		// 	if (error)
+		// 		console.fatal (error);
 
-			// log ('loaded', content.length ? '(' + content.length + ' bytes)' : '(empty)');
+		// 	state 		= STATE_LOADED;
+		// 	content 	= String (data);
 
-			callback ();
-		});
+		// 	// log ('loaded', content.length ? '(' + content.length + ' bytes)' : '(empty)');
+
+		// 	callback ();
+		// });
 	}
 
 	public macros (callback){

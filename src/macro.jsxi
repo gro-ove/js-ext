@@ -10,7 +10,7 @@
 				
 		this.level 				= level;
 		this.context 			= context;
-		this.rawBody 			= macroBody;
+		this.rawBody 			= String (macroBody);
 		this.localStorage 		= {};
 
 		this.arguments 			= macroArgs === null 

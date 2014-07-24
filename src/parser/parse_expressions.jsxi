@@ -413,9 +413,14 @@ function parsePostfixExpression (){
 }
 
 function parseGroupExpression (){
+	var oldPreventSequence = state.preventSequence;
+	state.preventSequence = false;
+
 	expect ('(');
 	var result = parseExpression ();
 	expect (')');
+
+	state.preventSequence = oldPreventSequence;
 	return result;
 }
 

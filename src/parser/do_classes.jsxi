@@ -700,6 +700,9 @@ function doClasses (statements, callback){
 			for (var name, member in classEntry.members){
 				if (member.method && !member.abstract && member.className === classEntry.id)
 					processClassMethod (classEntry, member);
+
+				if (!member.method && member.static && member.init) // TODO: Temporary fix
+					processClassMethod (classEntry, member.init);
 			}
 		}
 
@@ -718,7 +721,7 @@ function doClasses (statements, callback){
 
 					// Есть статическое поле или метод
 					if (staticFields.length > 0 || staticMethods.length > 0)
-						return OutputMode.Static;
+						return OutputMode.Default; // TODO: Temporary fix; original value: OutputMode.Static
 
 					// В инициализаторе что-то есть
 					if (initializer.body.body.length > 0)
@@ -810,6 +813,8 @@ function doClasses (statements, callback){
 						result.push (assignmentStatement (memberExpression (classEntry.id.name, field.id), field.init || 'undefined'));
 				}
 
+				// TODO: Если что насчёт поля, инициализирующегося вызовом метода?
+
 				// Статические методы
 				for (var method in-array staticMethods){
 					if (method.publicMode === 'private')
@@ -825,6 +830,12 @@ function doClasses (statements, callback){
 
 				// Статические поля
 				for (var field in-array staticFields){
+					// if (field.init){
+					// 	if (field.publicMode === 'private')
+					// 		result [0].declarations.push (identifier (field.id.name));
+					// 	continue;
+					// }
+
 					if (field.publicMode === 'private')
 						result [0].declarations.push (field);
 					else 

@@ -310,6 +310,34 @@
 	c.poop ();
 });
 
+@test ('Static fields with initializers', {
+	[ 4, 4 ]
+	[ 2 ]
+}, {
+	class A {
+		static var a = 2;
+		static var b = a + 2;
+
+		static public var pa = 2;
+		static public var pb = pa + 2;
+
+		() {
+			@output { b, pb };
+		}
+	}
+
+	class B {
+		static public a = 1, b = a * 2;
+
+		() {
+			@output { b };
+		}
+	}
+
+	new A ();
+	new B ();
+});
+
 @test ('Constructors', {
 	[ 'A:' ], [ 'A' ]
 	[ 'B:' ], [ 'A' ], [ 'B' ]

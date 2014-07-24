@@ -836,23 +836,77 @@ function __prototypeExtend (c,
 (function (result){                                                                // tests.jsx:380
 	var missed = false;
 	
-	(function test_constructors (log){                                             // tests.jsx:382
+	(function test_static_fields_with_initializers (log){                          // tests.jsx:382
+		/* Class "B" declaration */
+		function B (){                                                             // tests.jsx:395
+			log ([ B.b ]);                                                         // tests.jsx:399
+		}
+		B.a = 1;                                                                   // tests.jsx:396
+		B.b = B.a * 2;                                                             // tests.jsx:396
+		
 		/* Class "A" declaration */
-		function A (){                                                             // tests.jsx:383
-			log ([ 'A' ]);                                                         // tests.jsx:385
+		var A = (function (){                                                      // tests.jsx:383
+			var A = function (){                                                   // tests.jsx:383
+					log ([ b, A.pb ]);                                             // tests.jsx:391
+				}, 
+				a = 2,                                                             // tests.jsx:384
+				b = a + 2;                                                         // tests.jsx:385
+			
+			A.pa = 2;                                                              // tests.jsx:387
+			A.pb = A.pa + 2;                                                       // tests.jsx:388
+			return A;
+		})();
+		
+		new A ();                                                                  // tests.jsx:403
+		new B ();                                                                  // tests.jsx:404
+	})(function (args){                                                            // tests.jsx:405
+		var expected = JSON.stringify (result.shift ()),                           // tests.jsx:406
+			got = JSON.stringify (args);                                           // tests.jsx:407
+		
+		if (expected === undefined){                                               // tests.jsx:408
+			if (!missed){                                                          // tests.jsx:409
+				console.log ('Missing entry:');                                    // tests.jsx:410
+				missed = true;                                                     // tests.jsx:411
+			}
+			
+			var temp = [];
+			
+			console.log ('\t' + got.replace (/"((?:\\"|[^"])+)"/g,                 // tests.jsx:415
+				function (m, s){                                                   // tests.jsx:416
+					return '\'' + temp.push (s) + '\'';                            // tests.jsx:416
+				}).replace (/(,|\[|\{|\:)|(\]|\})/g, '$1 $2').replace (/'(\d+)'/g, 
+				function (m, s){                                                   // tests.jsx:418
+					return '\'' + temp [+ s - 1].replace (/\\"/g, '"').replace (/'/g, '\\\'') + '\'';
+				}));
+		} else if (expected !== got)                                               // tests.jsx:419
+			throw new Error ('Expected and got:\n\t' + expected + '\n\t' + got);   // tests.jsx:420
+	});
+	console.log ('[Testing] Test "Static fields with initializers" has been passed');
+})([
+	[ 4, 
+		4 ], 
+	[ 2 ]
+]);
+(function (result){                                                                // tests.jsx:425
+	var missed = false;
+	
+	(function test_constructors (log){                                             // tests.jsx:427
+		/* Class "A" declaration */
+		function A (){                                                             // tests.jsx:428
+			log ([ 'A' ]);                                                         // tests.jsx:430
 		}
 		
 		/* Class "B" declaration */
-		function B (){                                                             // tests.jsx:389
+		function B (){                                                             // tests.jsx:434
 			A.apply (this, 
 				arguments);
-			log ([ 'B' ]);                                                         // tests.jsx:391
+			log ([ 'B' ]);                                                         // tests.jsx:436
 		}
 		__prototypeExtend (B, 
 			A);
 		
 		/* Class "C" declaration */
-		function C (){                                                             // tests.jsx:395
+		function C (){                                                             // tests.jsx:440
 			B.apply (this, 
 				arguments);
 		}
@@ -860,34 +914,34 @@ function __prototypeExtend (c,
 			B);
 		
 		/* Class "D" declaration */
-		function D (){                                                             // tests.jsx:398
+		function D (){                                                             // tests.jsx:443
 			C.apply (this, 
 				arguments);
-			log ([ 'D' ]);                                                         // tests.jsx:400
+			log ([ 'D' ]);                                                         // tests.jsx:445
 		}
 		__prototypeExtend (D, 
 			C);
 		
 		/* Class "E" declaration */
-		function E (arg){                                                          // tests.jsx:404
+		function E (arg){                                                          // tests.jsx:449
 			D.apply (this, 
 				arguments);
-			log ([ 'E(' + arg + ')' ]);                                            // tests.jsx:406
+			log ([ 'E(' + arg + ')' ]);                                            // tests.jsx:451
 		}
 		__prototypeExtend (E, 
 			D);
 		
 		/* Class "F" declaration */
-		function F (arg){                                                          // tests.jsx:410
+		function F (arg){                                                          // tests.jsx:455
 			E.call (this, 
 				arg);
-			log ([ 'F(' + arg + ')' ]);                                            // tests.jsx:413
+			log ([ 'F(' + arg + ')' ]);                                            // tests.jsx:458
 		}
 		__prototypeExtend (F, 
 			E);
 		
 		/* Class "G" declaration */
-		function G (){                                                             // tests.jsx:417
+		function G (){                                                             // tests.jsx:462
 			F.apply (this, 
 				arguments);
 		}
@@ -897,38 +951,38 @@ function __prototypeExtend (c,
 		{
 			var __c = [ A, B, C, D, E, F, G ];
 			
-			for (var i = 0; i < __c.length; i ++){                                 // tests.jsx:419
+			for (var i = 0; i < __c.length; i ++){                                 // tests.jsx:464
 				var c = __c [i];
 				
-				log ([ c.name + ':' ]);                                            // tests.jsx:420
-				new c (i);                                                         // tests.jsx:421
+				log ([ c.name + ':' ]);                                            // tests.jsx:465
+				new c (i);                                                         // tests.jsx:466
 			}
 			
 			__c = undefined;
 		}
-	})(function (args){                                                            // tests.jsx:423
-		var expected = JSON.stringify (result.shift ()),                           // tests.jsx:424
-			got = JSON.stringify (args);                                           // tests.jsx:425
+	})(function (args){                                                            // tests.jsx:468
+		var expected = JSON.stringify (result.shift ()),                           // tests.jsx:469
+			got = JSON.stringify (args);                                           // tests.jsx:470
 		
-		if (expected === undefined){                                               // tests.jsx:426
-			if (!missed){                                                          // tests.jsx:427
-				console.log ('Missing entry:');                                    // tests.jsx:428
-				missed = true;                                                     // tests.jsx:429
+		if (expected === undefined){                                               // tests.jsx:471
+			if (!missed){                                                          // tests.jsx:472
+				console.log ('Missing entry:');                                    // tests.jsx:473
+				missed = true;                                                     // tests.jsx:474
 			}
 			
 			var temp = [];
 			
-			console.log ('\t' + got.replace (/"((?:\\"|[^"])+)"/g,                 // tests.jsx:433
-				function (m, s){                                                   // tests.jsx:434
-					return '\'' + temp.push (s) + '\'';                            // tests.jsx:434
+			console.log ('\t' + got.replace (/"((?:\\"|[^"])+)"/g,                 // tests.jsx:478
+				function (m, s){                                                   // tests.jsx:479
+					return '\'' + temp.push (s) + '\'';                            // tests.jsx:479
 				}).replace (/(,|\[|\{|\:)|(\]|\})/g, '$1 $2').replace (/'(\d+)'/g, 
-				function (m, s){                                                   // tests.jsx:436
+				function (m, s){                                                   // tests.jsx:481
 					return '\'' + temp [+ s - 1].replace (/\\"/g, '"').replace (/'/g, '\\\'') + '\'';
 				}));
-		} else if (expected !== got)                                               // tests.jsx:437
-			throw new Error ('Expected and got:\n\t' + expected + '\n\t' + got);   // tests.jsx:438
+		} else if (expected !== got)                                               // tests.jsx:482
+			throw new Error ('Expected and got:\n\t' + expected + '\n\t' + got);   // tests.jsx:483
 	});
-	console.log ('[Testing] Test "Constructors" has been passed');                 // tests.jsx:440
+	console.log ('[Testing] Test "Constructors" has been passed');                 // tests.jsx:485
 })([
 	[ 'A:' ], 
 	[ 'A' ], 
@@ -960,171 +1014,171 @@ function __prototypeExtend (c,
 	[ 'E(6)' ], 
 	[ 'F(6)' ]
 ]);
-(function (result){                                                                // tests.jsx:443
+(function (result){                                                                // tests.jsx:488
 	var missed = false;
 	
-	(function test_hardcore_test_for_classes (log){                                // tests.jsx:445
+	(function test_hardcore_test_for_classes (log){                                // tests.jsx:490
 		/* Class "A" declaration */
-		function A (){                                                             // tests.jsx:446
-			this.__parent = 'WOOHOO!';                                             // tests.jsx:447
+		function A (){                                                             // tests.jsx:491
+			this.__parent = 'WOOHOO!';                                             // tests.jsx:492
 		}
 		
 		/* Class "B" declaration */
-		var B = (function (){                                                      // tests.jsx:450
-			var B = function (variable){                                           // tests.jsx:450
+		var B = (function (){                                                      // tests.jsx:495
+			var B = function (variable){                                           // tests.jsx:495
 					this.__B_testObj = {
-						find: (function (){                                        // tests.jsx:528
+						find: (function (){                                        // tests.jsx:573
 							return [ { variable: 'deep!' } ];
 						})
 					};
 					A.apply (this, 
 						arguments);
-					this.__B_variable = variable;                                  // tests.jsx:457
-					this.qwerty = 'default';                                       // tests.jsx:458
+					this.__B_variable = variable;                                  // tests.jsx:502
+					this.qwerty = 'default';                                       // tests.jsx:503
 				}, 
-				privateStatic = 'done';                                            // tests.jsx:451
+				privateStatic = 'done';                                            // tests.jsx:496
 			
 			__prototypeExtend (B, 
 				A);
-			B.prototype.test = function (a, b){                                    // tests.jsx:461
+			B.prototype.test = function (a, b){                                    // tests.jsx:506
 				var __;
 				
-				a [a instanceof B ? '__B_variable' : 'variable'] += '-changed';    // tests.jsx:462
-				b [b instanceof B ? '__B_variable' : 'variable'] += '-changed';    // tests.jsx:463
-				log ([                                                             // tests.jsx:464
-					this.__B_variable,                                             // tests.jsx:464
-					a [a instanceof B ? '__B_variable' : 'variable'],              // tests.jsx:464
-					b [b instanceof B ? '__B_variable' : 'variable'],              // tests.jsx:464
+				a [a instanceof B ? '__B_variable' : 'variable'] += '-changed';    // tests.jsx:507
+				b [b instanceof B ? '__B_variable' : 'variable'] += '-changed';    // tests.jsx:508
+				log ([                                                             // tests.jsx:509
+					this.__B_variable,                                             // tests.jsx:509
+					a [a instanceof B ? '__B_variable' : 'variable'],              // tests.jsx:509
+					b [b instanceof B ? '__B_variable' : 'variable'],              // tests.jsx:509
 					(__ = new A (), __ [__ instanceof A ? '__parent' : 'parent'])
 				]);
 			};
-			B.prototype.other = function (a, b){                                   // tests.jsx:467
+			B.prototype.other = function (a, b){                                   // tests.jsx:512
 				var __;
 				
-				function getA (){                                                  // tests.jsx:468
-					log ([ '[getA]' ]);                                            // tests.jsx:469
+				function getA (){                                                  // tests.jsx:513
+					log ([ '[getA]' ]);                                            // tests.jsx:514
 					return {
-						get: (function (){                                         // tests.jsx:471
-							log ([ '[getA][get]' ]);                               // tests.jsx:472
-							return a;                                              // tests.jsx:473
+						get: (function (){                                         // tests.jsx:516
+							log ([ '[getA][get]' ]);                               // tests.jsx:517
+							return a;                                              // tests.jsx:518
 						})
 					};
 				}
 				
-				function getB (){                                                  // tests.jsx:478
-					log ([ '[getB]' ]);                                            // tests.jsx:479
+				function getB (){                                                  // tests.jsx:523
+					log ([ '[getB]' ]);                                            // tests.jsx:524
 					return {
-						get: (function (){                                         // tests.jsx:481
-							log ([ '[getB][get]' ]);                               // tests.jsx:482
-							return b;                                              // tests.jsx:483
+						get: (function (){                                         // tests.jsx:526
+							log ([ '[getB][get]' ]);                               // tests.jsx:527
+							return b;                                              // tests.jsx:528
 						})
 					};
 				}
 				
-				log ([                                                             // tests.jsx:488
-					(__ = getA ().get (),                                          // tests.jsx:488
+				log ([                                                             // tests.jsx:533
+					(__ = getA ().get (),                                          // tests.jsx:533
 						__ [__ instanceof B ? '__B_variable' : 'variable'] += '-changed'), 
-					(__ = getB ().get (),                                          // tests.jsx:488
+					(__ = getB ().get (),                                          // tests.jsx:533
 						__ [__ instanceof B ? '__B_variable' : 'variable'] += '-changed')
 				]);
-				log ([ 'ok' ]);                                                    // tests.jsx:489
-				log ([                                                             // tests.jsx:490
-					(__ = getA ().get (),                                          // tests.jsx:490
+				log ([ 'ok' ]);                                                    // tests.jsx:534
+				log ([                                                             // tests.jsx:535
+					(__ = getA ().get (),                                          // tests.jsx:535
 						__ [__ instanceof B ? '__B_variable' : 'variable']), 
-					(__ = getB ().get (),                                          // tests.jsx:490
+					(__ = getB ().get (),                                          // tests.jsx:535
 						__ [__ instanceof B ? '__B_variable' : 'variable'])
 				]);
 			};
-			B.prototype.final = function (a, b){                                   // tests.jsx:493
-				function getA (){                                                  // tests.jsx:494
-					log ([ '[getA]' ]);                                            // tests.jsx:495
-					return a;                                                      // tests.jsx:496
+			B.prototype.final = function (a, b){                                   // tests.jsx:538
+				function getA (){                                                  // tests.jsx:539
+					log ([ '[getA]' ]);                                            // tests.jsx:540
+					return a;                                                      // tests.jsx:541
 				}
 				
-				function getB (){                                                  // tests.jsx:499
-					log ([ '[getB]' ]);                                            // tests.jsx:500
-					return b;                                                      // tests.jsx:501
+				function getB (){                                                  // tests.jsx:544
+					log ([ '[getB]' ]);                                            // tests.jsx:545
+					return b;                                                      // tests.jsx:546
 				}
 				
 				log ([ getA ().qwerty += '-changed', getB ().qwerty += '-changed' ]);
-				log ([ a.qwerty, b.qwerty ]);                                      // tests.jsx:505
+				log ([ a.qwerty, b.qwerty ]);                                      // tests.jsx:550
 			};
-			B.prototype.method = function (a, b){                                  // tests.jsx:508
+			B.prototype.method = function (a, b){                                  // tests.jsx:553
 				var __;
 				
-				function getA (){                                                  // tests.jsx:509
-					log ([ '[getA]' ]);                                            // tests.jsx:510
-					return a;                                                      // tests.jsx:511
+				function getA (){                                                  // tests.jsx:554
+					log ([ '[getA]' ]);                                            // tests.jsx:555
+					return a;                                                      // tests.jsx:556
 				}
 				
-				function getB (){                                                  // tests.jsx:514
-					log ([ '[getB]' ]);                                            // tests.jsx:515
-					return b;                                                      // tests.jsx:516
+				function getB (){                                                  // tests.jsx:559
+					log ([ '[getB]' ]);                                            // tests.jsx:560
+					return b;                                                      // tests.jsx:561
 				}
 				
-				log ([                                                             // tests.jsx:519
-					(__ = getA (),                                                 // tests.jsx:519
+				log ([                                                             // tests.jsx:564
+					(__ = getA (),                                                 // tests.jsx:564
 						__ [__ instanceof B ? '__B_testMethod' : 'testMethod']).call (__, 
 						1, 
 						2), 
-					(__ = getB (),                                                 // tests.jsx:519
+					(__ = getB (),                                                 // tests.jsx:564
 						__ [__ instanceof B ? '__B_testMethod' : 'testMethod']).call (__, 
 						3)
 				]);
 			};
-			B.prototype.__B_testMethod = function (){                              // tests.jsx:522
-				log ([ arguments ]);                                               // tests.jsx:523
-				return this instanceof B;                                          // tests.jsx:524
+			B.prototype.__B_testMethod = function (){                              // tests.jsx:567
+				log ([ arguments ]);                                               // tests.jsx:568
+				return this instanceof B;                                          // tests.jsx:569
 			};
-			B.prototype.awful = function (){                                       // tests.jsx:537
+			B.prototype.awful = function (){                                       // tests.jsx:582
 				var __;
 				
-				log ([                                                             // tests.jsx:538
-					(__ = this.__B_testObj.find ()[0],                             // tests.jsx:538
+				log ([                                                             // tests.jsx:583
+					(__ = this.__B_testObj.find ()[0],                             // tests.jsx:583
 						__ [__ instanceof B ? '__B_variable' : 'variable'])
 				]);
 			};
-			B.prototype.staticTest = function (obj){                               // tests.jsx:541
-				log ([ obj.privateStatic, privateStatic ]);                        // tests.jsx:542
+			B.prototype.staticTest = function (obj){                               // tests.jsx:586
+				log ([ obj.privateStatic, privateStatic ]);                        // tests.jsx:587
 			};
 			return B;
 		})();
 		
-		new B ('first').method (new B ('second'),                                  // tests.jsx:546
+		new B ('first').method (new B ('second'),                                  // tests.jsx:591
 			{
-				testMethod: (function (arg){                                       // tests.jsx:546
-					return this.result + arg;                                      // tests.jsx:546
+				testMethod: (function (arg){                                       // tests.jsx:591
+					return this.result + arg;                                      // tests.jsx:591
 				}), 
 				result: 'success'
 			});
-		new B ('first').test (new B ('second'), { variable: 'success' });          // tests.jsx:547
-		new B ('first').other (new B ('second'), { variable: 'success' });         // tests.jsx:548
-		new B ('first').final (new B ('second'), { qwerty: 'qwerty' });            // tests.jsx:549
-		new B ().awful ();                                                         // tests.jsx:550
-		new B ('first').staticTest ({ privateStatic: 'arg' });                     // tests.jsx:551
-	})(function (args){                                                            // tests.jsx:552
-		var expected = JSON.stringify (result.shift ()),                           // tests.jsx:553
-			got = JSON.stringify (args);                                           // tests.jsx:554
+		new B ('first').test (new B ('second'), { variable: 'success' });          // tests.jsx:592
+		new B ('first').other (new B ('second'), { variable: 'success' });         // tests.jsx:593
+		new B ('first').final (new B ('second'), { qwerty: 'qwerty' });            // tests.jsx:594
+		new B ().awful ();                                                         // tests.jsx:595
+		new B ('first').staticTest ({ privateStatic: 'arg' });                     // tests.jsx:596
+	})(function (args){                                                            // tests.jsx:597
+		var expected = JSON.stringify (result.shift ()),                           // tests.jsx:598
+			got = JSON.stringify (args);                                           // tests.jsx:599
 		
-		if (expected === undefined){                                               // tests.jsx:555
-			if (!missed){                                                          // tests.jsx:556
-				console.log ('Missing entry:');                                    // tests.jsx:557
-				missed = true;                                                     // tests.jsx:558
+		if (expected === undefined){                                               // tests.jsx:600
+			if (!missed){                                                          // tests.jsx:601
+				console.log ('Missing entry:');                                    // tests.jsx:602
+				missed = true;                                                     // tests.jsx:603
 			}
 			
 			var temp = [];
 			
-			console.log ('\t' + got.replace (/"((?:\\"|[^"])+)"/g,                 // tests.jsx:562
-				function (m, s){                                                   // tests.jsx:563
-					return '\'' + temp.push (s) + '\'';                            // tests.jsx:563
+			console.log ('\t' + got.replace (/"((?:\\"|[^"])+)"/g,                 // tests.jsx:607
+				function (m, s){                                                   // tests.jsx:608
+					return '\'' + temp.push (s) + '\'';                            // tests.jsx:608
 				}).replace (/(,|\[|\{|\:)|(\]|\})/g, '$1 $2').replace (/'(\d+)'/g, 
-				function (m, s){                                                   // tests.jsx:565
+				function (m, s){                                                   // tests.jsx:610
 					return '\'' + temp [+ s - 1].replace (/\\"/g, '"').replace (/'/g, '\\\'') + '\'';
 				}));
-		} else if (expected !== got)                                               // tests.jsx:566
-			throw new Error ('Expected and got:\n\t' + expected + '\n\t' + got);   // tests.jsx:567
+		} else if (expected !== got)                                               // tests.jsx:611
+			throw new Error ('Expected and got:\n\t' + expected + '\n\t' + got);   // tests.jsx:612
 	});
-	console.log ('[Testing] Test "Hardcore test for classes" has been passed');    // tests.jsx:569
+	console.log ('[Testing] Test "Hardcore test for classes" has been passed');    // tests.jsx:614
 })([
 	[ '[getA]' ], 
 	[ { '0': 1, '1': 2 } ], 
@@ -1150,55 +1204,55 @@ function __prototypeExtend (c,
 	[ 'deep!' ], 
 	[ 'arg', 'done' ]
 ]);
-(function (result){                                                                // tests.jsx:572
+(function (result){                                                                // tests.jsx:617
 	var missed = false;
 	
-	(function test_access_through___that (log){                                    // tests.jsx:574
+	(function test_access_through___that (log){                                    // tests.jsx:619
 		/* Class "A" declaration */
-		function A (){                                                             // tests.jsx:575
+		function A (){                                                             // tests.jsx:620
 			var __that = this;
 			
-			this.__A_a = 'ok-a';                                                   // tests.jsx:576
-			this.__A_b = 'ok-b';                                                   // tests.jsx:576
-			Function.prototype.call.call ((function (arg){                         // tests.jsx:578
-				log ([ '[A]', __that.__A_a, this ['b'] ]);                         // tests.jsx:579
-			}).bind ({ b: 'ok-ok-ok-b' }),                                         // tests.jsx:580
+			this.__A_a = 'ok-a';                                                   // tests.jsx:621
+			this.__A_b = 'ok-b';                                                   // tests.jsx:621
+			Function.prototype.call.call ((function (arg){                         // tests.jsx:623
+				log ([ '[A]', __that.__A_a, this ['b'] ]);                         // tests.jsx:624
+			}).bind ({ b: 'ok-ok-ok-b' }),                                         // tests.jsx:625
 			10);
-			log ([ '[B]', this.__A_a, this.__A_b ]);                               // tests.jsx:581
+			log ([ '[B]', this.__A_a, this.__A_b ]);                               // tests.jsx:626
 		}
 		
-		new A ();                                                                  // tests.jsx:585
-	})(function (args){                                                            // tests.jsx:586
-		var expected = JSON.stringify (result.shift ()),                           // tests.jsx:587
-			got = JSON.stringify (args);                                           // tests.jsx:588
+		new A ();                                                                  // tests.jsx:630
+	})(function (args){                                                            // tests.jsx:631
+		var expected = JSON.stringify (result.shift ()),                           // tests.jsx:632
+			got = JSON.stringify (args);                                           // tests.jsx:633
 		
-		if (expected === undefined){                                               // tests.jsx:589
-			if (!missed){                                                          // tests.jsx:590
-				console.log ('Missing entry:');                                    // tests.jsx:591
-				missed = true;                                                     // tests.jsx:592
+		if (expected === undefined){                                               // tests.jsx:634
+			if (!missed){                                                          // tests.jsx:635
+				console.log ('Missing entry:');                                    // tests.jsx:636
+				missed = true;                                                     // tests.jsx:637
 			}
 			
 			var temp = [];
 			
-			console.log ('\t' + got.replace (/"((?:\\"|[^"])+)"/g,                 // tests.jsx:596
-				function (m, s){                                                   // tests.jsx:597
-					return '\'' + temp.push (s) + '\'';                            // tests.jsx:597
+			console.log ('\t' + got.replace (/"((?:\\"|[^"])+)"/g,                 // tests.jsx:641
+				function (m, s){                                                   // tests.jsx:642
+					return '\'' + temp.push (s) + '\'';                            // tests.jsx:642
 				}).replace (/(,|\[|\{|\:)|(\]|\})/g, '$1 $2').replace (/'(\d+)'/g, 
-				function (m, s){                                                   // tests.jsx:599
+				function (m, s){                                                   // tests.jsx:644
 					return '\'' + temp [+ s - 1].replace (/\\"/g, '"').replace (/'/g, '\\\'') + '\'';
 				}));
-		} else if (expected !== got)                                               // tests.jsx:600
-			throw new Error ('Expected and got:\n\t' + expected + '\n\t' + got);   // tests.jsx:601
+		} else if (expected !== got)                                               // tests.jsx:645
+			throw new Error ('Expected and got:\n\t' + expected + '\n\t' + got);   // tests.jsx:646
 	});
-	console.log ('[Testing] Test "Access through __that" has been passed');        // tests.jsx:603
+	console.log ('[Testing] Test "Access through __that" has been passed');        // tests.jsx:648
 })([
 	[ '[A]', 'ok-a', 'ok-ok-ok-b' ], 
 	[ '[B]', 'ok-a', 'ok-b' ]
 ]);
-(function (result){                                                                // tests.jsx:606
+(function (result){                                                                // tests.jsx:651
 	var missed = false;
 	
-	(function test_for_parser_and_generator (log){                                 // tests.jsx:608
+	(function test_for_parser_and_generator (log){                                 // tests.jsx:653
 		[ 0, 
 			1, 
 			2, 
@@ -1211,9 +1265,9 @@ function __prototypeExtend (c,
 			6, 
 			5 ];
 		
-		var a = function (){                                                       // tests.jsx:612
-				log ([                                                             // tests.jsx:613
-					'5',                                                           // tests.jsx:613
+		var a = function (){                                                       // tests.jsx:657
+				log ([                                                             // tests.jsx:658
+					'5',                                                           // tests.jsx:658
 					'58', 
 					'test58', 
 					'begin insert middle test end', 
@@ -1221,149 +1275,149 @@ function __prototypeExtend (c,
 					'5-5-8'
 				]);
 			}, 
-			b = function (variable5, variable8){                                   // tests.jsx:622
-				if (variable5 === undefined)                                       // tests.jsx:622
-					variable5 = 1;                                                 // tests.jsx:622
+			b = function (variable5, variable8){                                   // tests.jsx:667
+				if (variable5 === undefined)                                       // tests.jsx:667
+					variable5 = 1;                                                 // tests.jsx:667
 			
-				if (variable8 === undefined)                                       // tests.jsx:622
-					variable8 = 'K';                                               // tests.jsx:622
+				if (variable8 === undefined)                                       // tests.jsx:667
+					variable8 = 'K';                                               // tests.jsx:667
 			
 				function q (){}
 				
-				log ([                                                             // tests.jsx:625
-					'' + variable5,                                                // tests.jsx:625
-					'' + variable5 + variable8,                                    // tests.jsx:627
+				log ([                                                             // tests.jsx:670
+					'' + variable5,                                                // tests.jsx:670
+					'' + variable5 + variable8,                                    // tests.jsx:672
 					'test' + variable5 + variable8
 				]);
 				
-				function a (){                                                     // tests.jsx:631
-					console.warn ('Not implemented at 631 line of tests.jsx');     // tests.jsx:631
+				function a (){                                                     // tests.jsx:676
+					console.warn ('Not implemented at 676 line of tests.jsx');     // tests.jsx:676
 				}
 				
 				function b (){}
 				
-				if (a)                                                             // tests.jsx:635
+				if (a)                                                             // tests.jsx:680
 					function s (){}
 			};
 		
-		log ([ 'hi' ]);                                                            // tests.jsx:639
+		log ([ 'hi' ]);                                                            // tests.jsx:684
 		
 		while (0);
 		
-		log ([                                                                     // tests.jsx:643
-			0x86,                                                                  // tests.jsx:643
-			'test',                                                                // tests.jsx:646
-			'\n\r\t',                                                              // tests.jsx:647
+		log ([                                                                     // tests.jsx:688
+			0x86,                                                                  // tests.jsx:688
+			'test',                                                                // tests.jsx:691
+			'\n\r\t',                                                              // tests.jsx:692
 			'multiline\
-	string',                                                                       // tests.jsx:649
-			'qqq\'qqq',                                                            // tests.jsx:650
-			'\u0061',                                                              // tests.jsx:651
+	string',                                                                       // tests.jsx:694
+			'qqq\'qqq',                                                            // tests.jsx:695
+			'\u0061',                                                              // tests.jsx:696
 			'\%\~'
 		]);
-		log ([                                                                     // tests.jsx:655
-			'begin ' + console + ' end',                                           // tests.jsx:655
-			'' + console,                                                          // tests.jsx:657
-			'be\ngin \'' + console + ' middle ' + JSON + ' end',                   // tests.jsx:659
+		log ([                                                                     // tests.jsx:700
+			'begin ' + console + ' end',                                           // tests.jsx:700
+			'' + console,                                                          // tests.jsx:702
+			'be\ngin \'' + console + ' middle ' + JSON + ' end',                   // tests.jsx:704
 			'', 
 			'attaching test', 
 			'here goes hardcore test', 
 			'really hardcore te\'st', 
 			'really hardcore te"st'
 		]);
-		a ();                                                                      // tests.jsx:669
-	})(function (args){                                                            // tests.jsx:670
-		var expected = JSON.stringify (result.shift ()),                           // tests.jsx:671
-			got = JSON.stringify (args);                                           // tests.jsx:672
+		a ();                                                                      // tests.jsx:714
+	})(function (args){                                                            // tests.jsx:715
+		var expected = JSON.stringify (result.shift ()),                           // tests.jsx:716
+			got = JSON.stringify (args);                                           // tests.jsx:717
 		
-		if (expected === undefined){                                               // tests.jsx:673
-			if (!missed){                                                          // tests.jsx:674
-				console.log ('Missing entry:');                                    // tests.jsx:675
-				missed = true;                                                     // tests.jsx:676
+		if (expected === undefined){                                               // tests.jsx:718
+			if (!missed){                                                          // tests.jsx:719
+				console.log ('Missing entry:');                                    // tests.jsx:720
+				missed = true;                                                     // tests.jsx:721
 			}
 			
 			var temp = [];
 			
-			console.log ('\t' + got.replace (/"((?:\\"|[^"])+)"/g,                 // tests.jsx:680
-				function (m, s){                                                   // tests.jsx:681
-					return '\'' + temp.push (s) + '\'';                            // tests.jsx:681
+			console.log ('\t' + got.replace (/"((?:\\"|[^"])+)"/g,                 // tests.jsx:725
+				function (m, s){                                                   // tests.jsx:726
+					return '\'' + temp.push (s) + '\'';                            // tests.jsx:726
 				}).replace (/(,|\[|\{|\:)|(\]|\})/g, '$1 $2').replace (/'(\d+)'/g, 
-				function (m, s){                                                   // tests.jsx:683
+				function (m, s){                                                   // tests.jsx:728
 					return '\'' + temp [+ s - 1].replace (/\\"/g, '"').replace (/'/g, '\\\'') + '\'';
 				}));
-		} else if (expected !== got)                                               // tests.jsx:684
-			throw new Error ('Expected and got:\n\t' + expected + '\n\t' + got);   // tests.jsx:685
+		} else if (expected !== got)                                               // tests.jsx:729
+			throw new Error ('Expected and got:\n\t' + expected + '\n\t' + got);   // tests.jsx:730
 	});
-	console.log ('[Testing] Test "For parser and generator" has been passed');     // tests.jsx:687
+	console.log ('[Testing] Test "For parser and generator" has been passed');     // tests.jsx:732
 })([
 	[ 'hi' ], 
 	[
 		134, 
-		'test',                                                                    // tests.jsx:688
-		'\n\r\t',                                                                  // tests.jsx:688
-		'multiline\tstring',                                                       // tests.jsx:688
-		'qqq\'qqq',                                                                // tests.jsx:688
-		'a',                                                                       // tests.jsx:688
+		'test',                                                                    // tests.jsx:733
+		'\n\r\t',                                                                  // tests.jsx:733
+		'multiline\tstring',                                                       // tests.jsx:733
+		'qqq\'qqq',                                                                // tests.jsx:733
+		'a',                                                                       // tests.jsx:733
 		'%~'
 	], 
 	[
-		'begin [object Object] end',                                               // tests.jsx:688
-		'[object Object]',                                                         // tests.jsx:688
-		'be\ngin \'[object Object] middle [object JSON] end',                      // tests.jsx:688
-		'',                                                                        // tests.jsx:688
-		'attaching test',                                                          // tests.jsx:688
-		'here goes hardcore test',                                                 // tests.jsx:688
-		'really hardcore te\'st',                                                  // tests.jsx:688
+		'begin [object Object] end',                                               // tests.jsx:733
+		'[object Object]',                                                         // tests.jsx:733
+		'be\ngin \'[object Object] middle [object JSON] end',                      // tests.jsx:733
+		'',                                                                        // tests.jsx:733
+		'attaching test',                                                          // tests.jsx:733
+		'here goes hardcore test',                                                 // tests.jsx:733
+		'really hardcore te\'st',                                                  // tests.jsx:733
 		'really hardcore te"st'
 	], 
 	[
-		'5',                                                                       // tests.jsx:688
-		'58',                                                                      // tests.jsx:688
-		'test58',                                                                  // tests.jsx:688
-		'begin insert middle test end',                                            // tests.jsx:688
-		'5-%0-8',                                                                  // tests.jsx:688
+		'5',                                                                       // tests.jsx:733
+		'58',                                                                      // tests.jsx:733
+		'test58',                                                                  // tests.jsx:733
+		'begin insert middle test end',                                            // tests.jsx:733
+		'5-%0-8',                                                                  // tests.jsx:733
 		'5-5-8'
 	]
 ]);
-(function (result){                                                                // tests.jsx:690
+(function (result){                                                                // tests.jsx:735
 	var missed = false;
 	
-	(function test_multiline (log){                                                // tests.jsx:692
+	(function test_multiline (log){                                                // tests.jsx:737
 		var first = " first line\nsecond line\n\ttabbed line\n\tanother one\nlast line", 
 			second = "first line\nsecond line\n\ttabbed line\n\tanother one\nlast line", 
 			third = "first line\nsecond line\n\ttabbed line\n\tanother one\n\tcheck one\nlast line", 
 			fourth = "first line\n\t   second line\n\t\t   tabbed line\n\t\t   another one\n\t   last line", 
 			fifth = "\t\t first line\n\t\tsecond line\n\t\t\ttabbed line\n\t\t\tanother one\nlast line", 
-			symbols = "'\"`";                                                      // tests.jsx:722
+			symbols = "'\"`";                                                      // tests.jsx:767
 		
-		log ([ first ]);                                                           // tests.jsx:724
-		log ([ second ]);                                                          // tests.jsx:725
-		log ([ third ]);                                                           // tests.jsx:726
-		log ([ fourth ]);                                                          // tests.jsx:727
-		log ([ fifth ]);                                                           // tests.jsx:728
-		log ([ symbols ]);                                                         // tests.jsx:729
-	})(function (args){                                                            // tests.jsx:730
-		var expected = JSON.stringify (result.shift ()),                           // tests.jsx:731
-			got = JSON.stringify (args);                                           // tests.jsx:732
+		log ([ first ]);                                                           // tests.jsx:769
+		log ([ second ]);                                                          // tests.jsx:770
+		log ([ third ]);                                                           // tests.jsx:771
+		log ([ fourth ]);                                                          // tests.jsx:772
+		log ([ fifth ]);                                                           // tests.jsx:773
+		log ([ symbols ]);                                                         // tests.jsx:774
+	})(function (args){                                                            // tests.jsx:775
+		var expected = JSON.stringify (result.shift ()),                           // tests.jsx:776
+			got = JSON.stringify (args);                                           // tests.jsx:777
 		
-		if (expected === undefined){                                               // tests.jsx:733
-			if (!missed){                                                          // tests.jsx:734
-				console.log ('Missing entry:');                                    // tests.jsx:735
-				missed = true;                                                     // tests.jsx:736
+		if (expected === undefined){                                               // tests.jsx:778
+			if (!missed){                                                          // tests.jsx:779
+				console.log ('Missing entry:');                                    // tests.jsx:780
+				missed = true;                                                     // tests.jsx:781
 			}
 			
 			var temp = [];
 			
-			console.log ('\t' + got.replace (/"((?:\\"|[^"])+)"/g,                 // tests.jsx:740
-				function (m, s){                                                   // tests.jsx:741
-					return '\'' + temp.push (s) + '\'';                            // tests.jsx:741
+			console.log ('\t' + got.replace (/"((?:\\"|[^"])+)"/g,                 // tests.jsx:785
+				function (m, s){                                                   // tests.jsx:786
+					return '\'' + temp.push (s) + '\'';                            // tests.jsx:786
 				}).replace (/(,|\[|\{|\:)|(\]|\})/g, '$1 $2').replace (/'(\d+)'/g, 
-				function (m, s){                                                   // tests.jsx:743
+				function (m, s){                                                   // tests.jsx:788
 					return '\'' + temp [+ s - 1].replace (/\\"/g, '"').replace (/'/g, '\\\'') + '\'';
 				}));
-		} else if (expected !== got)                                               // tests.jsx:744
-			throw new Error ('Expected and got:\n\t' + expected + '\n\t' + got);   // tests.jsx:745
+		} else if (expected !== got)                                               // tests.jsx:789
+			throw new Error ('Expected and got:\n\t' + expected + '\n\t' + got);   // tests.jsx:790
 	});
-	console.log ('[Testing] Test "Multiline" has been passed');                    // tests.jsx:747
+	console.log ('[Testing] Test "Multiline" has been passed');                    // tests.jsx:792
 })([
 	[
 		' first line\nsecond line\n\ttabbed line\n\tanother one\nlast line'
