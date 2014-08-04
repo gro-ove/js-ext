@@ -1,6 +1,6 @@
 static class Warnings {
 	private output (type, message, location = {}){
-		console.info ('%0: %1 [%2:%3]' (type, message, location.filename || '<unknown file>', location.lineNumber || '<unknown line>'));
+		console.warn ('%0: %1 [%2:%3]' (type, message, location.filename || '<unknown file>', location.lineNumber || '<unknown line>'));
 	}
 
 	public hint (message, location)

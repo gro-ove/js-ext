@@ -200,7 +200,7 @@ LiteParser.prototype.innerFindNext = function (args, fixedMode = false){
 			if (log.length > 100)
 				log = log.substr (0, 48) + '...' + log.slice (-49);
 
-			console.log (log);
+			console.warn (log);
 		}
 
 		result = temp ? this.innerFindNext (args, fixedMode) : null;
