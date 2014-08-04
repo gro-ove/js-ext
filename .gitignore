@@ -1,5 +1,7 @@
 # Compiled source 
 
+*.sublime-*
+
 *.com
 *.class
 *.dll
