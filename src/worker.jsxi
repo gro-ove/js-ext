@@ -102,13 +102,18 @@ public class Worker {
 		console.assert (state == STATE_GENERATED, 'Wrong state (' + state + ')');
 		state = STATE_WAITING;
 
-		// TODO: Check if new file is overriding something important
-		var saveTo = params.buildTo || mainFile.replacedExtension ('js');
-		fs.writeFile (saveTo, result, lambda {
-			// log ('saved');
-			state = STATE_FINISHED;
-			callback ();
-		});
+		if (params.buildTo == null){ 
+			// TODO: Update
+			console.log (result);
+		} else {
+			// TODO: Check if new file is overriding something important
+			var saveTo = params.buildTo || mainFile.replacedExtension ('js');
+			fs.writeFile (saveTo, result, lambda {
+				// log ('saved');
+				state = STATE_FINISHED;
+				callback ();
+			});
+		}
 	}
 
 	function process (callback){
