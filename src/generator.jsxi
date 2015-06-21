@@ -170,11 +170,11 @@ class Generator {
 				return child (node.key) + ': ' + child (node.value);
 
 			case Syntax.PropertyGetter:
-				return 'get ' + child (node.key) + ' (' +
+				return 'get ' + child (node.key) + '(' +
 					mapArray (node.value.params, ', ') + ')' + child (node.value.body);
 
 			case Syntax.PropertySetter:
-				return 'set ' + child (node.key) + ' (' +
+				return 'set ' + child (node.key) + '(' +
 					mapArray (node.value.params, ', ') + ')' + child (node.value.body);
 
 			case Syntax.ThisExpression:
@@ -185,8 +185,6 @@ class Generator {
 			case Syntax.MemberExpression:
 				result = child (node.object);
 				if (node.computed){
-					if (/\w$/.test (result))
-						result += ' ';
 					result += '[' + child (node.property) + ']';
 				} else
 					result += '.' + child (node.property);
@@ -198,8 +196,7 @@ class Generator {
 				result = 'new ';
 
 			case Syntax.CallExpression:
-				result = (result || '') + child (node.callee);
-				result += /\w$/.test (result) ? ' (' : '(';
+				result = (result || '') + child (node.callee) + '(';
 				temp = mapArray (node.arguments, ', ', false, false);
 				if (temp.match (/\n(\t*)/) && RegExp.$1.length > tabs.length + 1)
 					temp = temp.replace (/\n\t/g, '\n');
@@ -238,7 +235,7 @@ class Generator {
 
 			case Syntax.FunctionExpression:
 				if (node.id)
-					result = 'function ' + child (node.id) + ' (';
+					result = 'function ' + child (node.id) + '(';
 				else
 					result = 'function (';
 				result += mapArray (node.params, ', ') + ')' + child (node.body);
@@ -257,7 +254,7 @@ class Generator {
 				return result;
 
 			case Syntax.FunctionDeclaration:
-				return 'function ' + child (node.id) + ' (' + mapArray (node.params, ', ') + ')' + child (node.body);
+				return 'function ' + child (node.id) + '(' + mapArray (node.params, ', ') + ')' + child (node.body);
 
 			case Syntax.VariableDeclaration:
 				temp = mapArray (node.declarations, ', ');
@@ -307,7 +304,7 @@ class Generator {
 				return child (node.label) + ': ' + child (node.body);
 
 			case Syntax.NotImplementedStatement:
-				return 'console.warn (\'Not implemented at ' + node.lineNumber + ' line of ' + node.filename + '\');';
+				return 'console.warn(\'Not implemented at ' + node.lineNumber + ' line of ' + node.filename + '\');';
 
 			/* Statements: Control */
 			case Syntax.ReturnStatement:

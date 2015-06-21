@@ -46,8 +46,7 @@ public class Worker {
 		mainFile.process ();
 
 		waitForFinish (lambda {
-			fileStorage.sort ();
-
+			// fileStorage.sort ();
 			// log ('files processed and sorted');
 			state = STATE_STARTED;
 			callback ();

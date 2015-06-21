@@ -126,17 +126,25 @@ function parseClassMembers (params, dependsOn){
 		refresh ();
 	}
 
-	function parseGetterDeclarators (semicolon){
+	function parseGetterDeclarators (empty){
 		var result = [];
 		
 		do {
-			result.push (getterDeclarator (parseIdentifier (), parsePropertyGetter ()));
+			result.push (getterDeclarator (parseIdentifier (), empty ? null : parsePropertyGetter ()));
 		} while (index < length && matchLex (','));
 
-		if (semicolon !== false){
-			consumeSemicolon ();
-		}
+		consumeSemicolon ();
+		return result;
+	}
 
+	function parseSetterDeclarators (empty){
+		var result = [];
+		
+		do {
+			result.push (setterDeclarator (parseIdentifier (), empty ? null : parsePropertySetter ()));
+		} while (index < length && matchLex (','));
+
+		consumeSemicolon ();
 		return result;
 	}
 
@@ -144,31 +152,23 @@ function parseClassMembers (params, dependsOn){
 		if (params.interface && !current.static)
 			throw new TypeError ('Interface cannot have object getters');
 
-		for (var entry in-array parseGetterDeclarators ())
+		if (current.abstract && (current.publicMode || params.publicMode) === 'private')
+			throw new TypeError ('Abstract getter cannot be private');
+
+		for (var entry in-array parseGetterDeclarators (current.abstract))
 			set (entry);
 
 		refresh ();
-	}
-
-	function parseSetterDeclarators (semicolon){
-		var result = [];
-		
-		do {
-			result.push (setterDeclarator (parseIdentifier (), parsePropertySetter ()));
-		} while (index < length && matchLex (','));
-
-		if (semicolon !== false){
-			consumeSemicolon ();
-		}
-
-		return result;
 	}
 
 	function parseSetter (){
 		if (params.interface && !current.static)
 			throw new TypeError ('Interface cannot have object getters');
 
-		for (var entry in-array parseSetterDeclarators ())
+		if (current.abstract && (current.publicMode || params.publicMode) === 'private')
+			throw new TypeError ('Abstract setter cannot be private');
+
+		for (var entry in-array parseSetterDeclarators (current.abstract))
 			set (entry);
 
 		refresh ();
@@ -205,6 +205,23 @@ function parseClassMembers (params, dependsOn){
 		refresh ();
 	}
 
+	function nextParse(token){
+		if (token.type === Token.Identifier){
+			var saved = saveAll (),
+				method;
+
+			lex ();
+			method = match ('(');
+			restoreAll (saved);
+
+			if (method)
+				parseMethod ();
+			else 
+				parseField ();
+		} else
+			unexpected (token);
+	}
+
 	state.inClass = true;
 	expect ('{');
 	refresh ();
@@ -239,13 +256,21 @@ function parseClassMembers (params, dependsOn){
 				break;
 
 			case 'get':
-				lex ();
-				parseGetter ();
+				attemptTo(lambda {
+					lex ();
+					parseGetter ();
+				}, lambda {
+					nextParse (token);
+				});
 				break;
 
 			case 'set':
-				lex ();
-				parseSetter ();
+				attemptTo(lambda {
+					lex ();
+					parseSetter ();
+				}, lambda {
+					nextParse (token);
+				});
 				break;
 
 			case 'function':
@@ -259,20 +284,7 @@ function parseClassMembers (params, dependsOn){
 				break;
 
 			default:
-				if (token.type === Token.Identifier){
-					var saved = saveAll (),
-						method;
-
-					lex ();
-					method = match ('(');
-					restoreAll (saved);
-
-					if (method)
-						parseMethod ();
-					else 
-						parseField ();
-				} else
-					unexpected (token);
+				nextParse (token);
 		}
 	}
 

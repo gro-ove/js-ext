@@ -38,7 +38,8 @@
 				// TODO: Переделать всё
 				{ 	s: 'i', 	l: 'include', 	p: 2		},
 				{ 	s: 'o', 	l: 'output',  	p: 1		},
-				{   s: 'h',		l: 'usage'					}
+				{   s: 'h',		l: 'usage'					},
+				{   s: 'k',		l: 'keep-order'				}
 			]);
 
 		// return benchmark (path.resolve (__dirname, '../tests/ast.json'), path.resolve (__dirname, '../tests/ast-generated.js'));

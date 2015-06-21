@@ -68,6 +68,36 @@ function doClasses (statements, callback){
         return array;
     }
 
+    function collectButKeepRawClasses (statements){
+        var array = [], rootId = 0;
+
+        (function fromObj (obj, location){
+            if (obj instanceof Array){
+                obj.forEach (lambda (child){
+                    fromObj (child, location);
+
+                    if (child.type === Syntax.RawClassDeclaration){
+                        array.push ($.extend (child, location));
+                    }
+                });
+            } else if (obj && typeof obj === 'object'){
+                if (obj.type === Syntax.FunctionDeclaration || obj.type === Syntax.FunctionExpression){
+                    if (obj.body)
+                        fromObj (obj.body.body, { root: obj.body.body, path: location.path + '/' + ++ rootId });
+                } else
+                    for (var key, child in obj){
+                        fromObj (child, location);
+
+                        if (child && child.type === Syntax.RawClassDeclaration){
+                            array.push ($.extend (child, location));
+                        }
+                    }
+            }
+        })(statements, { root: statements, path: '' });
+
+        return array;
+    }
+
     function addClass (current){
         var previous = byName (current.id.name, current.path);
 
@@ -881,12 +911,12 @@ function doClasses (statements, callback){
                         ));
                     }
 
-                    result.push (callExpression (
+                    result.push (expressionStatement(callExpression (
                         memberExpression (identifier ('Object'), identifier ('defineProperty')), [ 
                             memberExpression (classEntry.id.name, 'prototype'),
                             stringLiteralWithQuotes(prop.id.name), 
                             objectExpression(definedProperties)
-                        ]));
+                        ])));
                 }
 
                 // Статические поля
@@ -927,12 +957,12 @@ function doClasses (statements, callback){
                         ));
                     }
 
-                    result.push (callExpression (
+                    result.push (expressionStatement(callExpression (
                         memberExpression (identifier ('Object'), identifier ('defineProperty')), [ 
                             classEntry.id,
                             stringLiteralWithQuotes(prop.id.name), 
                             objectExpression(definedProperties)
-                        ]));
+                        ])));
                 }
             } else {
                 var properties = [];
@@ -988,18 +1018,69 @@ function doClasses (statements, callback){
             });
     }
 
-    for (var found in-array collectRawClasses (statements))
-        addClass (found);
+    function replaceClasses (){
+        function replaceClass(statements, classObj){
+            (function procObj (obj){
+                if (obj instanceof Array){
+                    for (var i, child in-array obj){
+                        if (child.type === Syntax.RawClassDeclaration && child.id.name == classObj.name){
+                            obj[i] = classObj;
+                            break;
+                        }
 
-    if (classes.length > 0){
-        preprocessClasses ();
-        connectClasses ();
-        processClassesMembers ();
-        processClassesMethods ();
-        processClasses ();
-        sortAndInsertClasses ();
+                        procObj (child);
+                    }
+                } else if (obj && typeof obj === 'object' && 
+                        obj.type !== Syntax.FunctionDeclaration && obj.type === Syntax.FunctionExpression){
+                    for (var key, child in obj){
+                        if (child && child.type === Syntax.RawClassDeclaration && child.id.name == classObj.name){
+                            obj [key] = classObj;
+                            break;
+                        }
 
-        callback (helpers.helpers);
-    } else
-        callback ();
+                        procObj (child);
+                    }
+                }
+            })(statements, { root: statements, path: '' });
+        }
+
+        for (var current in-array classes)
+            replaceClass(current.root, {
+                type:           Syntax.ClassDeclaration,
+                name:           current.id.name,
+                statements:     current.statements
+            });
+    }
+
+    if (!args.k){
+        for (var found in-array collectRawClasses (statements))
+            addClass (found);
+
+        if (classes.length > 0){
+            preprocessClasses ();
+            connectClasses ();
+            processClassesMembers ();
+            processClassesMethods ();
+            processClasses ();
+            sortAndInsertClasses ();
+
+            callback (helpers.helpers);
+        } else
+            callback ();
+    } else {
+        for (var found in-array collectButKeepRawClasses (statements))
+            addClass (found);
+
+        if (classes.length > 0){
+            preprocessClasses ();
+            connectClasses ();
+            processClassesMembers ();
+            processClassesMethods ();
+            processClasses ();
+            replaceClasses ();
+
+            callback (helpers.helpers);
+        } else
+            callback ();
+    }
 }

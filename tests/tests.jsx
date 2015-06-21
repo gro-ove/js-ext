@@ -205,6 +205,7 @@
 @test ('Classes with getters/setters', {
     [ 10, 15, 15, 25 ]
     [ 28 ]
+    [ 4 ]
 }, {
     class A {
         private var _a=7;
@@ -232,6 +233,17 @@
 
     var b = new B ();
     @output { b.test() };
+
+    class M {
+        public abstract get Q;
+    }
+
+    class N extends M {
+        public get Q 4;
+    }
+
+    var n = new N ();
+    @output { n.Q };
 });
 
 @test ('Classes with static getters/setters', {
