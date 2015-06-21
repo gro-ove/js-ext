@@ -271,15 +271,15 @@ Generator.prototype.__Generator_generateFromNode = function (node, tabs, parent)
 			result = '/* Class "' + node.name + '" declaration */';                // generator.jsxi:254
 			
 			{
-				var __1a = node.statements;
+				var __1g = node.statements;
 				
-				for (var __19 = 0; __19 < __1a.length; __19 ++){
-					var statement = __1a [__19];
+				for (var __1f = 0; __1f < __1g.length; __1f ++){
+					var statement = __1g [__1f];
 					
 					result += end () + this.__Generator_generateFromNode (statement, tabs, parent);
 				}
 				
-				__1a = undefined;
+				__1g = undefined;
 			}
 			return result;                                                         // generator.jsxi:257
 		case Syntax.FunctionDeclaration:                                           // generator.jsxi:259
@@ -301,10 +301,10 @@ Generator.prototype.__Generator_generateFromNode = function (node, tabs, parent)
 			result = '{' + end () + '\t';                                          // generator.jsxi:279
 			
 			if (parent.type === Syntax.FunctionDeclaration || parent.type === Syntax.FunctionExpression){
-				var __1c = parent.params;
+				var __1i = parent.params;
 				
-				for (var __1b = 0; __1b < __1c.length; __1b ++){
-					var param = __1c [__1b];
+				for (var __1h = 0; __1h < __1i.length; __1h ++){
+					var param = __1i [__1h];
 					
 					if (param.defaultValue){                                       // generator.jsxi:283
 						result += 'if (' + child (param) + ' === undefined)' + end () + '\t\t' + child (param) + ' = ' + child (param.defaultValue) + ';' + end () + '\n\t' + tabs;
@@ -312,7 +312,7 @@ Generator.prototype.__Generator_generateFromNode = function (node, tabs, parent)
 					}
 				}
 				
-				__1c = undefined;
+				__1i = undefined;
 			}
 			
 			result += mapArray (node.body, '', true);                              // generator.jsxi:288
@@ -372,15 +372,15 @@ Generator.prototype.__Generator_generateFromNode = function (node, tabs, parent)
 			result = 'switch (' + child (node.discriminant) + '){';                // generator.jsxi:352
 			
 			{
-				var __1e = node.cases;
+				var __1k = node.cases;
 				
-				for (var __1d = 0; __1d < __1e.length; __1d ++){
-					var obj = __1e [__1d];
+				for (var __1j = 0; __1j < __1k.length; __1j ++){
+					var obj = __1k [__1j];
 					
 					result += indent (obj);                                        // generator.jsxi:354
 				}
 				
-				__1e = undefined;
+				__1k = undefined;
 			}
 			return result + end () + '}';                                          // generator.jsxi:355
 		case Syntax.SwitchCase:                                                    // generator.jsxi:357
@@ -418,15 +418,15 @@ Generator.prototype.__Generator_generateFromNode = function (node, tabs, parent)
 			result = 'try ' + sub (node.block) + ' ';                              // generator.jsxi:396
 			
 			{
-				var __1g = node.handlers;
+				var __1m = node.handlers;
 				
-				for (var __1f = 0; __1f < __1g.length; __1f ++){
-					var handler = __1g [__1f];
+				for (var __1l = 0; __1l < __1m.length; __1l ++){
+					var handler = __1m [__1l];
 					
 					result += child (handler) + ' ';                               // generator.jsxi:398
 				}
 				
-				__1g = undefined;
+				__1m = undefined;
 			}
 			
 			if (node.finalizer)                                                    // generator.jsxi:399
@@ -446,10 +446,10 @@ Generator.prototype.__Generator_generateFromNode = function (node, tabs, parent)
 			temp = node.body [0].type;                                             // generator.jsxi:418
 			
 			{
-				var __1h = node.body;
+				var __1n = node.body;
 				
-				for (var index = 0; index < __1h.length; index ++){                // generator.jsxi:420
-					var childNode = __1h [index];
+				for (var index = 0; index < __1n.length; index ++){                // generator.jsxi:420
+					var childNode = __1n [index];
 					
 					if (index > 0){                                                // generator.jsxi:421
 						if (temp !== childNode.type || childNode.type !== Syntax.ExpressionStatement || childNode.headerComment){
@@ -462,7 +462,7 @@ Generator.prototype.__Generator_generateFromNode = function (node, tabs, parent)
 					result += child (childNode);                                   // generator.jsxi:429
 				}
 				
-				__1h = undefined;
+				__1n = undefined;
 			}
 			return result + end ();                                                // generator.jsxi:432
 		default:
@@ -675,10 +675,10 @@ File.find = function (from, child){                                             
 	}
 	
 	{
-		var __16 = from ? [ { root: from.root, dirname: from.dirname } ].concat (File.lookingAt) : File.lookingAt;
+		var __1c = from ? [ { root: from.root, dirname: from.dirname } ].concat (File.lookingAt) : File.lookingAt;
 		
-		for (var __15 = 0; __15 < __16.length; __15 ++){
-			var entry = __16 [__15];
+		for (var __1b = 0; __1b < __1c.length; __1b ++){
+			var entry = __1c [__1b];
 			
 			var temp = findInFolder (entry.root, entry.dirname, child);
 			
@@ -688,7 +688,7 @@ File.find = function (from, child){                                             
 				});
 		}
 		
-		__16 = undefined;
+		__1c = undefined;
 	}
 };
 
@@ -728,15 +728,15 @@ Worker.prototype.start = function (callback){                                   
 	this.state = Worker.STATE_WAITING;
 	
 	{
-		var __20 = File.find ('default/*') || [];
+		var __26 = File.find ('default/*') || [];
 		
-		for (var __1v = 0; __1v < __20.length; __1v ++){
-			var file = __20 [__1v];
+		for (var __25 = 0; __25 < __26.length; __25 ++){
+			var file = __26 [__25];
 			
 			file.process ();                                                       // worker.jsxi:44
 		}
 		
-		__20 = undefined;
+		__26 = undefined;
 	}
 	
 	this.mainFile.process ();                                                      // worker.jsxi:46
@@ -752,16 +752,16 @@ Worker.prototype.collect = function (callback){                                 
 	this.state = Worker.STATE_WAITING;
 	
 	{
-		var __22 = fileStorage.files;
+		var __28 = fileStorage.files;
 		
-		for (var __21 = 0; __21 < __22.length; __21 ++){
-			var file = __22 [__21];
+		for (var __27 = 0; __27 < __28.length; __27 ++){
+			var file = __28 [__27];
 			
 			$.extend (this.data.helpers, file.helpers);                            // worker.jsxi:62
 			Array.prototype.push.apply (this.data.statements, file.parsed.body);   // worker.jsxi:63
 		}
 		
-		__22 = undefined;
+		__28 = undefined;
 	}
 	
 	this.state = Worker.STATE_COLLECTED;
@@ -1108,17 +1108,45 @@ function doClasses (statements, callback){                                      
 	
 	function preprocessClasses (){                                                 // do_classes.jsxi:106
 		function preprocessClass (classEntry){                                     // do_classes.jsxi:107
-			function updateMember (member){                                        // do_classes.jsxi:109
-				if (!classEntry.members.hasOwnProperty (member.id.name))           // do_classes.jsxi:111
-					classEntry.members [member.id.name] = member;                  // do_classes.jsxi:112
+			function createObjectPropertyMember (member){                          // do_classes.jsxi:109
+				var name = member.id.originalName;
 				
-				member.className = classEntry.id;                                  // do_classes.jsxi:115
-				member.method = member.type === Syntax.FunctionExpression;         // do_classes.jsxi:116
-				member.processed = false;                                          // do_classes.jsxi:117
-				return member;                                                     // do_classes.jsxi:119
+				var prop;
+				
+				if (!classEntry.members.hasOwnProperty (name)){                    // do_classes.jsxi:113
+					classEntry.members [name] = (prop = { id: identifier (name) });
+					prop.property = true;                                          // do_classes.jsxi:115
+					prop.publicMode = member.publicMode;                           // do_classes.jsxi:117
+					prop.static = member.static;                                   // do_classes.jsxi:118
+					prop.abstract = member.abstract;                               // do_classes.jsxi:119
+				} else {
+					prop = classEntry.members [name];                              // do_classes.jsxi:121
+				}
+				
+				if (member.type === Syntax.GetterDeclarator){                      // do_classes.jsxi:124
+					console.assert (prop.get == null);                             // do_classes.jsxi:125
+					prop.get = member.body;                                        // do_classes.jsxi:126
+				} else if (member.type === Syntax.SetterDeclarator){               // do_classes.jsxi:127
+					console.assert (prop.set == null);                             // do_classes.jsxi:128
+					prop.set = member.body;                                        // do_classes.jsxi:129
+				} else {
+					console.assert (member.type);                                  // do_classes.jsxi:131
+				}
 			}
 			
-			classEntry.classObject = true;                                         // do_classes.jsxi:123
+			function updateMember (member){                                        // do_classes.jsxi:136
+				if (!classEntry.members.hasOwnProperty (member.id.name))           // do_classes.jsxi:138
+					classEntry.members [member.id.name] = member;                  // do_classes.jsxi:139
+				
+				member.className = classEntry.id;                                  // do_classes.jsxi:142
+				member.method = member.type === Syntax.FunctionExpression;         // do_classes.jsxi:143
+				member.field = member.type === Syntax.VariableDeclarator;          // do_classes.jsxi:144
+				console.assert (member.method || member.field || member.property);
+				member.processed = false;                                          // do_classes.jsxi:147
+				return member;                                                     // do_classes.jsxi:149
+			}
+			
+			classEntry.classObject = true;                                         // do_classes.jsxi:153
 			
 			{
 				var __5 = classEntry.members;
@@ -1126,7 +1154,7 @@ function doClasses (statements, callback){                                      
 				for (var name in __5){
 					var value = __5 [name];
 					
-					value.className = classEntry.id;                               // do_classes.jsxi:127
+					value.className = classEntry.id;                               // do_classes.jsxi:157
 				}
 				
 				__5 = undefined;
@@ -1134,19 +1162,19 @@ function doClasses (statements, callback){                                      
 			
 			var constructor = classEntry.members ['@constructor'];
 			
-			if (constructor === undefined){                                        // do_classes.jsxi:131
+			if (constructor === undefined){                                        // do_classes.jsxi:161
 				constructor = updateMember (functionExpression ('@constructor', [], 
-					blockStatement ([])));                                         // do_classes.jsxi:132
-				constructor.autocreated = true;                                    // do_classes.jsxi:133
+					blockStatement ([])));                                         // do_classes.jsxi:162
+				constructor.autocreated = true;                                    // do_classes.jsxi:163
 			}
 			
 			var initializer = classEntry.members ['@initializer'];
 			
-			if (initializer === undefined){                                        // do_classes.jsxi:138
+			if (initializer === undefined){                                        // do_classes.jsxi:168
 				initializer = updateMember (functionExpression ('@initializer', [], 
-					blockStatement ([])));                                         // do_classes.jsxi:139
-				initializer.static = true;                                         // do_classes.jsxi:140
-				initializer.autocreated = true;                                    // do_classes.jsxi:141
+					blockStatement ([])));                                         // do_classes.jsxi:169
+				initializer.static = true;                                         // do_classes.jsxi:170
+				initializer.autocreated = true;                                    // do_classes.jsxi:171
 			}
 			
 			{
@@ -1155,55 +1183,70 @@ function doClasses (statements, callback){                                      
 				for (var name in __6){
 					var member = __6 [name];
 					
-					updateMember (member);                                         // do_classes.jsxi:146
+					if (member.type === Syntax.GetterDeclarator || member.type === Syntax.SetterDeclarator){
+						createObjectPropertyMember (member);                       // do_classes.jsxi:177
+						delete classEntry.members [name];                          // do_classes.jsxi:178
+					}
 				}
 				
 				__6 = undefined;
 			}
 			
-			var fields = filter (classEntry,                                       // do_classes.jsxi:149
-				function (arg){                                                    // do_classes.jsxi:149
-					return !arg.method && !arg.static && arg.init;                 // do_classes.jsxi:149
+			{
+				var __7 = classEntry.members;
+				
+				for (var name in __7){
+					var member = __7 [name];
+					
+					updateMember (member);                                         // do_classes.jsxi:183
+				}
+				
+				__7 = undefined;
+			}
+			
+			var fields = filter (classEntry,                                       // do_classes.jsxi:186
+				function (arg){                                                    // do_classes.jsxi:186
+					return !arg.method && !arg.static && arg.init;                 // do_classes.jsxi:186
 				});
 			
-			var initialization = fields.map (function (arg){                       // do_classes.jsxi:152
+			var initialization = fields.map (function (arg){                       // do_classes.jsxi:189
 				return $.extend (expressionStatement (assignmentExpression (memberExpression (thisExpression (), arg.id.name), arg.init)), 
 					{ autocreated: true });
 			});
 			
 			Array.prototype.unshift.apply (constructor.body.body, initialization);
-			classEntry.childs = [];                                                // do_classes.jsxi:159
-			classEntry.probablyUseOther = 0;                                       // do_classes.jsxi:160
+			classEntry.childs = [];                                                // do_classes.jsxi:196
+			classEntry.probablyUseOther = 0;                                       // do_classes.jsxi:197
 		}
 		
-		for (var __7 = 0; __7 < classes.length; __7 ++){                           // do_classes.jsxi:163
-			var classEntry = classes [__7];
+		for (var __8 = 0; __8 < classes.length; __8 ++){                           // do_classes.jsxi:200
+			var classEntry = classes [__8];
 			
-			preprocessClass (classEntry);                                          // do_classes.jsxi:164
+			preprocessClass (classEntry);                                          // do_classes.jsxi:201
 		}
 	}
 	
-	function connectClasses (){                                                    // do_classes.jsxi:167
+	function connectClasses (){                                                    // do_classes.jsxi:204
 		var active = {};
 		
-		function searchSuperExpression (obj){                                      // do_classes.jsxi:170
+		function searchSuperExpression (obj){                                      // do_classes.jsxi:207
 			if (obj.type === Syntax.CallExpression && 'super' in obj && obj.callee === null){
 				return true;
-			} else if (obj && obj.body && obj.body.body){                          // do_classes.jsxi:173
+			} else if (obj && obj.body && obj.body.body){                          // do_classes.jsxi:210
 				{
-					var __9 = obj.body.body;
+					var __a = obj.body.body;
 					
-					for (var __8 = 0; __8 < __9.length; __8 ++){
-						var child = __9 [__8];
+					for (var __9 = 0; __9 < __a.length; __9 ++){
+						var child = __a [__9];
 						
-						if (searchSuperExpression (child))                         // do_classes.jsxi:175
+						if (searchSuperExpression (child))                         // do_classes.jsxi:212
 							return true;
 					}
 					
-					__9 = undefined;
+					__a = undefined;
 				}
 			} else {
-				for (var key in obj){                                              // do_classes.jsxi:179
+				for (var key in obj){                                              // do_classes.jsxi:216
 					var child = obj [key];
 					
 					if (child && typeof child.type === 'string' && searchSuperExpression (child))
@@ -1212,215 +1255,220 @@ function doClasses (statements, callback){                                      
 			}
 		}
 		
-		function connectClass (current, from){                                     // do_classes.jsxi:185
-			if (active [current.id.name] === true)                                 // do_classes.jsxi:186
-				throw new TypeError ('Circular dependency', current.id);           // do_classes.jsxi:187
+		function connectClass (current, from){                                     // do_classes.jsxi:222
+			if (active [current.id.name] === true)                                 // do_classes.jsxi:223
+				throw new TypeError ('Circular dependency', current.id);           // do_classes.jsxi:224
 			
-			if (from)                                                              // do_classes.jsxi:189
-				current.childs.push (from);                                        // do_classes.jsxi:190
+			if (from)                                                              // do_classes.jsxi:226
+				current.childs.push (from);                                        // do_classes.jsxi:227
 			
-			if (current.weight)                                                    // do_classes.jsxi:192
+			if (current.weight)                                                    // do_classes.jsxi:229
 				return;
 			
-			active [current.id.name] = true;                                       // do_classes.jsxi:195
-			current.weight = 1;                                                    // do_classes.jsxi:196
+			active [current.id.name] = true;                                       // do_classes.jsxi:232
+			current.weight = 1;                                                    // do_classes.jsxi:233
 			
-			if (current.dependsOn.parent){                                         // do_classes.jsxi:198
+			if (current.dependsOn.parent){                                         // do_classes.jsxi:235
 				var parent = byName (current.dependsOn.parent.name, current.path);
 				
-				if (!parent)                                                       // do_classes.jsxi:201
+				if (!parent)                                                       // do_classes.jsxi:238
 					throw new TypeError ('Parent class "' + current.dependsOn.parent.name + '" not found', 
-						current.dependsOn.parent);                                 // do_classes.jsxi:202
+						current.dependsOn.parent);                                 // do_classes.jsxi:239
 				
-				current.dependsOn.parent = parent;                                 // do_classes.jsxi:204
-				connectClass (parent, current);                                    // do_classes.jsxi:206
-				current.weight += parent.weight;                                   // do_classes.jsxi:207
+				current.dependsOn.parent = parent;                                 // do_classes.jsxi:241
+				connectClass (parent, current);                                    // do_classes.jsxi:243
+				current.weight += parent.weight;                                   // do_classes.jsxi:244
 				
 				{
-					var __a = parent.members;
+					var __b = parent.members;
 					
-					for (var id in __a){
-						var member = __a [id];
+					for (var id in __b){
+						var member = __b [id];
 						
-						if (!current.members.hasOwnProperty (id))                  // do_classes.jsxi:210
-							current.members [id] = $.extend (true,                 // do_classes.jsxi:211
+						if (!current.members.hasOwnProperty (id))                  // do_classes.jsxi:247
+							current.members [id] = $.extend (true,                 // do_classes.jsxi:248
 								{}, 
-								member,                                            // do_classes.jsxi:211
+								member,                                            // do_classes.jsxi:248
 								{
 									publicMode: member.publicMode === 'private' ? 'locked' : member.publicMode
 								});
 					}
 					
-					__a = undefined;
+					__b = undefined;
 				}
 				
-				var parentConstructor = parent.members ['@constructor'],           // do_classes.jsxi:213
-					constructor = current.members ['@constructor'];                // do_classes.jsxi:214
+				var parentConstructor = parent.members ['@constructor'],           // do_classes.jsxi:250
+					constructor = current.members ['@constructor'];                // do_classes.jsxi:251
 				
 				if (parentConstructor.body.body.length > 0 && !searchSuperExpression (constructor)){
 					if (constructor.autocreated || parentConstructor.params.length === 0){
 						{
-							var __b = constructor.body.body;
+							var __c = constructor.body.body;
 							
-							for (var autocreated = 0; autocreated < __b.length; autocreated ++){
-								var statement = __b [autocreated];
+							for (var autocreated = 0; autocreated < __c.length; autocreated ++){
+								var statement = __c [autocreated];
 								
-								if (!statement.autocreated)                        // do_classes.jsxi:219
+								if (!statement.autocreated)                        // do_classes.jsxi:256
 									break;
 							}
 							
-							__b = undefined;
+							__c = undefined;
 						}
 						
-						constructor.body.body.splice (autocreated,                 // do_classes.jsxi:223
+						constructor.body.body.splice (autocreated,                 // do_classes.jsxi:260
 							0, 
-							expressionStatement (superExpression (null)));         // do_classes.jsxi:223
+							expressionStatement (superExpression (null)));         // do_classes.jsxi:260
 					} else
 						throw new TypeError ('Super constructor call is required', constructor);
 				}
 			}
 			
 			{
-				var __c = current.dependsOn.uses;
+				var __d = current.dependsOn.uses;
 				
-				for (var index = 0; index < __c.length; index ++){                 // do_classes.jsxi:229
-					var usedName = __c [index];
+				for (var index = 0; index < __d.length; index ++){                 // do_classes.jsxi:266
+					var usedName = __d [index];
 					
 					var used = byName (usedName.name, current.path);
 					
-					if (!used)                                                     // do_classes.jsxi:232
+					if (!used)                                                     // do_classes.jsxi:269
 						throw new TypeError ('Used class "' + usedName.name + '" not found', usedName);
 					
-					current.dependsOn.uses [index] = used;                         // do_classes.jsxi:235
-					connectClass (used);                                           // do_classes.jsxi:237
-					current.weight += used.weight;                                 // do_classes.jsxi:238
+					current.dependsOn.uses [index] = used;                         // do_classes.jsxi:272
+					connectClass (used);                                           // do_classes.jsxi:274
+					current.weight += used.weight;                                 // do_classes.jsxi:275
 				}
 				
-				__c = undefined;
+				__d = undefined;
 			}
 			
-			delete active [current.id.name];                                       // do_classes.jsxi:241
+			delete active [current.id.name];                                       // do_classes.jsxi:278
 		}
 		
-		for (var __d = 0; __d < classes.length; __d ++){                           // do_classes.jsxi:244
-			var current = classes [__d];
+		for (var __e = 0; __e < classes.length; __e ++){                           // do_classes.jsxi:281
+			var current = classes [__e];
 			
-			connectClass (current);                                                // do_classes.jsxi:245
+			connectClass (current);                                                // do_classes.jsxi:282
 		}
 	}
 	
-	function processClassesMembers (){                                             // do_classes.jsxi:248
-		function rename (name, member, publicMode){                                // do_classes.jsxi:250
+	function processClassesMembers (){                                             // do_classes.jsxi:285
+		function rename (name, member, publicMode){                                // do_classes.jsxi:287
 			if (publicMode === 'locked' || member.static && publicMode === 'private')
-				return name;                                                       // do_classes.jsxi:253
+				return name;                                                       // do_classes.jsxi:290
 			
-			switch (publicMode){                                                   // do_classes.jsxi:255
-				case 'protected':                                                  // do_classes.jsxi:256
-					return '__' + name;                                            // do_classes.jsxi:257
-				case 'private':                                                    // do_classes.jsxi:259
-					return '__' + member.className.name + '_' + name;              // do_classes.jsxi:260
-				case 'public':                                                     // do_classes.jsxi:262
-					return name;                                                   // do_classes.jsxi:263
+			switch (publicMode){                                                   // do_classes.jsxi:292
+				case 'protected':                                                  // do_classes.jsxi:293
+					return '__' + name;                                            // do_classes.jsxi:294
+				case 'private':                                                    // do_classes.jsxi:296
+					return '__' + member.className.name + '_' + name;              // do_classes.jsxi:297
+				case 'public':                                                     // do_classes.jsxi:299
+					return name;                                                   // do_classes.jsxi:300
 				default:
-					console.assert (false, 'Bad publicMode value');                // do_classes.jsxi:266
+					console.assert (false, 'Bad publicMode value');                // do_classes.jsxi:303
 			}
 		}
 		
-		function badOverride (parentMember, childMember){                          // do_classes.jsxi:271
-			switch (childMember.publicMode){                                       // do_classes.jsxi:272
-				case 'public':                                                     // do_classes.jsxi:273
+		function badOverride (parentMember, childMember){                          // do_classes.jsxi:308
+			switch (childMember.publicMode){                                       // do_classes.jsxi:309
+				case 'public':                                                     // do_classes.jsxi:310
 					return false;
-				case 'protected':                                                  // do_classes.jsxi:276
-					return parentMember.publicMode === 'public';                   // do_classes.jsxi:277
-				case 'private':                                                    // do_classes.jsxi:279
+				case 'protected':                                                  // do_classes.jsxi:313
+					return parentMember.publicMode === 'public';                   // do_classes.jsxi:314
+				case 'private':                                                    // do_classes.jsxi:316
 					return true;
 				default:
 					console.assert (false, 'Bad publicMode value: ' + childMember.publicMode);
 			}
 		}
 		
-		function morePublicMode (firstMode, secondMode){                           // do_classes.jsxi:286
-			var modes = [ 'locked', 'private', 'protected', 'public' ],            // do_classes.jsxi:287
-				firstId = modes.indexOf (firstMode),                               // do_classes.jsxi:288
-				secondId = modes.indexOf (secondMode),                             // do_classes.jsxi:289
-				maxId = Math.max (firstId, secondId);                              // do_classes.jsxi:290
-			return modes [maxId];                                                  // do_classes.jsxi:292
+		function morePublicMode (firstMode, secondMode){                           // do_classes.jsxi:323
+			var modes = [ 'locked', 'private', 'protected', 'public' ],            // do_classes.jsxi:324
+				firstId = modes.indexOf (firstMode),                               // do_classes.jsxi:325
+				secondId = modes.indexOf (secondMode),                             // do_classes.jsxi:326
+				maxId = Math.max (firstId, secondId);                              // do_classes.jsxi:327
+			return modes [maxId];                                                  // do_classes.jsxi:329
 		}
 		
-		function processClassMember (current, name, member){                       // do_classes.jsxi:295
-			var publicMode = member.publicMode,                                    // do_classes.jsxi:296
-				members = [ member ],                                              // do_classes.jsxi:297
-				updated;                                                           // do_classes.jsxi:298
+		function processClassMember (current, name, member){                       // do_classes.jsxi:332
+			var publicMode = member.publicMode,                                    // do_classes.jsxi:333
+				members = [ member ],                                              // do_classes.jsxi:334
+				updated;                                                           // do_classes.jsxi:335
 			
-			function testChilds (current){                                         // do_classes.jsxi:300
+			function testChilds (current){                                         // do_classes.jsxi:337
 				{
-					var __f = current.childs;
+					var __g = current.childs;
 					
-					for (var __e = 0; __e < __f.length; __e ++){
-						var child = __f [__e];
+					for (var __f = 0; __f < __g.length; __f ++){
+						var child = __g [__f];
 						
-						if (child.members.hasOwnProperty (name)){                  // do_classes.jsxi:302
+						if (child.members.hasOwnProperty (name)){                  // do_classes.jsxi:339
 							var childMember = child.members [name];
 							
-							if (badOverride (member, childMember))                 // do_classes.jsxi:305
+							if (badOverride (member, childMember))                 // do_classes.jsxi:342
 								throw new TypeError ('Invalid public mode', childMember.id);
 							
-							if (member.method !== childMember.method)              // do_classes.jsxi:308
-								throw new TypeError ('Invalid override (' + (member.method ? 'method' : 'field') + ' required)', 
-									childMember.id);                               // do_classes.jsxi:309
+							if (member.method && !childMember.method)              // do_classes.jsxi:345
+								throw new TypeError ('Invalid override (method required)', childMember.id);
+							
+							if (member.field && !childMember.field)                // do_classes.jsxi:348
+								throw new TypeError ('Invalid override (field required)', childMember.id);
+							
+							if (member.property && !childMember.property)          // do_classes.jsxi:351
+								throw new TypeError ('Invalid override (property required)', childMember.id);
 							
 							publicMode = morePublicMode (publicMode, childMember.publicMode);
-							members.push (childMember);                            // do_classes.jsxi:312
+							members.push (childMember);                            // do_classes.jsxi:356
 						}
 						
-						testChilds (child);                                        // do_classes.jsxi:315
+						testChilds (child);                                        // do_classes.jsxi:359
 					}
 					
-					__f = undefined;
+					__g = undefined;
 				}
 			}
 			
-			if (publicMode === 'protected' || publicMode === 'public')             // do_classes.jsxi:318
-				testChilds (current);                                              // do_classes.jsxi:319
+			if (publicMode === 'protected' || publicMode === 'public')             // do_classes.jsxi:362
+				testChilds (current);                                              // do_classes.jsxi:363
 			
-			updated = rename (name, member, publicMode);                           // do_classes.jsxi:321
+			updated = rename (name, member, publicMode);                           // do_classes.jsxi:365
 			
-			for (var __g = 0; __g < members.length; __g ++){                       // do_classes.jsxi:323
-				var targetMember = members [__g];
+			for (var __h = 0; __h < members.length; __h ++){                       // do_classes.jsxi:367
+				var targetMember = members [__h];
 				
-				targetMember.id.name = updated;                                    // do_classes.jsxi:324
-				targetMember.processed = true;                                     // do_classes.jsxi:325
+				targetMember.id.name = updated;                                    // do_classes.jsxi:368
+				targetMember.processed = true;                                     // do_classes.jsxi:369
 			}
 		}
 		
-		function processClassMembers (current){                                    // do_classes.jsxi:329
-			if (current.dependsOn.parent)                                          // do_classes.jsxi:330
-				processClassMembers (current.dependsOn.parent);                    // do_classes.jsxi:331
+		function processClassMembers (current){                                    // do_classes.jsxi:373
+			if (current.dependsOn.parent)                                          // do_classes.jsxi:374
+				processClassMembers (current.dependsOn.parent);                    // do_classes.jsxi:375
 			
 			{
-				var __h = current.members;
+				var __i = current.members;
 				
-				for (var name in __h){
-					var member = __h [name];
+				for (var name in __i){
+					var member = __i [name];
 					
-					if (name [0] !== '@' && !member.processed)                     // do_classes.jsxi:335
-						processClassMember (current, name, member);                // do_classes.jsxi:336
+					if (name [0] !== '@' && !member.processed)                     // do_classes.jsxi:379
+						processClassMember (current, name, member);                // do_classes.jsxi:380
 				}
 				
-				__h = undefined;
+				__i = undefined;
 			}
 		}
 		
-		for (var __i = 0; __i < classes.length; __i ++){                           // do_classes.jsxi:339
-			var current = classes [__i];
+		for (var __j = 0; __j < classes.length; __j ++){                           // do_classes.jsxi:383
+			var current = classes [__j];
 			
-			processClassMembers (current);                                         // do_classes.jsxi:340
+			processClassMembers (current);                                         // do_classes.jsxi:384
 		}
 	}
 	
-	function processClassesMethods (){                                             // do_classes.jsxi:343
-		function processClassMethod (classEntry, methodEntry){                     // do_classes.jsxi:344
-			console.assert (classEntry && methodEntry, 'Wrong arguments');         // do_classes.jsxi:345
+	function processClassesMethods (){                                             // do_classes.jsxi:387
+		function processClassMethod (classEntry, methodEntry){                     // do_classes.jsxi:388
+			console.assert (classEntry && methodEntry, 'Wrong arguments');         // do_classes.jsxi:389
 			
 			var exclusions = {};
 			
@@ -1428,433 +1476,477 @@ function doClasses (statements, callback){                                      
 			
 			var usingThat = false;
 			
-			function getThis (){                                                   // do_classes.jsxi:359
+			function getThis (){                                                   // do_classes.jsxi:403
 				var childFunction = currentFunction !== methodEntry;
 				
-				if (childFunction)                                                 // do_classes.jsxi:364
-					usingThat = true;                                              // do_classes.jsxi:365
+				if (childFunction)                                                 // do_classes.jsxi:408
+					usingThat = true;                                              // do_classes.jsxi:409
 				return childFunction ? identifier (thatVariable) : thisExpression ();
 			}
 			
-			function lookForExclusions (obj, target){                              // do_classes.jsxi:371
-				if (typeof obj === 'object' && obj !== null){                      // do_classes.jsxi:372
-					if (obj instanceof Array){                                     // do_classes.jsxi:373
-						for (var __j = 0; __j < obj.length; __j ++){               // do_classes.jsxi:375
-							var child = obj [__j];
+			function lookForExclusions (obj, target){                              // do_classes.jsxi:415
+				if (typeof obj === 'object' && obj !== null){                      // do_classes.jsxi:416
+					if (obj instanceof Array){                                     // do_classes.jsxi:417
+						for (var __k = 0; __k < obj.length; __k ++){               // do_classes.jsxi:419
+							var child = obj [__k];
 							
-							lookForExclusions (child, target);                     // do_classes.jsxi:376
+							lookForExclusions (child, target);                     // do_classes.jsxi:420
 						}
-					} else if ('type' in obj){                                     // do_classes.jsxi:378
+					} else if ('type' in obj){                                     // do_classes.jsxi:422
 						if (obj.type === Syntax.VariableDeclarator || obj.type === Syntax.FunctionDeclaration){
-							target [obj.id.name] = true;                           // do_classes.jsxi:381
-						} else if (obj.type !== Syntax.FunctionExpression){        // do_classes.jsxi:383
-							for (var key in obj){                                  // do_classes.jsxi:385
+							target [obj.id.name] = true;                           // do_classes.jsxi:425
+						} else if (obj.type !== Syntax.FunctionExpression){        // do_classes.jsxi:427
+							for (var key in obj){                                  // do_classes.jsxi:429
 								var value = obj [key];
 								
-								lookForExclusions (value, target);                 // do_classes.jsxi:386
+								lookForExclusions (value, target);                 // do_classes.jsxi:430
 							}
 						}
 					}
 				}
 			}
 			
-			function processFunction (obj, parent){                                // do_classes.jsxi:392
+			function processFunction (obj, parent){                                // do_classes.jsxi:436
 				console.assert (typeof obj === 'object' && (obj.type === Syntax.FunctionDeclaration || obj.type === Syntax.FunctionExpression), 
-					'Wrong argument');                                             // do_classes.jsxi:394
+					'Wrong argument');                                             // do_classes.jsxi:438
 				
 				var oldExclusions = $.extend (true, {}, 
-						exclusions),                                               // do_classes.jsxi:397
-					oldCurrentFunction = currentFunction;                          // do_classes.jsxi:398
+						exclusions),                                               // do_classes.jsxi:441
+					oldCurrentFunction = currentFunction;                          // do_classes.jsxi:442
 				
-				currentFunction = obj;                                             // do_classes.jsxi:400
-				obj.params.forEach (function (arg){                                // do_classes.jsxi:403
-					return exclusions [arg.name] = true;                           // do_classes.jsxi:403
+				currentFunction = obj;                                             // do_classes.jsxi:444
+				obj.params.forEach (function (arg){                                // do_classes.jsxi:447
+					return exclusions [arg.name] = true;                           // do_classes.jsxi:447
 				});
-				lookForExclusions (obj.body.body, exclusions);                     // do_classes.jsxi:406
-				process (obj.body.body, obj);                                      // do_classes.jsxi:409
+				lookForExclusions (obj.body.body, exclusions);                     // do_classes.jsxi:450
+				process (obj.body.body, obj);                                      // do_classes.jsxi:453
 				
-				if (usingThat && methodEntry === obj){                             // do_classes.jsxi:412
+				if (usingThat && methodEntry === obj){                             // do_classes.jsxi:456
 					var temp = variableDeclarator (thatVariable, thisExpression ());
 					
 					if (obj.body.body [0] && obj.body.body [0].type === Syntax.VariableDeclaration)
-						obj.body.body [0].declarations.unshift (temp);             // do_classes.jsxi:417
+						obj.body.body [0].declarations.unshift (temp);             // do_classes.jsxi:461
 					else
-						obj.body.body.unshift (variableDeclaration ([ temp ]));    // do_classes.jsxi:420
+						obj.body.body.unshift (variableDeclaration ([ temp ]));    // do_classes.jsxi:464
 				}
 				
-				exclusions = oldExclusions;                                        // do_classes.jsxi:424
-				currentFunction = oldCurrentFunction;                              // do_classes.jsxi:425
+				exclusions = oldExclusions;                                        // do_classes.jsxi:468
+				currentFunction = oldCurrentFunction;                              // do_classes.jsxi:469
 			}
 			
-			function processProperty (obj, parent){                                // do_classes.jsxi:428
-				process (obj.value, parent);                                       // do_classes.jsxi:429
+			function processProperty (obj, parent){                                // do_classes.jsxi:472
+				process (obj.value, parent);                                       // do_classes.jsxi:473
 			}
 			
-			function processIdentifier (obj, parent){                              // do_classes.jsxi:432
-				function replaceObject (member){                                   // do_classes.jsxi:435
-					if (methodEntry.static)                                        // do_classes.jsxi:439
+			function processIdentifier (obj, parent){                              // do_classes.jsxi:476
+				function replaceObject (member){                                   // do_classes.jsxi:479
+					if (methodEntry.static)                                        // do_classes.jsxi:483
 						throw new TypeError ('Member "' + obj.name + '" is static', obj);
 					
 					var that = getThis ();
 					
 					var result;
 					
-					if (member.method && parent.type !== Syntax.CallExpression){   // do_classes.jsxi:449
-						helpers.set ('bindOnce', obj);                             // do_classes.jsxi:450
-						result = callExpression ('__bindOnce',                     // do_classes.jsxi:451
+					if (member.method && parent.type !== Syntax.CallExpression){   // do_classes.jsxi:493
+						helpers.set ('bindOnce', obj);                             // do_classes.jsxi:494
+						result = callExpression ('__bindOnce',                     // do_classes.jsxi:495
 							[ that, stringLiteralWithQuotes (member.id.name) ]);
 					} else {
-						result = memberExpression (that, member.id.name);          // do_classes.jsxi:453
+						result = memberExpression (that, member.id.name);          // do_classes.jsxi:497
 					}
-					return result;                                                 // do_classes.jsxi:456
+					return result;                                                 // do_classes.jsxi:500
 				}
 				
-				function replaceStatic (member){                                   // do_classes.jsxi:459
+				function replaceStatic (member){                                   // do_classes.jsxi:503
 					var className = member.className;
-					return memberExpression (className.name, member.id.name);      // do_classes.jsxi:467
+					return memberExpression (className.name, member.id.name);      // do_classes.jsxi:511
 				}
 				
-				if (!(obj.name in exclusions)){                                    // do_classes.jsxi:471
+				if (!(obj.name in exclusions)){                                    // do_classes.jsxi:515
 					var result = null, member;
 					
-					if (obj.name in classEntry.members){                           // do_classes.jsxi:475
-						member = classEntry.members [obj.name];                    // do_classes.jsxi:479
+					if (obj.name in classEntry.members){                           // do_classes.jsxi:519
+						member = classEntry.members [obj.name];                    // do_classes.jsxi:523
 						
-						if (member.publicMode === 'locked')                        // do_classes.jsxi:482
+						if (member.publicMode === 'locked')                        // do_classes.jsxi:526
 							throw new TypeError ('Member "' + obj.name + '" has private access', obj);
 						
-						if (!member.static)                                        // do_classes.jsxi:485
-							result = replaceObject (member);                       // do_classes.jsxi:486
-						else if (member.publicMode !== 'private')                  // do_classes.jsxi:487
-							result = replaceStatic (member);                       // do_classes.jsxi:488
-					} else if (byName (obj.name, classEntry.path)){                // do_classes.jsxi:490
-						classEntry.weight += 0.0001;                               // do_classes.jsxi:493
+						if (!member.static)                                        // do_classes.jsxi:529
+							result = replaceObject (member);                       // do_classes.jsxi:530
+						else if (member.publicMode !== 'private')                  // do_classes.jsxi:531
+							result = replaceStatic (member);                       // do_classes.jsxi:532
+					} else if (byName (obj.name, classEntry.path)){                // do_classes.jsxi:534
+						classEntry.weight += 0.0001;                               // do_classes.jsxi:537
 					}
 					
-					if (result)                                                    // do_classes.jsxi:497
-						set (obj, result);                                         // do_classes.jsxi:498
+					if (result)                                                    // do_classes.jsxi:541
+						set (obj, result);                                         // do_classes.jsxi:542
 				}
 			}
 			
-			function processAssignmentExpression (obj, parent){                    // do_classes.jsxi:502
-				process (obj.right, obj);                                          // do_classes.jsxi:503
-				process (obj.left, obj);                                           // do_classes.jsxi:504
+			function processAssignmentExpression (obj, parent){                    // do_classes.jsxi:546
+				process (obj.right, obj);                                          // do_classes.jsxi:547
+				process (obj.left, obj);                                           // do_classes.jsxi:548
 			}
 			
-			function processMemberExpression (obj, parent, preparent){             // do_classes.jsxi:507
+			function processMemberExpression (obj, parent, preparent){             // do_classes.jsxi:551
 				var member, propertyNameGetter, second, temp;
 				
-				if (!obj.computed){                                                // do_classes.jsxi:513
+				if (!obj.computed){                                                // do_classes.jsxi:557
 					member = classEntry.members.hasOwnProperty (obj.property.name) ? classEntry.members [obj.property.name] : null;
 					
-					if (member){                                                   // do_classes.jsxi:516
-						if (member.static){                                        // do_classes.jsxi:517
+					if (member){                                                   // do_classes.jsxi:560
+						if (member.static){                                        // do_classes.jsxi:561
 							if (member.publicMode === 'private' && obj.object.type === Syntax.Identifier && obj.object.name === member.className.name){
-								set (obj, identifier (member.id.name));            // do_classes.jsxi:519
+								set (obj, identifier (member.id.name));            // do_classes.jsxi:563
 								return;
 							}
-						} else if (obj.object.type === Syntax.ThisExpression){     // do_classes.jsxi:522
-							obj.property.name = member.id.name;                    // do_classes.jsxi:523
+						} else if (obj.object.type === Syntax.ThisExpression){     // do_classes.jsxi:566
+							obj.property.name = member.id.name;                    // do_classes.jsxi:567
 							
-							if (currentFunction !== methodEntry)                   // do_classes.jsxi:524
-								obj.object = getThis ();                           // do_classes.jsxi:525
-						} else if (member.publicMode !== 'public'){                // do_classes.jsxi:526
-							if (parent instanceof Array && preparent)              // do_classes.jsxi:527
-								parent = preparent;                                // do_classes.jsxi:528
+							if (currentFunction !== methodEntry)                   // do_classes.jsxi:568
+								obj.object = getThis ();                           // do_classes.jsxi:569
+						} else if (member.publicMode !== 'public'){                // do_classes.jsxi:570
+							if (parent instanceof Array && preparent)              // do_classes.jsxi:571
+								parent = preparent;                                // do_classes.jsxi:572
 							
-							if (obj.object.type === Syntax.Identifier){            // do_classes.jsxi:530
-								obj.computed = true;                               // do_classes.jsxi:531
+							if (obj.object.type === Syntax.Identifier){            // do_classes.jsxi:574
+								obj.computed = true;                               // do_classes.jsxi:575
 								obj.property = conditionalExpression (binaryExpression (obj.object, 'instanceof', member.className.name), 
-									stringLiteralWithQuotes (member.id.name),      // do_classes.jsxi:534
+									stringLiteralWithQuotes (member.id.name),      // do_classes.jsxi:578
 									stringLiteralWithQuotes (obj.property.name));
-								process (obj.object, obj);                         // do_classes.jsxi:537
+								process (obj.object, obj);                         // do_classes.jsxi:581
 							} else if (parent.type === Syntax.AssignmentExpression){
 								second = $.extend (true, {}, 
-									parent);                                       // do_classes.jsxi:539
+									parent);                                       // do_classes.jsxi:583
 								
-								for (var key in parent){                           // do_classes.jsxi:540
+								for (var key in parent){                           // do_classes.jsxi:584
 									var value = parent [key];
 									
-									if (value === obj)                             // do_classes.jsxi:541
-										second [key] = memberExpression ('__',     // do_classes.jsxi:542
+									if (value === obj)                             // do_classes.jsxi:585
+										second [key] = memberExpression ('__',     // do_classes.jsxi:586
 											conditionalExpression (binaryExpression ('__', 'instanceof', member.className.name), 
 												stringLiteralWithQuotes (member.id.name), 
 												stringLiteralWithQuotes (obj.property.name)), 
 											true);
 								}
 								
-								set (parent,                                       // do_classes.jsxi:547
+								set (parent,                                       // do_classes.jsxi:591
 									sequenceExpression ([ assignmentExpression ('__', obj.object), second ]));
-								process (obj.object, obj);                         // do_classes.jsxi:552
-								temp = true;                                       // do_classes.jsxi:554
+								process (obj.object, obj);                         // do_classes.jsxi:596
+								temp = true;                                       // do_classes.jsxi:598
 							} else {
-								set (obj,                                          // do_classes.jsxi:556
-									sequenceExpression ([                          // do_classes.jsxi:556
+								set (obj,                                          // do_classes.jsxi:600
+									sequenceExpression ([                          // do_classes.jsxi:600
 										assignmentExpression ('__', obj.object), 
-										memberExpression ('__',                    // do_classes.jsxi:558
+										memberExpression ('__',                    // do_classes.jsxi:602
 											conditionalExpression (binaryExpression ('__', 'instanceof', member.className.name), 
 												stringLiteralWithQuotes (member.id.name), 
 												stringLiteralWithQuotes (obj.property.name)), 
 											true)
 									]));
-								process (obj);                                     // do_classes.jsxi:564
+								process (obj);                                     // do_classes.jsxi:608
 								
 								if (parent.type === Syntax.CallExpression && obj === parent.callee){
 									parent.callee = memberExpression (parent.callee, 'call');
 									parent.arguments.unshift (identifier ('__'));
 								}
 								
-								temp = true;                                       // do_classes.jsxi:571
+								temp = true;                                       // do_classes.jsxi:615
 							}
 							
-							if (temp && !currentFunction.hasTempVariable){         // do_classes.jsxi:574
+							if (temp && !currentFunction.hasTempVariable){         // do_classes.jsxi:618
 								currentFunction.body.body.unshift (oneVariableDeclaration ('__'));
-								currentFunction.hasTempVariable = true;            // do_classes.jsxi:576
+								currentFunction.hasTempVariable = true;            // do_classes.jsxi:620
 							}
 							return;
 						}
 					}
 				}
 				
-				process (obj.object, obj);                                         // do_classes.jsxi:585
+				process (obj.object, obj);                                         // do_classes.jsxi:629
 				
-				if (obj.computed)                                                  // do_classes.jsxi:588
-					process (obj.property, obj);                                   // do_classes.jsxi:589
+				if (obj.computed)                                                  // do_classes.jsxi:632
+					process (obj.property, obj);                                   // do_classes.jsxi:633
 			}
 			
-			function processSuperExpression (obj, parent){                         // do_classes.jsxi:592
-				if (currentFunction !== methodEntry && obj.callee === null)        // do_classes.jsxi:597
-					throw new Error ('Not implemented');                           // do_classes.jsxi:598
+			function processSuperExpression (obj, parent){                         // do_classes.jsxi:636
+				if (currentFunction !== methodEntry && obj.callee === null)        // do_classes.jsxi:641
+					throw new Error ('Not implemented');                           // do_classes.jsxi:642
 				
 				var currentClass = classEntry;
 				
-				for (var i = 0; i < obj ['super']; i ++){                          // do_classes.jsxi:604
-					currentClass = currentClass.dependsOn.parent;                  // do_classes.jsxi:605
+				for (var i = 0; i < obj ['super']; i ++){                          // do_classes.jsxi:648
+					currentClass = currentClass.dependsOn.parent;                  // do_classes.jsxi:649
 					
-					if (!currentClass)                                             // do_classes.jsxi:608
+					if (!currentClass)                                             // do_classes.jsxi:652
 						throw new TypeError ('Super method is not available', obj);
 				}
 				
 				var method = obj.callee ? currentClass.members [obj.callee.name] : methodEntry;
 				
-				if (!method)                                                       // do_classes.jsxi:615
-					throw new TypeError ('Super method not found', obj);           // do_classes.jsxi:616
+				if (!method)                                                       // do_classes.jsxi:659
+					throw new TypeError ('Super method not found', obj);           // do_classes.jsxi:660
 				
-				if (method.static)                                                 // do_classes.jsxi:618
-					throw new TypeError ('This method is static', obj);            // do_classes.jsxi:619
+				if (method.static)                                                 // do_classes.jsxi:662
+					throw new TypeError ('This method is static', obj);            // do_classes.jsxi:663
 				
 				var target;
 				
-				if (method.id.name [0] !== '@'){                                   // do_classes.jsxi:624
+				if (method.id.name [0] !== '@'){                                   // do_classes.jsxi:668
 					target = memberExpression (memberExpression (currentClass.id, 'prototype'), 
-						method.id.name);                                           // do_classes.jsxi:626
+						method.id.name);                                           // do_classes.jsxi:670
 				} else {
-					target = currentClass.id.name;                                 // do_classes.jsxi:629
+					target = currentClass.id.name;                                 // do_classes.jsxi:673
 				}
 				
-				if (obj.arguments === null){                                       // do_classes.jsxi:633
-					obj.callee = memberExpression (target, 'apply');               // do_classes.jsxi:634
-					obj.arguments = [ identifier ('arguments') ];                  // do_classes.jsxi:635
+				if (obj.arguments === null){                                       // do_classes.jsxi:677
+					obj.callee = memberExpression (target, 'apply');               // do_classes.jsxi:678
+					obj.arguments = [ identifier ('arguments') ];                  // do_classes.jsxi:679
 				} else
-					obj.callee = memberExpression (target, 'call');                // do_classes.jsxi:637
+					obj.callee = memberExpression (target, 'call');                // do_classes.jsxi:681
 				
-				obj.arguments.unshift (getThis ());                                // do_classes.jsxi:640
+				obj.arguments.unshift (getThis ());                                // do_classes.jsxi:684
 			}
 			
-			function process (obj, parent, preparent){                             // do_classes.jsxi:643
-				if (typeof obj === 'object' && obj !== null){                      // do_classes.jsxi:644
-					if (obj instanceof Array){                                     // do_classes.jsxi:647
-						for (var __k = 0; __k < obj.length; __k ++){               // do_classes.jsxi:649
-							var child = obj [__k];
+			function process (obj, parent, preparent){                             // do_classes.jsxi:687
+				if (typeof obj === 'object' && obj !== null){                      // do_classes.jsxi:688
+					if (obj instanceof Array){                                     // do_classes.jsxi:691
+						for (var __l = 0; __l < obj.length; __l ++){               // do_classes.jsxi:693
+							var child = obj [__l];
 							
-							process (child, obj, parent);                          // do_classes.jsxi:650
+							process (child, obj, parent);                          // do_classes.jsxi:694
 						}
-					} else if ('type' in obj){                                     // do_classes.jsxi:652
-						switch (obj.type){                                         // do_classes.jsxi:655
-							case Syntax.FunctionDeclaration:                       // do_classes.jsxi:656
+					} else if ('type' in obj){                                     // do_classes.jsxi:696
+						switch (obj.type){                                         // do_classes.jsxi:699
+							case Syntax.FunctionDeclaration:                       // do_classes.jsxi:700
 								
-							case Syntax.FunctionExpression:                        // do_classes.jsxi:657
-								processFunction (obj, parent);                     // do_classes.jsxi:658
-								
-								break;
-							case Syntax.Property:                                  // do_classes.jsxi:661
-								processProperty (obj, parent);                     // do_classes.jsxi:662
+							case Syntax.FunctionExpression:                        // do_classes.jsxi:701
+								processFunction (obj, parent);                     // do_classes.jsxi:702
 								
 								break;
-							case Syntax.Identifier:                                // do_classes.jsxi:665
-								processIdentifier (obj, parent);                   // do_classes.jsxi:666
+							case Syntax.Property:                                  // do_classes.jsxi:705
+								processProperty (obj, parent);                     // do_classes.jsxi:706
 								
 								break;
-							case Syntax.AssignmentExpression:                      // do_classes.jsxi:669
-								processAssignmentExpression (obj, parent);         // do_classes.jsxi:670
+							case Syntax.Identifier:                                // do_classes.jsxi:709
+								processIdentifier (obj, parent);                   // do_classes.jsxi:710
 								
 								break;
-							case Syntax.MemberExpression:                          // do_classes.jsxi:673
+							case Syntax.AssignmentExpression:                      // do_classes.jsxi:713
+								processAssignmentExpression (obj, parent);         // do_classes.jsxi:714
+								
+								break;
+							case Syntax.MemberExpression:                          // do_classes.jsxi:717
 								processMemberExpression (obj, parent, preparent);
 								
 								break;
-							case Syntax.CallExpression:                            // do_classes.jsxi:677
-								if ('super' in obj)                                // do_classes.jsxi:678
-									processSuperExpression (obj, parent);          // do_classes.jsxi:679
+							case Syntax.CallExpression:                            // do_classes.jsxi:721
+								if ('super' in obj)                                // do_classes.jsxi:722
+									processSuperExpression (obj, parent);          // do_classes.jsxi:723
 							default:
-								for (var key in obj){                              // do_classes.jsxi:683
+								for (var key in obj){                              // do_classes.jsxi:727
 									var value = obj [key];
 									
-									process (value, obj);                          // do_classes.jsxi:685
+									process (value, obj);                          // do_classes.jsxi:729
 								}
 						}
 					}
 				}
 			}
 			
-			process (methodEntry);                                                 // do_classes.jsxi:692
+			process (methodEntry);                                                 // do_classes.jsxi:736
 		}
 		
-		function processClassMethods (classEntry){                                 // do_classes.jsxi:695
+		function processClassMethods (classEntry){                                 // do_classes.jsxi:739
 			var replace, childMember;
 			
 			{
-				var __l = classEntry.members;
+				var __m = classEntry.members;
 				
-				for (var name in __l){
-					var member = __l [name];
+				for (var name in __m){
+					var member = __m [name];
 					
-					if (member.method && !member.abstract && member.className === classEntry.id)
-						processClassMethod (classEntry, member);                   // do_classes.jsxi:702
+					if (member.method && !member.abstract && member.className === classEntry.id){
+						processClassMethod (classEntry, member);                   // do_classes.jsxi:746
+					}
 					
-					if (!member.method && member.static && member.init)            // do_classes.jsxi:704
-						processClassMethod (classEntry, member.init);              // do_classes.jsxi:705
+					if (member.field && member.static && member.init){             // do_classes.jsxi:749
+						processClassMethod (classEntry, member.init);              // do_classes.jsxi:750
+					}
+					
+					if (member.property && !member.abstract && member.className === classEntry.id){
+						if (member.get)                                            // do_classes.jsxi:754
+							processClassMethod (classEntry, member.get);           // do_classes.jsxi:755
+						
+						if (member.set)                                            // do_classes.jsxi:756
+							processClassMethod (classEntry, member.set);           // do_classes.jsxi:757
+					}
 				}
 				
-				__l = undefined;
+				__m = undefined;
 			}
 		}
 		
-		for (var __m = 0; __m < classes.length; __m ++){                           // do_classes.jsxi:709
-			var classEntry = classes [__m];
+		for (var __n = 0; __n < classes.length; __n ++){                           // do_classes.jsxi:762
+			var classEntry = classes [__n];
 			
-			processClassMethods (classEntry);                                      // do_classes.jsxi:710
+			processClassMethods (classEntry);                                      // do_classes.jsxi:763
 		}
 	}
 	
-	function processClasses (){                                                    // do_classes.jsxi:713
-		function processClass (classEntry){                                        // do_classes.jsxi:715
-			function classMode (){                                                 // do_classes.jsxi:717
-				if (classEntry.childs.length === 0 && !classEntry.dependsOn.parent && objectMembers.length === 0 && constructor.body.body.length === 0){
-					if (staticFields.length > 0 || staticMethods.length > 0)       // do_classes.jsxi:723
-						return OutputMode.Default;                                 // do_classes.jsxi:724
+	function processClasses (){                                                    // do_classes.jsxi:766
+		function processClass (classEntry){                                        // do_classes.jsxi:768
+			function classMode (){                                                 // do_classes.jsxi:770
+				if (classEntry.childs.length === 0 && !classEntry.dependsOn.parent && objectMembers.length === 0 && constructor.body.body.length === 0 && objectProperties.length === 0){
+					if (staticFields.length > 0 || staticMethods.length > 0)       // do_classes.jsxi:777
+						return OutputMode.Default;                                 // do_classes.jsxi:778
 					
-					if (initializer.body.body.length > 0)                          // do_classes.jsxi:727
-						return OutputMode.InitializerOnly;                         // do_classes.jsxi:728
-					return OutputMode.Empty;                                       // do_classes.jsxi:730
+					if (initializer.body.body.length > 0)                          // do_classes.jsxi:781
+						return OutputMode.InitializerOnly;                         // do_classes.jsxi:782
+					return OutputMode.Empty;                                       // do_classes.jsxi:784
 				}
-				return OutputMode.Default;                                         // do_classes.jsxi:733
+				return OutputMode.Default;                                         // do_classes.jsxi:787
 			}
 			
-			console.assert (!classEntry.elements, 'Already processed');            // do_classes.jsxi:737
+			console.assert (!classEntry.elements, 'Already processed');            // do_classes.jsxi:791
 			
-			var constructor = classEntry.members ['@constructor'],                 // do_classes.jsxi:740
-				initializer = classEntry.members ['@initializer'];                 // do_classes.jsxi:741
+			var constructor = classEntry.members ['@constructor'],                 // do_classes.jsxi:794
+				initializer = classEntry.members ['@initializer'];                 // do_classes.jsxi:795
 			
-			var filtered = filter (classEntry,                                     // do_classes.jsxi:744
-					function (arg){                                                // do_classes.jsxi:744
+			var filtered = filter (classEntry,                                     // do_classes.jsxi:798
+					function (arg){                                                // do_classes.jsxi:798
 						return arg.className === classEntry.id && arg.id.name [0] !== '@';
 					}), 
-				objectMembers = filtered.filter (function (arg){                   // do_classes.jsxi:745
-					return !arg.static;                                            // do_classes.jsxi:745
+				objectMembers = filtered.filter (function (arg){                   // do_classes.jsxi:799
+					return !arg.static;                                            // do_classes.jsxi:799
 				}), 
-				staticMembers = filtered.filter (function (arg){                   // do_classes.jsxi:746
-					return arg.static;                                             // do_classes.jsxi:746
+				staticMembers = filtered.filter (function (arg){                   // do_classes.jsxi:800
+					return arg.static;                                             // do_classes.jsxi:800
 				});
 			
-			var objectMethods = objectMembers.filter (function (arg){              // do_classes.jsxi:749
-					return arg.method;                                             // do_classes.jsxi:749
+			var objectMethods = objectMembers.filter (function (arg){              // do_classes.jsxi:803
+					return arg.method;                                             // do_classes.jsxi:803
 				}), 
-				objectFields = objectMembers.filter (function (arg){               // do_classes.jsxi:750
-					return !arg.method;                                            // do_classes.jsxi:750
+				objectFields = objectMembers.filter (function (arg){               // do_classes.jsxi:804
+					return arg.field;                                              // do_classes.jsxi:804
 				}), 
-				staticMethods = staticMembers.filter (function (arg){              // do_classes.jsxi:751
-					return arg.method;                                             // do_classes.jsxi:751
+				objectProperties = objectMembers.filter (function (arg){           // do_classes.jsxi:805
+					return arg.property;                                           // do_classes.jsxi:805
 				}), 
-				staticFields = staticMembers.filter (function (arg){               // do_classes.jsxi:752
-					return !arg.method;                                            // do_classes.jsxi:752
+				staticMethods = staticMembers.filter (function (arg){              // do_classes.jsxi:806
+					return arg.method;                                             // do_classes.jsxi:806
+				}), 
+				staticFields = staticMembers.filter (function (arg){               // do_classes.jsxi:807
+					return arg.field;                                              // do_classes.jsxi:807
+				}), 
+				staticProperties = staticMembers.filter (function (arg){           // do_classes.jsxi:808
+					return arg.property;                                           // do_classes.jsxi:808
 				});
 			
-			constructor.id = null;                                                 // do_classes.jsxi:755
-			initializer.id = null;                                                 // do_classes.jsxi:756
+			constructor.id = null;                                                 // do_classes.jsxi:811
+			initializer.id = null;                                                 // do_classes.jsxi:812
 			
-			if (!classEntry.params.abstract && filter (classEntry,                 // do_classes.jsxi:759
-				function (arg){                                                    // do_classes.jsxi:759
-					return arg.abstract;                                           // do_classes.jsxi:759
-				}).length > 0)                                                     // do_classes.jsxi:759
-				classEntry.params.abstract = true;                                 // do_classes.jsxi:760
+			if (!classEntry.params.abstract && filter (classEntry,                 // do_classes.jsxi:815
+				function (arg){                                                    // do_classes.jsxi:815
+					return arg.abstract;                                           // do_classes.jsxi:815
+				}).length > 0)                                                     // do_classes.jsxi:815
+				classEntry.params.abstract = true;                                 // do_classes.jsxi:816
 			
-			if (classEntry.params.abstract)                                        // do_classes.jsxi:763
+			if (classEntry.params.abstract)                                        // do_classes.jsxi:819
 				constructor.body.body.unshift (ifStatement (binaryExpression (memberExpression (thisExpression (), identifier ('constructor')), 
-					'===',                                                         // do_classes.jsxi:766
-					classEntry.id.name),                                           // do_classes.jsxi:766
-				throwStatement (newExpression ('Error',                            // do_classes.jsxi:767
+					'===',                                                         // do_classes.jsxi:822
+					classEntry.id.name),                                           // do_classes.jsxi:822
+				throwStatement (newExpression ('Error',                            // do_classes.jsxi:823
 					[
 						stringLiteralWithQuotes ('Trying to instantiate abstract class ' + classEntry.id.name)
 					]))));
 			
 			var mode = classMode ();
 			
-			if (mode === OutputMode.Empty)                                         // do_classes.jsxi:775
+			if (mode === OutputMode.Empty)                                         // do_classes.jsxi:831
 				return [
 					oneVariableDeclaration (classEntry.id.name, objectExpression ([]))
 				];
 			
-			if (mode === OutputMode.InitializerOnly)                               // do_classes.jsxi:779
+			if (mode === OutputMode.InitializerOnly)                               // do_classes.jsxi:835
 				return [
 					oneVariableDeclaration (classEntry.id.name, callExpression (initializer))
 				];
 			
-			var anonymousFunction = staticMembers.filter (function (arg){          // do_classes.jsxi:783
-					return arg.publicMode === 'private';                           // do_classes.jsxi:783
-				}).length > 0,                                                     // do_classes.jsxi:783
-				result,                                                            // do_classes.jsxi:784
-				mainObj;                                                           // do_classes.jsxi:785
+			var anonymousFunction = staticMembers.filter (function (arg){          // do_classes.jsxi:839
+					return arg.publicMode === 'private';                           // do_classes.jsxi:839
+				}).length > 0,                                                     // do_classes.jsxi:839
+				result,                                                            // do_classes.jsxi:840
+				mainObj;                                                           // do_classes.jsxi:841
 			
-			if (mode === OutputMode.Default){                                      // do_classes.jsxi:787
-				result = [                                                         // do_classes.jsxi:789
+			if (mode === OutputMode.Default){                                      // do_classes.jsxi:843
+				result = [                                                         // do_classes.jsxi:845
 					anonymousFunction ? oneVariableDeclaration (classEntry.id, constructor) : functionDeclaration (classEntry.id, constructor.params, constructor.body)
 				];
 				
-				if (classEntry.dependsOn.parent)                                   // do_classes.jsxi:794
+				if (classEntry.dependsOn.parent)                                   // do_classes.jsxi:850
 					result.push (expressionStatement (callExpression ('__prototypeExtend', 
 						[ classEntry.id.name, classEntry.dependsOn.parent.id.name ])));
 				
-				for (var __n = 0; __n < objectFields.length; __n ++){              // do_classes.jsxi:798
-					var field = objectFields [__n];
+				for (var __o = 0; __o < objectFields.length; __o ++){              // do_classes.jsxi:854
+					var field = objectFields [__o];
 					
 					{};
 				}
 				
-				for (var __o = 0; __o < objectMethods.length; __o ++){             // do_classes.jsxi:801
-					var method = objectMethods [__o];
+				for (var __p = 0; __p < objectMethods.length; __p ++){             // do_classes.jsxi:857
+					var method = objectMethods [__p];
 					
-					if (!method.abstract)                                          // do_classes.jsxi:802
-						result.push (assignmentStatement (memberExpression (memberExpression (classEntry.id.name, 'prototype'), 
-							method.id),                                            // do_classes.jsxi:804
-						functionExpression (null, method.params, method.body)));   // do_classes.jsxi:805
+					if (method.abstract)                                           // do_classes.jsxi:858
+						continue;
+					
+					result.push (assignmentStatement (memberExpression (memberExpression (classEntry.id.name, 'prototype'), 
+						method.id),                                                // do_classes.jsxi:860
+					functionExpression (null, method.params, method.body)));       // do_classes.jsxi:861
 				}
 				
-				for (var __p = 0; __p < staticFields.length; __p ++){              // do_classes.jsxi:809
-					var field = staticFields [__p];
+				for (var __q = 0; __q < objectProperties.length; __q ++){          // do_classes.jsxi:865
+					var prop = objectProperties [__q];
 					
-					if (field.publicMode === 'private')                            // do_classes.jsxi:810
-						result [0].declarations.push (field);                      // do_classes.jsxi:811
+					if (prop.abstract)                                             // do_classes.jsxi:866
+						continue;
+					
+					var definedProperties = [];
+					
+					if (prop.get){                                                 // do_classes.jsxi:870
+						definedProperties.push (property (identifier ('get'),      // do_classes.jsxi:871
+							functionExpression (null, prop.get.params, prop.get.body)));
+					}
+					
+					if (prop.set){                                                 // do_classes.jsxi:877
+						definedProperties.push (property (identifier ('set'),      // do_classes.jsxi:878
+							functionExpression (null, prop.set.params, prop.set.body)));
+					}
+					
+					result.push (callExpression (memberExpression (identifier ('Object'), identifier ('defineProperty')), 
+						[
+							memberExpression (classEntry.id.name, 'prototype'),    // do_classes.jsxi:886
+							stringLiteralWithQuotes (prop.id.name),                // do_classes.jsxi:887
+							objectExpression (definedProperties)
+						]));
+				}
+				
+				for (var __r = 0; __r < staticFields.length; __r ++){              // do_classes.jsxi:893
+					var field = staticFields [__r];
+					
+					if (field.publicMode === 'private')                            // do_classes.jsxi:894
+						result [0].declarations.push (field);                      // do_classes.jsxi:895
 					else
 						result.push (assignmentStatement (memberExpression (classEntry.id.name, field.id), 
-							field.init || 'undefined'));                           // do_classes.jsxi:813
+							field.init || 'undefined'));                           // do_classes.jsxi:897
 				}
 				
-				for (var __q = 0; __q < staticMethods.length; __q ++){             // do_classes.jsxi:819
-					var method = staticMethods [__q];
+				for (var __s = 0; __s < staticMethods.length; __s ++){             // do_classes.jsxi:903
+					var method = staticMethods [__s];
 					
-					if (method.publicMode === 'private')                           // do_classes.jsxi:820
-						result.push (method);                                      // do_classes.jsxi:821
+					if (method.publicMode === 'private')                           // do_classes.jsxi:904
+						result.push (method);                                      // do_classes.jsxi:905
 					else
 						result.push (expressionStatement (assignmentExpression (memberExpression (classEntry.id.name, method.id), 
 							functionExpression (null, method.params, method.body))));
@@ -1862,87 +1954,87 @@ function doClasses (statements, callback){                                      
 			} else {
 				var properties = [];
 				
-				result = [                                                         // do_classes.jsxi:829
+				result = [                                                         // do_classes.jsxi:913
 					oneVariableDeclaration (classEntry.id, objectExpression (properties))
 				];
 				
-				for (var __r = 0; __r < staticFields.length; __r ++){              // do_classes.jsxi:832
-					var field = staticFields [__r];
+				for (var __t = 0; __t < staticFields.length; __t ++){              // do_classes.jsxi:916
+					var field = staticFields [__t];
 					
-					if (field.publicMode === 'private')                            // do_classes.jsxi:839
-						result [0].declarations.push (field);                      // do_classes.jsxi:840
+					if (field.publicMode === 'private')                            // do_classes.jsxi:923
+						result [0].declarations.push (field);                      // do_classes.jsxi:924
 					else
 						properties.push (property (field.id, field.init || 'undefined'));
 				}
 				
-				for (var __s = 0; __s < staticMethods.length; __s ++){             // do_classes.jsxi:846
-					var method = staticMethods [__s];
+				for (var __u = 0; __u < staticMethods.length; __u ++){             // do_classes.jsxi:930
+					var method = staticMethods [__u];
 					
-					if (method.publicMode === 'private')                           // do_classes.jsxi:847
-						result.push (method);                                      // do_classes.jsxi:848
+					if (method.publicMode === 'private')                           // do_classes.jsxi:931
+						result.push (method);                                      // do_classes.jsxi:932
 					else
-						properties.push (property (method.id,                      // do_classes.jsxi:850
+						properties.push (property (method.id,                      // do_classes.jsxi:934
 							functionExpression (null, method.params, method.body)));
 				}
 			}
 			
-			if (initializer.body.body.length > 0)                                  // do_classes.jsxi:855
+			if (initializer.body.body.length > 0)                                  // do_classes.jsxi:939
 				result.push (expressionStatement (callExpression (initializer)));
 			
-			if (anonymousFunction){                                                // do_classes.jsxi:859
-				result.push (returnStatement (classEntry.id.name));                // do_classes.jsxi:860
+			if (anonymousFunction){                                                // do_classes.jsxi:943
+				result.push (returnStatement (classEntry.id.name));                // do_classes.jsxi:944
 				return [
 					oneVariableDeclaration (classEntry.id, callFunctionExpression (result))
 				];
 			}
-			return result;                                                         // do_classes.jsxi:864
+			return result;                                                         // do_classes.jsxi:948
 		}
 		
-		for (var __t = 0; __t < classes.length; __t ++){                           // do_classes.jsxi:867
-			var classEntry = classes [__t];
+		for (var __v = 0; __v < classes.length; __v ++){                           // do_classes.jsxi:951
+			var classEntry = classes [__v];
 			
-			classEntry.statements = processClass (classEntry);                     // do_classes.jsxi:868
+			classEntry.statements = processClass (classEntry);                     // do_classes.jsxi:952
 		}
 	}
 	
-	function sortAndInsertClasses (){                                              // do_classes.jsxi:871
-		var sorted = classes.sort (function (a, b){                                // do_classes.jsxi:872
-			return b.weight - a.weight;                                            // do_classes.jsxi:872
+	function sortAndInsertClasses (){                                              // do_classes.jsxi:955
+		var sorted = classes.sort (function (a, b){                                // do_classes.jsxi:956
+			return b.weight - a.weight;                                            // do_classes.jsxi:956
 		});
 		
-		for (var __u = 0; __u < sorted.length; __u ++){                            // do_classes.jsxi:873
-			var current = sorted [__u];
+		for (var __10 = 0; __10 < sorted.length; __10 ++){                         // do_classes.jsxi:957
+			var current = sorted [__10];
 			
-			current.root.unshift ({                                                // do_classes.jsxi:874
-				type: Syntax.ClassDeclaration,                                     // do_classes.jsxi:874
-				name: current.id.name,                                             // do_classes.jsxi:876
+			current.root.unshift ({                                                // do_classes.jsxi:958
+				type: Syntax.ClassDeclaration,                                     // do_classes.jsxi:958
+				name: current.id.name,                                             // do_classes.jsxi:960
 				statements: current.statements
 			});
 		}
 	}
 	
 	{
-		var __10 = collectRawClasses (statements);
+		var __12 = collectRawClasses (statements);
 		
-		for (var __v = 0; __v < __10.length; __v ++){
-			var found = __10 [__v];
+		for (var __11 = 0; __11 < __12.length; __11 ++){
+			var found = __12 [__11];
 			
-			addClass (found);                                                      // do_classes.jsxi:882
+			addClass (found);                                                      // do_classes.jsxi:966
 		}
 		
-		__10 = undefined;
+		__12 = undefined;
 	}
 	
-	if (classes.length > 0){                                                       // do_classes.jsxi:884
-		preprocessClasses ();                                                      // do_classes.jsxi:885
-		connectClasses ();                                                         // do_classes.jsxi:886
-		processClassesMembers ();                                                  // do_classes.jsxi:887
-		processClassesMethods ();                                                  // do_classes.jsxi:888
-		processClasses ();                                                         // do_classes.jsxi:889
-		sortAndInsertClasses ();                                                   // do_classes.jsxi:890
-		callback (helpers.helpers);                                                // do_classes.jsxi:892
+	if (classes.length > 0){                                                       // do_classes.jsxi:968
+		preprocessClasses ();                                                      // do_classes.jsxi:969
+		connectClasses ();                                                         // do_classes.jsxi:970
+		processClassesMembers ();                                                  // do_classes.jsxi:971
+		processClassesMethods ();                                                  // do_classes.jsxi:972
+		processClasses ();                                                         // do_classes.jsxi:973
+		sortAndInsertClasses ();                                                   // do_classes.jsxi:974
+		callback (helpers.helpers);                                                // do_classes.jsxi:976
 	} else
-		callback ();                                                               // do_classes.jsxi:894
+		callback ();                                                               // do_classes.jsxi:978
 }
 
 function HelpersManager (){                                                        // helpers.jsxi:1
@@ -2176,14 +2268,16 @@ var Token = {                                                                   
 		Property: 'Property',                                                      // library.jsxi:67
 		PropertyGetter: 'PropertyGetter',                                          // library.jsxi:68
 		PropertySetter: 'PropertySetter',                                          // library.jsxi:69
-		BooleanLiteral: 'BooleanLiteral',                                          // library.jsxi:71
-		NullLiteral: 'NullLiteral',                                                // library.jsxi:72
-		NumericLiteral: 'NumericLiteral',                                          // library.jsxi:73
-		RegexpLiteral: 'RegexpLiteral',                                            // library.jsxi:74
-		StringLiteral: 'StringLiteral',                                            // library.jsxi:75
-		UndefinedLiteral: 'UndefinedLiteral',                                      // library.jsxi:76
-		NotImplementedStatement: 'NotImplementedStatement',                        // library.jsxi:78
-		ClassDeclaration: 'ClassDeclaration',                                      // library.jsxi:79
+		GetterDeclarator: 'GetterDeclarator',                                      // library.jsxi:71
+		SetterDeclarator: 'SetterDeclarator',                                      // library.jsxi:72
+		BooleanLiteral: 'BooleanLiteral',                                          // library.jsxi:74
+		NullLiteral: 'NullLiteral',                                                // library.jsxi:75
+		NumericLiteral: 'NumericLiteral',                                          // library.jsxi:76
+		RegexpLiteral: 'RegexpLiteral',                                            // library.jsxi:77
+		StringLiteral: 'StringLiteral',                                            // library.jsxi:78
+		UndefinedLiteral: 'UndefinedLiteral',                                      // library.jsxi:79
+		NotImplementedStatement: 'NotImplementedStatement',                        // library.jsxi:81
+		ClassDeclaration: 'ClassDeclaration',                                      // library.jsxi:82
 		RawClassDeclaration: 'RawClassDeclaration'
 	};
 
@@ -2506,19 +2600,35 @@ function variableDeclaration (variables){                                       
 	};
 }
 
-function callFunctionExpression (body){                                            // objects.jsxi:376
-	return callExpression (functionExpression (null,                               // objects.jsxi:377
+function getterDeclarator (id, value){                                             // objects.jsxi:376
+	return {
+		type: Syntax.GetterDeclarator,                                             // objects.jsxi:378
+		id: identifier (id),                                                       // objects.jsxi:379
+		body: identifier (value)
+	};
+}
+
+function setterDeclarator (id, value){                                             // objects.jsxi:384
+	return {
+		type: Syntax.SetterDeclarator,                                             // objects.jsxi:386
+		id: identifier (id),                                                       // objects.jsxi:387
+		body: identifier (value)
+	};
+}
+
+function callFunctionExpression (body){                                            // objects.jsxi:392
+	return callExpression (functionExpression (null,                               // objects.jsxi:393
 		[], 
-		body instanceof Array ? blockStatement (body) : body),                     // objects.jsxi:377
+		body instanceof Array ? blockStatement (body) : body),                     // objects.jsxi:393
 	[]);
 }
 
-function oneVariableDeclaration (id, init){                                        // objects.jsxi:380
-	return variableDeclaration ([ variableDeclarator (id, init) ]);                // objects.jsxi:381
+function oneVariableDeclaration (id, init){                                        // objects.jsxi:396
+	return variableDeclaration ([ variableDeclarator (id, init) ]);                // objects.jsxi:397
 }
 
-function assignmentStatement (left, right){                                        // objects.jsxi:384
-	return expressionStatement (assignmentExpression (left, right));               // objects.jsxi:385
+function assignmentStatement (left, right){                                        // objects.jsxi:400
+	return expressionStatement (assignmentExpression (left, right));               // objects.jsxi:401
 }
 
 function parseClassParams (){                                                      // parse_class.jsxi:1
@@ -2614,147 +2724,229 @@ function parseClassMembers (params, dependsOn){                                 
 	}
 	
 	function set (obj){                                                            // parse_class.jsxi:97
-		if (result.hasOwnProperty (obj.id.name))                                   // parse_class.jsxi:98
-			throw new SyntaxError ('Member "' + obj.id.name + '" already declared', token);
-		
-		obj.publicMode = current.publicMode || params.publicMode;                  // parse_class.jsxi:101
-		obj.static = current.static;                                               // parse_class.jsxi:102
-		obj.abstract = current.abstract;                                           // parse_class.jsxi:103
-		result [obj.id.name] = obj;                                                // parse_class.jsxi:105
-	}
-	
-	function parseField (){                                                        // parse_class.jsxi:108
-		if (params.interface && !current.static)                                   // parse_class.jsxi:109
-			throw new TypeError ('Interface cannot have object fields');           // parse_class.jsxi:110
-		
-		if (current.abstract && (current.publicMode || params.publicMode) === 'private')
-			throw new TypeError ('Abstract member cannot be private');             // parse_class.jsxi:113
-		
-		{
-			var __12 = parseVariableDeclarators ();
-			
-			for (var __11 = 0; __11 < __12.length; __11 ++){
-				var entry = __12 [__11];
-				
-				set (entry);                                                       // parse_class.jsxi:116
-			}
-			
-			__12 = undefined;
+		if (obj.type === Syntax.GetterDeclarator){                                 // parse_class.jsxi:98
+			obj.id.originalName = obj.id.name;                                     // parse_class.jsxi:99
+			obj.id.name += '__get_';                                               // parse_class.jsxi:100
+		} else if (obj.type === Syntax.SetterDeclarator){                          // parse_class.jsxi:101
+			obj.id.originalName = obj.id.name;                                     // parse_class.jsxi:102
+			obj.id.name += '__set_';                                               // parse_class.jsxi:103
 		}
 		
-		refresh ();                                                                // parse_class.jsxi:118
+		if (result.hasOwnProperty (obj.id.name))                                   // parse_class.jsxi:106
+			throw new SyntaxError ('Member "' + obj.id.name + '" already declared', token);
+		
+		obj.publicMode = current.publicMode || params.publicMode;                  // parse_class.jsxi:109
+		obj.static = current.static;                                               // parse_class.jsxi:110
+		obj.abstract = current.abstract;                                           // parse_class.jsxi:111
+		result [obj.id.name] = obj;                                                // parse_class.jsxi:113
 	}
 	
-	function parseMethod (){                                                       // parse_class.jsxi:121
-		if (current.abstract && (current.publicMode || params.publicMode) === 'private')
-			throw new TypeError ('Abstract member cannot be private');             // parse_class.jsxi:123
+	function parseField (){                                                        // parse_class.jsxi:116
+		if (params.interface && !current.static)                                   // parse_class.jsxi:117
+			throw new TypeError ('Interface cannot have object fields');           // parse_class.jsxi:118
 		
-		state.superAvailable = !current.static && dependsOn.parent;                // parse_class.jsxi:125
-		set (parseFunction ({                                                      // parse_class.jsxi:126
-			keyword: null,                                                         // parse_class.jsxi:126
+		if (current.abstract && (current.publicMode || params.publicMode) === 'private')
+			throw new TypeError ('Abstract member cannot be private');             // parse_class.jsxi:121
+		
+		{
+			var __14 = parseVariableDeclarators ();
+			
+			for (var __13 = 0; __13 < __14.length; __13 ++){
+				var entry = __14 [__13];
+				
+				set (entry);                                                       // parse_class.jsxi:124
+			}
+			
+			__14 = undefined;
+		}
+		
+		refresh ();                                                                // parse_class.jsxi:126
+	}
+	
+	function parseGetterDeclarators (semicolon){                                   // parse_class.jsxi:129
+		var result = [];
+		
+		do {
+			result.push (getterDeclarator (parseIdentifier (), parsePropertyGetter ()));
+		} while (index < length && matchLex (','));                                // parse_class.jsxi:134
+		
+		if (semicolon !== false){                                                  // parse_class.jsxi:136
+			consumeSemicolon ();                                                   // parse_class.jsxi:137
+		}
+		return result;                                                             // parse_class.jsxi:140
+	}
+	
+	function parseGetter (){                                                       // parse_class.jsxi:143
+		if (params.interface && !current.static)                                   // parse_class.jsxi:144
+			throw new TypeError ('Interface cannot have object getters');          // parse_class.jsxi:145
+		
+		{
+			var __16 = parseGetterDeclarators ();
+			
+			for (var __15 = 0; __15 < __16.length; __15 ++){
+				var entry = __16 [__15];
+				
+				set (entry);                                                       // parse_class.jsxi:148
+			}
+			
+			__16 = undefined;
+		}
+		
+		refresh ();                                                                // parse_class.jsxi:150
+	}
+	
+	function parseSetterDeclarators (semicolon){                                   // parse_class.jsxi:153
+		var result = [];
+		
+		do {
+			result.push (setterDeclarator (parseIdentifier (), parsePropertySetter ()));
+		} while (index < length && matchLex (','));                                // parse_class.jsxi:158
+		
+		if (semicolon !== false){                                                  // parse_class.jsxi:160
+			consumeSemicolon ();                                                   // parse_class.jsxi:161
+		}
+		return result;                                                             // parse_class.jsxi:164
+	}
+	
+	function parseSetter (){                                                       // parse_class.jsxi:167
+		if (params.interface && !current.static)                                   // parse_class.jsxi:168
+			throw new TypeError ('Interface cannot have object getters');          // parse_class.jsxi:169
+		
+		{
+			var __18 = parseSetterDeclarators ();
+			
+			for (var __17 = 0; __17 < __18.length; __17 ++){
+				var entry = __18 [__17];
+				
+				set (entry);                                                       // parse_class.jsxi:172
+			}
+			
+			__18 = undefined;
+		}
+		
+		refresh ();                                                                // parse_class.jsxi:174
+	}
+	
+	function parseMethod (){                                                       // parse_class.jsxi:177
+		if (current.abstract && (current.publicMode || params.publicMode) === 'private')
+			throw new TypeError ('Abstract member cannot be private');             // parse_class.jsxi:179
+		
+		state.superAvailable = !current.static && dependsOn.parent;                // parse_class.jsxi:181
+		set (parseFunction ({                                                      // parse_class.jsxi:182
+			keyword: null,                                                         // parse_class.jsxi:182
 			empty: params.interface && !current.static || current.abstract
 		}));
-		state.superAvailable = false;                                              // parse_class.jsxi:127
-		refresh ();                                                                // parse_class.jsxi:129
+		state.superAvailable = false;                                              // parse_class.jsxi:183
+		refresh ();                                                                // parse_class.jsxi:185
 	}
 	
-	function parseInitializerOrConstructor (){                                     // parse_class.jsxi:132
-		if (current.publicMode)                                                    // parse_class.jsxi:133
+	function parseInitializerOrConstructor (){                                     // parse_class.jsxi:188
+		if (current.publicMode)                                                    // parse_class.jsxi:189
 			throw new TypeError ('Constructor or initializer cannot have overrided visibility');
 		
-		if (current.abstract)                                                      // parse_class.jsxi:136
+		if (current.abstract)                                                      // parse_class.jsxi:192
 			throw new TypeError ('Constructor or initializer cannot be abstract');
 		
-		state.superAvailable = !current.static && dependsOn.parent;                // parse_class.jsxi:139
-		state.noReturn = true;                                                     // parse_class.jsxi:140
+		state.superAvailable = !current.static && dependsOn.parent;                // parse_class.jsxi:195
+		state.noReturn = true;                                                     // parse_class.jsxi:196
 		
 		var result = parseFunction ({ keyword: null, id: false, optionalParams: true });
 		
 		result.id = identifier (current.static ? '@initializer' : '@constructor');
-		state.superAvailable = false;                                              // parse_class.jsxi:145
-		state.noReturn = false;                                                    // parse_class.jsxi:146
-		set (result);                                                              // parse_class.jsxi:148
-		refresh ();                                                                // parse_class.jsxi:149
+		state.superAvailable = false;                                              // parse_class.jsxi:201
+		state.noReturn = false;                                                    // parse_class.jsxi:202
+		set (result);                                                              // parse_class.jsxi:204
+		refresh ();                                                                // parse_class.jsxi:205
 	}
 	
-	state.inClass = true;                                                          // parse_class.jsxi:152
-	expect ('{');                                                                  // parse_class.jsxi:153
-	refresh ();                                                                    // parse_class.jsxi:154
+	state.inClass = true;                                                          // parse_class.jsxi:208
+	expect ('{');                                                                  // parse_class.jsxi:209
+	refresh ();                                                                    // parse_class.jsxi:210
 	
-	while (!matchLex ('}')){                                                       // parse_class.jsxi:156
-		token = lookahead ();                                                      // parse_class.jsxi:157
+	while (!matchLex ('}')){                                                       // parse_class.jsxi:212
+		token = lookahead ();                                                      // parse_class.jsxi:213
 		
-		switch (token.value){                                                      // parse_class.jsxi:159
-			case 'private':                                                        // parse_class.jsxi:160
+		switch (token.value){                                                      // parse_class.jsxi:215
+			case 'private':                                                        // parse_class.jsxi:216
 				
-			case 'public':                                                         // parse_class.jsxi:161
+			case 'public':                                                         // parse_class.jsxi:217
 				
-			case 'protected':                                                      // parse_class.jsxi:162
-				if (current.publicMode !== null)                                   // parse_class.jsxi:163
-					unexpected (token);                                            // parse_class.jsxi:164
+			case 'protected':                                                      // parse_class.jsxi:218
+				if (current.publicMode !== null)                                   // parse_class.jsxi:219
+					unexpected (token);                                            // parse_class.jsxi:220
 				
-				lex ();                                                            // parse_class.jsxi:165
-				current.publicMode = token.value;                                  // parse_class.jsxi:166
-				
-				break;
-			case 'abstract':                                                       // parse_class.jsxi:169
-				if (params.interface)                                              // parse_class.jsxi:170
-					unexpected (token);                                            // parse_class.jsxi:171
-			case 'static':                                                         // parse_class.jsxi:173
-				if (current.abstract || current.static)                            // parse_class.jsxi:174
-					unexpected (token);                                            // parse_class.jsxi:175
-				
-				lex ();                                                            // parse_class.jsxi:176
-				current [token.value] = true;                                      // parse_class.jsxi:177
+				lex ();                                                            // parse_class.jsxi:221
+				current.publicMode = token.value;                                  // parse_class.jsxi:222
 				
 				break;
-			case 'var':                                                            // parse_class.jsxi:180
-				lex ();                                                            // parse_class.jsxi:181
-				parseField ();                                                     // parse_class.jsxi:182
+			case 'abstract':                                                       // parse_class.jsxi:225
+				if (params.interface)                                              // parse_class.jsxi:226
+					unexpected (token);                                            // parse_class.jsxi:227
+			case 'static':                                                         // parse_class.jsxi:229
+				if (current.abstract || current.static)                            // parse_class.jsxi:230
+					unexpected (token);                                            // parse_class.jsxi:231
+				
+				lex ();                                                            // parse_class.jsxi:232
+				current [token.value] = true;                                      // parse_class.jsxi:233
 				
 				break;
-			case 'function':                                                       // parse_class.jsxi:185
-				lex ();                                                            // parse_class.jsxi:186
-				parseMethod ();                                                    // parse_class.jsxi:187
+			case 'var':                                                            // parse_class.jsxi:236
+				lex ();                                                            // parse_class.jsxi:237
+				parseField ();                                                     // parse_class.jsxi:238
 				
 				break;
-			case '(':                                                              // parse_class.jsxi:190
+			case 'get':                                                            // parse_class.jsxi:241
+				lex ();                                                            // parse_class.jsxi:242
+				parseGetter ();                                                    // parse_class.jsxi:243
 				
-			case '{':                                                              // parse_class.jsxi:191
-				parseInitializerOrConstructor ();                                  // parse_class.jsxi:192
+				break;
+			case 'set':                                                            // parse_class.jsxi:246
+				lex ();                                                            // parse_class.jsxi:247
+				parseSetter ();                                                    // parse_class.jsxi:248
+				
+				break;
+			case 'function':                                                       // parse_class.jsxi:251
+				lex ();                                                            // parse_class.jsxi:252
+				parseMethod ();                                                    // parse_class.jsxi:253
+				
+				break;
+			case '(':                                                              // parse_class.jsxi:256
+				
+			case '{':                                                              // parse_class.jsxi:257
+				parseInitializerOrConstructor ();                                  // parse_class.jsxi:258
 				
 				break;
 			default:
-				if (token.type === Token.Identifier){                              // parse_class.jsxi:196
+				if (token.type === Token.Identifier){                              // parse_class.jsxi:262
 					var saved = saveAll (), method;
 					
-					lex ();                                                        // parse_class.jsxi:200
-					method = match ('(');                                          // parse_class.jsxi:201
-					restoreAll (saved);                                            // parse_class.jsxi:202
+					lex ();                                                        // parse_class.jsxi:266
+					method = match ('(');                                          // parse_class.jsxi:267
+					restoreAll (saved);                                            // parse_class.jsxi:268
 					
-					if (method)                                                    // parse_class.jsxi:204
-						parseMethod ();                                            // parse_class.jsxi:205
+					if (method)                                                    // parse_class.jsxi:270
+						parseMethod ();                                            // parse_class.jsxi:271
 					else
-						parseField ();                                             // parse_class.jsxi:207
+						parseField ();                                             // parse_class.jsxi:273
 				} else
-					unexpected (token);                                            // parse_class.jsxi:209
+					unexpected (token);                                            // parse_class.jsxi:275
 		}
 	}
 	
-	state.inClass = oldInClass;                                                    // parse_class.jsxi:213
-	return result;                                                                 // parse_class.jsxi:214
+	state.inClass = oldInClass;                                                    // parse_class.jsxi:279
+	return result;                                                                 // parse_class.jsxi:280
 }
 
-function parseClassDeclaration (){                                                 // parse_class.jsxi:217
-	var params = parseClassParams (),                                              // parse_class.jsxi:218
-		id = parseIdentifier (),                                                   // parse_class.jsxi:219
-		dependsOn = parseExtendsImplementsAndUses (params),                        // parse_class.jsxi:220
-		members = parseClassMembers (params, dependsOn);                           // parse_class.jsxi:221
+function parseClassDeclaration (){                                                 // parse_class.jsxi:283
+	var params = parseClassParams (),                                              // parse_class.jsxi:284
+		id = parseIdentifier (),                                                   // parse_class.jsxi:285
+		dependsOn = parseExtendsImplementsAndUses (params),                        // parse_class.jsxi:286
+		members = parseClassMembers (params, dependsOn);                           // parse_class.jsxi:287
 	return {
-		type: Syntax.RawClassDeclaration,                                          // parse_class.jsxi:224
-		id: id,                                                                    // parse_class.jsxi:225
-		params: params,                                                            // parse_class.jsxi:226
-		dependsOn: dependsOn,                                                      // parse_class.jsxi:227
+		type: Syntax.RawClassDeclaration,                                          // parse_class.jsxi:290
+		id: id,                                                                    // parse_class.jsxi:291
+		params: params,                                                            // parse_class.jsxi:292
+		dependsOn: dependsOn,                                                      // parse_class.jsxi:293
 		members: members
 	};
 }
@@ -2887,80 +3079,79 @@ function parseObjectProperty (){                                                
 				value: parsePropertySetter ()
 			};
 		} else {
-			console.log (key);                                                     // parse_expressions.jsxi:115
-			unexpected (token);                                                    // parse_expressions.jsxi:116
+			unexpected (token);                                                    // parse_expressions.jsxi:115
 		}
 	}
 }
 
-function parseObjectContent (){                                                    // parse_expressions.jsxi:121
+function parseObjectContent (){                                                    // parse_expressions.jsxi:120
 	var properties = [], property, name, kind, map = {}, comma = {};
 	
-	while (!match ('}')){                                                          // parse_expressions.jsxi:124
-		if (properties.length){                                                    // parse_expressions.jsxi:125
-			parseOptionalComma (comma);                                            // parse_expressions.jsxi:126
+	while (!match ('}')){                                                          // parse_expressions.jsxi:123
+		if (properties.length){                                                    // parse_expressions.jsxi:124
+			parseOptionalComma (comma);                                            // parse_expressions.jsxi:125
 			
-			if (match ('}'))                                                       // parse_expressions.jsxi:128
+			if (match ('}'))                                                       // parse_expressions.jsxi:127
 				break;
 		}
 		
-		properties.push (parseObjectProperty ());                                  // parse_expressions.jsxi:132
+		properties.push (parseObjectProperty ());                                  // parse_expressions.jsxi:131
 	}
-	return properties;                                                             // parse_expressions.jsxi:135
+	return properties;                                                             // parse_expressions.jsxi:134
 }
 
-function parseObjectInitialiser (){                                                // parse_expressions.jsxi:138
-	expect ('{');                                                                  // parse_expressions.jsxi:139
+function parseObjectInitialiser (){                                                // parse_expressions.jsxi:137
+	expect ('{');                                                                  // parse_expressions.jsxi:138
 	
 	var result = parseObjectContent ();
 	
-	expect ('}');                                                                  // parse_expressions.jsxi:141
-	return objectExpression (result);                                              // parse_expressions.jsxi:142
+	expect ('}');                                                                  // parse_expressions.jsxi:140
+	return objectExpression (result);                                              // parse_expressions.jsxi:141
 }
 
-function parseNonComputedProperty (){                                              // parse_expressions.jsxi:145
+function parseNonComputedProperty (){                                              // parse_expressions.jsxi:144
 	var token = lex ();
 	
 	if (token.type !== Token.Identifier && token.type !== Token.Keyword && token.type !== Token.BooleanLiteral && token.type !== Token.NullLiteral)
-		unexpected (token);                                                        // parse_expressions.jsxi:148
-	return mark ({ type: Syntax.Identifier, name: token.value }, token);           // parse_expressions.jsxi:149
+		unexpected (token);                                                        // parse_expressions.jsxi:147
+	return mark ({ type: Syntax.Identifier, name: token.value }, token);           // parse_expressions.jsxi:148
 }
 
-function parseNonComputedMember (){                                                // parse_expressions.jsxi:152
-	expect ('.');                                                                  // parse_expressions.jsxi:153
-	return parseNonComputedProperty ();                                            // parse_expressions.jsxi:154
+function parseNonComputedMember (){                                                // parse_expressions.jsxi:151
+	expect ('.');                                                                  // parse_expressions.jsxi:152
+	return parseNonComputedProperty ();                                            // parse_expressions.jsxi:153
 }
 
-function parseComputedMember (){                                                   // parse_expressions.jsxi:157
-	expect ('[');                                                                  // parse_expressions.jsxi:158
+function parseComputedMember (){                                                   // parse_expressions.jsxi:156
+	expect ('[');                                                                  // parse_expressions.jsxi:157
 	
 	var temp = parseExpression ();
 	
-	expect (']');                                                                  // parse_expressions.jsxi:160
-	return temp;                                                                   // parse_expressions.jsxi:161
+	expect (']');                                                                  // parse_expressions.jsxi:159
+	return temp;                                                                   // parse_expressions.jsxi:160
 }
 
-function parseNewExpression (){                                                    // parse_expressions.jsxi:164
-	expectKeyword ('new');                                                         // parse_expressions.jsxi:165
+function parseNewExpression (){                                                    // parse_expressions.jsxi:163
+	expectKeyword ('new');                                                         // parse_expressions.jsxi:164
 	
-	var result = newExpression (parseLeftHandSideExpression (),                    // parse_expressions.jsxi:166
-		match ('(') ? parseArguments () : []);                                     // parse_expressions.jsxi:166
-	return result;                                                                 // parse_expressions.jsxi:172
+	var result = newExpression (parseLeftHandSideExpression (),                    // parse_expressions.jsxi:165
+		match ('(') ? parseArguments () : []);                                     // parse_expressions.jsxi:165
+	return result;                                                                 // parse_expressions.jsxi:171
 }
 
-function parseSuperExpression (){                                                  // parse_expressions.jsxi:175
+function parseSuperExpression (){                                                  // parse_expressions.jsxi:174
 	var level = 1, name = null;
 	
-	expectKeyword ('super');                                                       // parse_expressions.jsxi:178
+	expectKeyword ('super');                                                       // parse_expressions.jsxi:177
 	
-	if (!state.superAvailable)                                                     // parse_expressions.jsxi:180
-		throw new TypeError ('Super can be used in class functions only');         // parse_expressions.jsxi:181
+	if (!state.superAvailable)                                                     // parse_expressions.jsxi:179
+		throw new TypeError ('Super can be used in class functions only');         // parse_expressions.jsxi:180
 	
-	while (matchLex ('.')){                                                        // parse_expressions.jsxi:183
-		if (matchKeywordLex ('super')){                                            // parse_expressions.jsxi:184
-			level ++;                                                              // parse_expressions.jsxi:185
+	while (matchLex ('.')){                                                        // parse_expressions.jsxi:182
+		if (matchKeywordLex ('super')){                                            // parse_expressions.jsxi:183
+			level ++;                                                              // parse_expressions.jsxi:184
 		} else {
-			name = parseIdentifier ();                                             // parse_expressions.jsxi:187
+			name = parseIdentifier ();                                             // parse_expressions.jsxi:186
 			
 			break;
 		}
@@ -2968,420 +3159,420 @@ function parseSuperExpression (){                                               
 	return superExpression (name, match ('(') ? parseArguments () : null, level);
 }
 
-function parseLeftHandSideExpressionTemp (){                                       // parse_expressions.jsxi:195
+function parseLeftHandSideExpressionTemp (){                                       // parse_expressions.jsxi:194
 	return matchKeyword ('new') ? parseNewExpression () : matchKeyword ('super') ? parseSuperExpression () : parsePrimaryExpression ();
 }
 
-function parseLeftHandSideExpressionAllowCall (){                                  // parse_expressions.jsxi:198
+function parseLeftHandSideExpressionAllowCall (){                                  // parse_expressions.jsxi:197
 	var expression = parseLeftHandSideExpressionTemp (), token;
 	
-	while (index < length){                                                        // parse_expressions.jsxi:201
-		token = lookahead ();                                                      // parse_expressions.jsxi:202
+	while (index < length){                                                        // parse_expressions.jsxi:200
+		token = lookahead ();                                                      // parse_expressions.jsxi:201
 		
-		if (token.value === '('){                                                  // parse_expressions.jsxi:204
-			expression = callExpression (expression, parseArguments ());           // parse_expressions.jsxi:205
-		} else if (token.value === '['){                                           // parse_expressions.jsxi:206
+		if (token.value === '('){                                                  // parse_expressions.jsxi:203
+			expression = callExpression (expression, parseArguments ());           // parse_expressions.jsxi:204
+		} else if (token.value === '['){                                           // parse_expressions.jsxi:205
 			expression = memberExpression (expression, parseComputedMember (), true);
-		} else if (token.value === '.' && source [token.range [0] + 1] !== '.'){   // parse_expressions.jsxi:208
+		} else if (token.value === '.' && source [token.range [0] + 1] !== '.'){   // parse_expressions.jsxi:207
 			expression = memberExpression (expression, parseNonComputedMember (), false);
 		} else
 			break;
 	}
-	return expression;                                                             // parse_expressions.jsxi:214
+	return expression;                                                             // parse_expressions.jsxi:213
 }
 
-function parseLeftHandSideExpression (){                                           // parse_expressions.jsxi:217
+function parseLeftHandSideExpression (){                                           // parse_expressions.jsxi:216
 	var expression = parseLeftHandSideExpressionTemp ();
 	
-	while (match ('.') || match ('['))                                             // parse_expressions.jsxi:220
-		if (match ('['))                                                           // parse_expressions.jsxi:221
+	while (match ('.') || match ('['))                                             // parse_expressions.jsxi:219
+		if (match ('['))                                                           // parse_expressions.jsxi:220
 			expression = memberExpression (expression, parseComputedMember (), true);
 		else
 			expression = memberExpression (expression, parseNonComputedMember (), false);
-	return expression;                                                             // parse_expressions.jsxi:226
+	return expression;                                                             // parse_expressions.jsxi:225
 }
 
-function parseMultiplicativeExpression (){                                         // parse_expressions.jsxi:229
+function parseMultiplicativeExpression (){                                         // parse_expressions.jsxi:228
 	var expression = parseUnaryExpression ();
 	
-	while (match ('*') || match ('/') || match ('%'))                              // parse_expressions.jsxi:232
+	while (match ('*') || match ('/') || match ('%'))                              // parse_expressions.jsxi:231
 		expression = binaryExpression (expression, lex ().value, parseUnaryExpression ());
-	return expression;                                                             // parse_expressions.jsxi:235
+	return expression;                                                             // parse_expressions.jsxi:234
 }
 
-function parseAdditiveExpression (){                                               // parse_expressions.jsxi:238
+function parseAdditiveExpression (){                                               // parse_expressions.jsxi:237
 	var expression = parseMultiplicativeExpression ();
 	
-	while (match ('+') || match ('-'))                                             // parse_expressions.jsxi:241
+	while (match ('+') || match ('-'))                                             // parse_expressions.jsxi:240
 		expression = binaryExpression (expression, lex ().value, parseMultiplicativeExpression ());
-	return expression;                                                             // parse_expressions.jsxi:244
+	return expression;                                                             // parse_expressions.jsxi:243
 }
 
-function parseShiftExpression (){                                                  // parse_expressions.jsxi:247
+function parseShiftExpression (){                                                  // parse_expressions.jsxi:246
 	var expression = parseAdditiveExpression ();
 	
-	while (match ('<<') || match ('>>') || match ('>>>'))                          // parse_expressions.jsxi:250
+	while (match ('<<') || match ('>>') || match ('>>>'))                          // parse_expressions.jsxi:249
 		expression = binaryExpression (expression, lex ().value, parseAdditiveExpression ());
-	return expression;                                                             // parse_expressions.jsxi:253
+	return expression;                                                             // parse_expressions.jsxi:252
 }
 
-function parseRelationalExpression (){                                             // parse_expressions.jsxi:256
+function parseRelationalExpression (){                                             // parse_expressions.jsxi:255
 	var inverse, expression, previousAllowIn;
 	
-	previousAllowIn = state.allowIn;                                               // parse_expressions.jsxi:259
-	state.allowIn = true;                                                          // parse_expressions.jsxi:260
-	expression = parseShiftExpression ();                                          // parse_expressions.jsxi:261
+	previousAllowIn = state.allowIn;                                               // parse_expressions.jsxi:258
+	state.allowIn = true;                                                          // parse_expressions.jsxi:259
+	expression = parseShiftExpression ();                                          // parse_expressions.jsxi:260
 	
-	while (index < length){                                                        // parse_expressions.jsxi:263
-		if (match ('!') && source [lookahead ().range [0] + 1] === 'i'){           // parse_expressions.jsxi:264
-			inverse = saveAll ();                                                  // parse_expressions.jsxi:265
-			lex ();                                                                // parse_expressions.jsxi:266
+	while (index < length){                                                        // parse_expressions.jsxi:262
+		if (match ('!') && source [lookahead ().range [0] + 1] === 'i'){           // parse_expressions.jsxi:263
+			inverse = saveAll ();                                                  // parse_expressions.jsxi:264
+			lex ();                                                                // parse_expressions.jsxi:265
 		}
 		
 		if (match ('<') || match ('>') || match ('<=') || match ('>=') || previousAllowIn && matchKeyword ('in') || matchKeyword ('instanceof')){
 			expression = binaryExpression (expression, lex ().value, parseShiftExpression ());
 		} else if (previousAllowIn && (matchKeyword ('in-object') || matchKeyword ('in-array'))){
-			lex ();                                                                // parse_expressions.jsxi:272
+			lex ();                                                                // parse_expressions.jsxi:271
 			expression = callExpression (memberExpression (parseShiftExpression (), 'hasOwnProperty'), 
 				[ expression ]);
 		} else {
-			if (inverse)                                                           // parse_expressions.jsxi:275
-				restoreAll (inverse);                                              // parse_expressions.jsxi:276
+			if (inverse)                                                           // parse_expressions.jsxi:274
+				restoreAll (inverse);                                              // parse_expressions.jsxi:275
 			
 			break;
 		}
 		
-		if (inverse){                                                              // parse_expressions.jsxi:280
-			expression = unaryExpression (expression, '!', true);                  // parse_expressions.jsxi:281
-			inverse = false;                                                       // parse_expressions.jsxi:282
+		if (inverse){                                                              // parse_expressions.jsxi:279
+			expression = unaryExpression (expression, '!', true);                  // parse_expressions.jsxi:280
+			inverse = false;                                                       // parse_expressions.jsxi:281
 		}
 	}
 	
-	state.allowIn = previousAllowIn;                                               // parse_expressions.jsxi:286
-	return expression;                                                             // parse_expressions.jsxi:287
+	state.allowIn = previousAllowIn;                                               // parse_expressions.jsxi:285
+	return expression;                                                             // parse_expressions.jsxi:286
 }
 
-function parseEqualityExpression (){                                               // parse_expressions.jsxi:290
+function parseEqualityExpression (){                                               // parse_expressions.jsxi:289
 	var expression = parseRelationalExpression ();
 	
-	while (match ('==') || match ('!=') || match ('===') || match ('!=='))         // parse_expressions.jsxi:293
+	while (match ('==') || match ('!=') || match ('===') || match ('!=='))         // parse_expressions.jsxi:292
 		expression = binaryExpression (expression, lex ().value, parseRelationalExpression ());
-	return expression;                                                             // parse_expressions.jsxi:296
+	return expression;                                                             // parse_expressions.jsxi:295
 }
 
-function parseBitwiseANDExpression (){                                             // parse_expressions.jsxi:299
+function parseBitwiseANDExpression (){                                             // parse_expressions.jsxi:298
 	var expression = parseEqualityExpression ();
 	
-	while (match ('&')){                                                           // parse_expressions.jsxi:302
-		lex ();                                                                    // parse_expressions.jsxi:303
+	while (match ('&')){                                                           // parse_expressions.jsxi:301
+		lex ();                                                                    // parse_expressions.jsxi:302
 		expression = binaryExpression (expression, '&', parseEqualityExpression ());
 	}
-	return expression;                                                             // parse_expressions.jsxi:307
+	return expression;                                                             // parse_expressions.jsxi:306
 }
 
-function parseBitwiseXORExpression (){                                             // parse_expressions.jsxi:310
+function parseBitwiseXORExpression (){                                             // parse_expressions.jsxi:309
 	var expression = parseBitwiseANDExpression ();
 	
-	while (match ('^')){                                                           // parse_expressions.jsxi:313
-		lex ();                                                                    // parse_expressions.jsxi:314
+	while (match ('^')){                                                           // parse_expressions.jsxi:312
+		lex ();                                                                    // parse_expressions.jsxi:313
 		expression = binaryExpression (expression, '^', parseBitwiseANDExpression ());
 	}
-	return expression;                                                             // parse_expressions.jsxi:318
+	return expression;                                                             // parse_expressions.jsxi:317
 }
 
-function parseBitwiseORExpression (){                                              // parse_expressions.jsxi:321
+function parseBitwiseORExpression (){                                              // parse_expressions.jsxi:320
 	var expression = parseBitwiseXORExpression ();
 	
-	while (match ('|')){                                                           // parse_expressions.jsxi:324
-		lex ();                                                                    // parse_expressions.jsxi:325
+	while (match ('|')){                                                           // parse_expressions.jsxi:323
+		lex ();                                                                    // parse_expressions.jsxi:324
 		expression = binaryExpression (expression, '|', parseBitwiseXORExpression ());
 	}
-	return expression;                                                             // parse_expressions.jsxi:329
+	return expression;                                                             // parse_expressions.jsxi:328
 }
 
-function parseLogicalANDExpression (){                                             // parse_expressions.jsxi:332
+function parseLogicalANDExpression (){                                             // parse_expressions.jsxi:331
 	var expression = parseBitwiseORExpression ();
 	
-	while (match ('&&')){                                                          // parse_expressions.jsxi:335
-		lex ();                                                                    // parse_expressions.jsxi:336
+	while (match ('&&')){                                                          // parse_expressions.jsxi:334
+		lex ();                                                                    // parse_expressions.jsxi:335
 		expression = logicalExpression (expression, '&&', parseBitwiseORExpression ());
 	}
-	return expression;                                                             // parse_expressions.jsxi:340
+	return expression;                                                             // parse_expressions.jsxi:339
 }
 
-function parseLogicalORExpression (){                                              // parse_expressions.jsxi:343
+function parseLogicalORExpression (){                                              // parse_expressions.jsxi:342
 	var expression = parseLogicalANDExpression ();
 	
-	while (match ('||')){                                                          // parse_expressions.jsxi:346
-		lex ();                                                                    // parse_expressions.jsxi:347
+	while (match ('||')){                                                          // parse_expressions.jsxi:345
+		lex ();                                                                    // parse_expressions.jsxi:346
 		expression = logicalExpression (expression, '||', parseLogicalANDExpression ());
 	}
-	return expression;                                                             // parse_expressions.jsxi:351
+	return expression;                                                             // parse_expressions.jsxi:350
 }
 
-function parseConditionalExpression (){                                            // parse_expressions.jsxi:354
+function parseConditionalExpression (){                                            // parse_expressions.jsxi:353
 	var expression, previousAllowIn, consequent;
 	
-	expression = parseLogicalORExpression ();                                      // parse_expressions.jsxi:357
+	expression = parseLogicalORExpression ();                                      // parse_expressions.jsxi:356
 	
-	if (match ('?')){                                                              // parse_expressions.jsxi:359
-		lex ();                                                                    // parse_expressions.jsxi:360
-		previousAllowIn = state.allowIn;                                           // parse_expressions.jsxi:361
-		state.allowIn = true;                                                      // parse_expressions.jsxi:362
-		consequent = parseAssignmentExpression ();                                 // parse_expressions.jsxi:363
-		state.allowIn = previousAllowIn;                                           // parse_expressions.jsxi:364
-		expect (':');                                                              // parse_expressions.jsxi:365
+	if (match ('?')){                                                              // parse_expressions.jsxi:358
+		lex ();                                                                    // parse_expressions.jsxi:359
+		previousAllowIn = state.allowIn;                                           // parse_expressions.jsxi:360
+		state.allowIn = true;                                                      // parse_expressions.jsxi:361
+		consequent = parseAssignmentExpression ();                                 // parse_expressions.jsxi:362
+		state.allowIn = previousAllowIn;                                           // parse_expressions.jsxi:363
+		expect (':');                                                              // parse_expressions.jsxi:364
 		expression = conditionalExpression (expression, consequent, parseAssignmentExpression ());
 	}
-	return expression;                                                             // parse_expressions.jsxi:370
+	return expression;                                                             // parse_expressions.jsxi:369
 }
 
-function parseAssignmentExpression (){                                             // parse_expressions.jsxi:373
-	var expression = parseConditionalExpression (),                                // parse_expressions.jsxi:374
-		token = lookahead ();                                                      // parse_expressions.jsxi:375
+function parseAssignmentExpression (){                                             // parse_expressions.jsxi:372
+	var expression = parseConditionalExpression (),                                // parse_expressions.jsxi:373
+		token = lookahead ();                                                      // parse_expressions.jsxi:374
 	
-	if (token.type === Token.Punctuator){                                          // parse_expressions.jsxi:377
+	if (token.type === Token.Punctuator){                                          // parse_expressions.jsxi:376
 		var value = token.value;
 		
 		if (value === '=' || value === '*=' || value === '/=' || value === '%=' || value === '+=' || value === '-=' || value === '<<=' || value === '>>=' || value === '>>>=' || value === '&=' || value === '^=' || value === '|='){
-			leftSideOnly (expression);                                             // parse_expressions.jsxi:382
+			leftSideOnly (expression);                                             // parse_expressions.jsxi:381
 			expression = assignmentExpression (expression, lex ().value, parseAssignmentExpression ());
 		}
 	}
-	return expression;                                                             // parse_expressions.jsxi:387
+	return expression;                                                             // parse_expressions.jsxi:386
 }
 
-function parseExpression (){                                                       // parse_expressions.jsxi:390
+function parseExpression (){                                                       // parse_expressions.jsxi:389
 	var expression = parseAssignmentExpression ();
 	
-	if (!state.preventSequence && match (',')){                                    // parse_expressions.jsxi:393
-		expression = sequenceExpression ([ expression ]);                          // parse_expressions.jsxi:394
+	if (!state.preventSequence && match (',')){                                    // parse_expressions.jsxi:392
+		expression = sequenceExpression ([ expression ]);                          // parse_expressions.jsxi:393
 		
-		while (matchLex (','))                                                     // parse_expressions.jsxi:396
-			expression.expressions.push (parseAssignmentExpression ());            // parse_expressions.jsxi:397
+		while (matchLex (','))                                                     // parse_expressions.jsxi:395
+			expression.expressions.push (parseAssignmentExpression ());            // parse_expressions.jsxi:396
 	}
-	return expression;                                                             // parse_expressions.jsxi:400
+	return expression;                                                             // parse_expressions.jsxi:399
 }
 
-function parseUnaryExpression (){                                                  // parse_expressions.jsxi:403
+function parseUnaryExpression (){                                                  // parse_expressions.jsxi:402
 	var token = lookahead ();
 	
-	if (token.type === Token.Punctuator){                                          // parse_expressions.jsxi:406
-		if (token.value === '++' || token.value === '--'){                         // parse_expressions.jsxi:407
-			lex ();                                                                // parse_expressions.jsxi:408
+	if (token.type === Token.Punctuator){                                          // parse_expressions.jsxi:405
+		if (token.value === '++' || token.value === '--'){                         // parse_expressions.jsxi:406
+			lex ();                                                                // parse_expressions.jsxi:407
 			return unaryExpression (leftSideOnly (parseUnaryExpression ()), token.value, true);
 		}
 		
 		if (token.value === '+' || token.value === '-' || token.value === '~' || token.value === '!'){
-			lex ();                                                                // parse_expressions.jsxi:413
-			return unaryExpression (parseUnaryExpression (), token.value, true);   // parse_expressions.jsxi:414
+			lex ();                                                                // parse_expressions.jsxi:412
+			return unaryExpression (parseUnaryExpression (), token.value, true);   // parse_expressions.jsxi:413
 		}
 	} else if (token.type === Token.Keyword && (token.value === 'typeof' || token.value === 'delete' || token.value === 'void')){
-		lex ();                                                                    // parse_expressions.jsxi:418
-		return unaryExpression (parseUnaryExpression (), token.value, true);       // parse_expressions.jsxi:419
+		lex ();                                                                    // parse_expressions.jsxi:417
+		return unaryExpression (parseUnaryExpression (), token.value, true);       // parse_expressions.jsxi:418
 	}
-	return parsePostfixExpression ();                                              // parse_expressions.jsxi:422
+	return parsePostfixExpression ();                                              // parse_expressions.jsxi:421
 }
 
-function parsePostfixExpression (){                                                // parse_expressions.jsxi:425
+function parsePostfixExpression (){                                                // parse_expressions.jsxi:424
 	var expression = parseLeftHandSideExpressionAllowCall (), token;
 	
-	token = lookahead ();                                                          // parse_expressions.jsxi:428
+	token = lookahead ();                                                          // parse_expressions.jsxi:427
 	
-	if (token.type !== Token.Punctuator)                                           // parse_expressions.jsxi:430
-		return expression;                                                         // parse_expressions.jsxi:431
+	if (token.type !== Token.Punctuator)                                           // parse_expressions.jsxi:429
+		return expression;                                                         // parse_expressions.jsxi:430
 	
 	if ((token.value === '++' || token.value === '--') && token.lineNumber === lineNumber){
-		leftSideOnly (expression);                                                 // parse_expressions.jsxi:434
-		expression = unaryExpression (expression, lex ().value, false);            // parse_expressions.jsxi:435
+		leftSideOnly (expression);                                                 // parse_expressions.jsxi:433
+		expression = unaryExpression (expression, lex ().value, false);            // parse_expressions.jsxi:434
 	}
-	return expression;                                                             // parse_expressions.jsxi:438
+	return expression;                                                             // parse_expressions.jsxi:437
 }
 
-function parseGroupExpression (){                                                  // parse_expressions.jsxi:441
+function parseGroupExpression (){                                                  // parse_expressions.jsxi:440
 	var oldPreventSequence = state.preventSequence;
 	
-	state.preventSequence = false;                                                 // parse_expressions.jsxi:443
-	expect ('(');                                                                  // parse_expressions.jsxi:445
+	state.preventSequence = false;                                                 // parse_expressions.jsxi:442
+	expect ('(');                                                                  // parse_expressions.jsxi:444
 	
 	var result = parseExpression ();
 	
-	expect (')');                                                                  // parse_expressions.jsxi:447
-	state.preventSequence = oldPreventSequence;                                    // parse_expressions.jsxi:449
-	return result;                                                                 // parse_expressions.jsxi:450
+	expect (')');                                                                  // parse_expressions.jsxi:446
+	state.preventSequence = oldPreventSequence;                                    // parse_expressions.jsxi:448
+	return result;                                                                 // parse_expressions.jsxi:449
 }
 
-function parseComplexString (token){                                               // parse_expressions.jsxi:457
-	function split (string, max){                                                  // parse_expressions.jsxi:466
-		var length = string.length,                                                // parse_expressions.jsxi:468
-			index = 0,                                                             // parse_expressions.jsxi:469
-			previous = 0,                                                          // parse_expressions.jsxi:470
-			character,                                                             // parse_expressions.jsxi:471
-			temp,                                                                  // parse_expressions.jsxi:472
-			result = [];                                                           // parse_expressions.jsxi:473
+function parseComplexString (token){                                               // parse_expressions.jsxi:456
+	function split (string, max){                                                  // parse_expressions.jsxi:465
+		var length = string.length,                                                // parse_expressions.jsxi:467
+			index = 0,                                                             // parse_expressions.jsxi:468
+			previous = 0,                                                          // parse_expressions.jsxi:469
+			character,                                                             // parse_expressions.jsxi:470
+			temp,                                                                  // parse_expressions.jsxi:471
+			result = [];                                                           // parse_expressions.jsxi:472
 		
-		while (index < length)                                                     // parse_expressions.jsxi:475
-			switch (string [index]){                                               // parse_expressions.jsxi:476
-				case '\\':                                                         // parse_expressions.jsxi:477
-					if (string [index + 1] === '%'){                               // parse_expressions.jsxi:478
-						if (previous < index)                                      // parse_expressions.jsxi:479
-							result.push (string.substring (previous, index));      // parse_expressions.jsxi:480
+		while (index < length)                                                     // parse_expressions.jsxi:474
+			switch (string [index]){                                               // parse_expressions.jsxi:475
+				case '\\':                                                         // parse_expressions.jsxi:476
+					if (string [index + 1] === '%'){                               // parse_expressions.jsxi:477
+						if (previous < index)                                      // parse_expressions.jsxi:478
+							result.push (string.substring (previous, index));      // parse_expressions.jsxi:479
 						
-						previous = index + 1;                                      // parse_expressions.jsxi:481
+						previous = index + 1;                                      // parse_expressions.jsxi:480
 					}
 					
-					index += 2;                                                    // parse_expressions.jsxi:484
+					index += 2;                                                    // parse_expressions.jsxi:483
 					
 					break;
-				case '%':                                                          // parse_expressions.jsxi:487
-					if (index + 1 === length){                                     // parse_expressions.jsxi:489
-						index ++;                                                  // parse_expressions.jsxi:490
+				case '%':                                                          // parse_expressions.jsxi:486
+					if (index + 1 === length){                                     // parse_expressions.jsxi:488
+						index ++;                                                  // parse_expressions.jsxi:489
 						
 						break;
 					}
 					
 					if (string [index + 1] === '0' && index + 2 < length && decimalDigit (string [index + 2])){
-						index += 2;                                                // parse_expressions.jsxi:496
+						index += 2;                                                // parse_expressions.jsxi:495
 						
 						break;
 					}
 					
-					if (previous < index){                                         // parse_expressions.jsxi:501
-						result.push (string.substring (previous, index));          // parse_expressions.jsxi:502
-						previous = index;                                          // parse_expressions.jsxi:503
+					if (previous < index){                                         // parse_expressions.jsxi:500
+						result.push (string.substring (previous, index));          // parse_expressions.jsxi:501
+						previous = index;                                          // parse_expressions.jsxi:502
 					}
 					
-					index += 2;                                                    // parse_expressions.jsxi:506
+					index += 2;                                                    // parse_expressions.jsxi:505
 					
-					while (index < length && decimalDigit (string [index]))        // parse_expressions.jsxi:508
-						index ++;                                                  // parse_expressions.jsxi:509
+					while (index < length && decimalDigit (string [index]))        // parse_expressions.jsxi:507
+						index ++;                                                  // parse_expressions.jsxi:508
 					
-					temp = + string.substring (previous + 1, index);               // parse_expressions.jsxi:511
+					temp = + string.substring (previous + 1, index);               // parse_expressions.jsxi:510
 					
-					if (temp < max)                                                // parse_expressions.jsxi:513
-						result.push (temp);                                        // parse_expressions.jsxi:514
+					if (temp < max)                                                // parse_expressions.jsxi:512
+						result.push (temp);                                        // parse_expressions.jsxi:513
 					
-					previous = index;                                              // parse_expressions.jsxi:516
+					previous = index;                                              // parse_expressions.jsxi:515
 					
 					break;
 				default:
-					index ++;                                                      // parse_expressions.jsxi:520
+					index ++;                                                      // parse_expressions.jsxi:519
 			}
 		
-		if (previous < length)                                                     // parse_expressions.jsxi:523
-			result.push (string.substring (previous, length));                     // parse_expressions.jsxi:524
-		return result;                                                             // parse_expressions.jsxi:526
+		if (previous < length)                                                     // parse_expressions.jsxi:522
+			result.push (string.substring (previous, length));                     // parse_expressions.jsxi:523
+		return result;                                                             // parse_expressions.jsxi:525
 	}
 	
-	var string = stringLiteralValue (token),                                       // parse_expressions.jsxi:529
-		args = parseArguments (),                                                  // parse_expressions.jsxi:530
-		splitted,                                                                  // parse_expressions.jsxi:531
-		result;                                                                    // parse_expressions.jsxi:532
+	var string = stringLiteralValue (token),                                       // parse_expressions.jsxi:528
+		args = parseArguments (),                                                  // parse_expressions.jsxi:529
+		splitted,                                                                  // parse_expressions.jsxi:530
+		result;                                                                    // parse_expressions.jsxi:531
 	
-	if (string.length <= 1)                                                        // parse_expressions.jsxi:535
-		return stringLiteral (token.value);                                        // parse_expressions.jsxi:536
+	if (string.length <= 1)                                                        // parse_expressions.jsxi:534
+		return stringLiteral (token.value);                                        // parse_expressions.jsxi:535
 	
-	splitted = split (string, args.length).map (function (arg){                    // parse_expressions.jsxi:538
-		if (typeof arg === 'number'){                                              // parse_expressions.jsxi:541
+	splitted = split (string, args.length).map (function (arg){                    // parse_expressions.jsxi:537
+		if (typeof arg === 'number'){                                              // parse_expressions.jsxi:540
 			var temp = args [arg];
 			
-			if (temp.type === Syntax.StringLiteral)                                // parse_expressions.jsxi:544
-				return stringLiteral (temp.value);                                 // parse_expressions.jsxi:545
+			if (temp.type === Syntax.StringLiteral)                                // parse_expressions.jsxi:543
+				return stringLiteral (temp.value);                                 // parse_expressions.jsxi:544
 			
 			if (temp.type === Syntax.BooleanLiteral || temp.type === Syntax.NullLiteral || temp.type === Syntax.NumericLiteral || temp.type === Syntax.RegexpLiteral || temp.type === Syntax.UndefinedLiteral)
-				return stringLiteralWithQuotes (temp.value);                       // parse_expressions.jsxi:550
-			return temp;                                                           // parse_expressions.jsxi:552
+				return stringLiteralWithQuotes (temp.value);                       // parse_expressions.jsxi:549
+			return temp;                                                           // parse_expressions.jsxi:551
 		} else
-			return stringLiteralWithQuotes (arg);                                  // parse_expressions.jsxi:554
-	}).filter (function (arg, index, array){                                       // parse_expressions.jsxi:556
-		if (arg.type !== Syntax.StringLiteral)                                     // parse_expressions.jsxi:558
+			return stringLiteralWithQuotes (arg);                                  // parse_expressions.jsxi:553
+	}).filter (function (arg, index, array){                                       // parse_expressions.jsxi:555
+		if (arg.type !== Syntax.StringLiteral)                                     // parse_expressions.jsxi:557
 			return true;
 		
 		for (var i = index - 1, previous; i >= 0 && array [i].type === Syntax.StringLiteral; i --)
-			previous = array [i];                                                  // parse_expressions.jsxi:563
+			previous = array [i];                                                  // parse_expressions.jsxi:562
 		
-		if (previous){                                                             // parse_expressions.jsxi:565
+		if (previous){                                                             // parse_expressions.jsxi:564
 			previous.value = stringLiteralWithQuotes (stringLiteralValue (previous) + stringLiteralValue (arg)).value;
 			return false;
 		} else
 			return true;
-	}).filter (function (arg, index, array){                                       // parse_expressions.jsxi:572
+	}).filter (function (arg, index, array){                                       // parse_expressions.jsxi:571
 		return arg.type !== Syntax.StringLiteral || index === 0 || !stringLiteralEmpty (arg);
 	});
 	
 	if (splitted [0].type !== Syntax.StringLiteral && (splitted.length === 1 || splitted [1].type !== Syntax.StringLiteral))
-		splitted.unshift (stringLiteral ('\'\''));                                 // parse_expressions.jsxi:577
+		splitted.unshift (stringLiteral ('\'\''));                                 // parse_expressions.jsxi:576
 	
-	result = splitted [0];                                                         // parse_expressions.jsxi:579
+	result = splitted [0];                                                         // parse_expressions.jsxi:578
 	
-	for (var i = 1; i < splitted.length; i ++)                                     // parse_expressions.jsxi:581
-		result = binaryExpression (result, '+', splitted [i]);                     // parse_expressions.jsxi:582
-	return result;                                                                 // parse_expressions.jsxi:584
+	for (var i = 1; i < splitted.length; i ++)                                     // parse_expressions.jsxi:580
+		result = binaryExpression (result, '+', splitted [i]);                     // parse_expressions.jsxi:581
+	return result;                                                                 // parse_expressions.jsxi:583
 }
 
-function parsePrimaryExpression (){                                                // parse_expressions.jsxi:587
+function parsePrimaryExpression (){                                                // parse_expressions.jsxi:586
 	var token = lookahead ();
 	
-	switch (token.type){                                                           // parse_expressions.jsxi:590
-		case Token.Identifier:                                                     // parse_expressions.jsxi:591
-			lex ();                                                                // parse_expressions.jsxi:592
+	switch (token.type){                                                           // parse_expressions.jsxi:589
+		case Token.Identifier:                                                     // parse_expressions.jsxi:590
+			lex ();                                                                // parse_expressions.jsxi:591
 			
-			if (state.asynchronous && token.value === 'asynchronous'){             // parse_expressions.jsxi:593
+			if (state.asynchronous && token.value === 'asynchronous'){             // parse_expressions.jsxi:592
 				var next = parseExpression ();
 				
-				if (next.type === Syntax.CallExpression){                          // parse_expressions.jsxi:596
-					next.asynchronous = true;                                      // parse_expressions.jsxi:597
-					return next;                                                   // parse_expressions.jsxi:598
+				if (next.type === Syntax.CallExpression){                          // parse_expressions.jsxi:595
+					next.asynchronous = true;                                      // parse_expressions.jsxi:596
+					return next;                                                   // parse_expressions.jsxi:597
 				} else
-					unexpected (token);                                            // parse_expressions.jsxi:600
+					unexpected (token);                                            // parse_expressions.jsxi:599
 			} else
 				return mark ({ type: Syntax.Identifier, name: token.value }, token);
-		case Token.Keyword:                                                        // parse_expressions.jsxi:604
-			if (token.value === 'this'){                                           // parse_expressions.jsxi:605
-				lex ();                                                            // parse_expressions.jsxi:606
-				return mark ({ type: Syntax.ThisExpression }, token);              // parse_expressions.jsxi:607
+		case Token.Keyword:                                                        // parse_expressions.jsxi:603
+			if (token.value === 'this'){                                           // parse_expressions.jsxi:604
+				lex ();                                                            // parse_expressions.jsxi:605
+				return mark ({ type: Syntax.ThisExpression }, token);              // parse_expressions.jsxi:606
 			}
 			
-			if (token.value === 'function')                                        // parse_expressions.jsxi:610
-				return parseFunctionExpression ();                                 // parse_expressions.jsxi:611
+			if (token.value === 'function')                                        // parse_expressions.jsxi:609
+				return parseFunctionExpression ();                                 // parse_expressions.jsxi:610
 			
-			if (token.value === 'lambda')                                          // parse_expressions.jsxi:613
-				return parseLambdaExpression ();                                   // parse_expressions.jsxi:614
+			if (token.value === 'lambda')                                          // parse_expressions.jsxi:612
+				return parseLambdaExpression ();                                   // parse_expressions.jsxi:613
 			
 			break;
-		case Token.StringLiteral:                                                  // parse_expressions.jsxi:618
-			lex ();                                                                // parse_expressions.jsxi:619
+		case Token.StringLiteral:                                                  // parse_expressions.jsxi:617
+			lex ();                                                                // parse_expressions.jsxi:618
 			
-			if (lookahead ().value === '(')                                        // parse_expressions.jsxi:620
-				return parseComplexString (token);                                 // parse_expressions.jsxi:621
+			if (lookahead ().value === '(')                                        // parse_expressions.jsxi:619
+				return parseComplexString (token);                                 // parse_expressions.jsxi:620
 			else
 				return mark ({ type: Syntax.StringLiteral, value: token.value }, token);
-		case Token.NumericLiteral:                                                 // parse_expressions.jsxi:625
-			lex ();                                                                // parse_expressions.jsxi:626
-			return numericLiteral (token.value);                                   // parse_expressions.jsxi:627
-		case Token.BooleanLiteral:                                                 // parse_expressions.jsxi:629
-			lex ();                                                                // parse_expressions.jsxi:630
-			return booleanLiteral (token.value);                                   // parse_expressions.jsxi:631
-		case Token.NullLiteral:                                                    // parse_expressions.jsxi:633
-			lex ();                                                                // parse_expressions.jsxi:634
-			return nullLiteral ();                                                 // parse_expressions.jsxi:635
-		case Token.UndefinedLiteral:                                               // parse_expressions.jsxi:637
-			lex ();                                                                // parse_expressions.jsxi:638
-			return undefinedLiteral ();                                            // parse_expressions.jsxi:639
-		case Token.Punctuator:                                                     // parse_expressions.jsxi:641
-			switch (token.value){                                                  // parse_expressions.jsxi:642
-				case '[':                                                          // parse_expressions.jsxi:643
-					return parseArrayInitialiser ();                               // parse_expressions.jsxi:644
-				case '{':                                                          // parse_expressions.jsxi:646
-					return parseObjectInitialiser ();                              // parse_expressions.jsxi:647
-				case '(':                                                          // parse_expressions.jsxi:649
-					return parseGroupExpression ();                                // parse_expressions.jsxi:650
-				case '/':                                                          // parse_expressions.jsxi:652
-					lex ();                                                        // parse_expressions.jsxi:653
-					return readRegexp ();                                          // parse_expressions.jsxi:654
+		case Token.NumericLiteral:                                                 // parse_expressions.jsxi:624
+			lex ();                                                                // parse_expressions.jsxi:625
+			return numericLiteral (token.value);                                   // parse_expressions.jsxi:626
+		case Token.BooleanLiteral:                                                 // parse_expressions.jsxi:628
+			lex ();                                                                // parse_expressions.jsxi:629
+			return booleanLiteral (token.value);                                   // parse_expressions.jsxi:630
+		case Token.NullLiteral:                                                    // parse_expressions.jsxi:632
+			lex ();                                                                // parse_expressions.jsxi:633
+			return nullLiteral ();                                                 // parse_expressions.jsxi:634
+		case Token.UndefinedLiteral:                                               // parse_expressions.jsxi:636
+			lex ();                                                                // parse_expressions.jsxi:637
+			return undefinedLiteral ();                                            // parse_expressions.jsxi:638
+		case Token.Punctuator:                                                     // parse_expressions.jsxi:640
+			switch (token.value){                                                  // parse_expressions.jsxi:641
+				case '[':                                                          // parse_expressions.jsxi:642
+					return parseArrayInitialiser ();                               // parse_expressions.jsxi:643
+				case '{':                                                          // parse_expressions.jsxi:645
+					return parseObjectInitialiser ();                              // parse_expressions.jsxi:646
+				case '(':                                                          // parse_expressions.jsxi:648
+					return parseGroupExpression ();                                // parse_expressions.jsxi:649
+				case '/':                                                          // parse_expressions.jsxi:651
+					lex ();                                                        // parse_expressions.jsxi:652
+					return readRegexp ();                                          // parse_expressions.jsxi:653
 			}
 		default:
-			unexpected (token);                                                    // parse_expressions.jsxi:658
+			unexpected (token);                                                    // parse_expressions.jsxi:657
 	}
 }
 
@@ -4803,17 +4994,17 @@ function parseArgs (data, args){                                                
 					return arg.l == s.slice (2);                                   // application_args.jsxi:25
 				});
 			else {
-				var __14 = s.slice (1);
+				var __1a = s.slice (1);
 				
-				for (var __13 = 0; __13 < __14.length; __13 ++){
-					var k = __14 [__13];
+				for (var __19 = 0; __19 < __1a.length; __19 ++){
+					var k = __1a [__19];
 					
 					put (function (arg){                                           // application_args.jsxi:28
 						return arg.s == k;                                         // application_args.jsxi:28
 					});
 				}
 				
-				__14 = undefined;
+				__1a = undefined;
 			}
 		} else
 			result.data.push (s);                                                  // application_args.jsxi:30
@@ -4891,16 +5082,16 @@ FileStorage.prototype.add = function (file){                                    
 };
 FileStorage.prototype.has = function (fn){                                         // file_storage.jsxi:25
 	{
-		var __18 = this.files;
+		var __1e = this.files;
 		
-		for (var __17 = 0; __17 < __18.length; __17 ++){
-			var file = __18 [__17];
+		for (var __1d = 0; __1d < __1e.length; __1d ++){
+			var file = __1e [__1d];
 			
 			if (fn (file.state))                                                   // file_storage.jsxi:27
 				return true;
 		}
 		
-		__18 = undefined;
+		__1e = undefined;
 	}
 	return false;
 };
@@ -4985,8 +5176,8 @@ LiteParser.prototype.on = function (){                                          
 	
 	handler = args.pop ();                                                         // lite_parser.jsxi:69
 	
-	for (var __1i = 0; __1i < args.length; __1i ++){                               // lite_parser.jsxi:71
-		var entry = args [__1i];
+	for (var __1o = 0; __1o < args.length; __1o ++){                               // lite_parser.jsxi:71
+		var entry = args [__1o];
 		
 		this.binded.push ({ match: entry, handler: handler, comment: comment });   // lite_parser.jsxi:72
 	}
@@ -5057,10 +5248,10 @@ LiteParser.prototype.innerFindNext = function (args, fixedMode){                
 		temp;                                                                      // lite_parser.jsxi:151
 	
 	{
-		var __1j = this.binded;
+		var __1p = this.binded;
 		
-		for (var i = 0; i < __1j.length; i ++){                                    // lite_parser.jsxi:153
-			var arg = __1j [i];
+		for (var i = 0; i < __1p.length; i ++){                                    // lite_parser.jsxi:153
+			var arg = __1p [i];
 			
 			temp = indexOfExt (this.data, arg.match, this.index, i);               // lite_parser.jsxi:154
 			
@@ -5070,7 +5261,7 @@ LiteParser.prototype.innerFindNext = function (args, fixedMode){                
 			}
 		}
 		
-		__1j = undefined;
+		__1p = undefined;
 	}
 	
 	for (var i = 0; i < args.length; i ++){                                        // lite_parser.jsxi:162
@@ -5198,10 +5389,10 @@ Macro.prototype.defaults = function (context){                                  
 		};
 	
 	{
-		var __1k = Macro.Defaults;
+		var __1q = Macro.Defaults;
 		
-		for (var key in __1k){
-			var value = __1k [key];
+		for (var key in __1q){
+			var value = __1q [key];
 			
 			if (typeof value === 'function')                                       // macro.jsxi:59
 				result [key] = value.call (obj);                                   // macro.jsxi:60
@@ -5209,7 +5400,7 @@ Macro.prototype.defaults = function (context){                                  
 				result [key] = value;                                              // macro.jsxi:62
 		}
 		
-		__1k = undefined;
+		__1q = undefined;
 	}
 	return result;                                                                 // macro.jsxi:65
 };
@@ -5272,16 +5463,16 @@ Macro.prototype.initialize = function (callback){                               
 		variables.push (key + ' = this.defaults.' + key);                          // macro.jsxi:125
 	
 	{
-		var __1m = phase.used;
+		var __1s = phase.used;
 		
-		for (var __1l = 0; __1l < __1m.length; __1l ++){
-			var entry = __1m [__1l];
+		for (var __1r = 0; __1r < __1s.length; __1r ++){
+			var entry = __1s [__1r];
 			
 			queue.add (macroStorage.get, entry.macro, this.level, this.context);   // macro.jsxi:128
 			variables.push (entry.name + ' = function (){ return this.macros.' + entry.macro + '.call (this.context, [].slice.call (arguments)) }.bind (this)');
 		}
 		
-		__1m = undefined;
+		__1s = undefined;
 	}
 	
 	this.macros = {};                                                              // macro.jsxi:132
@@ -5333,16 +5524,16 @@ Macro.prototype.call = function (context, args){                                
 	
 	try {
 		{
-			var __1n = this.arguments;
+			var __1t = this.arguments;
 			
-			for (var id = 0; id < __1n.length; id ++){                             // macro.jsxi:182
-				var arg = __1n [id];
+			for (var id = 0; id < __1t.length; id ++){                             // macro.jsxi:182
+				var arg = __1t [id];
 				
 				if (arg.type === 'callback' && typeof args [id] !== 'function')    // macro.jsxi:183
 					throw new Error ('Wrong arg');                                 // macro.jsxi:184
 			}
 			
-			__1n = undefined;
+			__1t = undefined;
 		}
 		return this.callee.apply (object,                                          // macro.jsxi:186
 			args.map ((function (value, pos){                                      // macro.jsxi:187
@@ -5458,15 +5649,15 @@ MacroCall.prototype.prepareArguments = function (callback){                     
 	var queue = new Queue (this, Queue.MODE_PARALLEL).description ('macro call arguments prepare');
 	
 	{
-		var __1o = this.arguments;
+		var __1u = this.arguments;
 		
-		for (var i = 0; i < __1o.length; i ++){                                    // macro_call.jsxi:73
-			var arg = __1o [i];
+		for (var i = 0; i < __1u.length; i ++){                                    // macro_call.jsxi:73
+			var arg = __1u [i];
 			
 			queue.add (cast, this.macro.arguments [i], arg);                       // macro_call.jsxi:74
 		}
 		
-		__1o = undefined;
+		__1u = undefined;
 	}
 	
 	queue.run (function (arg){                                                     // macro_call.jsxi:76
@@ -5858,20 +6049,20 @@ function macrosProcess (data, level, context, callback){                        
 		queue = new Queue (Queue.MODE_PARALLEL).description ('macros process');    // macro_process.jsxi:230
 	
 	{
-		var __1q = temp.calls;
+		var __20 = temp.calls;
 		
-		for (var __1p = 0; __1p < __1q.length; __1p ++){
-			var call = __1q [__1p];
+		for (var __1v = 0; __1v < __20.length; __1v ++){
+			var call = __20 [__1v];
 			
 			queue.add (call, call.process.bind (call));                            // macro_process.jsxi:233
 		}
 		
-		__1q = undefined;
+		__20 = undefined;
 	}
 	
 	queue.run (function (arg){                                                     // macro_process.jsxi:235
-		for (var __1r = 0; __1r < arg.length; __1r ++){                            // macro_process.jsxi:236
-			var entry = arg [__1r];
+		for (var __21 = 0; __21 < arg.length; __21 ++){                            // macro_process.jsxi:236
+			var entry = arg [__21];
 			
 			temp.data = temp.data.split (entry.data.replacement).join (entry.result [0]);
 		}
@@ -5898,16 +6089,16 @@ MacroStorage.prototype.add = function (macro){                                  
 		this.macros [macro.name].push (macro);                                     // macro_storage.jsxi:16
 	
 	{
-		var __1s = this.requests;
+		var __22 = this.requests;
 		
-		for (var pos = 0; pos < __1s.length; pos ++){                              // macro_storage.jsxi:18
-			var request = __1s [pos];
+		for (var pos = 0; pos < __22.length; pos ++){                              // macro_storage.jsxi:18
+			var request = __22 [pos];
 			
 			if (request [0] === macro.name && this.get (request))                  // macro_storage.jsxi:19
 				this.requests.splice (pos --, 1);                                  // macro_storage.jsxi:20
 		}
 		
-		__1s = undefined;
+		__22 = undefined;
 	}
 };
 MacroStorage.prototype.get = function (name, level, context, callback){            // macro_storage.jsxi:23
@@ -5925,10 +6116,10 @@ MacroStorage.prototype.get = function (name, level, context, callback){         
 		this.log ('requested @' + name + (level ? ' (at ' + level + ')' : '') + '');
 	
 	if (this.macros [name]){                                                       // macro_storage.jsxi:37
-		var __1u = this.macros [name];
+		var __24 = this.macros [name];
 		
-		for (var __1t = 0; __1t < __1u.length; __1t ++){
-			var macro = __1u [__1t];
+		for (var __23 = 0; __23 < __24.length; __23 ++){
+			var macro = __24 [__23];
 			
 			if (macro.level.length >= max && macro.level.length <= level.length && level.substring (0, macro.level.length) === macro.level){
 				result = macro;                                                    // macro_storage.jsxi:43
@@ -5936,7 +6127,7 @@ MacroStorage.prototype.get = function (name, level, context, callback){         
 			}
 		}
 		
-		__1u = undefined;
+		__24 = undefined;
 	}
 	
 	if (result !== undefined){                                                     // macro_storage.jsxi:47

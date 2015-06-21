@@ -182,20 +182,6 @@
 	@output { a (), b () };
 });
 
-@test ('Getters', {
-	[ 5, 5 ]
-}, {
-	var a = {
-		get a (){ return 5 },
-	};
-
-	var b = {
-		get a 5,
-	};
-
-	@output { a.a, b.a };
-});
-
 @test ('Getters/Setters', {
     [ 10, 30 ]
 }, {
@@ -214,6 +200,38 @@
     b.a = 15;
 
     @output { a.a, b.a };
+});
+
+@test ('Classes with getters/setters', {
+    [ 10, 15, 15, 25 ]
+    [ 28 ]
+}, {
+    class A {
+        private var _a=7;
+
+        public get a (){ return _a * 2 },
+        	b (){ return 15 };
+        public set a (v){ _a = v };
+
+        public get a2 _a * 3,
+        	b2 25;
+        public set a2 _a = arg;
+
+        protected get a3 _a;
+    }
+
+    class B extends A {
+    	public test(){
+    		return a2 + a3;
+    	}
+    }
+
+    var a = new A ();
+    a.a = 5;
+    @output { a.a, a.b, a.a2, a.b2 };
+
+    var b = new B ();
+    @output { b.test() };
 });
 
 @test ('Classes', {

@@ -373,6 +373,22 @@ function variableDeclaration (variables){
 	}
 }
 
+function getterDeclarator (id, value){
+	return {
+		type: 				Syntax.GetterDeclarator,
+		id: 				identifier (id),
+		body: 				identifier (value)
+	}
+}
+
+function setterDeclarator (id, value){
+	return {
+		type: 				Syntax.SetterDeclarator,
+		id: 				identifier (id),
+		body: 				identifier (value)
+	}
+}
+
 function callFunctionExpression (body){
 	return callExpression (functionExpression (null, [], body instanceof Array ? blockStatement (body) : body), []);
 }

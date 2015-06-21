@@ -68,6 +68,9 @@ var Token = {
 		PropertyGetter: 				'PropertyGetter',
 		PropertySetter: 				'PropertySetter',
 
+		GetterDeclarator:               'GetterDeclarator',
+		SetterDeclarator:               'SetterDeclarator',
+
 		BooleanLiteral: 				'BooleanLiteral',
 		NullLiteral: 					'NullLiteral',
 		NumericLiteral: 				'NumericLiteral',

@@ -112,7 +112,6 @@ function parseObjectProperty (){
 				value: 		parsePropertySetter ()
 			};
 		} else {
-			console.log(key);
 			unexpected (token);
 		}
 	}

@@ -95,6 +95,14 @@ function parseClassMembers (params, dependsOn){
 		current = { publicMode: null, static: params.static };
 
 	function set (obj){
+		if (obj.type === Syntax.GetterDeclarator){
+			obj.id.originalName = obj.id.name;
+			obj.id.name += '__get_';
+		} else if (obj.type === Syntax.SetterDeclarator){
+			obj.id.originalName = obj.id.name;
+			obj.id.name += '__set_';
+		}
+
 		if (result.hasOwnProperty (obj.id.name))
 			throw new SyntaxError ('Member "' + obj.id.name + '" already declared', token);
 
@@ -110,9 +118,57 @@ function parseClassMembers (params, dependsOn){
 			throw new TypeError ('Interface cannot have object fields');
 
 		if (current.abstract && (current.publicMode || params.publicMode) === 'private')
-			throw new TypeError ('Abstract member cannot be private');
+			throw new TypeError ('Abstract member cannot be private'); /* btw, why? */
 
 		for (var entry in-array parseVariableDeclarators ())
+			set (entry);
+
+		refresh ();
+	}
+
+	function parseGetterDeclarators (semicolon){
+		var result = [];
+		
+		do {
+			result.push (getterDeclarator (parseIdentifier (), parsePropertyGetter ()));
+		} while (index < length && matchLex (','));
+
+		if (semicolon !== false){
+			consumeSemicolon ();
+		}
+
+		return result;
+	}
+
+	function parseGetter (){
+		if (params.interface && !current.static)
+			throw new TypeError ('Interface cannot have object getters');
+
+		for (var entry in-array parseGetterDeclarators ())
+			set (entry);
+
+		refresh ();
+	}
+
+	function parseSetterDeclarators (semicolon){
+		var result = [];
+		
+		do {
+			result.push (setterDeclarator (parseIdentifier (), parsePropertySetter ()));
+		} while (index < length && matchLex (','));
+
+		if (semicolon !== false){
+			consumeSemicolon ();
+		}
+
+		return result;
+	}
+
+	function parseSetter (){
+		if (params.interface && !current.static)
+			throw new TypeError ('Interface cannot have object getters');
+
+		for (var entry in-array parseSetterDeclarators ())
 			set (entry);
 
 		refresh ();
@@ -180,6 +236,16 @@ function parseClassMembers (params, dependsOn){
 			case 'var':
 				lex ();
 				parseField ();
+				break;
+
+			case 'get':
+				lex ();
+				parseGetter ();
+				break;
+
+			case 'set':
+				lex ();
+				parseSetter ();
 				break;
 
 			case 'function':
