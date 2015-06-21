@@ -234,6 +234,38 @@
     @output { b.test() };
 });
 
+@test ('Classes with static getters/setters', {
+    [ 10, 15, 15, 25 ]
+    [ 32 ]
+}, {
+    static class A {
+        private var _a=7;
+
+        public get a (){ return _a * 2 },
+        	b (){ return 15 };
+        public set a (v){ _a = v };
+
+        public get a2 _a * 3,
+        	b2 25;
+        public set a2 _a = arg;
+
+        protected get a3 _a;
+    }
+
+    class B extends A {
+    	public test(){
+    		return a2 + a3;
+    	}
+    }
+
+    A.a = 5;
+    @output { A.a, A.b, A.a2, A.b2 };
+
+    var b = new B ();
+    A.a = 8;
+    @output { b.test() };
+});
+
 @test ('Classes', {
 	[ 'Here come "First"!' ]
 	[ '.', '"First" says "Hi!"' ]

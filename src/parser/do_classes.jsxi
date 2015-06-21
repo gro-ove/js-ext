@@ -897,7 +897,7 @@ function doClasses (statements, callback){
                         result.push (assignmentStatement (memberExpression (classEntry.id.name, field.id), field.init || 'undefined'));
                 }
 
-                // TODO: Если что насчёт поля, инициализирующегося вызовом метода?
+                // TODO: Что насчёт поля, инициализирующегося вызовом метода?
 
                 // Статические методы
                 for (var method in-array staticMethods){
@@ -907,6 +907,32 @@ function doClasses (statements, callback){
                         result.push (expressionStatement (assignmentExpression (
                             memberExpression (classEntry.id.name, method.id),
                             functionExpression (null, method.params, method.body))));
+                }
+
+                // Статические геттеры, сеттеры
+                for (var prop in-array staticProperties){
+                    var definedProperties = [];
+
+                    if (prop.get){
+                        definedProperties.push(property(
+                            identifier ('get'),
+                            functionExpression (null, prop.get.params, prop.get.body)
+                        ));
+                    }
+
+                    if (prop.set){
+                        definedProperties.push(property(
+                            identifier ('set'),
+                            functionExpression (null, prop.set.params, prop.set.body)
+                        ));
+                    }
+
+                    result.push (callExpression (
+                        memberExpression (identifier ('Object'), identifier ('defineProperty')), [ 
+                            classEntry.id,
+                            stringLiteralWithQuotes(prop.id.name), 
+                            objectExpression(definedProperties)
+                        ]));
                 }
             } else {
                 var properties = [];
