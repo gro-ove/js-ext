@@ -28,6 +28,16 @@
 	})([%3])` (code, name, 'test_' + name.replace (/[^a-zA-Z_$]+/g, '_').toLowerCase (), args.slice (1, -1).trim ().replace (/\n/g, ','));
 }
 
+@test ('Strings format', {
+	[ '3 3' ]
+	[ '%0 2' ]
+	[ '%' + '%' + '0 %' + '0' ]
+}, {
+	@output { '%0 %0'(3) };
+	@output { '\%0 %0'(2) };
+	@output { `%%0 %0` };
+});
+
 @test ('Priorities', {
 	[ 5, -5, 3, 5, 9, 7, 8 ]
 }, {

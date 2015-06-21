@@ -316,7 +316,7 @@ function doClasses (statements, callback){
         // Получаем заменённое имя в зависимости от видимости переменной
         function rename (name, member, publicMode){
             // Скрытым или приватным и статическим членам имя не меняем
-            if (publicMode === 'locked' || member.static && publicMode === 'private')
+            if (publicMode === 'locked' || member.static && publicMode === 'private' && !member.property)
                 return name;
 
             switch (publicMode){
@@ -558,7 +558,7 @@ function doClasses (statements, callback){
 
                         if (!member.static)
                             result = replaceObject (member);
-                        else if (member.publicMode !== 'private')
+                        else if (member.publicMode !== 'private' || member.property)
                             result = replaceStatic (member);
 
                     } else if (byName (obj.name, classEntry.path)){

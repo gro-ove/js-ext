@@ -1343,7 +1343,7 @@ function doClasses(statements, callback){                                       
 	
 	function processClassesMembers(){                                              // do_classes.jsxi:315
 		function rename(name, member, publicMode){                                 // do_classes.jsxi:317
-			if (publicMode === 'locked' || member.static && publicMode === 'private')
+			if (publicMode === 'locked' || member.static && publicMode === 'private' && !member.property)
 				return name;                                                       // do_classes.jsxi:320
 			
 			switch (publicMode){                                                   // do_classes.jsxi:322
@@ -1562,7 +1562,7 @@ function doClasses(statements, callback){                                       
 						
 						if (!member.static)                                        // do_classes.jsxi:559
 							result = replaceObject(member);                        // do_classes.jsxi:560
-						else if (member.publicMode !== 'private')                  // do_classes.jsxi:561
+						else if (member.publicMode !== 'private' || member.property)
 							result = replaceStatic(member);                        // do_classes.jsxi:562
 					} else if (byName(obj.name, classEntry.path)){                 // do_classes.jsxi:564
 						classEntry.weight += 0.0001;                               // do_classes.jsxi:567
