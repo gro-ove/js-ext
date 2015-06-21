@@ -4,7 +4,7 @@
 		- declaration: 		true - возвращается FunctionDeclaration, false - FunctionExpression
 		- id: 				true - поиск имени обязателен, false - без имени
 		- empty: 			true - функция без содержимого, после может быть «;», false - стандартный режим
-		- optionalParams:   true - аргументы функции опциональны, [ ... ] - аргументы по умолчанию
+		- optionalParams:   true - аргументы функции опциональны, [ ... ] - аргументы по умолчанию, false - запрещены
 		- noSemicolon: 		true - не искать «;» на конце функций в одну строку
 */
 function parseFunction (options = {}){
@@ -18,15 +18,18 @@ function parseFunction (options = {}){
 	else
 		id = null;
 
-	if (options.optionalParams){
-		params = parseOptionalFunctionArguments () || (options.optionalParams === true ? [] : options.optionalParams);
-	} else {
+	if (options.optionalParams == null){
 		params = parseFunctionArguments ();
 
 		if (lookahead ().value === 'asynchronous'){
 			lex ();
 			asynchronous = true;
 		}
+	} else if (options.optionalParams){
+		params = parseOptionalFunctionArguments () || (options.optionalParams === true ? [] : options.optionalParams);
+	} else {
+		parseEmptyFunctionArguments();
+		params = [];
 	}
 
 	if (!options.empty){
@@ -73,12 +76,12 @@ function parseLambdaExpression (){
 	return result;
 }
 
-function parseFunctionArguments (){
+function parseFunctionArguments (maxLength = Number.POSITIVE_INFINITY){
 	var name, params = [], comma = {};
 
 	expect ('(');
 
-	while (!match (')')){
+	while (!match (')') && maxLength-- > 0){
 		if (params.length)
 			parseOptionalComma (comma);
 
@@ -95,6 +98,9 @@ function parseFunctionArguments (){
 
 function parseOptionalFunctionArguments ()
 	return attemptTo (parseFunctionArguments, null, !match ('('));
+
+function parseEmptyFunctionArguments ()
+	return attemptTo (parseFunctionArguments.bind(null, 0), null, !match ('('));
 
 function parseFunctionElements (noSemicolon){
 	var oldPreventSequence = state.preventSequence, result;

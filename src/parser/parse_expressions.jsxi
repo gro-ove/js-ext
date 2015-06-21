@@ -76,6 +76,14 @@ function parseObjectPropertyKey (){
 		: { type: Syntax.Identifier, name: token.value }, token);
 }
 
+function parsePropertyGetter (){
+	return parseFunction ({ id: false, keyword: null, optionalParams: false, noSemicolon: true });
+}
+
+function parsePropertySetter (){
+	return parseFunction ({ id: false, keyword: null, optionalParams: [ identifier ('arg') ], noSemicolon: true });
+}
+
 function parseObjectProperty (){
 	var token = lookahead (), key;
 
@@ -83,12 +91,30 @@ function parseObjectProperty (){
 		unexpected (token);
 	} else {
 		key = parseObjectPropertyKey ();
-		expect (':');
-		return {
-			type: 		Syntax.Property,
-			key: 		key,
-			value: 		parseAssignmentExpression ()
-		};
+
+		var token = lex ();
+		if (token.value == ':'){
+			return {
+				type: 		Syntax.Property,
+				key: 		key,
+				value: 		parseAssignmentExpression ()
+			};
+		} else if (key.name === 'get'){
+			return {
+				type: 		Syntax.PropertyGetter,
+				key: 		{ type: Syntax.Identifier, name: token.value },
+				value: 		parsePropertyGetter ()
+			};
+		} else if (key.name === 'set'){
+			return {
+				type: 		Syntax.PropertySetter,
+				key: 		{ type: Syntax.Identifier, name: token.value },
+				value: 		parsePropertySetter ()
+			};
+		} else {
+			console.log(key);
+			unexpected (token);
+		}
 	}
 }
 

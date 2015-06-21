@@ -182,6 +182,40 @@
 	@output { a (), b () };
 });
 
+@test ('Getters', {
+	[ 5, 5 ]
+}, {
+	var a = {
+		get a (){ return 5 },
+	};
+
+	var b = {
+		get a 5,
+	};
+
+	@output { a.a, b.a };
+});
+
+@test ('Getters/Setters', {
+    [ 10, 30 ]
+}, {
+    var a = {
+        get a (){ return this._a * 2 },
+        set a (v){ this._a = v },
+    };
+
+    a.a = 5;
+
+    var b = {
+        get a this._a * 2,
+        set a this._a = arg,
+    };
+
+    b.a = 15;
+
+    @output { a.a, b.a };
+});
+
 @test ('Classes', {
 	[ 'Here come "First"!' ]
 	[ '.', '"First" says "Hi!"' ]

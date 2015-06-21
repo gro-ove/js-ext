@@ -169,6 +169,14 @@ class Generator {
 			case Syntax.Property:
 				return child (node.key) + ': ' + child (node.value);
 
+			case Syntax.PropertyGetter:
+				return 'get ' + child (node.key) + ' (' +
+					mapArray (node.value.params, ', ') + ')' + child (node.value.body);
+
+			case Syntax.PropertySetter:
+				return 'set ' + child (node.key) + ' (' +
+					mapArray (node.value.params, ', ') + ')' + child (node.value.body);
+
 			case Syntax.ThisExpression:
 				return 'this';
 
