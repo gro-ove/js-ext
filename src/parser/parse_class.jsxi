@@ -14,40 +14,40 @@ function parseClassParams (){
 		};
 
 	loop: do {
-		token = lex ();
+		token = lex();
 
 		switch (token.value){
 			case 'public':
 			case 'private':
 			case 'protected':
 				if (result.publicMode !== null)
-					unexpected (token);
+					unexpected(token);
 				result.publicMode = token.value;
 				break;
 
 			case 'partial':
 				if (result.partial)
-					unexpected (token);
+					unexpected(token);
 				result.partial = true;
 				break;
 
 			case 'abstract':
 			case 'static':
 				if (result.static || result.abstract)
-					unexpected (token);
-				result [token.value] = true;
+					unexpected(token);
+				result[token.value] = true;
 				break;
 
 			case 'interface':
 				if (result.abstract)
-					unexpected (token);
+					unexpected(token);
 				result.interface = token.value;
 
 			case 'class':
 				break loop;
 
 			default:
-				unexpected (token);
+				unexpected(token);
 		}
 	} while (index < length);
 
@@ -59,27 +59,27 @@ function parseClassParams (){
 
 function parseExtendsImplementsAndUses (mode){
 	// Родительский класс не для интерфейсов и статических классов. Имплементить интерфейсы и использовать «uses», умеют
-	// все, даже статические классы (но статические могут имплементить лишь статические).
+	// все, даже статические классы(но статические могут имплементить лишь статические).
 
 	function collect (list = []){
 		do 
-			list.push (parseIdentifier ());
-		while (index < length && matchLex (','));
+			list.push(parseIdentifier());
+		while (index < length && matchLex(','));
 		return list;
 	}
 
 	var result = { parent: null, implements: [], uses: [] };
 
-	while (!match ('{')){
-		if (!result.parent && !mode.interface && !mode.static && matchKeywordLex ('extends')){
-			helpers.set ('prototypeExtend');
-			result.parent = parseIdentifier ();
-		} else if (matchKeywordLex ('implements')){
-			collect (result.implements);
-		} else if (matchKeywordLex ('uses')){
-			collect (result.uses);
+	while (!match('{')){
+		if (!result.parent && !mode.interface && !mode.static && matchKeywordLex('extends')){
+			helpers.set('prototypeExtend');
+			result.parent = parseIdentifier();
+		} else if (matchKeywordLex('implements')){
+			collect(result.implements);
+		} else if (matchKeywordLex('uses')){
+			collect(result.uses);
 		} else
-			unexpected ();
+			unexpected();
 	}
 
 	return result;
@@ -92,7 +92,7 @@ function parseClassMembers (params, dependsOn){
 		result = {};
 
 	function refresh ()
-		current = { publicMode: null, static: params.static };
+		current = { publicMode: null, static: params.static, external: false };
 
 	function set (obj){
 		if (obj.type === Syntax.GetterDeclarator){
@@ -103,37 +103,46 @@ function parseClassMembers (params, dependsOn){
 			obj.id.name += '__set_';
 		}
 
-		if (result.hasOwnProperty (obj.id.name))
-			throw new SyntaxError ('Member "' + obj.id.name + '" already declared', token);
+		if (result.hasOwnProperty(obj.id.name))
+			throw new SyntaxError('Member "' + obj.id.name + '" already declared', token);
 
-		obj.publicMode = current.publicMode || params.publicMode;
-		obj.static = current.static;
-		obj.abstract = current.abstract;
+		if (obj.type === Syntax.RawClassDeclaration){
+			obj.publicMode = current.external ? 'public' : 'private';
+			obj.static = true;
+			obj.abstract = false;
+		} else {
+			obj.publicMode = current.publicMode || params.publicMode;
+			obj.static = current.static;
+			obj.abstract = current.abstract;
+		}
 
-		result [obj.id.name] = obj;
+		result[obj.id.name] = obj;
 	}
 
 	function parseField (){
+		if (current.external)
+			throw new TypeError('Use “public” for fields instead of “external”');
+
 		if (params.interface && !current.static)
-			throw new TypeError ('Interface cannot have object fields');
+			throw new TypeError('Interface cannot have object fields');
 
 		if (current.abstract && (current.publicMode || params.publicMode) === 'private')
-			throw new TypeError ('Abstract member cannot be private'); /* btw, why? */
+			throw new TypeError('Abstract member cannot be private'); /* btw, why? */
 
-		for (var entry in-array parseVariableDeclarators ())
-			set (entry);
+		for (var entry in-array parseVariableDeclarators())
+			set(entry);
 
-		refresh ();
+		refresh();
 	}
 
 	function parseGetterDeclarators (empty){
 		var result = [];
 		
 		do {
-			result.push (getterDeclarator (parseIdentifier (), empty ? null : parsePropertyGetter ()));
-		} while (index < length && matchLex (','));
+			result.push(getterDeclarator(parseIdentifier(), empty ? null : parsePropertyGetter()));
+		} while (index < length && matchLex(','));
 
-		consumeSemicolon ();
+		consumeSemicolon();
 		return result;
 	}
 
@@ -141,150 +150,176 @@ function parseClassMembers (params, dependsOn){
 		var result = [];
 		
 		do {
-			result.push (setterDeclarator (parseIdentifier (), empty ? null : parsePropertySetter ()));
-		} while (index < length && matchLex (','));
+			result.push(setterDeclarator(parseIdentifier(), empty ? null : parsePropertySetter()));
+		} while (index < length && matchLex(','));
 
-		consumeSemicolon ();
+		consumeSemicolon();
 		return result;
 	}
 
 	function parseGetter (){
+		if (current.external)
+			throw new TypeError('Use “public” for getters instead of “external”');
+
 		if (params.interface && !current.static)
-			throw new TypeError ('Interface cannot have object getters');
+			throw new TypeError('Interface cannot have object getters');
 
 		if (current.abstract && (current.publicMode || params.publicMode) === 'private')
-			throw new TypeError ('Abstract getter cannot be private');
+			throw new TypeError('Abstract getter cannot be private');
 
-		for (var entry in-array parseGetterDeclarators (current.abstract))
-			set (entry);
+		for (var entry in-array parseGetterDeclarators(current.abstract))
+			set(entry);
 
-		refresh ();
+		refresh();
 	}
 
 	function parseSetter (){
+		if (current.external)
+			throw new TypeError('Use “public” for setters instead of “external”');
+
 		if (params.interface && !current.static)
-			throw new TypeError ('Interface cannot have object getters');
+			throw new TypeError('Interface cannot have object getters');
 
 		if (current.abstract && (current.publicMode || params.publicMode) === 'private')
-			throw new TypeError ('Abstract setter cannot be private');
+			throw new TypeError('Abstract setter cannot be private');
 
-		for (var entry in-array parseSetterDeclarators (current.abstract))
-			set (entry);
+		for (var entry in-array parseSetterDeclarators(current.abstract))
+			set(entry);
 
-		refresh ();
+		refresh();
 	}
 
 	function parseMethod (){
+		if (current.external)
+			throw new TypeError('Use “public” for methods instead of “external”');
+
 		if (current.abstract && (current.publicMode || params.publicMode) === 'private')
-			throw new TypeError ('Abstract member cannot be private');
+			throw new TypeError('Abstract member cannot be private');
 
 		state.superAvailable = !current.static && dependsOn.parent;
-		set (parseFunction ({ keyword: null, empty: params.interface && !current.static || current.abstract }));
+		set(parseFunction({ keyword: null, empty: params.interface && !current.static || current.abstract }));
 		state.superAvailable = false;
 
-		refresh ();
+		refresh();
+	}
+
+	function parseSubclass (){
+		set(parseClassDeclaration());
+		refresh();
 	}
 
 	function parseInitializerOrConstructor (){
+		if (current.external)
+			throw new TypeError('Constructor or initializer cannot be external');
+
 		if (current.publicMode)
-			throw new TypeError ('Constructor or initializer cannot have overrided visibility');
+			throw new TypeError('Constructor or initializer cannot have overrided visibility');
 
 		if (current.abstract)
-			throw new TypeError ('Constructor or initializer cannot be abstract');
+			throw new TypeError('Constructor or initializer cannot be abstract');
 
 		state.superAvailable = !current.static && dependsOn.parent;
 		state.noReturn = true;
 
-		var result = parseFunction ({ keyword: null, id: false, optionalParams: true });
-		result.id = identifier (current.static ? '@initializer' : '@constructor');
+		var result = parseFunction({ keyword: null, id: false, optionalParams: true });
+		result.id = identifier(current.static ? '@initializer' : '@constructor');
 
 		state.superAvailable = false;
 		state.noReturn = false;
 
-		set (result);
-		refresh ();
+		set(result);
+		refresh();
 	}
 
 	function nextParse(token){
 		if (token.type === Token.Identifier){
-			var saved = saveAll (),
+			var saved = saveAll(),
 				method;
 
-			lex ();
-			method = match ('(');
-			restoreAll (saved);
+			lex();
+			method = match('(');
+			restoreAll(saved);
 
 			if (method)
-				parseMethod ();
+				parseMethod();
 			else 
-				parseField ();
+				parseField();
 		} else
-			unexpected (token);
+			unexpected(token);
 	}
 
 	state.inClass = true;
-	expect ('{');
-	refresh ();
+	expect('{');
+	refresh();
 
-	while (!matchLex ('}')){
-		token = lookahead ();
+	while (!matchLex('}')){
+		token = lookahead();
 
 		switch (token.value){
+			case 'external':
+				lex();
+				current.external = true;
+				break;
+
 			case 'private':
 			case 'public':
 			case 'protected':
 				if (current.publicMode !== null)
-					unexpected (token);
-				lex ();
+					unexpected(token);
+				lex();
 				current.publicMode = token.value;
 				break;
 
 			case 'abstract':
 				if (params.interface)
-					unexpected (token);
+					unexpected(token);
 
 			case 'static':
 				if (current.abstract || current.static)
-					unexpected (token);
-				lex ();
-				current [token.value] = true;
+					unexpected(token);
+				lex();
+				current[token.value] = true;
 				break;
 
 			case 'var':
-				lex ();
-				parseField ();
+				lex();
+				parseField();
 				break;
 
 			case 'get':
 				attemptTo(lambda {
-					lex ();
-					parseGetter ();
+					lex();
+					parseGetter();
 				}, lambda {
-					nextParse (token);
+					nextParse(token);
 				});
 				break;
 
 			case 'set':
 				attemptTo(lambda {
-					lex ();
-					parseSetter ();
+					lex();
+					parseSetter();
 				}, lambda {
-					nextParse (token);
+					nextParse(token);
 				});
 				break;
 
 			case 'function':
-				lex ();
-				parseMethod ();
+				lex();
+				parseMethod();
+				break;
+
+			case 'class':
+				parseSubclass();
 				break;
 
 			case '(':
 			case '{':
-				parseInitializerOrConstructor ();
+				parseInitializerOrConstructor();
 				break;
 
 			default:
-				nextParse (token);
+				nextParse(token);
 		}
 	}
 
@@ -293,16 +328,16 @@ function parseClassMembers (params, dependsOn){
 }
 
 function parseClassDeclaration (){
-	var params 		= parseClassParams (),
-		id 			= parseIdentifier (),
-		dependsOn 	= parseExtendsImplementsAndUses (params),
-		members 	= parseClassMembers (params, dependsOn);
+	var params 		= parseClassParams(),
+		id 			= parseIdentifier(),
+		dependsOn 	= parseExtendsImplementsAndUses(params),
+		members 	= parseClassMembers(params, dependsOn);
 
 	return {
 		type: 			Syntax.RawClassDeclaration,
 		id: 			id,
 		params: 		params,
 		dependsOn: 		dependsOn,
-		members: 		members
+		members: 		members,
 	};
 }

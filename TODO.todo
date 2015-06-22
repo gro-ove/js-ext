@@ -1,6 +1,6 @@
 # TODO
 	* global
-		- fix spaces with "(?<!function )(?!if|for|switch)\b\w+\K (?=[([])"
+		- fix spaces with "(?<!function )(?!if|for|switch|while)\b\w+\K (?=[([])"
 	* classes
 		V arguments to exclusions list
 		V classes extends

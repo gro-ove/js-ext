@@ -9,7 +9,10 @@ build (){
 	node "build/js-ext-new.js" "tests/tests.jsx" && node "tests/temp/tests.js" || exit 13
 	echo [Tests passed]
 
-	mv "build/js-ext-new.js" "build/js-ext.js" || exit 14
+	node "build/js-ext-new.js" --keep-order "tests/tests-new.jsx" && node "tests/temp/tests-new.js" || exit 14
+	echo [New tests passed]
+
+	mv "build/js-ext-new.js" "build/js-ext.js" || exit 15
 	echo [New version applied]
 }
 
