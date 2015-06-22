@@ -1,5 +1,5 @@
 /* tests with --keep-order */
-@buildTo ('./temp/tests-new.js')
+@buildTo ('./temp/tests-ko.js')
 
 @macro output:raw-nm (args:raw){
     return 'log ([ %0 ])' (args);
@@ -29,24 +29,76 @@
     })([%3])` (code, name, 'test_' + name.replace (/[^a-zA-Z_$]+/g, '_').toLowerCase (), args.slice (1, -1).trim ().replace (/\n/g, ','));
 }
 
-@test ('Inner partial classes in partial classes', {
+@test ('Inner classes', {
     [ 'A' ]
-    [ 'A.C', 5, 6, 8, 9 ]
-    [ 'A.C', 5, 6, 8, 9 ]
+    [ 'A.B' ]
+    [ 'A.C' ]
+    [ 'B' ]
+    [ 'A.C' ]
 }, {
-    partial class A {
-        partial external class C {
-            public ia = 5;
-            ja = 8;
+    class B {
+        {
+            @output { 'B' };
         }
     }
 
-    partial class A {
-        partial external class C {
-            public ib = 6;
-            jb = 9;
+    class A {
+        class B {
             {
-                @output { 'A.C', ia, ib, ja, jb };
+                @output { 'A.B' };
+            }
+        }
+
+        external class C {
+            {
+                @output { 'A.C' };
+            }
+        }
+
+        {
+            @output { 'A' };
+            new B();
+            new C();
+        }
+    }
+
+    var a = new A ();
+    var b = new B ();
+
+    var ac = new A.C();
+});
+
+@test ('Partial classes', {
+    [ 'A', 5, 6 ]
+}, {
+    partial class A {
+        var ia = 5;
+    }
+
+    partial class A {
+        var ib = 6;
+        {
+            @output { 'A', ia, ib };
+        }
+    }
+
+    var a = new A ();
+});
+
+@test ('Inner partial classes', {
+    [ 'A' ]
+    [ 'A.C', 5, 6 ]
+    [ 'A.C', 5, 6 ]
+}, {
+    class A {
+        partial external class C {
+            var ia = 5;
+        }
+
+        partial external class C {
+            var ib = 6;
+            {
+                @output { 'A.C', ia, ib };
             }
         }
 

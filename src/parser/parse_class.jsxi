@@ -1,4 +1,4 @@
-function parseClassParams (){
+function parseClassParams (subclass){
 	/*
 		Класс или интерфейс. Возможно, статический; возможно, публичный, приватный или защищённый. Класс может быть абс-
 		трактным, но в таком случае не может быть статическим.
@@ -10,11 +10,23 @@ function parseClassParams (){
 			abstract: 			false,
 			static: 			false,
 			interface: 			false,
-			partial: 			false
+			partial: 			false,
 		};
+
+	if (subclass){
+		result.publicMode = subclass.publicMode;
+		result.abstract = subclass.abstract;
+		result.static = subclass.static;
+		result.external = false;
+	}
 
 	loop: do {
 		token = lex();
+
+		if (token.value === 'external' && subclass){
+			result.external = true;
+			continue;
+		}
 
 		switch (token.value){
 			case 'public':
@@ -94,6 +106,10 @@ function parseClassMembers (params, dependsOn){
 	function refresh ()
 		current = { publicMode: null, static: params.static, external: false };
 
+	function extendSubclass(a, b){
+		$.extend(a.members, b.members);
+	}
+
 	function set (obj){
 		if (obj.type === Syntax.GetterDeclarator){
 			obj.id.originalName = obj.id.name;
@@ -103,14 +119,23 @@ function parseClassMembers (params, dependsOn){
 			obj.id.name += '__set_';
 		}
 
-		if (result.hasOwnProperty(obj.id.name))
-			throw new SyntaxError('Member "' + obj.id.name + '" already declared', token);
-
 		if (obj.type === Syntax.RawClassDeclaration){
-			obj.publicMode = current.external ? 'public' : 'private';
+			if (result.hasOwnProperty(obj.id.name)){
+				if (obj.params.partial){
+					extendSubclass(result[obj.id.name], obj);
+					return;
+				} else {
+					throw new SyntaxError('Subclass "' + obj.id.name + '" already declared', token);
+				}
+			}
+
+			obj.publicMode = current.external || obj.params.external ? 'public' : 'private';
 			obj.static = true;
 			obj.abstract = false;
 		} else {
+			if (result.hasOwnProperty(obj.id.name))
+				throw new SyntaxError('Member "' + obj.id.name + '" already declared', token);
+
 			obj.publicMode = current.publicMode || params.publicMode;
 			obj.static = current.static;
 			obj.abstract = current.abstract;
@@ -204,7 +229,7 @@ function parseClassMembers (params, dependsOn){
 	}
 
 	function parseSubclass (){
-		set(parseClassDeclaration());
+		set(parseClassDeclaration(current));
 		refresh();
 	}
 
@@ -310,6 +335,8 @@ function parseClassMembers (params, dependsOn){
 				break;
 
 			case 'class':
+			case 'interface':
+			case 'partial':
 				parseSubclass();
 				break;
 
@@ -327,8 +354,8 @@ function parseClassMembers (params, dependsOn){
 	return result;
 }
 
-function parseClassDeclaration (){
-	var params 		= parseClassParams(),
+function parseClassDeclaration (subclass){
+	var params 		= parseClassParams(subclass),
 		id 			= parseIdentifier(),
 		dependsOn 	= parseExtendsImplementsAndUses(params),
 		members 	= parseClassMembers(params, dependsOn);

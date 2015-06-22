@@ -89,6 +89,8 @@ function doClasses(statements, callback){
     }
 
     function addClass(current){
+        if (current.taken) return;
+
         var previous = byName(current.id.name, current.path);
 
         function equals(a, b){
@@ -118,9 +120,25 @@ function doClasses(statements, callback){
                 if (previous.dependsOn.uses.filter(lambda arg.name === entry.name).length === 0)
                     previous.dependsOn.uses.push(entry);
 
-            $.extend(previous.members, current.members);
+            joinPartial(previous, current);
         } else
             classes.push(current);
+    }
+
+    function joinPartial(a, b){
+        for (var key, value in-object b.members){
+            if (a.members.hasOwnProperty(key)){
+                var prev = a.members[key];
+                if (prev.type === Syntax.RawClassDeclaration && value.type === Syntax.RawClassDeclaration && prev.params.partial){
+                    value.taken = true;
+                    joinPartial(prev, value);
+                } else {
+                    throw new TypeError('Partial class "%0" already contains member %1'(a.id.name, key), b.id);
+                }
+            } else {
+                a.members[key] = value;
+            }
+        }
     }
 
     function preprocessClasses(){
@@ -817,7 +835,7 @@ function doClasses(statements, callback){
                 initializer      = classEntry.members['@initializer'];
 
             // Объектные и статические поля и методы данного класса
-            var filtered         = filter(classEntry, lambda arg.className === classEntry.id && arg.id.name[0] !== '@'),
+            var filtered         = filter(classEntry, lambda (a, b) a.className === classEntry.id && b[0] !== '@'),
                 objectMembers    = filtered.filter(lambda !arg.static),
                 staticMembers    = filtered.filter(lambda  arg.static);
 
@@ -1031,11 +1049,22 @@ function doClasses(statements, callback){
             };
         });
 
+        function get(c){
+            var k = c.path + '/' + c.id.name;
+            if (base[k]){
+                var v = base[k];
+                delete base[k];
+                return v;
+            } else {
+                return { type: Syntax.EmptyStatement };
+            }
+        }
+
         (function procObj(obj){
             if (obj instanceof Array){
                 for (var i, child in-array obj){
                     if (child.type === Syntax.RawClassDeclaration){
-                        procObj(obj[i] = base[child.path + '/' + child.id.name]);
+                        procObj(obj[i] = get(child));
                     } else {
                         procObj(child);
                     }
@@ -1043,7 +1072,7 @@ function doClasses(statements, callback){
             } else if (obj && typeof obj === 'object'){
                 for (var key, child in obj){
                     if (child && child.type === Syntax.RawClassDeclaration){
-                        procObj(obj[i] = base[child.path + '/' + child.id.name]);
+                        procObj(obj[i] = get(child));
                     } else {
                         procObj(child);
                     }                    

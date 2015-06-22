@@ -9,6 +9,9 @@ build (){
 	node "build/js-ext-new.js" "tests/tests.jsx" && node "tests/temp/tests.js" || exit 13
 	echo [Tests passed]
 
+	node "build/js-ext-new.js" --keep-order "tests/tests-ko.jsx" && node "tests/temp/tests-ko.js" || exit 13
+	echo [Tests with --keep-order passed]
+
 	node "build/js-ext-new.js" --keep-order "tests/tests-new.jsx" && node "tests/temp/tests-new.js" || exit 14
 	echo [New tests passed]
 
