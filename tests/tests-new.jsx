@@ -29,11 +29,25 @@
     })([%3])` (code, name, 'test_' + name.replace (/[^a-zA-Z_$]+/g, '_').toLowerCase (), args.slice (1, -1).trim ().replace (/\n/g, ','));
 }
 
-@test ('Inner partial classes in partial classes', {
+@test ('Inner partial classes in partial classes with access to static method', {
     [ 'A' ]
+    [ 'HERE' ]
+    [ 'PUBLIC' ]
     [ 'A.C', 5, 6, 8, 9 ]
+    [ 'HERE' ]
+    [ 'PUBLIC' ]
     [ 'A.C', 5, 6, 8, 9 ]
 }, {
+    partial class A {
+        static testu(){
+            @output { 'HERE' };
+        }
+
+        static public testi(){
+            @output { 'PUBLIC' };
+        }
+    }
+
     partial class A {
         partial external class C {
             public ia = 5;
@@ -46,6 +60,8 @@
             public ib = 6;
             jb = 9;
             {
+                testu();
+                testi();
                 @output { 'A.C', ia, ib, ja, jb };
             }
         }

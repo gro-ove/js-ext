@@ -16,7 +16,7 @@ function parseClassParams (subclass){
 	if (subclass){
 		result.publicMode = subclass.publicMode;
 		result.abstract = subclass.abstract;
-		result.static = subclass.static;
+		// TODO: result.static = subclass.static;
 		result.external = false;
 	}
 

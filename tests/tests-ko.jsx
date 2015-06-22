@@ -111,3 +111,34 @@
     var a = new A ();
     var ac = new A.C();
 });
+
+@test ('Inner partial classes in partial classes', {
+    [ 'A' ]
+    [ 'A.C', 5, 6, 8, 9 ]
+    [ 'A.C', 5, 6, 8, 9 ]
+}, {
+    partial class A {
+        partial external class C {
+            public ia = 5;
+            ja = 8;
+        }
+    }
+
+    partial class A {
+        partial external class C {
+            public ib = 6;
+            jb = 9;
+            {
+                @output { 'A.C', ia, ib, ja, jb };
+            }
+        }
+
+        {
+            @output { 'A' };
+            new C();
+        }
+    }
+
+    var a = new A ();
+    var ac = new A.C();
+});

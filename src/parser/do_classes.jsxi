@@ -776,31 +776,35 @@ function doClasses(statements, callback){
             process(methodEntry);
         }
 
-        function processClassMethods(classEntry){
+        function processClassMethods(rootClassEntry, classEntry){
             var replace,
                 childMember;
 
             // Проходим по всем методам именно этого класса
             for (var name, member in classEntry.members){
                 if (member.method && !member.abstract && member.className === classEntry.id){
-                    processClassMethod(classEntry, member);
+                    processClassMethod(rootClassEntry, member);
                 }
 
                 if (member.field && member.static && member.init){ // TODO: Temporary fix
-                    processClassMethod(classEntry, member.init);
+                    processClassMethod(rootClassEntry, member.init);
+                }
+
+                if (member.subclass){
+                    processClassMethods(rootClassEntry, member);
                 }
 
                 if (member.property && !member.abstract && member.className === classEntry.id){
                     if (member.get)
-                        processClassMethod(classEntry, member.get);
+                        processClassMethod(rootClassEntry, member.get);
                     if (member.set)
-                        processClassMethod(classEntry, member.set);
+                        processClassMethod(rootClassEntry, member.set);
                 }
             }
         }
 
         for (var classEntry in-array classes)
-            processClassMethods(classEntry);
+            processClassMethods(classEntry, classEntry);
     }
 
     function processClasses(){
@@ -835,7 +839,7 @@ function doClasses(statements, callback){
                 initializer      = classEntry.members['@initializer'];
 
             // Объектные и статические поля и методы данного класса
-            var filtered         = filter(classEntry, lambda (a, b) a.className === classEntry.id && b[0] !== '@'),
+            var filtered         = filter(classEntry, lambda arg.className === classEntry.id && arg.id.name[0] !== '@'),
                 objectMembers    = filtered.filter(lambda !arg.static),
                 staticMembers    = filtered.filter(lambda  arg.static);
 
