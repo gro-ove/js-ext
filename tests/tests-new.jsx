@@ -29,49 +29,29 @@
     })([%3])` (code, name, 'test_' + name.replace (/[^a-zA-Z_$]+/g, '_').toLowerCase (), args.slice (1, -1).trim ().replace (/\n/g, ','));
 }
 
-@test ('Inner partial classes in partial classes with access to static method', {
+@test ('Async method', {
     [ 'A' ]
-    [ 'HERE' ]
-    [ 'PUBLIC' ]
-    [ 'A.C', 5, 6, 8, 9 ]
-    [ 'HERE' ]
-    [ 'PUBLIC' ]
-    [ 'A.C', 5, 6, 8, 9 ]
+    [ 'C' ]
+    [ 'E' ]
+    [ 'B', 15, 19 ]
+    [ 'Z' ]
 }, {
-    partial class A {
-        static testu(){
-            @output { 'HERE' };
-        }
-
-        static public testi(){
-            @output { 'PUBLIC' };
-        }
+    function a(tt, callback){
+        @output { 'C' };
+        setTimeout(lambda callback(tt + 14));
     }
 
-    partial class A {
-        partial external class C {
-            public ia = 5;
-            ja = 8;
-        }
+    function test(qq) async {
+        var q = qq + 10;
+        @output { 'A' };
+        //if (q > 10){ TODO?
+            var n = async a(5);
+        //}
+        @output { 'B', q, n };
     }
 
-    partial class A {
-        partial external class C {
-            public ib = 6;
-            jb = 9;
-            {
-                testu();
-                testi();
-                @output { 'A.C', ia, ib, ja, jb };
-            }
-        }
-
-        {
-            @output { 'A' };
-            new C();
-        }
-    }
-
-    var a = new A ();
-    var ac = new A.C();
+    test(5, lambda {
+        @output { 'Z' };
+    });
+    @output { 'E' };
 });

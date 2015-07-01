@@ -855,75 +855,81 @@ function makeAsynchronous(body){                                                
 			}
 		}
 		
-		throw new JsExtError('NotImplementedError',                                // asynchronous_functions.jsxi:26
+		throw new JsExtError('NotImplementedError',                                // asynchronous_functions.jsxi:29
 			'Not supported asynchronous type' + '\n' + JSON.stringify(statement, false, 
-				4));                                                               // asynchronous_functions.jsxi:26
+				4));                                                               // asynchronous_functions.jsxi:29
 	}
 	
-	function synchronousConvert(statement){                                        // asynchronous_functions.jsxi:29
-		astEach(statement,                                                         // asynchronous_functions.jsxi:30
-			function (arg){                                                        // asynchronous_functions.jsxi:30
-				if (arg.type === Syntax.ReturnStatement)                           // asynchronous_functions.jsxi:31
+	function synchronousConvert(statement){                                        // asynchronous_functions.jsxi:32
+		astEach(statement,                                                         // asynchronous_functions.jsxi:33
+			function (arg){                                                        // asynchronous_functions.jsxi:33
+				if (arg.type === Syntax.ReturnStatement)                           // asynchronous_functions.jsxi:34
 					arg.argument = callExpression(identifier('__callback'), [ arg.argument ]);
 			});
-		return statement;                                                          // asynchronous_functions.jsxi:35
+		return statement;                                                          // asynchronous_functions.jsxi:38
 	}
 	
 	var variables = [];
 	
-	astEach(body,                                                                  // asynchronous_functions.jsxi:40
-		function (arg){                                                            // asynchronous_functions.jsxi:40
-			if (arg.type === Syntax.VariableDeclaration){                          // asynchronous_functions.jsxi:40
-				arg.declarations.forEach(function (arg){                           // asynchronous_functions.jsxi:41
-					return variables.push(variableDeclarator(arg.id));             // asynchronous_functions.jsxi:41
+	astEach(body,                                                                  // asynchronous_functions.jsxi:43
+		function (arg){                                                            // asynchronous_functions.jsxi:43
+			if (arg.type === Syntax.VariableDeclaration){                          // asynchronous_functions.jsxi:43
+				arg.declarations.forEach(function (arg){                           // asynchronous_functions.jsxi:44
+					if (variables.some(function (arg){                             // asynchronous_functions.jsxi:45
+						return arg.id.name === arg.id;                             // asynchronous_functions.jsxi:45
+					}))
+						return;
+					
+					variables.push(variableDeclarator(arg.id));                    // asynchronous_functions.jsxi:46
 				});
 				
-				var inits = arg.declarations.filter(function (arg){                // asynchronous_functions.jsxi:43
-						return arg.init !== null;                                  // asynchronous_functions.jsxi:43
+				var inits = arg.declarations.filter(function (arg){                // asynchronous_functions.jsxi:49
+						return arg.init !== null;                                  // asynchronous_functions.jsxi:49
 					}), 
-					expression = sequenceExpression(inits.map(function (arg){      // asynchronous_functions.jsxi:44
-						return assignmentExpression(arg.id, arg.init);             // asynchronous_functions.jsxi:44
+					expression = sequenceExpression(inits.map(function (arg){      // asynchronous_functions.jsxi:50
+						return assignmentExpression(arg.id, arg.init);             // asynchronous_functions.jsxi:50
 					})), 
-					temp;                                                          // asynchronous_functions.jsxi:45
+					temp;                                                          // asynchronous_functions.jsxi:51
 				
-				if (expression.length === 0)                                       // asynchronous_functions.jsxi:47
-					temp = { type: Syntax.EmptyStatement };                        // asynchronous_functions.jsxi:48
-				else if (expression.expressions.length === 1)                      // asynchronous_functions.jsxi:49
-					temp = expressionStatement(expression.expressions[0]);         // asynchronous_functions.jsxi:50
+				if (expression.length === 0)                                       // asynchronous_functions.jsxi:53
+					temp = { type: Syntax.EmptyStatement };                        // asynchronous_functions.jsxi:54
+				else if (expression.expressions.length === 1)                      // asynchronous_functions.jsxi:55
+					temp = expressionStatement(expression.expressions[0]);         // asynchronous_functions.jsxi:56
 				else
-					temp = expressionStatement(expression);                        // asynchronous_functions.jsxi:52
+					temp = expressionStatement(expression);                        // asynchronous_functions.jsxi:58
 				
-				set(arg, temp);                                                    // asynchronous_functions.jsxi:54
+				set(arg, temp);                                                    // asynchronous_functions.jsxi:60
 			}
 		});
 	
 	var current = [], blocks = [ current ];
 	
-	for (var __0 = 0; __0 < body.length; __0 ++){                                  // asynchronous_functions.jsxi:60
+	for (var __0 = 0; __0 < body.length; __0 ++){                                  // asynchronous_functions.jsxi:66
 		var statement = body[__0];
 		
-		var asynchronous = astEach(statement,                                      // asynchronous_functions.jsxi:61
-			function (arg){                                                        // asynchronous_functions.jsxi:61
-				if (arg.asynchronous)                                              // asynchronous_functions.jsxi:61
-					return arg;                                                    // asynchronous_functions.jsxi:61
+		var asynchronous = astEach(statement,                                      // asynchronous_functions.jsxi:67
+			function (arg){                                                        // asynchronous_functions.jsxi:67
+				if (arg.asynchronous)                                              // asynchronous_functions.jsxi:67
+					return arg;                                                    // asynchronous_functions.jsxi:67
 			});
 		
-		if (asynchronous.length > 0){                                              // asynchronous_functions.jsxi:63
-			current.push(asynchronousConvert(statement, asynchronous));            // asynchronous_functions.jsxi:64
-			blocks.push(current = []);                                             // asynchronous_functions.jsxi:65
+		if (asynchronous.length > 0){                                              // asynchronous_functions.jsxi:69
+			current.push(asynchronousConvert(statement, asynchronous));            // asynchronous_functions.jsxi:70
+			blocks.push(current = []);                                             // asynchronous_functions.jsxi:71
 		} else {
-			current.push(synchronousConvert(statement));                           // asynchronous_functions.jsxi:67
+			current.push(synchronousConvert(statement));                           // asynchronous_functions.jsxi:73
 		}
 	}
 	
-	body = blocks.map(function (arg, index){                                       // asynchronous_functions.jsxi:71
+	blocks[blocks.length - 1].push(expressionStatement(callExpression(identifier('__callback'))));
+	body = blocks.map(function (arg, index){                                       // asynchronous_functions.jsxi:81
 		return functionDeclaration(identifier('__block_' + index), [], 
-			blockStatement(arg));                                                  // asynchronous_functions.jsxi:72
-	}).concat(expressionStatement(callExpression('__block_0', [])));               // asynchronous_functions.jsxi:73
+			blockStatement(arg));                                                  // asynchronous_functions.jsxi:82
+	}).concat(expressionStatement(callExpression('__block_0', [])));               // asynchronous_functions.jsxi:83
 	
-	if (variables.length)                                                          // asynchronous_functions.jsxi:75
-		body.unshift(variableDeclaration(variables));                              // asynchronous_functions.jsxi:76
-	return body;                                                                   // asynchronous_functions.jsxi:78
+	if (variables.length)                                                          // asynchronous_functions.jsxi:85
+		body.unshift(variableDeclaration(variables));                              // asynchronous_functions.jsxi:86
+	return body;                                                                   // asynchronous_functions.jsxi:88
 }
 
 function doClasses(statements, callback){                                          // do_classes.jsxi:1
@@ -3719,7 +3725,7 @@ function parsePrimaryExpression(){                                              
 		case Token.Identifier:                                                     // parse_expressions.jsxi:590
 			lex();                                                                 // parse_expressions.jsxi:591
 			
-			if (state.asynchronous && token.value === 'asynchronous'){             // parse_expressions.jsxi:592
+			if (state.asynchronous && token.value === 'async'){                    // parse_expressions.jsxi:592
 				var next = parseExpression();
 				
 				if (next.type === Syntax.CallExpression){                          // parse_expressions.jsxi:595
@@ -3795,7 +3801,7 @@ function parseFunction(options){                                                
 	if (options.optionalParams == null){                                           // parse_function.jsxi:21
 		params = parseFunctionArguments();                                         // parse_function.jsxi:22
 		
-		if (lookahead().value === 'asynchronous'){                                 // parse_function.jsxi:24
+		if (lookahead().value === 'async'){                                        // parse_function.jsxi:24
 			lex();                                                                 // parse_function.jsxi:25
 			asynchronous = true;                                                   // parse_function.jsxi:26
 		}
@@ -5158,7 +5164,7 @@ function astEach(node, callback, result){                                       
 		var child = node[key];
 		
 		if (child && (typeof child.type === 'string' || child instanceof Array))   // utils.jsxi:209
-			each(child, callback, result);                                         // utils.jsxi:210
+			astEach(child, callback, result);                                      // utils.jsxi:210
 	}
 	return result;                                                                 // utils.jsxi:212
 }

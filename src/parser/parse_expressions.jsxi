@@ -589,7 +589,7 @@ function parsePrimaryExpression (){
 	switch (token.type){
 		case Token.Identifier:
 			lex ();
-			if (state.asynchronous && token.value === 'asynchronous'){
+			if (state.asynchronous && token.value === 'async'){
 				var next = parseExpression ();
 
 				if (next.type === Syntax.CallExpression){

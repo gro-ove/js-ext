@@ -23,6 +23,9 @@ function makeAsynchronous (body){
 			}
 		}
 
+		// if (statement.type === Syntax.IfStatement){
+		// }
+
 		throw new JsExtError ('NotImplementedError', 'Not supported asynchronous type' + '\n' + JSON.stringify (statement, false, 4));
 	}
 
@@ -38,7 +41,10 @@ function makeAsynchronous (body){
 	var variables = [];
 
 	astEach (body, lambda if (arg.type === Syntax.VariableDeclaration){
-		arg.declarations.forEach (lambda variables.push (variableDeclarator (arg.id)));
+		arg.declarations.forEach (lambda {
+			if (variables.some(lambda arg.id.name === arg.id)) return;
+			variables.push (variableDeclarator (arg.id))
+		});
 
 		var inits = arg.declarations.filter (lambda arg.init !== null),
 			expression = sequenceExpression (inits.map (lambda assignmentExpression (arg.id, arg.init))),
@@ -67,6 +73,10 @@ function makeAsynchronous (body){
 			current.push (synchronousConvert (statement));
 		}
 	}
+
+	blocks[blocks.length - 1].push(expressionStatement(
+		callExpression(identifier('__callback'))
+	));
 
 	body = blocks
 		.map (lambda (arg, index) functionDeclaration (identifier ('__block_' + index), [], blockStatement (arg)))

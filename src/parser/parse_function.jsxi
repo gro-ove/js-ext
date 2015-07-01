@@ -21,7 +21,7 @@ function parseFunction (options = {}){
 	if (options.optionalParams == null){
 		params = parseFunctionArguments ();
 
-		if (lookahead ().value === 'asynchronous'){
+		if (lookahead ().value === 'async'){
 			lex ();
 			asynchronous = true;
 		}

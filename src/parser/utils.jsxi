@@ -207,7 +207,7 @@ function astEach (node, callback, result = []){
 
     for (var key, child in node)
         if (child && (typeof child.type === 'string' || child instanceof Array))
-            each (child, callback, result);
+            astEach (child, callback, result);
 
     return result;
 }
