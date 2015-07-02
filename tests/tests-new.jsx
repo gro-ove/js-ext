@@ -29,29 +29,20 @@
     })([%3])` (code, name, 'test_' + name.replace (/[^a-zA-Z_$]+/g, '_').toLowerCase (), args.slice (1, -1).trim ().replace (/\n/g, ','));
 }
 
-@test ('Async method', {
-    [ 'A' ]
-    [ 'C' ]
-    [ 'E' ]
-    [ 'B', 15, 19 ]
-    [ 'Z' ]
+@test ('Fixme', {
+    [ 2 ]
 }, {
-    function a(tt, callback){
-        @output { 'C' };
-        setTimeout(lambda callback(tt + 14));
+    static class A {
+        public var list = 1;
+
+        external class B {
+            var list = 2;
+
+            (){
+                @output { list };
+            }
+        }
     }
 
-    function test(qq) async {
-        var q = qq + 10;
-        @output { 'A' };
-        //if (q > 10){ TODO?
-            var n = async a(5);
-        //}
-        @output { 'B', q, n };
-    }
-
-    test(5, lambda {
-        @output { 'Z' };
-    });
-    @output { 'E' };
+    new A.B();
 });

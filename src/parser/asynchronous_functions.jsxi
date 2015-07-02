@@ -32,7 +32,7 @@ function makeAsynchronous (body){
 	function synchronousConvert (statement){
 		astEach (statement, lambda {
 			if (arg.type === Syntax.ReturnStatement)
-				arg.argument = callExpression (identifier ('__callback'), [ arg.argument ]);
+				arg.argument = callExpression ('__callback', [ arg.argument ]);
 		});
 
 		return statement;
@@ -79,7 +79,17 @@ function makeAsynchronous (body){
 	));
 
 	body = blocks
-		.map (lambda (arg, index) functionDeclaration (identifier ('__block_' + index), [], blockStatement (arg)))
+		.map (lambda (arg, index) variableDeclaration([
+			variableDeclarator(
+				identifier ('__block_' + index),
+				callExpression(
+					memberExpression(
+						functionExpression(null, [], blockStatement(arg)),
+						identifier('bind')
+					), [ thisExpression() ]
+				)
+			)
+		]))
 		.concat (expressionStatement (callExpression ('__block_0', [])));
 
 	if (variables.length)

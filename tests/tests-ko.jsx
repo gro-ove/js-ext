@@ -189,3 +189,30 @@
     var a = new A ();
     var ac = new A.C();
 });
+
+@test ('Async method', {
+    [ 'A' ]
+    [ 'C' ]
+    [ 'E' ]
+    [ 'B', 15, 19 ]
+    [ 'Z' ]
+}, {
+    function a(tt, callback){
+        @output { 'C' };
+        setTimeout(lambda callback(tt + 14));
+    }
+
+    function test(qq) async {
+        var q = qq + 10;
+        @output { 'A' };
+        //if (q > 10){ TODO?
+            var n = async a(5);
+        //}
+        @output { 'B', q, n };
+    }
+
+    test(5, lambda {
+        @output { 'Z' };
+    });
+    @output { 'E' };
+});

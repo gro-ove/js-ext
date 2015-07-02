@@ -780,6 +780,11 @@ function doClasses(statements, callback){
             var replace,
                 childMember;
 
+            if (rootClassEntry === classEntry){
+                if (rootClassEntry.membersProcessed) return;
+                rootClassEntry.membersProcessed = true;
+            }
+
             // Проходим по всем методам именно этого класса
             for (var name, member in classEntry.members){
                 if (member.method && !member.abstract && member.className === classEntry.id){
@@ -790,15 +795,16 @@ function doClasses(statements, callback){
                     processClassMethod(rootClassEntry, member.init);
                 }
 
-                if (member.subclass){
-                    processClassMethods(rootClassEntry, member);
-                }
-
                 if (member.property && !member.abstract && member.className === classEntry.id){
                     if (member.get)
                         processClassMethod(rootClassEntry, member.get);
                     if (member.set)
                         processClassMethod(rootClassEntry, member.set);
+                }
+
+                if (member.subclass){
+                    processClassMethods(member, member);
+                    processClassMethods(rootClassEntry, member);
                 }
             }
         }

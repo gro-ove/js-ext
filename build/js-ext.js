@@ -864,7 +864,7 @@ function makeAsynchronous(body){                                                
 		astEach(statement,                                                         // asynchronous_functions.jsxi:33
 			function (arg){                                                        // asynchronous_functions.jsxi:33
 				if (arg.type === Syntax.ReturnStatement)                           // asynchronous_functions.jsxi:34
-					arg.argument = callExpression(identifier('__callback'), [ arg.argument ]);
+					arg.argument = callExpression('__callback', [ arg.argument ]);
 			});
 		return statement;                                                          // asynchronous_functions.jsxi:38
 	}
@@ -923,13 +923,18 @@ function makeAsynchronous(body){                                                
 	
 	blocks[blocks.length - 1].push(expressionStatement(callExpression(identifier('__callback'))));
 	body = blocks.map(function (arg, index){                                       // asynchronous_functions.jsxi:81
-		return functionDeclaration(identifier('__block_' + index), [], 
-			blockStatement(arg));                                                  // asynchronous_functions.jsxi:82
-	}).concat(expressionStatement(callExpression('__block_0', [])));               // asynchronous_functions.jsxi:83
+		return variableDeclaration([                                               // asynchronous_functions.jsxi:82
+			variableDeclarator(identifier('__block_' + index),                     // asynchronous_functions.jsxi:82
+				callExpression(memberExpression(functionExpression(null, [], 
+					blockStatement(arg)),                                          // asynchronous_functions.jsxi:85
+				identifier('bind')),                                               // asynchronous_functions.jsxi:88
+				[ thisExpression() ]))
+		]);
+	}).concat(expressionStatement(callExpression('__block_0', [])));               // asynchronous_functions.jsxi:93
 	
-	if (variables.length)                                                          // asynchronous_functions.jsxi:85
-		body.unshift(variableDeclaration(variables));                              // asynchronous_functions.jsxi:86
-	return body;                                                                   // asynchronous_functions.jsxi:88
+	if (variables.length)                                                          // asynchronous_functions.jsxi:95
+		body.unshift(variableDeclaration(variables));                              // asynchronous_functions.jsxi:96
+	return body;                                                                   // asynchronous_functions.jsxi:98
 }
 
 function doClasses(statements, callback){                                          // do_classes.jsxi:1
@@ -1777,6 +1782,13 @@ function doClasses(statements, callback){                                       
 		function processClassMethods(rootClassEntry, classEntry){                  // do_classes.jsxi:779
 			var replace, childMember;
 			
+			if (rootClassEntry === classEntry){                                    // do_classes.jsxi:783
+				if (rootClassEntry.membersProcessed)                               // do_classes.jsxi:784
+					return;
+				
+				rootClassEntry.membersProcessed = true;                            // do_classes.jsxi:785
+			}
+			
 			{
 				var __n = classEntry.members;
 				
@@ -1784,23 +1796,24 @@ function doClasses(statements, callback){                                       
 					var member = __n[name];
 					
 					if (member.method && !member.abstract && member.className === classEntry.id){
-						processClassMethod(rootClassEntry, member);                // do_classes.jsxi:786
+						processClassMethod(rootClassEntry, member);                // do_classes.jsxi:791
 					}
 					
-					if (member.field && member.static && member.init){             // do_classes.jsxi:789
-						processClassMethod(rootClassEntry, member.init);           // do_classes.jsxi:790
-					}
-					
-					if (member.subclass){                                          // do_classes.jsxi:793
-						processClassMethods(rootClassEntry, member);               // do_classes.jsxi:794
+					if (member.field && member.static && member.init){             // do_classes.jsxi:794
+						processClassMethod(rootClassEntry, member.init);           // do_classes.jsxi:795
 					}
 					
 					if (member.property && !member.abstract && member.className === classEntry.id){
-						if (member.get)                                            // do_classes.jsxi:798
-							processClassMethod(rootClassEntry, member.get);        // do_classes.jsxi:799
+						if (member.get)                                            // do_classes.jsxi:799
+							processClassMethod(rootClassEntry, member.get);        // do_classes.jsxi:800
 						
-						if (member.set)                                            // do_classes.jsxi:800
-							processClassMethod(rootClassEntry, member.set);        // do_classes.jsxi:801
+						if (member.set)                                            // do_classes.jsxi:801
+							processClassMethod(rootClassEntry, member.set);        // do_classes.jsxi:802
+					}
+					
+					if (member.subclass){                                          // do_classes.jsxi:805
+						processClassMethods(member, member);                       // do_classes.jsxi:806
+						processClassMethods(rootClassEntry, member);               // do_classes.jsxi:807
 					}
 				}
 				
@@ -1808,339 +1821,339 @@ function doClasses(statements, callback){                                       
 			}
 		}
 		
-		for (var __o = 0; __o < classes.length; __o ++){                           // do_classes.jsxi:806
+		for (var __o = 0; __o < classes.length; __o ++){                           // do_classes.jsxi:812
 			var classEntry = classes[__o];
 			
-			processClassMethods(classEntry, classEntry);                           // do_classes.jsxi:807
+			processClassMethods(classEntry, classEntry);                           // do_classes.jsxi:813
 		}
 	}
 	
-	function processClasses(){                                                     // do_classes.jsxi:810
-		function processClass(classEntry){                                         // do_classes.jsxi:812
-			function classMode(){                                                  // do_classes.jsxi:814
+	function processClasses(){                                                     // do_classes.jsxi:816
+		function processClass(classEntry){                                         // do_classes.jsxi:818
+			function classMode(){                                                  // do_classes.jsxi:820
 				if (classEntry.childs.length === 0 && !classEntry.dependsOn.parent && objectMembers.length === 0 && constructor.body.body.length === 0 && objectProperties.length === 0){
 					if (staticFields.length > 0 || staticMethods.length > 0 || subclasses.length > 0)
-						return OutputMode.Default;                                 // do_classes.jsxi:822
+						return OutputMode.Default;                                 // do_classes.jsxi:828
 					
-					if (initializer.body.body.length > 0)                          // do_classes.jsxi:825
-						return OutputMode.InitializerOnly;                         // do_classes.jsxi:826
-					return OutputMode.Empty;                                       // do_classes.jsxi:828
+					if (initializer.body.body.length > 0)                          // do_classes.jsxi:831
+						return OutputMode.InitializerOnly;                         // do_classes.jsxi:832
+					return OutputMode.Empty;                                       // do_classes.jsxi:834
 				}
-				return OutputMode.Default;                                         // do_classes.jsxi:831
+				return OutputMode.Default;                                         // do_classes.jsxi:837
 			}
 			
-			console.assert(!classEntry.elements, 'Already processed');             // do_classes.jsxi:835
+			console.assert(!classEntry.elements, 'Already processed');             // do_classes.jsxi:841
 			
-			var constructor = classEntry.members['@constructor'],                  // do_classes.jsxi:838
-				initializer = classEntry.members['@initializer'];                  // do_classes.jsxi:839
+			var constructor = classEntry.members['@constructor'],                  // do_classes.jsxi:844
+				initializer = classEntry.members['@initializer'];                  // do_classes.jsxi:845
 			
-			var filtered = filter(classEntry,                                      // do_classes.jsxi:842
-					function (arg){                                                // do_classes.jsxi:842
+			var filtered = filter(classEntry,                                      // do_classes.jsxi:848
+					function (arg){                                                // do_classes.jsxi:848
 						return arg.className === classEntry.id && arg.id.name[0] !== '@';
 					}), 
-				objectMembers = filtered.filter(function (arg){                    // do_classes.jsxi:843
-					return !arg.static;                                            // do_classes.jsxi:843
+				objectMembers = filtered.filter(function (arg){                    // do_classes.jsxi:849
+					return !arg.static;                                            // do_classes.jsxi:849
 				}), 
-				staticMembers = filtered.filter(function (arg){                    // do_classes.jsxi:844
-					return arg.static;                                             // do_classes.jsxi:844
+				staticMembers = filtered.filter(function (arg){                    // do_classes.jsxi:850
+					return arg.static;                                             // do_classes.jsxi:850
 				});
 			
-			var objectMethods = objectMembers.filter(function (arg){               // do_classes.jsxi:847
-					return arg.method;                                             // do_classes.jsxi:847
+			var objectMethods = objectMembers.filter(function (arg){               // do_classes.jsxi:853
+					return arg.method;                                             // do_classes.jsxi:853
 				}), 
-				objectFields = objectMembers.filter(function (arg){                // do_classes.jsxi:848
-					return arg.field;                                              // do_classes.jsxi:848
+				objectFields = objectMembers.filter(function (arg){                // do_classes.jsxi:854
+					return arg.field;                                              // do_classes.jsxi:854
 				}), 
-				objectProperties = objectMembers.filter(function (arg){            // do_classes.jsxi:849
-					return arg.property;                                           // do_classes.jsxi:849
+				objectProperties = objectMembers.filter(function (arg){            // do_classes.jsxi:855
+					return arg.property;                                           // do_classes.jsxi:855
 				}), 
-				staticMethods = staticMembers.filter(function (arg){               // do_classes.jsxi:850
-					return arg.method;                                             // do_classes.jsxi:850
+				staticMethods = staticMembers.filter(function (arg){               // do_classes.jsxi:856
+					return arg.method;                                             // do_classes.jsxi:856
 				}), 
-				staticFields = staticMembers.filter(function (arg){                // do_classes.jsxi:851
-					return arg.field;                                              // do_classes.jsxi:851
+				staticFields = staticMembers.filter(function (arg){                // do_classes.jsxi:857
+					return arg.field;                                              // do_classes.jsxi:857
 				}), 
-				staticProperties = staticMembers.filter(function (arg){            // do_classes.jsxi:852
-					return arg.property;                                           // do_classes.jsxi:852
+				staticProperties = staticMembers.filter(function (arg){            // do_classes.jsxi:858
+					return arg.property;                                           // do_classes.jsxi:858
 				}), 
-				subclasses = staticMembers.filter(function (arg){                  // do_classes.jsxi:853
-					return arg.subclass;                                           // do_classes.jsxi:853
+				subclasses = staticMembers.filter(function (arg){                  // do_classes.jsxi:859
+					return arg.subclass;                                           // do_classes.jsxi:859
 				});
 			
-			constructor.id = null;                                                 // do_classes.jsxi:856
-			initializer.id = null;                                                 // do_classes.jsxi:857
+			constructor.id = null;                                                 // do_classes.jsxi:862
+			initializer.id = null;                                                 // do_classes.jsxi:863
 			
-			if (!classEntry.params.abstract && filter(classEntry,                  // do_classes.jsxi:860
-				function (arg){                                                    // do_classes.jsxi:860
-					return arg.abstract;                                           // do_classes.jsxi:860
-				}).length > 0)                                                     // do_classes.jsxi:860
-				classEntry.params.abstract = true;                                 // do_classes.jsxi:861
+			if (!classEntry.params.abstract && filter(classEntry,                  // do_classes.jsxi:866
+				function (arg){                                                    // do_classes.jsxi:866
+					return arg.abstract;                                           // do_classes.jsxi:866
+				}).length > 0)                                                     // do_classes.jsxi:866
+				classEntry.params.abstract = true;                                 // do_classes.jsxi:867
 			
-			if (classEntry.params.abstract)                                        // do_classes.jsxi:864
+			if (classEntry.params.abstract)                                        // do_classes.jsxi:870
 				constructor.body.body.unshift(ifStatement(binaryExpression(memberExpression(thisExpression(), identifier('constructor')), 
-					'===',                                                         // do_classes.jsxi:867
-					classEntry.id.name),                                           // do_classes.jsxi:867
-				throwStatement(newExpression('Error',                              // do_classes.jsxi:868
+					'===',                                                         // do_classes.jsxi:873
+					classEntry.id.name),                                           // do_classes.jsxi:873
+				throwStatement(newExpression('Error',                              // do_classes.jsxi:874
 					[
 						stringLiteralWithQuotes('Trying to instantiate abstract class ' + classEntry.id.name)
 					]))));
 			
 			var mode = classMode();
 			
-			if (mode === OutputMode.Empty)                                         // do_classes.jsxi:876
+			if (mode === OutputMode.Empty)                                         // do_classes.jsxi:882
 				return [
 					oneVariableDeclaration(classEntry.id.name, objectExpression([]))
 				];
 			
-			if (mode === OutputMode.InitializerOnly)                               // do_classes.jsxi:880
+			if (mode === OutputMode.InitializerOnly)                               // do_classes.jsxi:886
 				return [
 					oneVariableDeclaration(classEntry.id.name, callExpression(initializer))
 				];
 			
-			var anonymousFunction = staticMembers.filter(function (arg){           // do_classes.jsxi:884
-					return arg.publicMode === 'private';                           // do_classes.jsxi:884
-				}).length > 0,                                                     // do_classes.jsxi:884
-				result,                                                            // do_classes.jsxi:885
-				mainObj;                                                           // do_classes.jsxi:886
+			var anonymousFunction = staticMembers.filter(function (arg){           // do_classes.jsxi:890
+					return arg.publicMode === 'private';                           // do_classes.jsxi:890
+				}).length > 0,                                                     // do_classes.jsxi:890
+				result,                                                            // do_classes.jsxi:891
+				mainObj;                                                           // do_classes.jsxi:892
 			
-			if (mode === OutputMode.Default){                                      // do_classes.jsxi:888
-				result = [                                                         // do_classes.jsxi:890
+			if (mode === OutputMode.Default){                                      // do_classes.jsxi:894
+				result = [                                                         // do_classes.jsxi:896
 					anonymousFunction ? oneVariableDeclaration(classEntry.id, constructor) : functionDeclaration(classEntry.id, constructor.params, constructor.body)
 				];
 				
-				if (classEntry.dependsOn.parent)                                   // do_classes.jsxi:895
+				if (classEntry.dependsOn.parent)                                   // do_classes.jsxi:901
 					result.push(expressionStatement(callExpression('__prototypeExtend', 
 						[ classEntry.id.name, classEntry.dependsOn.parent.id.name ])));
 				
-				for (var __p = 0; __p < objectFields.length; __p ++){              // do_classes.jsxi:899
+				for (var __p = 0; __p < objectFields.length; __p ++){              // do_classes.jsxi:905
 					var field = objectFields[__p];
 					
 					{};
 				}
 				
-				for (var __q = 0; __q < objectMethods.length; __q ++){             // do_classes.jsxi:902
+				for (var __q = 0; __q < objectMethods.length; __q ++){             // do_classes.jsxi:908
 					var method = objectMethods[__q];
 					
-					if (method.abstract)                                           // do_classes.jsxi:903
+					if (method.abstract)                                           // do_classes.jsxi:909
 						continue;
 					
 					result.push(assignmentStatement(memberExpression(memberExpression(classEntry.id.name, 'prototype'), method.id), 
-						functionExpression(null, method.params, method.body)));    // do_classes.jsxi:906
+						functionExpression(null, method.params, method.body)));    // do_classes.jsxi:912
 				}
 				
-				for (var __r = 0; __r < objectProperties.length; __r ++){          // do_classes.jsxi:910
+				for (var __r = 0; __r < objectProperties.length; __r ++){          // do_classes.jsxi:916
 					var prop = objectProperties[__r];
 					
-					if (prop.abstract)                                             // do_classes.jsxi:911
+					if (prop.abstract)                                             // do_classes.jsxi:917
 						continue;
 					
 					var definedProperties = [];
 					
-					if (prop.get){                                                 // do_classes.jsxi:915
-						definedProperties.push(property(identifier('get'),         // do_classes.jsxi:916
+					if (prop.get){                                                 // do_classes.jsxi:921
+						definedProperties.push(property(identifier('get'),         // do_classes.jsxi:922
 							functionExpression(null, prop.get.params, prop.get.body)));
 					}
 					
-					if (prop.set){                                                 // do_classes.jsxi:922
-						definedProperties.push(property(identifier('set'),         // do_classes.jsxi:923
+					if (prop.set){                                                 // do_classes.jsxi:928
+						definedProperties.push(property(identifier('set'),         // do_classes.jsxi:929
 							functionExpression(null, prop.set.params, prop.set.body)));
 					}
 					
 					result.push(expressionStatement(callExpression(memberExpression(identifier('Object'), identifier('defineProperty')), 
 						[
-							memberExpression(classEntry.id.name, 'prototype'),     // do_classes.jsxi:931
-							stringLiteralWithQuotes(prop.id.name),                 // do_classes.jsxi:932
+							memberExpression(classEntry.id.name, 'prototype'),     // do_classes.jsxi:937
+							stringLiteralWithQuotes(prop.id.name),                 // do_classes.jsxi:938
 							objectExpression(definedProperties)
 						])));
 				}
 				
-				for (var __s = 0; __s < staticFields.length; __s ++){              // do_classes.jsxi:938
+				for (var __s = 0; __s < staticFields.length; __s ++){              // do_classes.jsxi:944
 					var field = staticFields[__s];
 					
-					if (field.publicMode === 'private')                            // do_classes.jsxi:939
-						result[0].declarations.push(field);                        // do_classes.jsxi:940
+					if (field.publicMode === 'private')                            // do_classes.jsxi:945
+						result[0].declarations.push(field);                        // do_classes.jsxi:946
 					else
 						result.push(assignmentStatement(memberExpression(classEntry.id.name, field.id), 
-							field.init || 'undefined'));                           // do_classes.jsxi:942
+							field.init || 'undefined'));                           // do_classes.jsxi:948
 				}
 				
-				for (var __t = 0; __t < staticMethods.length; __t ++){             // do_classes.jsxi:948
+				for (var __t = 0; __t < staticMethods.length; __t ++){             // do_classes.jsxi:954
 					var method = staticMethods[__t];
 					
-					if (method.publicMode === 'private')                           // do_classes.jsxi:949
-						result.push(method);                                       // do_classes.jsxi:950
+					if (method.publicMode === 'private')                           // do_classes.jsxi:955
+						result.push(method);                                       // do_classes.jsxi:956
 					else
 						result.push(expressionStatement(assignmentExpression(memberExpression(classEntry.id.name, method.id), 
 							functionExpression(null, method.params, method.body))));
 				}
 				
-				for (var __u = 0; __u < subclasses.length; __u ++){                // do_classes.jsxi:957
+				for (var __u = 0; __u < subclasses.length; __u ++){                // do_classes.jsxi:963
 					var subclass = subclasses[__u];
 					
-					result.push(subclass);                                         // do_classes.jsxi:958
+					result.push(subclass);                                         // do_classes.jsxi:964
 					
-					if (subclass.publicMode !== 'private'){                        // do_classes.jsxi:959
+					if (subclass.publicMode !== 'private'){                        // do_classes.jsxi:965
 						result.push(expressionStatement(assignmentExpression(memberExpression(classEntry.id.name, subclass.id), 
-							subclass.id)));                                        // do_classes.jsxi:962
+							subclass.id)));                                        // do_classes.jsxi:968
 					}
 				}
 				
-				for (var __v = 0; __v < staticProperties.length; __v ++){          // do_classes.jsxi:967
+				for (var __v = 0; __v < staticProperties.length; __v ++){          // do_classes.jsxi:973
 					var prop = staticProperties[__v];
 					
 					var definedProperties = [];
 					
-					if (prop.get){                                                 // do_classes.jsxi:970
-						definedProperties.push(property(identifier('get'),         // do_classes.jsxi:971
+					if (prop.get){                                                 // do_classes.jsxi:976
+						definedProperties.push(property(identifier('get'),         // do_classes.jsxi:977
 							functionExpression(null, prop.get.params, prop.get.body)));
 					}
 					
-					if (prop.set){                                                 // do_classes.jsxi:977
-						definedProperties.push(property(identifier('set'),         // do_classes.jsxi:978
+					if (prop.set){                                                 // do_classes.jsxi:983
+						definedProperties.push(property(identifier('set'),         // do_classes.jsxi:984
 							functionExpression(null, prop.set.params, prop.set.body)));
 					}
 					
 					result.push(expressionStatement(callExpression(memberExpression(identifier('Object'), identifier('defineProperty')), 
 						[
-							classEntry.id,                                         // do_classes.jsxi:986
-							stringLiteralWithQuotes(prop.id.name),                 // do_classes.jsxi:987
+							classEntry.id,                                         // do_classes.jsxi:992
+							stringLiteralWithQuotes(prop.id.name),                 // do_classes.jsxi:993
 							objectExpression(definedProperties)
 						])));
 				}
 			} else {
 				var properties = [];
 				
-				result = [                                                         // do_classes.jsxi:993
+				result = [                                                         // do_classes.jsxi:999
 					oneVariableDeclaration(classEntry.id, objectExpression(properties))
 				];
 				
-				for (var __10 = 0; __10 < staticFields.length; __10 ++){           // do_classes.jsxi:996
+				for (var __10 = 0; __10 < staticFields.length; __10 ++){           // do_classes.jsxi:1002
 					var field = staticFields[__10];
 					
-					if (field.publicMode === 'private')                            // do_classes.jsxi:1003
-						result[0].declarations.push(field);                        // do_classes.jsxi:1004
+					if (field.publicMode === 'private')                            // do_classes.jsxi:1009
+						result[0].declarations.push(field);                        // do_classes.jsxi:1010
 					else
 						properties.push(property(field.id, field.init || 'undefined'));
 				}
 				
-				for (var __11 = 0; __11 < staticMethods.length; __11 ++){          // do_classes.jsxi:1010
+				for (var __11 = 0; __11 < staticMethods.length; __11 ++){          // do_classes.jsxi:1016
 					var method = staticMethods[__11];
 					
-					if (method.publicMode === 'private')                           // do_classes.jsxi:1011
-						result.push(method);                                       // do_classes.jsxi:1012
+					if (method.publicMode === 'private')                           // do_classes.jsxi:1017
+						result.push(method);                                       // do_classes.jsxi:1018
 					else
-						properties.push(property(method.id,                        // do_classes.jsxi:1014
+						properties.push(property(method.id,                        // do_classes.jsxi:1020
 							functionExpression(null, method.params, method.body)));
 				}
 			}
 			
-			if (initializer.body.body.length > 0)                                  // do_classes.jsxi:1019
-				result.push(expressionStatement(callExpression(initializer)));     // do_classes.jsxi:1020
+			if (initializer.body.body.length > 0)                                  // do_classes.jsxi:1025
+				result.push(expressionStatement(callExpression(initializer)));     // do_classes.jsxi:1026
 			
-			if (anonymousFunction){                                                // do_classes.jsxi:1023
-				result.push(returnStatement(classEntry.id.name));                  // do_classes.jsxi:1024
+			if (anonymousFunction){                                                // do_classes.jsxi:1029
+				result.push(returnStatement(classEntry.id.name));                  // do_classes.jsxi:1030
 				return [
 					oneVariableDeclaration(classEntry.id, callFunctionExpression(result))
 				];
 			}
-			return result;                                                         // do_classes.jsxi:1028
+			return result;                                                         // do_classes.jsxi:1034
 		}
 		
-		for (var __12 = 0; __12 < classes.length; __12 ++){                        // do_classes.jsxi:1031
+		for (var __12 = 0; __12 < classes.length; __12 ++){                        // do_classes.jsxi:1037
 			var classEntry = classes[__12];
 			
-			classEntry.statements = processClass(classEntry);                      // do_classes.jsxi:1032
+			classEntry.statements = processClass(classEntry);                      // do_classes.jsxi:1038
 		}
 	}
 	
-	function sortAndInsertClasses(){                                               // do_classes.jsxi:1035
-		var sorted = classes.sort(function (a, b){                                 // do_classes.jsxi:1036
-			return b.weight - a.weight;                                            // do_classes.jsxi:1036
+	function sortAndInsertClasses(){                                               // do_classes.jsxi:1041
+		var sorted = classes.sort(function (a, b){                                 // do_classes.jsxi:1042
+			return b.weight - a.weight;                                            // do_classes.jsxi:1042
 		});
 		
-		for (var __13 = 0; __13 < sorted.length; __13 ++){                         // do_classes.jsxi:1037
+		for (var __13 = 0; __13 < sorted.length; __13 ++){                         // do_classes.jsxi:1043
 			var current = sorted[__13];
 			
-			current.root.unshift({                                                 // do_classes.jsxi:1038
-				type: Syntax.ClassDeclaration,                                     // do_classes.jsxi:1038
-				name: current.id.name,                                             // do_classes.jsxi:1040
+			current.root.unshift({                                                 // do_classes.jsxi:1044
+				type: Syntax.ClassDeclaration,                                     // do_classes.jsxi:1044
+				name: current.id.name,                                             // do_classes.jsxi:1046
 				statements: current.statements
 			});
 		}
 	}
 	
-	function replaceClasses(statements){                                           // do_classes.jsxi:1045
+	function replaceClasses(statements){                                           // do_classes.jsxi:1051
 		var base = {};
 		
-		classes.forEach(function (e){                                              // do_classes.jsxi:1048
-			base[e.path + '/' + e.id.name] = {                                     // do_classes.jsxi:1049
-				type: Syntax.ClassDeclaration,                                     // do_classes.jsxi:1049
-				name: e.id.name,                                                   // do_classes.jsxi:1051
+		classes.forEach(function (e){                                              // do_classes.jsxi:1054
+			base[e.path + '/' + e.id.name] = {                                     // do_classes.jsxi:1055
+				type: Syntax.ClassDeclaration,                                     // do_classes.jsxi:1055
+				name: e.id.name,                                                   // do_classes.jsxi:1057
 				statements: e.statements
 			};
 		});
 		
-		function get(c){                                                           // do_classes.jsxi:1056
+		function get(c){                                                           // do_classes.jsxi:1062
 			var k = c.path + '/' + c.id.name;
 			
-			if (base[k]){                                                          // do_classes.jsxi:1058
+			if (base[k]){                                                          // do_classes.jsxi:1064
 				var v = base[k];
 				
-				delete base[k];                                                    // do_classes.jsxi:1060
-				return v;                                                          // do_classes.jsxi:1061
+				delete base[k];                                                    // do_classes.jsxi:1066
+				return v;                                                          // do_classes.jsxi:1067
 			} else {
 				return { type: Syntax.EmptyStatement };
 			}
 		}
 		
-		(function procObj(obj){                                                    // do_classes.jsxi:1067
-			if (obj instanceof Array){                                             // do_classes.jsxi:1068
-				for (var i = 0; i < obj.length; i ++){                             // do_classes.jsxi:1069
+		(function procObj(obj){                                                    // do_classes.jsxi:1073
+			if (obj instanceof Array){                                             // do_classes.jsxi:1074
+				for (var i = 0; i < obj.length; i ++){                             // do_classes.jsxi:1075
 					var child = obj[i];
 					
-					if (child.type === Syntax.RawClassDeclaration){                // do_classes.jsxi:1070
-						procObj(obj[i] = get(child));                              // do_classes.jsxi:1071
+					if (child.type === Syntax.RawClassDeclaration){                // do_classes.jsxi:1076
+						procObj(obj[i] = get(child));                              // do_classes.jsxi:1077
 					} else {
-						procObj(child);                                            // do_classes.jsxi:1073
+						procObj(child);                                            // do_classes.jsxi:1079
 					}
 				}
-			} else if (obj && typeof obj === 'object'){                            // do_classes.jsxi:1076
-				for (var key in obj){                                              // do_classes.jsxi:1077
+			} else if (obj && typeof obj === 'object'){                            // do_classes.jsxi:1082
+				for (var key in obj){                                              // do_classes.jsxi:1083
 					var child = obj[key];
 					
-					if (child && child.type === Syntax.RawClassDeclaration){       // do_classes.jsxi:1078
-						procObj(obj[i] = get(child));                              // do_classes.jsxi:1079
+					if (child && child.type === Syntax.RawClassDeclaration){       // do_classes.jsxi:1084
+						procObj(obj[i] = get(child));                              // do_classes.jsxi:1085
 					} else {
-						procObj(child);                                            // do_classes.jsxi:1081
+						procObj(child);                                            // do_classes.jsxi:1087
 					}
 				}
 			}
 		})(statements);
 	}
 	
-	if (!args.k){                                                                  // do_classes.jsxi:1088
+	if (!args.k){                                                                  // do_classes.jsxi:1094
 		{
 			var __15 = collectRawClasses(statements);
 			
 			for (var __14 = 0; __14 < __15.length; __14 ++){
 				var found = __15[__14];
 				
-				addClass(found);                                                   // do_classes.jsxi:1090
+				addClass(found);                                                   // do_classes.jsxi:1096
 			}
 			
 			__15 = undefined;
 		}
 		
-		if (classes.length > 0){                                                   // do_classes.jsxi:1092
-			preprocessClasses();                                                   // do_classes.jsxi:1093
-			connectClasses();                                                      // do_classes.jsxi:1094
-			processClassesMembers();                                               // do_classes.jsxi:1095
-			processClassesMethods();                                               // do_classes.jsxi:1096
-			processClasses();                                                      // do_classes.jsxi:1097
-			sortAndInsertClasses();                                                // do_classes.jsxi:1098
-			callback(helpers.helpers);                                             // do_classes.jsxi:1100
+		if (classes.length > 0){                                                   // do_classes.jsxi:1098
+			preprocessClasses();                                                   // do_classes.jsxi:1099
+			connectClasses();                                                      // do_classes.jsxi:1100
+			processClassesMembers();                                               // do_classes.jsxi:1101
+			processClassesMethods();                                               // do_classes.jsxi:1102
+			processClasses();                                                      // do_classes.jsxi:1103
+			sortAndInsertClasses();                                                // do_classes.jsxi:1104
+			callback(helpers.helpers);                                             // do_classes.jsxi:1106
 		} else
-			callback();                                                            // do_classes.jsxi:1102
+			callback();                                                            // do_classes.jsxi:1108
 	} else {
 		{
 			var __17 = collectButKeepRawClasses(statements);
@@ -2148,22 +2161,22 @@ function doClasses(statements, callback){                                       
 			for (var __16 = 0; __16 < __17.length; __16 ++){
 				var found = __17[__16];
 				
-				addClass(found);                                                   // do_classes.jsxi:1105
+				addClass(found);                                                   // do_classes.jsxi:1111
 			}
 			
 			__17 = undefined;
 		}
 		
-		if (classes.length > 0){                                                   // do_classes.jsxi:1107
-			preprocessClasses();                                                   // do_classes.jsxi:1108
-			connectClasses();                                                      // do_classes.jsxi:1109
-			processClassesMembers();                                               // do_classes.jsxi:1110
-			processClassesMethods();                                               // do_classes.jsxi:1111
-			processClasses();                                                      // do_classes.jsxi:1112
-			replaceClasses(statements);                                            // do_classes.jsxi:1113
-			callback(helpers.helpers);                                             // do_classes.jsxi:1115
+		if (classes.length > 0){                                                   // do_classes.jsxi:1113
+			preprocessClasses();                                                   // do_classes.jsxi:1114
+			connectClasses();                                                      // do_classes.jsxi:1115
+			processClassesMembers();                                               // do_classes.jsxi:1116
+			processClassesMethods();                                               // do_classes.jsxi:1117
+			processClasses();                                                      // do_classes.jsxi:1118
+			replaceClasses(statements);                                            // do_classes.jsxi:1119
+			callback(helpers.helpers);                                             // do_classes.jsxi:1121
 		} else
-			callback();                                                            // do_classes.jsxi:1117
+			callback();                                                            // do_classes.jsxi:1123
 	}
 }
 
