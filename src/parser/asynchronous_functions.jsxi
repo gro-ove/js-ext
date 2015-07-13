@@ -12,12 +12,23 @@ function makeAsynchronous (body){
 				}
 			} else if (expression.type === Syntax.AssignmentExpression){
 				if (expression.right === asynchronous [0] && asynchronous.length === 1){
-					expression.right.arguments.push (functionExpression (null, [ 
-						identifier ('__result') 
-					], blockStatement ([
-						assignmentStatement (expression.left, identifier ('__result')),
-						callExpression (next)
-					])));
+					if (expression.right.asynchronousTry){
+						expression.right.arguments.push (functionExpression (null, [ 
+							identifier ('__err') 
+							identifier ('__result') 
+						], blockStatement ([
+							assignmentStatement (expression.left, identifier ('__result')),
+							callExpression (next)
+						])));
+					} else {
+						expression.right.arguments.push (functionExpression (null, [ 
+							identifier ('__result') 
+						], blockStatement ([
+							assignmentStatement (expression.left, identifier ('__result')),
+							callExpression (next)
+						])));
+					}
+
 					return expression.right;
 				}
 			}
@@ -32,7 +43,7 @@ function makeAsynchronous (body){
 	function synchronousConvert (statement){
 		astEach (statement, lambda {
 			if (arg.type === Syntax.ReturnStatement)
-				arg.argument = callExpression ('__callback', [ arg.argument ]);
+				arg.argument = callExpression ('__callback', arg.argument ? [ arg.argument ] : []);
 		});
 
 		return statement;
@@ -74,9 +85,9 @@ function makeAsynchronous (body){
 		}
 	}
 
-	blocks[blocks.length - 1].push(expressionStatement(
+	blocks[blocks.length - 1].push(ifStatement(identifier('__callback'), expressionStatement(
 		callExpression(identifier('__callback'))
-	));
+	)));
 
 	body = blocks
 		.map (lambda (arg, index) variableDeclaration([

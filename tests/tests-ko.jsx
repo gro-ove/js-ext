@@ -216,3 +216,21 @@
     });
     @output { 'E' };
 });
+
+@test ('There was a bug', {
+    [ 2 ]
+}, {
+    static class A {
+        public var list = 1;
+
+        external class B {
+            var list = 2;
+
+            (){
+                @output { list };
+            }
+        }
+    }
+
+    new A.B();
+});

@@ -844,97 +844,107 @@ function makeAsynchronous(body){                                                
 				}
 			} else if (expression.type === Syntax.AssignmentExpression){           // asynchronous_functions.jsxi:13
 				if (expression.right === asynchronous[0] && asynchronous.length === 1){
-					expression.right.arguments.push(functionExpression(null,       // asynchronous_functions.jsxi:15
-						[ identifier('__result') ], 
-						blockStatement([                                           // asynchronous_functions.jsxi:17
-							assignmentStatement(expression.left, identifier('__result')), 
-							callExpression(next)
-						])));
-					return expression.right;                                       // asynchronous_functions.jsxi:21
+					if (expression.right.asynchronousTry){                         // asynchronous_functions.jsxi:15
+						expression.right.arguments.push(functionExpression(null, 
+							[ identifier('__err'), identifier('__result') ], 
+							blockStatement([                                       // asynchronous_functions.jsxi:19
+								assignmentStatement(expression.left, identifier('__result')), 
+								callExpression(next)
+							])));
+					} else {
+						expression.right.arguments.push(functionExpression(null, 
+							[ identifier('__result') ], 
+							blockStatement([                                       // asynchronous_functions.jsxi:26
+								assignmentStatement(expression.left, identifier('__result')), 
+								callExpression(next)
+							])));
+					}
+					return expression.right;                                       // asynchronous_functions.jsxi:32
 				}
 			}
 		}
 		
-		throw new JsExtError('NotImplementedError',                                // asynchronous_functions.jsxi:29
+		throw new JsExtError('NotImplementedError',                                // asynchronous_functions.jsxi:40
 			'Not supported asynchronous type' + '\n' + JSON.stringify(statement, false, 
-				4));                                                               // asynchronous_functions.jsxi:29
+				4));                                                               // asynchronous_functions.jsxi:40
 	}
 	
-	function synchronousConvert(statement){                                        // asynchronous_functions.jsxi:32
-		astEach(statement,                                                         // asynchronous_functions.jsxi:33
-			function (arg){                                                        // asynchronous_functions.jsxi:33
-				if (arg.type === Syntax.ReturnStatement)                           // asynchronous_functions.jsxi:34
-					arg.argument = callExpression('__callback', [ arg.argument ]);
+	function synchronousConvert(statement){                                        // asynchronous_functions.jsxi:43
+		astEach(statement,                                                         // asynchronous_functions.jsxi:44
+			function (arg){                                                        // asynchronous_functions.jsxi:44
+				if (arg.type === Syntax.ReturnStatement)                           // asynchronous_functions.jsxi:45
+					arg.argument = callExpression('__callback', arg.argument ? [ arg.argument ] : []);
 			});
-		return statement;                                                          // asynchronous_functions.jsxi:38
+		return statement;                                                          // asynchronous_functions.jsxi:49
 	}
 	
 	var variables = [];
 	
-	astEach(body,                                                                  // asynchronous_functions.jsxi:43
-		function (arg){                                                            // asynchronous_functions.jsxi:43
-			if (arg.type === Syntax.VariableDeclaration){                          // asynchronous_functions.jsxi:43
-				arg.declarations.forEach(function (arg){                           // asynchronous_functions.jsxi:44
-					if (variables.some(function (arg){                             // asynchronous_functions.jsxi:45
-						return arg.id.name === arg.id;                             // asynchronous_functions.jsxi:45
+	astEach(body,                                                                  // asynchronous_functions.jsxi:54
+		function (arg){                                                            // asynchronous_functions.jsxi:54
+			if (arg.type === Syntax.VariableDeclaration){                          // asynchronous_functions.jsxi:54
+				arg.declarations.forEach(function (arg){                           // asynchronous_functions.jsxi:55
+					if (variables.some(function (arg){                             // asynchronous_functions.jsxi:56
+						return arg.id.name === arg.id;                             // asynchronous_functions.jsxi:56
 					}))
 						return;
 					
-					variables.push(variableDeclarator(arg.id));                    // asynchronous_functions.jsxi:46
+					variables.push(variableDeclarator(arg.id));                    // asynchronous_functions.jsxi:57
 				});
 				
-				var inits = arg.declarations.filter(function (arg){                // asynchronous_functions.jsxi:49
-						return arg.init !== null;                                  // asynchronous_functions.jsxi:49
+				var inits = arg.declarations.filter(function (arg){                // asynchronous_functions.jsxi:60
+						return arg.init !== null;                                  // asynchronous_functions.jsxi:60
 					}), 
-					expression = sequenceExpression(inits.map(function (arg){      // asynchronous_functions.jsxi:50
-						return assignmentExpression(arg.id, arg.init);             // asynchronous_functions.jsxi:50
+					expression = sequenceExpression(inits.map(function (arg){      // asynchronous_functions.jsxi:61
+						return assignmentExpression(arg.id, arg.init);             // asynchronous_functions.jsxi:61
 					})), 
-					temp;                                                          // asynchronous_functions.jsxi:51
+					temp;                                                          // asynchronous_functions.jsxi:62
 				
-				if (expression.length === 0)                                       // asynchronous_functions.jsxi:53
-					temp = { type: Syntax.EmptyStatement };                        // asynchronous_functions.jsxi:54
-				else if (expression.expressions.length === 1)                      // asynchronous_functions.jsxi:55
-					temp = expressionStatement(expression.expressions[0]);         // asynchronous_functions.jsxi:56
+				if (expression.length === 0)                                       // asynchronous_functions.jsxi:64
+					temp = { type: Syntax.EmptyStatement };                        // asynchronous_functions.jsxi:65
+				else if (expression.expressions.length === 1)                      // asynchronous_functions.jsxi:66
+					temp = expressionStatement(expression.expressions[0]);         // asynchronous_functions.jsxi:67
 				else
-					temp = expressionStatement(expression);                        // asynchronous_functions.jsxi:58
+					temp = expressionStatement(expression);                        // asynchronous_functions.jsxi:69
 				
-				set(arg, temp);                                                    // asynchronous_functions.jsxi:60
+				set(arg, temp);                                                    // asynchronous_functions.jsxi:71
 			}
 		});
 	
 	var current = [], blocks = [ current ];
 	
-	for (var __0 = 0; __0 < body.length; __0 ++){                                  // asynchronous_functions.jsxi:66
+	for (var __0 = 0; __0 < body.length; __0 ++){                                  // asynchronous_functions.jsxi:77
 		var statement = body[__0];
 		
-		var asynchronous = astEach(statement,                                      // asynchronous_functions.jsxi:67
-			function (arg){                                                        // asynchronous_functions.jsxi:67
-				if (arg.asynchronous)                                              // asynchronous_functions.jsxi:67
-					return arg;                                                    // asynchronous_functions.jsxi:67
+		var asynchronous = astEach(statement,                                      // asynchronous_functions.jsxi:78
+			function (arg){                                                        // asynchronous_functions.jsxi:78
+				if (arg.asynchronous)                                              // asynchronous_functions.jsxi:78
+					return arg;                                                    // asynchronous_functions.jsxi:78
 			});
 		
-		if (asynchronous.length > 0){                                              // asynchronous_functions.jsxi:69
-			current.push(asynchronousConvert(statement, asynchronous));            // asynchronous_functions.jsxi:70
-			blocks.push(current = []);                                             // asynchronous_functions.jsxi:71
+		if (asynchronous.length > 0){                                              // asynchronous_functions.jsxi:80
+			current.push(asynchronousConvert(statement, asynchronous));            // asynchronous_functions.jsxi:81
+			blocks.push(current = []);                                             // asynchronous_functions.jsxi:82
 		} else {
-			current.push(synchronousConvert(statement));                           // asynchronous_functions.jsxi:73
+			current.push(synchronousConvert(statement));                           // asynchronous_functions.jsxi:84
 		}
 	}
 	
-	blocks[blocks.length - 1].push(expressionStatement(callExpression(identifier('__callback'))));
-	body = blocks.map(function (arg, index){                                       // asynchronous_functions.jsxi:81
-		return variableDeclaration([                                               // asynchronous_functions.jsxi:82
-			variableDeclarator(identifier('__block_' + index),                     // asynchronous_functions.jsxi:82
+	blocks[blocks.length - 1].push(ifStatement(identifier('__callback'),           // asynchronous_functions.jsxi:88
+		expressionStatement(callExpression(identifier('__callback')))));           // asynchronous_functions.jsxi:88
+	body = blocks.map(function (arg, index){                                       // asynchronous_functions.jsxi:92
+		return variableDeclaration([                                               // asynchronous_functions.jsxi:93
+			variableDeclarator(identifier('__block_' + index),                     // asynchronous_functions.jsxi:93
 				callExpression(memberExpression(functionExpression(null, [], 
-					blockStatement(arg)),                                          // asynchronous_functions.jsxi:85
-				identifier('bind')),                                               // asynchronous_functions.jsxi:88
+					blockStatement(arg)),                                          // asynchronous_functions.jsxi:96
+				identifier('bind')),                                               // asynchronous_functions.jsxi:99
 				[ thisExpression() ]))
 		]);
-	}).concat(expressionStatement(callExpression('__block_0', [])));               // asynchronous_functions.jsxi:93
+	}).concat(expressionStatement(callExpression('__block_0', [])));               // asynchronous_functions.jsxi:104
 	
-	if (variables.length)                                                          // asynchronous_functions.jsxi:95
-		body.unshift(variableDeclaration(variables));                              // asynchronous_functions.jsxi:96
-	return body;                                                                   // asynchronous_functions.jsxi:98
+	if (variables.length)                                                          // asynchronous_functions.jsxi:106
+		body.unshift(variableDeclaration(variables));                              // asynchronous_functions.jsxi:107
+	return body;                                                                   // asynchronous_functions.jsxi:109
 }
 
 function doClasses(statements, callback){                                          // do_classes.jsxi:1
@@ -3741,59 +3751,64 @@ function parsePrimaryExpression(){                                              
 			if (state.asynchronous && token.value === 'async'){                    // parse_expressions.jsxi:592
 				var next = parseExpression();
 				
-				if (next.type === Syntax.CallExpression){                          // parse_expressions.jsxi:595
-					next.asynchronous = true;                                      // parse_expressions.jsxi:596
-					return next;                                                   // parse_expressions.jsxi:597
+				if (next.type === Syntax.UnaryExpression && next.operator === '-' && lex().value === 'try'){
+					next = parseExpression();                                      // parse_expressions.jsxi:597
+					next.asynchronousTry = true;                                   // parse_expressions.jsxi:598
+				}
+				
+				if (next.type === Syntax.CallExpression){                          // parse_expressions.jsxi:601
+					next.asynchronous = true;                                      // parse_expressions.jsxi:602
+					return next;                                                   // parse_expressions.jsxi:603
 				} else
-					unexpected(token);                                             // parse_expressions.jsxi:599
+					unexpected(token);                                             // parse_expressions.jsxi:605
 			} else
 				return mark({ type: Syntax.Identifier, name: token.value }, token);
-		case Token.Keyword:                                                        // parse_expressions.jsxi:603
-			if (token.value === 'this'){                                           // parse_expressions.jsxi:604
-				lex();                                                             // parse_expressions.jsxi:605
-				return mark({ type: Syntax.ThisExpression }, token);               // parse_expressions.jsxi:606
+		case Token.Keyword:                                                        // parse_expressions.jsxi:609
+			if (token.value === 'this'){                                           // parse_expressions.jsxi:610
+				lex();                                                             // parse_expressions.jsxi:611
+				return mark({ type: Syntax.ThisExpression }, token);               // parse_expressions.jsxi:612
 			}
 			
-			if (token.value === 'function')                                        // parse_expressions.jsxi:609
-				return parseFunctionExpression();                                  // parse_expressions.jsxi:610
+			if (token.value === 'function')                                        // parse_expressions.jsxi:615
+				return parseFunctionExpression();                                  // parse_expressions.jsxi:616
 			
-			if (token.value === 'lambda')                                          // parse_expressions.jsxi:612
-				return parseLambdaExpression();                                    // parse_expressions.jsxi:613
+			if (token.value === 'lambda')                                          // parse_expressions.jsxi:618
+				return parseLambdaExpression();                                    // parse_expressions.jsxi:619
 			
 			break;
-		case Token.StringLiteral:                                                  // parse_expressions.jsxi:617
-			lex();                                                                 // parse_expressions.jsxi:618
+		case Token.StringLiteral:                                                  // parse_expressions.jsxi:623
+			lex();                                                                 // parse_expressions.jsxi:624
 			
-			if (lookahead().value === '(')                                         // parse_expressions.jsxi:619
-				return parseComplexString(token);                                  // parse_expressions.jsxi:620
+			if (lookahead().value === '(')                                         // parse_expressions.jsxi:625
+				return parseComplexString(token);                                  // parse_expressions.jsxi:626
 			else
 				return mark({ type: Syntax.StringLiteral, value: token.value }, token);
-		case Token.NumericLiteral:                                                 // parse_expressions.jsxi:624
-			lex();                                                                 // parse_expressions.jsxi:625
-			return numericLiteral(token.value);                                    // parse_expressions.jsxi:626
-		case Token.BooleanLiteral:                                                 // parse_expressions.jsxi:628
-			lex();                                                                 // parse_expressions.jsxi:629
-			return booleanLiteral(token.value);                                    // parse_expressions.jsxi:630
-		case Token.NullLiteral:                                                    // parse_expressions.jsxi:632
-			lex();                                                                 // parse_expressions.jsxi:633
-			return nullLiteral();                                                  // parse_expressions.jsxi:634
-		case Token.UndefinedLiteral:                                               // parse_expressions.jsxi:636
-			lex();                                                                 // parse_expressions.jsxi:637
-			return undefinedLiteral();                                             // parse_expressions.jsxi:638
-		case Token.Punctuator:                                                     // parse_expressions.jsxi:640
-			switch (token.value){                                                  // parse_expressions.jsxi:641
-				case '[':                                                          // parse_expressions.jsxi:642
-					return parseArrayInitialiser();                                // parse_expressions.jsxi:643
-				case '{':                                                          // parse_expressions.jsxi:645
-					return parseObjectInitialiser();                               // parse_expressions.jsxi:646
-				case '(':                                                          // parse_expressions.jsxi:648
-					return parseGroupExpression();                                 // parse_expressions.jsxi:649
-				case '/':                                                          // parse_expressions.jsxi:651
-					lex();                                                         // parse_expressions.jsxi:652
-					return readRegexp();                                           // parse_expressions.jsxi:653
+		case Token.NumericLiteral:                                                 // parse_expressions.jsxi:630
+			lex();                                                                 // parse_expressions.jsxi:631
+			return numericLiteral(token.value);                                    // parse_expressions.jsxi:632
+		case Token.BooleanLiteral:                                                 // parse_expressions.jsxi:634
+			lex();                                                                 // parse_expressions.jsxi:635
+			return booleanLiteral(token.value);                                    // parse_expressions.jsxi:636
+		case Token.NullLiteral:                                                    // parse_expressions.jsxi:638
+			lex();                                                                 // parse_expressions.jsxi:639
+			return nullLiteral();                                                  // parse_expressions.jsxi:640
+		case Token.UndefinedLiteral:                                               // parse_expressions.jsxi:642
+			lex();                                                                 // parse_expressions.jsxi:643
+			return undefinedLiteral();                                             // parse_expressions.jsxi:644
+		case Token.Punctuator:                                                     // parse_expressions.jsxi:646
+			switch (token.value){                                                  // parse_expressions.jsxi:647
+				case '[':                                                          // parse_expressions.jsxi:648
+					return parseArrayInitialiser();                                // parse_expressions.jsxi:649
+				case '{':                                                          // parse_expressions.jsxi:651
+					return parseObjectInitialiser();                               // parse_expressions.jsxi:652
+				case '(':                                                          // parse_expressions.jsxi:654
+					return parseGroupExpression();                                 // parse_expressions.jsxi:655
+				case '/':                                                          // parse_expressions.jsxi:657
+					lex();                                                         // parse_expressions.jsxi:658
+					return readRegexp();                                           // parse_expressions.jsxi:659
 			}
 		default:
-			unexpected(token);                                                     // parse_expressions.jsxi:657
+			unexpected(token);                                                     // parse_expressions.jsxi:663
 	}
 }
 

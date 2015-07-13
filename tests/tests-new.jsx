@@ -29,20 +29,15 @@
     })([%3])` (code, name, 'test_' + name.replace (/[^a-zA-Z_$]+/g, '_').toLowerCase (), args.slice (1, -1).trim ().replace (/\n/g, ','));
 }
 
-@test ('Fixme', {
-    [ 2 ]
+@test ('Async-Try', {
+    [ "RESULT:@buildTo ('./temp/tests.js')\n\n@macro output:raw-nm (args:raw){\n\treturn 'log ([ %0 ])' (args);\n}\n\n@ma" ]
 }, {
-    static class A {
-        public var list = 1;
-
-        external class B {
-            var list = 2;
-
-            (){
-                @output { list };
-            }
-        }
+    function getFirstHundredSymbols(f) async {
+        var content = async-try require('fs').readFile(f);
+        return content.toString().substr(0, 100);
     }
 
-    new A.B();
+    getFirstHundredSymbols('tests/tests.jsx', lambda {
+        @output { 'RESULT:' + arg };
+    });
 });

@@ -592,6 +592,12 @@ function parsePrimaryExpression (){
 			if (state.asynchronous && token.value === 'async'){
 				var next = parseExpression ();
 
+				// TODO: Make it better
+				if (next.type === Syntax.UnaryExpression && next.operator === '-' && lex().value === 'try'){
+					next = parseExpression ();
+					next.asynchronousTry = true;
+				}
+
 				if (next.type === Syntax.CallExpression){
 					next.asynchronous = true;
 					return next;
