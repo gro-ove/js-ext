@@ -5,12 +5,11 @@ features like macros or classes, some of them are described below.
 
 ### Usage
 
-Coming soon.
+~~Coming soon.~~
 
 ### Features
 
 ##### 1. Macros
-###### NEW
 
 	/*
 		Executing on preprocessing.
@@ -32,7 +31,6 @@ Coming soon.
 	@loadFromFile ('../release-notes.txt');
 
 ##### 2. Classes
-###### NEW
 
 	/*
 		Almost like Java classes; will be converted to JavaScript prototypes.
@@ -61,6 +59,19 @@ Coming soon.
 	}
 	
 	class Child extends Parent {
+		external public class InnerClass {
+			public get currentTime (){
+				return Date.now();
+			}
+
+			/* or more shorter way */
+			public get currentTimeShorter Date.now();
+
+			public toString(){
+				return '[InnerClass]';
+			}
+		}
+
 		static {
 			parentStaticField = 'modified';
 		}
@@ -72,14 +83,14 @@ Coming soon.
 			console.log (
 				'Child constructor', 
 				parentField, 
-				Previous.staticMethod ());
+				Previous.staticMethod (),
+				new InnerClass().currentTime);
 		}
 	}
 
-	console.log (new Child () instanceof Parent);
+	console.log (new Child () instanceof Parent, new Child.InnerClass());
 		
 #### 3. Build-in string formatting 
-###### NEW
 
 	/*
 		Will be transformed to concatenation.
@@ -124,6 +135,33 @@ Coming soon.
 	for (var i, v in-array [ 1 .. numberVariable ])
 		console.log (i, v);
 
-##### 5. Almost full backward compatibility with regular JavaScript Code
+##### 5. Asynchronous code
+###### WIP
+
+	/*
+		Will be flattened into subfunctions.
+	*/
+
+	function wait(delay, fn){
+		setTimeout(fn, delay);
+	}
+	
+	function calculateDelay(delay) async {
+		var start = Date.now();
+		async wait(delay);
+		return Date.now() - start;
+	}
+
+	calculateDelay(1e3, function (result){
+		console.log(result);
+	});
+
+	/* or even like this: */
+	(function () async {
+		var result = async calculateDelay(1e3);
+		console.log(result);
+	})();
+
+##### 6. Full backward compatibility with regular JavaScript Code
 
 	Of course, if you are not going to use such keywords as "uses", "class", "lambda" or something like this.
